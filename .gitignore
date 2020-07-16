@@ -1,0 +1,13 @@
+
+venv/bin/activate
+venv/bin/activate.csh
+venv/bin/activate.fish
+venv/bin/python
+venv/bin/python3
+venv/bin/python3.7
+venv/pyvenv.cfg
+.idea/misc.xml
+.idea/modules.xml
+.idea/music-box-interactive.iml
+.idea/vcs.xml
+.idea/workspace.xml
