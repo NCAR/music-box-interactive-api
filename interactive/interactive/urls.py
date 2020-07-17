@@ -1,5 +1,4 @@
 
-from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
@@ -7,5 +6,5 @@ urlpatterns = [
     path('model_driver/', include('model_driver.urls')),
     path('plots/', include('plots.urls')),
     path('configure/', include('configure.urls')),
-    path('admin/', admin.site.urls),
+    path('mechanism', include('mechanism.urls')),
 ]
