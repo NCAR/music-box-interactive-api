@@ -1,0 +1,11 @@
+{% page content %}
+
+<div class=confighead>Box Model Options</div>
+<form class="config_form" method="post">
+     {% csrf_token %}
+     {{ form|crispy }}
+     <button type="submit">Save</button>
+</form>
+
+{% endpage %}
+

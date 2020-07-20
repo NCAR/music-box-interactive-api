@@ -1,0 +1,60 @@
+.header{
+    font-family: 'Cabin';
+    height: 80px;
+    width: 250px;
+}
+
+.version{
+    font-family: 'Cabin';
+    font-size: 
+}
+
+
+
+.sidenav {
+    height:100%;
+    width:250px;
+    position: fixed;
+    z-index:1;
+    top:80;
+    left:0;
+    background-color:#303030;
+    overflow-x: :hidden;
+    padding-top:20px;
+}
+.sidenav a {
+    padding:6px 8px 20px;
+    text-decoration: none;
+    font-family: 'Cabin';
+    font-size:25px;
+    color: #ffffff;
+    display:block;
+}
+.sidenav a:hover{
+    color: #c4c4c4
+}
+
+.navbar {
+    font-family: 'Cabin';
+    font-size:18px;
+    margin-left: 300px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #ffffff;
+    padding:6px 8px 20px;
+}
+
+.config_form{
+    border: 2px solid white;
+    border-radius: 4px;
+    background-color: ;
+}
+
+
+
+
+
+
+

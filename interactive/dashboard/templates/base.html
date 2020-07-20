@@ -2,42 +2,16 @@
 
 <html lang="en">
 <head>
-<link href='https://fonts.googleapis.com/css?family=Cabin' rel='stylesheet'>
-    <style type="text/css">
-        .sidenav {
-            height:100%;
-            width:250px;
-            position: fixed;
-            z-index:1;
-            top:80;
-            left:0;
-            background-color:#303030;
-            overflow-x: :hidden;
-            padding-top:20px;
-        }
-        .sidenav a {
-            padding:6px 8px 20px;
-            text-decoration: none;
-            font-family: 'Cabin';
-            font-size:25px;
-            color: #ffffff;
-            display:block;
-        }
-        .sidenav a:hover{
-            color: #c4c4c4
-        }
-
-        .main{
-            margin-left:210px;
-            padding: 0px 10px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{% static 'dashboard/style/music_box.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="static/js/jquery"></script>
+    <link href='https://fonts.googleapis.com/css?family=Cabin' rel='stylesheet'>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>MusicBox 2.0</title>
 </head>
-<body style="background-image: url({% static 'background.jpg' %})" >
-    <img src="{% static "logo.jpg" %}" alt="musicbox logo">
+<body>
+    <div class="header">MusicBox</div>
+    <div class="version">v2.0</div>
     <div class="sidenav">
         <a href="/configure">Configure</a>
         <a href="/mechanism">View Mechanism</a>
