@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{% static 'dashboard/style/music_box.css' %}">
+    <link rel="stylesheet" href="{% static 'style/style.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="static/js/jquery"></script>
     <link href='https://fonts.googleapis.com/css?family=Cabin' rel='stylesheet'>
@@ -10,17 +10,18 @@
     <title>MusicBox 2.0</title>
 </head>
 <body>
+
     <div class="header">MusicBox</div>
     <div class="version">v2.0</div>
+        <div id="content" class="main">
+            {% block content %}
+            {% endblock %}
+        </div>
     <div class="sidenav">
-        <a href="/configure">Configure</a>
+        <a id="button1" href="/configure">Configure</a>
         <a href="/mechanism">View Mechanism</a>
         <a href="/plots">Plot Results</a>
         <a href="/docs">Documentation</a>
-    </div>
-    <div id="content" class="main">
-        {% block content %}
-        {% endblock %}
     </div>
 
 </body>

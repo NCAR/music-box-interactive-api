@@ -1,11 +1,19 @@
-{% page content %}
+{% extends "base.html" %}
+{% block content %}
 
-<div class=confighead>Box Model Options</div>
-<form class="config_form" method="post">
-     {% csrf_token %}
-     {{ form|crispy }}
-     <button type="submit">Save</button>
-</form>
+     <div class="navbar">
+        <a href="/configure/options">Model Options</a>
+        <a href="/configure/species">Species</a>
+        <a href="/configure/init-cond">Initial Conditions</a>
+        <a href="/configure/evolv-cond">Evolving Conditions</a>
+        <a href="/configure/photolysis">Photolysis</a>
+        <a href="/configure/review">Review</a>
+     </div>
 
-{% endpage %}
+     <div class=confighead>Initial Conditions</div>
+
+
+{% endblock %}
+
+
 
