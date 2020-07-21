@@ -12,4 +12,5 @@ urlpatterns = [
     path('configure/evolv-cond', views.evolv, name='evolving'),
     path('configure/photolysis', views.photolysis, name='visualize'),
     path('configure/review', views.review, name='visualize'),
+    path('configure', views.configure)
 ]

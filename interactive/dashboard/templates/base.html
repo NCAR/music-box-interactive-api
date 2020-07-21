@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
     <link rel="stylesheet" href="{% static 'style/style.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="static/js/jquery"></script>
@@ -17,11 +18,12 @@
             {% block content %}
             {% endblock %}
         </div>
-    <div class="sidenav">
-        <a id="button1" href="/configure">Configure</a>
-        <a href="/mechanism">View Mechanism</a>
-        <a href="/plots">Plot Results</a>
-        <a href="/docs">Documentation</a>
+    <div class="sidenav" id="sidenav">
+        <a class="main" href="/configure">Configure</a>
+        <a class="main" href="/mechanism">View Mechanism</a>
+        <a class="main" href="/plots">Plot Results</a>
+        <a class="main" href="/docs">Documentation</a>
+        <a class="runlink">RUN</a>
     </div>
 
 </body>
