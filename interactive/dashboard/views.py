@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from .forms import *
 
 def run_model(request):
     context = {}
@@ -22,8 +22,16 @@ def options(request):
 
 
 def species(request):
-    context = {}
-    return render(request, 'config/species.html', context)
+    if request.method == 'POST':
+        newSpecies = SpeciesForm(request.POST)
+        newInits = SpeciesForm(request.POST)
+        newUnits = SpeciesForm(request.POST)
+
+
+        if form1.is_valid():
+            for key in form1.cleaned_data:
+                print(form1.cleaned_data[key], key)
+    return render(request, 'config/species.html', {'form1': SpeciesForm, 'form2': InitForm, 'form3': UnitForm})
 
 
 def init(request):

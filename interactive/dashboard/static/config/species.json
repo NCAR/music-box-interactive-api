@@ -1,0 +1,5 @@
+{
+  "Formula"  : ["Species 1", "Species 2", "Species 3"],
+  "Initial Value"  : ["Initial Value 1", "Initial Value 2", "Initial Value 3"],
+  "Units"  : ["Units 1", "Units 2", "Units 3"]
+}
