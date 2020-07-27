@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .forms import *
+from .forms.speciesforms import *
+from .csvload import handle_uploaded_csv
 
 def run_model(request):
     context = {}
@@ -23,15 +24,34 @@ def options(request):
 
 def species(request):
     if request.method == 'POST':
+        csv = UploadFileForm(request.POST, request.FILES)
         newSpecies = SpeciesForm(request.POST)
-        newInits = SpeciesForm(request.POST)
-        newUnits = SpeciesForm(request.POST)
+        newInits = InitForm(request.POST)
+        newUnits = UnitForm(request.POST)
+
+        if csv.is_valid():
+            handle_uploaded_csv(request.FILES['file'])
+
+            # Dictionaries arent ordered. must find a way to order values into list correctly
+
+        if newSpecies.is_valid():
+            print(newSpecies.cleaned_data)
+
+        if newInits.is_valid():
+            print(newInits.cleaned_data)
+
+        if newUnits.is_valid():
+            print(newUnits.cleaned_data)
 
 
-        if form1.is_valid():
-            for key in form1.cleaned_data:
-                print(form1.cleaned_data[key], key)
-    return render(request, 'config/species.html', {'form1': SpeciesForm, 'form2': InitForm, 'form3': UnitForm})
+
+
+    context = {'form1': SpeciesForm,
+               'form2': InitForm,
+               'form3': UnitForm,
+               'csv_field': UploadFileForm
+               }
+    return render(request, 'config/species.html', context)
 
 
 def init(request):
