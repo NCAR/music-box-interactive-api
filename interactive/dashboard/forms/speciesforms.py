@@ -1,44 +1,33 @@
 from django import forms
-from .formsetup import *
-
-with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
-    data = json.loads(f.read())
+from .formsetup import formula_setup, value_setup, unit_setup
 
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 
-default = data["default"]
-new = data["new"]
-
-formulas = default["Formula"]
-initialValues = default["Initial Value"]
-units = default["Units"]
 
 
-newFormulas = new["Formula"]
-newInitials = new["Initial Value"]
-newUnits = new["Units"]
-
-
-
-class SpeciesForm(forms.Form):
+class FormulaForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(SpeciesForm, self).__init__(*args, **kwargs)
-        for formula, newFormula in zip(formulas, newFormulas):
-            self.fields[formula] = forms.CharField(initial=newFormula)
+        super(FormulaForm, self).__init__(*args, **kwargs)
+        formulas = formula_setup()
+        for key in formulas:
+            self.fields[key] = forms.CharField(initial=formulas[key])
 
 
 class InitForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(InitForm, self).__init__(*args, **kwargs)
-        for initialValue, newInitial in zip(initialValues, newInitials):
-            self.fields[initialValue] = forms.FloatField(initial=newInitial)
+        values = value_setup()
+        for key in values:
+            self.fields[key] = forms.FloatField(initial=values[key])
 
 
 class UnitForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(UnitForm, self).__init__(*args, **kwargs)
-        for unit, newUnit in zip(units, newUnits):
-            self.fields[unit] = forms.ChoiceField(choices=[('mol m-3', 'mol-m-3')])
+        units = unit_setup()
+        for key in units:
+            self.fields[key] = forms.ChoiceField(choices=[('mol m-3', 'mol-m-3',), ('mol/L', 'mol/L')])
+

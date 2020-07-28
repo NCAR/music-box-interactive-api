@@ -1,10 +1,20 @@
 {
-  "default" : {"Formula"  : ["Species 1", "Species 2", "Species 3", "Species 4", "Species 5"],
-    "Initial Value"  :      ["Initial Value 1", "Initial Value 2", "Initial Value 3", "Initial Value 4", "Initial Value 5"],
-    "Units"  :              ["Units 1", "Units 2", "Units 3", "Units 4", "Units 5"]},
-  "new": {
-    "Formula":              ["NO2", "O2", "O3", "ISOP", "CO2"],
-    "Initial Value":        [1,1.23, 0.09, 0.23, 0.54],
-    "Units":                ["mol m-3","mol m-3 ","mol m-3 ","mol m-3 ","mol m-3 "]
-  }
+    "formula": {
+        "Species 1": "test",
+        "Species 2": "test2",
+        "Species 3": "test3",
+        "Species 4": "O2"
+    },
+    "value": {
+        "Species 1": 5.12,
+        "Species 2": 0.013,
+        "Species 3": 0.973,
+        "Species 4": -0.77
+    },
+    "unit": {
+        "Species 1": "mol/L",
+        "Species 2": "mol/L",
+        "Species 3": "mol m-3",
+        "Species 4": "mol m-3"
+    }
 }

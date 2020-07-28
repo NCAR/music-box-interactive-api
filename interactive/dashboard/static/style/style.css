@@ -52,14 +52,18 @@ body {
     color: #ffffff;
     display:block;
 }
-.sidenav a:hover{
-    color: #bfbfbf;
-}
 
 .runlink {
-    background-color: white;
     color: black;
+    padding: 0px 20px;
+
 }
+
+.sidenav a:hover{
+    color: #bfbfbf;
+    margin-left: 20px;
+}
+
 
 .navbar {
     font-family: 'Cabin';
@@ -81,16 +85,27 @@ body {
     color: #bfbfbf;
 }
 
+.sidenav img {
+    top: 800;
+    width: 240px;
+    background-color: white;
+    padding: 5px 5px;
+}
+
 .configbox .configform {
     display: inline-block;
     width: 20%
     margin-left: 10%;
     z-index: 100;
     background-color: ;
-    color: black;
+    color: #2E6492;
     font-family: 'Cabin';
     font-size: 18px;
-    padding: 12px 20px;
+    padding: 0px 0px;
+}
+
+h3 {
+    color: black;
 }
 
 .configbox .configform control-group{
@@ -120,9 +135,8 @@ input {
 
 
 .configbox{
-    border: 2px solid white;
-    margin-left: 260px;
-    margin-top: 110px;
+    margin-left: 270px;
+    margin-top: 115px;
 }
 
 

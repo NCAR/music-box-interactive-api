@@ -1,24 +1,31 @@
 import json
 
-def speciesSetup():
+
+def formula_setup():
     with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
-        blankSpecies = json.loads(f.read())
+        data = json.loads(f.read())
 
-    formulas = blankSpecies["default"]["Formula"]
-    initialValues = blankSpecies["default"]["Initial Value"]
-    units = blankSpecies["default"]["Units"]
-
-    return [formulas, initialValues, units]
+    formulas = data["formula"]
+    print(formulas)
+    return formulas
 
 
-def loadconfig():
+def value_setup():
     with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
-        blankSpecies = json.loads(f.read())
+        data = json.loads(f.read())
 
-    formulas = blankSpecies["new"]["Formula"]
-    initialValues = blankSpecies["new"]["Initial Value"]
-    units = blankSpecies["new"]["Units"]
-
-    return [formulas, initialValues, units]
+    values = data["value"]
+    return values
 
 
+def unit_setup():
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+        data = json.loads(f.read())
+
+    units = data["unit"]
+    return units
+
+
+formula_setup()
+value_setup()
+unit_setup()
