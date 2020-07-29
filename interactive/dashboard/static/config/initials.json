@@ -1,0 +1,10 @@
+{
+    "values": {
+        "temperature": 305.0,
+        "pressure": -1.05
+    },
+    "units": {
+        "temperature": "K",
+        "pressure": "kPa"
+    }
+}

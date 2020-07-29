@@ -17,6 +17,7 @@ urlpatterns = [
     path('configure/save-formula', views.species),
     path('configure/save-unit', views.units),
     path('configure/new-species', views.new_species),
-    path('configure/species-csv', views.csv)
-
+    path('configure/species-csv', views.csv),
+    path('configure/cond-csv', views.init_csv),
+    path('configure/cond-units', views.init_units)
 ]

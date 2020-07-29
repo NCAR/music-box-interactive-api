@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from .forms.speciesforms import *
+from .forms.optionsforms import *
+from .forms.initial_condforms import *
 from .csvload import handle_uploaded_csv
 from .save import *
 
@@ -23,9 +25,7 @@ def species(request):
         newFormula = FormulaForm(request.POST)
 
         if newFormula.is_valid():
-            with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/post.json',
-                      'w') as outfile:
-                json.dump(newFormula.cleaned_data, outfile, indent=4)
+            load(newFormula.cleaned_data)
             save("formula")
             formula_setup()
 
@@ -43,9 +43,7 @@ def values(request):
         newInits = InitForm(request.POST)
 
         if newInits.is_valid():
-            with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/post.json',
-                      'w') as outfile:
-                json.dump(newInits.cleaned_data, outfile, indent=4)
+            load(newInits.cleaned_data)
             save("value")
             value_setup()
 
@@ -64,9 +62,7 @@ def units(request):
         newUnits = UnitForm(request.POST)
 
         if newUnits.is_valid():
-            with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/post.json',
-                      'w') as outfile:
-                json.dump(newUnits.cleaned_data, outfile, indent=4)
+            load(newUnits.cleaned_data)
             save("unit")
             unit_setup()
 
@@ -108,13 +104,68 @@ def configure(request):
 
 
 def options(request):
-    context = {}
+    if request.method == 'POST':
+        newOptions = OptionsForm(request.POST)
+
+        if newOptions.is_valid():
+            newOptions = newOptions.cleaned_data
+            load(newOptions)
+            save("options")
+    option_setup()
+
+    context = {
+        'form': OptionsForm
+    }
     return render(request, 'config/options.html', context)
 
 
-
 def init(request):
-    context = {}
+    if request.method == 'POST':
+        newConditions = InitialConditionsForm(request.POST)
+
+        if newConditions.is_valid():
+            newConditions = newConditions.cleaned_data
+            load(newConditions)
+            save("conditions")
+
+
+    context = {
+        'form': InitialConditionsForm,
+        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
+        'csv_field' : UploadInitFileForm
+    }
+    return render(request, 'config/init-cond.html', context)
+
+
+def init_units(request):
+    if request.method == 'POST':
+        newUnits = ConditionsUnitsForm(request.POST)
+
+        if newUnits.is_valid():
+            newUnits = newUnits.cleaned_data
+            load(newUnits)
+            save("cond_units")
+
+
+    context = {
+        'form': InitialConditionsForm,
+        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
+        'csv_field' : UploadInitFileForm
+    }
+    return render(request, 'config/init-cond.html', context)
+
+
+def init_csv(request):
+    if request.method == 'POST':
+        form = UploadFileForm( request.FILES)
+        if form.is_valid():
+            handle_uploaded_csv(request.FILES['file'])
+
+    context = {
+        'form': InitialConditionsForm,
+        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
+        'csv_field': UploadInitFileForm
+    }
     return render(request, 'config/init-cond.html', context)
 
 

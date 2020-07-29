@@ -25,6 +25,15 @@ def unit_setup():
     return units
 
 
-formula_setup()
-value_setup()
-unit_setup()
+def option_setup():
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/options.json') as f:
+        data = json.loads(f.read())
+
+    return data
+
+
+def ini_cond_setup():
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/initials.json') as f:
+        data = json.loads(f.read())
+
+    return data
