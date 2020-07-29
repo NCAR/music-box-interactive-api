@@ -6,7 +6,6 @@ def formula_setup():
         data = json.loads(f.read())
 
     formulas = data["formula"]
-    print(formulas)
     return formulas
 
 

@@ -51,6 +51,7 @@ body {
     font-size:25px;
     color: #ffffff;
     display:block;
+    transition-duration: 0.3s;
 }
 
 .runlink {
@@ -139,4 +140,19 @@ input {
     margin-top: 115px;
 }
 
-
+button {
+    font-family: 'Cabin';
+    color: white;
+    padding: 10px 24px;
+    font-size: 16px;
+    background-color: #303030;
+    border-radius: 3px;
+    border: 2px solid #303030;;
+}
+button:hover {
+    background: white;
+    font-size: 16px;
+    border: 2px solid #303030;
+    border-radius: 3px;
+    color: #303030;
+}

@@ -4,18 +4,13 @@
 <head>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
     <link rel="stylesheet" href="{% static 'style/style.css' %}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="static/js/jquery"></script>
     <link href='https://fonts.googleapis.com/css?family=Cabin' rel='stylesheet'>
     <meta charset="UTF-8">
     <title>MusicBox 2.0</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
 </head>
 <body>
 
-    <div class="header">MusicBox</div>
+    <div id="head" class="header">MusicBox</div>
     <div class="version">v2.0</div>
         <div id="content" class="main">
             {% block content %}
@@ -29,6 +24,7 @@
         <a class="runlink">RUN</a>
         <img id="logo" src="{% static 'style/logo.png' %}">
     </div>
+
 
 
 </body>

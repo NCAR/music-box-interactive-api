@@ -78,6 +78,18 @@ def units(request):
     return render(request, 'config/species.html', context)
 
 
+def csv(request):
+    if request.method == 'POST':
+        form = UploadFileForm( request.FILES)
+        if form.is_valid():
+            handle_uploaded_csv(request.FILES['file'])
+
+    context = {'form1': FormulaForm,
+               'form2': InitForm,
+               'form3': UnitForm(initial=unit_setup()),
+               'csv_field': UploadFileForm
+               }
+    return render(request, 'config/species.html', context)
 
 
 def run_model(request):
@@ -119,3 +131,4 @@ def photolysis(request):
 def review(request):
     context = {}
     return render(request, 'config/review.html', context)
+

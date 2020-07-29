@@ -34,7 +34,7 @@ def new():
     number = 1+ len(config['formula'])
     name = 'Species ' + str(number)
 
-    config['formula'].update({name: "formula"})
+    config['formula'].update({name: "Enter Formula"})
 
     config['value'].update({name: 0})
 
