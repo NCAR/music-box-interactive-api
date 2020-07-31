@@ -161,3 +161,16 @@ button:hover {
     border-radius: 3px;
     color: #303030;
 }
+
+#run {
+    background: white;
+    color: black;
+    margin-top: 60px;
+    margin-bottom: 60px;
+
+}
+
+#run:hover {
+    background: #c4c4c4;
+    color: black;
+}
