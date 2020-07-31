@@ -78,12 +78,17 @@ body {
 .navbar a {
     text-decoration: none;
     color: white;
-    padding:6px 8px 20px;
+    padding:6px 8px 6px;
+    border: 3px solid #2E6492;
 
 }
 
 .navbar a:hover{
     color: #bfbfbf;
+    border: 3px solid #bfbfbf;
+}
+.navbar .selection{
+    border: 3px solid white;
 }
 
 .sidenav img {

@@ -1,4 +1,7 @@
 {
-    "temperature": "K",
-    "pressure": "kPa"
+    "Species 1": "CO2",
+    "Species 2": "Ar",
+    "Species 3": "CO",
+    "Species 4": "test1",
+    "Species 5": "Enter Formula"
 }

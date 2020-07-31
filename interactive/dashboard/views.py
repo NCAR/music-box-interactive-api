@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from .forms.speciesforms import *
 from .forms.optionsforms import *
+from .forms.evolvingforms import *
 from .forms.initial_condforms import *
+from .forms.photolysisforms import *
 from .csvload import handle_uploaded_csv
 from .save import *
 
@@ -99,7 +101,9 @@ def visualize(request):
 
 
 def configure(request):
-    context = {}
+    context = {
+        'form': OptionsForm
+    }
     return render(request, 'config/options.html', context)
 
 
@@ -170,12 +174,16 @@ def init_csv(request):
 
 
 def evolv(request):
-    context = {}
+    context = {
+        'csv_field': UploadEvolvFileForm
+    }
     return render(request, 'config/evolv-cond.html', context)
 
 
 def photolysis(request):
-    context = {}
+    context = {
+        'csv_field': UploadPhotoFileForm
+    }
     return render(request, 'config/photolysis.html', context)
 
 

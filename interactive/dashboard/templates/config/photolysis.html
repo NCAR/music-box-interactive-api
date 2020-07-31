@@ -6,11 +6,20 @@
         <a href="/configure/species">Species</a>
         <a href="/configure/init-cond">Initial Conditions</a>
         <a href="/configure/evolv-cond">Evolving Conditions</a>
-        <a href="/configure/photolysis">Photolysis</a>
+        <a class="selection" href="/configure/photolysis">Photolysis</a>
         <a href="/configure/review">Review</a>
      </div>
 
      <div class=confighead>Photolysis Options</div>
+
+<div class="configbox">
+          <form method="POST" action="cond-csv">
+            {% csrf_token %}
+            {{ csv_field }}
+            <button type="submit">Upload</button>
+         </form>
+</div>
+
 
 
 {% endblock %}

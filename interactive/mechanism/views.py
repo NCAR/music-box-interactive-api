@@ -1,3 +1,6 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def mechanism(request):
+    context = {}
+    return render(request, 'mechanism.html', context)
