@@ -1,18 +1,18 @@
 {
     "box model options": {
-        "grid": "box",
+        "grid": "column",
         "chemistry time step [min]": 6.0,
         "output time step [hr]": 1.0,
         "simulation length [hr]": 2.0
     },
     "chemical species": {
-        "CO2": {
-            "initial value [mol m-3]": 2e-07
+        "test1": {
+            "initial value [mol m-3]": 4.0000002
         },
-        "Ar": {
+        "test2": {
             "initial value [mol/L]": 1.34e-06
         },
-        "CO": {
+        "test3": {
             "initial value [mol m-3]": 2.1e-08
         }
     },

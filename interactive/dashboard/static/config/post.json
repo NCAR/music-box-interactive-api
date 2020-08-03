@@ -1,5 +1,5 @@
 {
-    "Species 1": "test1",
-    "Species 2": "test2",
-    "Species 3": "test3"
+    "Species 1": 4.0,
+    "Species 2": 1.34e-06,
+    "Species 3": 2.1e-08
 }

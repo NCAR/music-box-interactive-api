@@ -1,6 +1,6 @@
 {
-    "grid": "box",
-    "chemistry_time_step": 6.0,
-    "output_time_step": 1.0,
+    "grid": "column",
+    "chemistry_time_step": 7.0,
+    "output_time_step": 2.0,
     "simulation_length": 2.0
 }

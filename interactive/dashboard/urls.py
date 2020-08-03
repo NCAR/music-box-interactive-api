@@ -4,7 +4,7 @@ from . import views
 
 app_name = 'dashboard'
 urlpatterns = [
-    path('',          views.configure, name='default'),
+    path('',          views.options, name='default'),
     path('visualize', views.visualize, name='visualize'),
     path('configure/options', views.options, name='options'),
     path('configure/species', views.values, name='species'),
@@ -12,7 +12,7 @@ urlpatterns = [
     path('configure/evolv-cond', views.evolv, name='evolving'),
     path('configure/photolysis', views.photolysis, name='visualize'),
     path('configure/review', views.review, name='visualize'),
-    path('configure', views.configure),
+    path('configure', views.options),
     path('configure/save-value', views.values),
     path('configure/save-formula', views.species),
     path('configure/save-unit', views.units),
