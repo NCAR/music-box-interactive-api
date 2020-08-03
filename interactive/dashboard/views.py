@@ -101,6 +101,7 @@ def visualize(request):
 
 
 def configure(request):
+    export()
     context = {
         'form': OptionsForm
     }

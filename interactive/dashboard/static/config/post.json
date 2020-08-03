@@ -1,4 +1,5 @@
 {
-    "temperature": "K",
-    "pressure": "kPa"
+    "Species 1": "test1",
+    "Species 2": "test2",
+    "Species 3": "test3"
 }

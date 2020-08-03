@@ -19,7 +19,7 @@
             {{ csv_field }}
             <button type="submit">Upload</button>
         </form>
-     <div class="configform">
+     <div class="specform">
          <h3 class="columnhead">Species Formula:</h3>
          <form class="col1" method='POST' action="save-formula">
              {% csrf_token %}
@@ -28,7 +28,7 @@
          </form>
      </div>
 
-     <div class="configform">
+     <div class="specform">
          <h3 class="columnhead">Initial Concentration:</h3>
          <form class="col2" method='POST' action="save-value">
              {% csrf_token %}
@@ -38,7 +38,7 @@
           </form>
      </div>
 
-     <div class="configform" id="unitform">
+     <div class="specform" id="unitform">
          <h3 class="columnhead">Units:</h3>
          <form class="col3" method='POST' action="save-unit">
              {% csrf_token %}
