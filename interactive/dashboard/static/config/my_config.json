@@ -1,2 +1,27 @@
 {
+    "box model options": {
+        "grid": "box",
+        "chemistry time step [min]": 6.0,
+        "output time step [hr]": 1.0,
+        "simulation length [hr]": 2.0
+    },
+    "chemical species": {
+        "CO2": {
+            "initial value [mol/L]": 2e-07
+        },
+        "Ar": {
+            "initial value [mol/L]": 1.34e-06
+        },
+        "CO": {
+            "initial value [mol m-3]": 2.1e-08
+        }
+    },
+    "environmental conditions": {
+        "temperature": {
+            "initial value [K]": 305.0
+        },
+        "pressure": {
+            "initial value [kPa]": 0.95
+        }
+    }
 }

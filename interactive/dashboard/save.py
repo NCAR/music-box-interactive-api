@@ -80,4 +80,64 @@ def new():
         json.dump(config, f, indent=4)
 
 
+def export():
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as a:
+        species = json.loads(a.read())
+
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/options.json') as b:
+        options = json.loads(b.read())
+
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/initials.json') as c:
+        initials = json.loads(c.read())
+
+    config = {}
+
+    # write model options section
+
+    options_section = {}
+
+    options_section.update({"grid": options["grid"]})
+    options_section.update({"chemistry time step [min]": options["chemistry_time_step"]})
+    options_section.update({"output time step [hr]": options["output_time_step"]})
+    options_section.update({"simulation length [hr]": options["simulation_length"]})
+
+    # write chemical species section
+
+    species_section = {}
+
+    for i in species["formula"]:
+
+        formula = species["formula"][i]
+        units = species["unit"][i]
+        value = species["value"][i]
+
+        string = "initial value " + "[" + units + "]"
+
+        species_section.update({formula: {string: value}})
+
+    # write initial conditions section
+
+    init_section = {}
+
+    for i in initials["values"]:
+        name = i
+        units = initials["units"][i]
+        value = initials["values"][i]
+
+        string = "initial value " + "[" + units + "]"
+
+        init_section.update({name: {string: value}})
+
+    # write sections to main dict
+
+    config.update({"box model options": options_section})
+    config.update({"chemical species": species_section})
+    config.update({"environmental conditions": init_section})
+
+    # write dict as json
+
+    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/my_config.json',
+              'w') as f:
+        json.dump(config, f, indent=4)
+
 
