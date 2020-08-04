@@ -10,6 +10,7 @@ from matplotlib.ticker import *
 import matplotlib.pyplot as plt
 from pylab import *
 import PIL, PIL.Image, io
+import pandas
 
 def get(request):
 
@@ -17,19 +18,29 @@ def get(request):
         matplotlib.use('agg')
 
         (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
-
-        results_path = os.path.join(os.environ['MUSIC_BOX_OUTPUT_DIR'], "MusicBox_output.nc")
-        ncf = scipy.io.netcdf_file(results_path)
-
-        time = ncf.variables["time"].data.copy()
-
-
         props = request.GET.get('props', None).split(",")
-        for prop in props:
-            var   = ncf.variables[prop].data.copy()
-            units = ncf.variables[prop].units
-            axes.plot(time, var, "-", label=prop.replace("_"," "))
 
+        # NetCDF output file
+        nc_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
+        csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+        if os.path.isfile(nc_results_path):
+            ncf = scipy.io.netcdf_file(results_path)
+            time = ncf.variables["time"].data.copy()
+            for prop in props:
+                var   = ncf.variables[prop].data.copy()
+                units = ncf.variables[prop].units
+                axes.plot(time, var, "-", label=prop.replace("_"," "))
+        # CSV output file
+        elif os.path.isfile(csv_results_path):
+            csv = pandas.read_csv(csv_results_path, index_col="time")
+            csv_props = data.columns.str.strip('ENV.').strip('CONC.')
+            data.columns = csv_props
+            units = "unknown"
+            time = csv.loc["time"]
+            for prop in props:
+                csv.plot(x="time", y=prop, ax=axes, legend=prop.replace("_"," "))
+        else:
+            return HttpResponseBadRequest('Missing results file', status=405)
 
         length = time[-1]
         grad = length / 6
@@ -42,7 +53,6 @@ def get(request):
         axes.set_ylabel(units.decode('utf-8'))
         axes.legend()
         axes.grid(True)
-        
 
 
         # Store image in a string buffer
