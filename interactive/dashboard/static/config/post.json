@@ -1,5 +1,4 @@
 {
-    "Species 1": 4.0,
-    "Species 2": 1.34e-06,
-    "Species 3": 2.1e-08
+    "temperature": 290.0,
+    "pressure": 0.9
 }

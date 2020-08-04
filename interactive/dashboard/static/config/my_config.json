@@ -1,27 +1,30 @@
 {
     "box model options": {
         "grid": "column",
-        "chemistry time step [min]": 6.0,
-        "output time step [hr]": 1.0,
+        "chemistry time step [min]": 7.0,
+        "output time step [hr]": 2.0,
         "simulation length [hr]": 2.0
     },
     "chemical species": {
-        "test1": {
-            "initial value [mol m-3]": 4.0000002
+        "CO2": {
+            "initial value [mol m-3]": 1.0
         },
-        "test2": {
-            "initial value [mol/L]": 1.34e-06
+        "NO": {
+            "initial value [mol/L]": 2.0
         },
-        "test3": {
-            "initial value [mol m-3]": 2.1e-08
+        "O3": {
+            "initial value [mol m-3]": 3.0
+        },
+        "ISOP": {
+            "initial value [mol m-3]": 4.0
         }
     },
     "environmental conditions": {
         "temperature": {
-            "initial value [K]": 305.0
+            "initial value [K]": 290.0
         },
         "pressure": {
-            "initial value [kPa]": 0.95
+            "initial value [kPa]": 0.9
         }
     }
 }

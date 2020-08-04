@@ -4,7 +4,7 @@ from .forms.optionsforms import *
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .forms.photolysisforms import *
-from .csvload import handle_uploaded_csv
+from .csvload import handle_uploaded_csv, read_csv
 from .save import *
 
 
@@ -78,7 +78,7 @@ def units(request):
 
 def csv(request):
     if request.method == 'POST':
-        form = UploadFileForm( request.FILES)
+        form = UploadFileForm(request.FILES)
         if form.is_valid():
             handle_uploaded_csv(request.FILES['file'])
 
