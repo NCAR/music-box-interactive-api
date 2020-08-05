@@ -114,7 +114,6 @@ body {
     display: inline-block;
     color: #2E6492;
     font-family: 'Cabin';
-
 }
 
 h3 {
@@ -231,6 +230,7 @@ select {
     color: #bfbfbf;
     border: 3px solid #bfbfbf;
 }
+
 .mechnav .selection{
     border: 3px solid white;
 }
