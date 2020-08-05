@@ -1,8 +1,8 @@
 {
     "box model options": {
-        "grid": "box",
-        "chemistry time step [min]": 6.0,
-        "output time step [hr]": 1.0,
+        "grid": "column",
+        "chemistry time step [min]": 7.0,
+        "output time step [hr]": 2.0,
         "simulation length [hr]": 2.0
     },
     "chemical species": {
@@ -18,10 +18,10 @@
     },
     "environmental conditions": {
         "temperature": {
-            "initial value [K]": 305.0
+            "initial value [K]": 290.0
         },
         "pressure": {
-            "initial value [kPa]": 0.95
+            "initial value [kPa]": 0.9
         }
     }
 }
