@@ -6,13 +6,13 @@
         "simulation length [hr]": 2.0
     },
     "chemical species": {
-        "CO2": {
+        "test1": {
             "initial value [mol m-3]": 2e-07
         },
-        "Ar": {
+        "test2": {
             "initial value [mol/L]": 1.34e-06
         },
-        "CO": {
+        "test3": {
             "initial value [mol m-3]": 2.1e-08
         }
     },
