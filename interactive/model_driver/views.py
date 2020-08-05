@@ -18,7 +18,7 @@ def run(request):
         os.remove(running_path)
     if os.path.isfile(done_path):
         os.remove(done_path)
-    process = subprocess.Popen(r'./music-box ../music-box-interactive/interactive/dashboard/static/config/my_config.json', cwd=mb_dir)
+    process = subprocess.Popen(r'./music_box ../music-box-interactive/interactive/dashboard/static/config/my_config.json', cwd=mb_dir)
     return JsonResponse({ "status" : "started"})
 
 def check_status(request):
