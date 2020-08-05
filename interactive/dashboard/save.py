@@ -12,6 +12,77 @@ def load(dict):
         json.dump(dict, outfile, indent=4)
 
 
+# Combines all individual configuration json files and writes to the config file readable by the mode
+def export():
+    with open(os.path.join(config_path, "species.json")) as a:
+        species = json.loads(a.read())
+
+    with open(os.path.join(config_path, "options.json")) as b:
+        options = json.loads(b.read())
+
+    with open(os.path.join(config_path, "initials.json")) as c:
+        initials = json.loads(c.read())
+
+    config = {}
+
+    # write model options section
+
+    options_section = {}
+
+    options_section.update({"grid": options["grid"]})
+    options_section.update({"chemistry time step [min]": options["chemistry_time_step"]})
+    options_section.update({"output time step [hr]": options["output_time_step"]})
+    options_section.update({"simulation length [hr]": options["simulation_length"]})
+
+    # write chemical species section
+
+    species_section = {}
+
+    for i in species["formula"]:
+
+        formula = species["formula"][i]
+        units = species["unit"][i]
+        value = species["value"][i]
+
+        string = "initial value " + "[" + units + "]"
+
+        species_section.update({formula: {string: value}})
+
+    # write initial conditions section
+
+    init_section = {}
+
+    for i in initials["values"]:
+        name = i
+        units = initials["units"][i]
+        value = initials["values"][i]
+
+        string = "initial value " + "[" + units + "]"
+
+        init_section.update({name: {string: value}})
+
+    # write sections to main dict
+
+    config.update({"box model options": options_section})
+    config.update({"chemical species": species_section})
+    config.update({"environmental conditions": init_section})
+    config.update({
+        "chemistry": {
+            "type": "MICM",
+            "solver": {
+                "type": "Rosenbrock",
+                "absolute tolerance": 1.0e-12,
+                "relative tolerance": 1.0e-4
+            }
+        }
+    })
+
+    # write dict as json
+
+    with open(os.path.join(config_path, "my_config.json"), 'w') as f:
+        json.dump(config, f, indent=4)
+
+
 # Save the data from the post request to the relevant configuration json
 
 def save(type):
@@ -75,6 +146,8 @@ def save(type):
         with open(os.path.join(config_path, "initials.json"), 'w') as f:
             json.dump(initials, f, indent=4)
 
+    export()
+
 
 # Adds a new blank species to the species configuration json
 
@@ -93,67 +166,4 @@ def new():
 
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(config, f, indent=4)
-
-
-# Combines all individual configuration json files and writes to the config file readable by the mode
-
-def export():
-    with open(os.path.join(config_path, "species.json")) as a:
-        species = json.loads(a.read())
-
-    with open(os.path.join(config_path, "options.json")) as b:
-        options = json.loads(b.read())
-
-    with open(os.path.join(config_path, "initials.json")) as c:
-        initials = json.loads(c.read())
-
-    config = {}
-
-    # write model options section
-
-    options_section = {}
-
-    options_section.update({"grid": options["grid"]})
-    options_section.update({"chemistry time step [min]": options["chemistry_time_step"]})
-    options_section.update({"output time step [hr]": options["output_time_step"]})
-    options_section.update({"simulation length [hr]": options["simulation_length"]})
-
-    # write chemical species section
-
-    species_section = {}
-
-    for i in species["formula"]:
-
-        formula = species["formula"][i]
-        units = species["unit"][i]
-        value = species["value"][i]
-
-        string = "initial value " + "[" + units + "]"
-
-        species_section.update({formula: {string: value}})
-
-    # write initial conditions section
-
-    init_section = {}
-
-    for i in initials["values"]:
-        name = i
-        units = initials["units"][i]
-        value = initials["values"][i]
-
-        string = "initial value " + "[" + units + "]"
-
-        init_section.update({name: {string: value}})
-
-    # write sections to main dict
-
-    config.update({"box model options": options_section})
-    config.update({"chemical species": species_section})
-    config.update({"environmental conditions": init_section})
-
-    # write dict as json
-
-    with open(os.path.join(config_path, "my_config.json"), 'w') as f:
-        json.dump(config, f, indent=4)
-
 

@@ -2,7 +2,7 @@ import json
 
 
 def formula_setup():
-    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+    with open('/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
         data = json.loads(f.read())
 
     formulas = data["formula"]
@@ -10,7 +10,7 @@ def formula_setup():
 
 
 def value_setup():
-    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+    with open('/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
         data = json.loads(f.read())
 
     values = data["value"]
@@ -18,7 +18,7 @@ def value_setup():
 
 
 def unit_setup():
-    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+    with open('/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
         data = json.loads(f.read())
 
     units = data["unit"]
@@ -26,14 +26,14 @@ def unit_setup():
 
 
 def option_setup():
-    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/options.json') as f:
+    with open('/music-box-interactive/interactive/dashboard/static/config/options.json') as f:
         data = json.loads(f.read())
 
     return data
 
 
 def ini_cond_setup():
-    with open('/Users/simonthomas/music-box-interactive/interactive/dashboard/static/config/initials.json') as f:
+    with open('/music-box-interactive/interactive/dashboard/static/config/initials.json') as f:
         data = json.loads(f.read())
 
     return data
