@@ -3,8 +3,10 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 import json
 import os.path
 import subprocess
+from interactive.dashboard.save import export
 
 def run(request):
+    export()
     mb_dir           = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
     nc_outfile_path  = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
     csv_outfile_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
