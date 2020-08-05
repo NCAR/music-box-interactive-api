@@ -12,6 +12,7 @@ from pylab import *
 import PIL, PIL.Image, io
 import pandas
 
+
 def get(request):
 
     if request.method == 'GET':
