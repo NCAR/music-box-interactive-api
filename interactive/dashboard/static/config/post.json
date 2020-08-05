@@ -1,5 +1,4 @@
 {
-    "Species 1": "test1",
-    "Species 2": "test2",
-    "Species 3": "test3"
+    "temperature": 290.0,
+    "pressure": 0.9
 }

@@ -1,7 +1,7 @@
 {
     "values": {
-        "temperature": 305.0,
-        "pressure": 0.95
+        "temperature": 290.0,
+        "pressure": 0.9
     },
     "units": {
         "temperature": "K",

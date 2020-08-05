@@ -5,10 +5,14 @@ from django.conf import settings
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 
+# Put the data from post request into post.json
+
 def load(dict):
     with open(os.path.join(config_path, "post.json"), 'w') as outfile:
         json.dump(dict, outfile, indent=4)
 
+
+# Save the data from the post request to the relevant configuration json
 
 def save(type):
     with open(os.path.join(config_path, "post.json")) as g:
@@ -23,11 +27,15 @@ def save(type):
     with open(os.path.join(config_path, "initials.json")) as i:
         initials = json.loads(i.read())
 
+# Saves the formulas for chemical species
+
     if type == 'formula':
         for key in dictionary:
             species["formula"].update({key: dictionary[key]})
         with open(os.path.join(config_path, "species.json"), 'w') as f:
             json.dump(species, f, indent=4)
+
+# Saves initial concentration values for chemical species
 
     if type == 'value':
         for key in dictionary:
@@ -35,11 +43,15 @@ def save(type):
         with open(os.path.join(config_path, "species.json"), 'w') as f:
             json.dump(species, f, indent=4)
 
+# Saves units for species concentration
+
     if type == 'unit':
         for key in dictionary:
             species["unit"].update({key: dictionary[key]})
         with open(os.path.join(config_path, "species.json"), 'w') as f:
             json.dump(species, f, indent=4)
+
+# Saves box model options
 
     if type == 'options':
         for key in dictionary:
@@ -47,11 +59,15 @@ def save(type):
         with open(os.path.join(config_path, "options.json"), 'w') as f:
             json.dump(options, f, indent=4)
 
+# Saves initial condtions for the model
+
     if type == 'conditions':
         for key in dictionary:
             initials['values'].update({key: dictionary[key]})
         with open(os.path.join(config_path, "initials.json"), 'w') as f:
             json.dump(initials, f, indent=4)
+
+# Saves units for the initial conditions
 
     if type == 'cond_units':
         for key in dictionary:
@@ -59,6 +75,8 @@ def save(type):
         with open(os.path.join(config_path, "initials.json"), 'w') as f:
             json.dump(initials, f, indent=4)
 
+
+# Adds a new blank species to the species configuration json
 
 def new():
     with open(os.path.join(config_path, "species.json")) as f:
@@ -76,6 +94,8 @@ def new():
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(config, f, indent=4)
 
+
+# Combines all individual configuration json files and writes to the config file readable by the mode
 
 def export():
     with open(os.path.join(config_path, "species.json")) as a:
