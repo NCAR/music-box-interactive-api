@@ -10,73 +10,6 @@ def load(dict):
         json.dump(dict, outfile, indent=4)
 
 
-def save(type):
-    with open(os.path.join(config_path, "post.json")) as g:
-        dictionary = json.loads(g.read())
-
-    with open(os.path.join(config_path, "species.json")) as f:
-        species = json.loads(f.read())
-
-    with open(os.path.join(config_path, "options.json")) as h:
-        options = json.loads(h.read())
-
-    with open(os.path.join(config_path, "initials.json")) as i:
-        initials = json.loads(i.read())
-
-    if type == 'formula':
-        for key in dictionary:
-            species["formula"].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species, f, indent=4)
-
-    if type == 'value':
-        for key in dictionary:
-            species["value"].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species, f, indent=4)
-
-    if type == 'unit':
-        for key in dictionary:
-            species["unit"].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species, f, indent=4)
-
-    if type == 'options':
-        for key in dictionary:
-            options.update({key: dictionary[key]})
-        with open(os.path.join(config_path, "options.json"), 'w') as f:
-            json.dump(options, f, indent=4)
-
-    if type == 'conditions':
-        for key in dictionary:
-            initials['values'].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "initials.json"), 'w') as f:
-            json.dump(initials, f, indent=4)
-
-    if type == 'cond_units':
-        for key in dictionary:
-            initials['units'].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "initials.json"), 'w') as f:
-            json.dump(initials, f, indent=4)
-
-
-def new():
-    with open(os.path.join(config_path, "species.json")) as f:
-        config = json.loads(f.read())
-
-    number = 1+ len(config['formula'])
-    name = 'Species ' + str(number)
-
-    config['formula'].update({name: "Enter Formula"})
-
-    config['value'].update({name: 0})
-
-    config['unit'].update({name: 'mol m-3'})
-
-    with open(os.path.join(config_path, "species.json"), 'w') as f:
-        json.dump(config, f, indent=4)
-
-
 def export():
     with open(os.path.join(config_path, "species.json")) as a:
         species = json.loads(a.read())
@@ -134,6 +67,76 @@ def export():
     # write dict as json
 
     with open(os.path.join(config_path, "my_config.json"), 'w') as f:
+        json.dump(config, f, indent=4)
+
+
+
+def save(type):
+    with open(os.path.join(config_path, "post.json")) as g:
+        dictionary = json.loads(g.read())
+
+    with open(os.path.join(config_path, "species.json")) as f:
+        species = json.loads(f.read())
+
+    with open(os.path.join(config_path, "options.json")) as h:
+        options = json.loads(h.read())
+
+    with open(os.path.join(config_path, "initials.json")) as i:
+        initials = json.loads(i.read())
+
+    if type == 'formula':
+        for key in dictionary:
+            species["formula"].update({key: dictionary[key]})
+        with open(os.path.join(config_path, "species.json"), 'w') as f:
+            json.dump(species, f, indent=4)
+
+    if type == 'value':
+        for key in dictionary:
+            species["value"].update({key: dictionary[key]})
+        with open(os.path.join(config_path, "species.json"), 'w') as f:
+            json.dump(species, f, indent=4)
+
+    if type == 'unit':
+        for key in dictionary:
+            species["unit"].update({key: dictionary[key]})
+        with open(os.path.join(config_path, "species.json"), 'w') as f:
+            json.dump(species, f, indent=4)
+
+    if type == 'options':
+        for key in dictionary:
+            options.update({key: dictionary[key]})
+        with open(os.path.join(config_path, "options.json"), 'w') as f:
+            json.dump(options, f, indent=4)
+
+    if type == 'conditions':
+        for key in dictionary:
+            initials['values'].update({key: dictionary[key]})
+        with open(os.path.join(config_path, "initials.json"), 'w') as f:
+            json.dump(initials, f, indent=4)
+
+    if type == 'cond_units':
+        for key in dictionary:
+            initials['units'].update({key: dictionary[key]})
+        with open(os.path.join(config_path, "initials.json"), 'w') as f:
+            json.dump(initials, f, indent=4)
+
+    export()
+
+
+def new():
+    with open(os.path.join(config_path, "species.json")) as f:
+        config = json.loads(f.read())
+
+    number = 1+ len(config['formula'])
+    name = 'Species ' + str(number)
+
+    config['formula'].update({name: "Enter Formula"})
+
+    config['value'].update({name: 0})
+
+    config['unit'].update({name: 'mol m-3'})
+
+    with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(config, f, indent=4)
 
 
