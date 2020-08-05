@@ -63,6 +63,16 @@ def export():
     config.update({"box model options": options_section})
     config.update({"chemical species": species_section})
     config.update({"environmental conditions": init_section})
+    config.update({
+        "chemistry": {
+            "type": "MICM",
+            "solver": {
+                "type": "Rosenbrock",
+                "absolute tolerance": 1.0e-12,
+                "relative tolerance": 1.0e-4
+            }
+        }
+    })
 
     # write dict as json
 
