@@ -4,6 +4,7 @@ import json
 import os.path
 import subprocess
 
+
 def run(request):
     mb_dir           = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
     nc_outfile_path  = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
@@ -18,8 +19,12 @@ def run(request):
         os.remove(running_path)
     if os.path.isfile(done_path):
         os.remove(done_path)
-    process = subprocess.Popen(r'./music-box ../music-box-interactive/interactive/dashboard/static/config/my_config.json', cwd=mb_dir)
+
+    process = subprocess.Popen(
+        [r'./music_box', r'/music-box-interactive/interactive/dashboard/static/config/my_config.json'], cwd=mb_dir)
+
     return JsonResponse({ "status" : "started"})
+
 
 def check_status(request):
     running_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "MODEL_RUNNING")
