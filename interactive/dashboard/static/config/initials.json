@@ -5,6 +5,6 @@
     },
     "units": {
         "temperature": "K",
-        "pressure": "kPa"
+        "pressure": "atm"
     }
 }

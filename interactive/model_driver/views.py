@@ -23,7 +23,7 @@ def run(request):
     process = subprocess.Popen(
         [r'./music_box', r'/music-box-interactive/interactive/dashboard/static/config/my_config.json'], cwd=mb_dir)
 
-    return JsonResponse({ "status" : "started"})
+    return render(request, 'run_model.html', { "status" : "Started"})
 
 
 def check_status(request):

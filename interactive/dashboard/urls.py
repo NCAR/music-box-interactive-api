@@ -21,5 +21,4 @@ urlpatterns = [
     path('configure/cond-csv', views.init_csv),
     path('configure/cond-units', views.init_units),
     path('configure/run', views.configure),
-    path('configure/model/run', include('model_driver.urls'))
 ]

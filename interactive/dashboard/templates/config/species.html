@@ -48,14 +48,21 @@
 
         </form>
      </div>
+
+     <div class="specform">
+        {% for field in form1 %}
+            <form method='GET' action="remove">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+            </form>
+        {% endfor %}
+     </div>
+
         <form method="post" action="new-species">
             {% csrf_token %}
             <button type="submit">Add New Species</button>
         </form>
     </div>
-
-
-
 
 {% endblock %}
 

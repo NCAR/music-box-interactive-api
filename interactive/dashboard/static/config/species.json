@@ -1,9 +1,9 @@
 {
     "formula": {
         "Species 1": "CO2",
-        "Species 2": "NO",
+        "Species 2": "H2O",
         "Species 3": "O3",
-        "Species 4": "ISOP"
+        "Species 4": "O2"
     },
     "value": {
         "Species 1": 1.0,
@@ -13,7 +13,7 @@
     },
     "unit": {
         "Species 1": "mol m-3",
-        "Species 2": "mol/L",
+        "Species 2": "mol m-3",
         "Species 3": "mol m-3",
         "Species 4": "mol m-3"
     }
