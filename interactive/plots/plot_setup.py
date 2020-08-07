@@ -13,7 +13,7 @@ import PIL, PIL.Image, io
 import pandas
 
 
-def output_plot():
+def output_plot(request):
     matplotlib.use('agg')
 
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
