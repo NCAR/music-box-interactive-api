@@ -13,9 +13,7 @@ def new_species(request):
     if request.method == 'POST':
         new()
 
-    context = {'form1': FormulaForm,
-               'form2': InitForm,
-               'form3': UnitForm(initial=unit_setup()),
+    context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
                }
     return render(request, 'config/species.html', context)
@@ -24,53 +22,11 @@ def new_species(request):
 def species(request):
 
     if request.method == 'POST':
-        newFormula = FormulaForm(request.POST)
+        new_spec = SpeciesForm(request.POST)
+        if new_spec.is_valid():
+            save_species(new_spec.cleaned_data)
 
-        if newFormula.is_valid():
-            load(newFormula.cleaned_data)
-            save("formula")
-            formula_setup()
-
-    context = {'form1': FormulaForm,
-               'form2': InitForm,
-               'form3': UnitForm(initial=unit_setup()),
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'config/species.html', context)
-
-
-def values(request):
-
-    if request.method == 'POST':
-        newInits = InitForm(request.POST)
-
-        if newInits.is_valid():
-            load(newInits.cleaned_data)
-            save("value")
-            value_setup()
-
-
-    context = {'form1': FormulaForm,
-               'form2': InitForm,
-               'form3': UnitForm(initial=unit_setup()),
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'config/species.html', context)
-
-
-def units(request):
-
-    if request.method == 'POST':
-        newUnits = UnitForm(request.POST)
-
-        if newUnits.is_valid():
-            load(newUnits.cleaned_data)
-            save("unit")
-            unit_setup()
-
-    context = {'form1': FormulaForm,
-               'form2': InitForm,
-               'form3': UnitForm(initial=unit_setup()),
+    context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
                }
     return render(request, 'config/species.html', context)
@@ -82,9 +38,7 @@ def csv(request):
         if form.is_valid():
             handle_uploaded_csv(request.FILES['file'])
 
-    context = {'form1': FormulaForm,
-               'form2': InitForm,
-               'form3': UnitForm(initial=unit_setup()),
+    context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
                }
     return render(request, 'config/species.html', context)
@@ -130,34 +84,15 @@ def init(request):
 
         if newConditions.is_valid():
             newConditions = newConditions.cleaned_data
-            load(newConditions)
-            save("conditions")
-
+            save_init(newConditions)
+            
 
     context = {
         'form': InitialConditionsForm,
-        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)
 
-
-def init_units(request):
-    if request.method == 'POST':
-        newUnits = ConditionsUnitsForm(request.POST)
-
-        if newUnits.is_valid():
-            newUnits = newUnits.cleaned_data
-            load(newUnits)
-            save("cond_units")
-
-
-    context = {
-        'form': InitialConditionsForm,
-        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
-        'csv_field' : UploadInitFileForm
-    }
-    return render(request, 'config/init-cond.html', context)
 
 
 def init_csv(request):
@@ -168,7 +103,6 @@ def init_csv(request):
 
     context = {
         'form': InitialConditionsForm,
-        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
         'csv_field': UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)

@@ -21,43 +21,14 @@
             <button type="submit">Upload</button>
         </form>
      <div class="specform">
-         <h3 class="columnhead">Species Formula:</h3>
-         <form class="col1" method='POST' action="save-formula">
+         <h3 class="columnhead">Chemical Species:</h3>
+         <form class="col1" method='POST'>
              {% csrf_token %}
              {{ form1|crispy }}
              <button type="submit" >Save</button>
          </form>
      </div>
-
-     <div class="specform">
-         <h3 class="columnhead">Initial Concentration:</h3>
-         <form class="col2" method='POST' action="save-value">
-             {% csrf_token %}
-             {{ form2|crispy }}
-             <button type="submit" >Save</button>
-
-          </form>
-     </div>
-
-     <div class="specform" id="unitform">
-         <h3 class="columnhead">Units:</h3>
-         <form class="col3" method='POST' action="save-unit">
-             {% csrf_token %}
-             {{ form3|crispy }}
-             <button type="submit" >Save</button>
-
-        </form>
-     </div>
-
-     <div class="specform">
-        {% for field in form1 %}
-            <form method='GET' action="remove">
-                {% csrf_token %}
-                <button type="submit">Remove</button>
-            </form>
-        {% endfor %}
-     </div>
-
+     
         <form method="post" action="new-species">
             {% csrf_token %}
             <button type="submit">Add New Species</button>

@@ -167,3 +167,46 @@ def new():
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(config, f, indent=4)
 
+
+def save_species(form):
+    formulas = {}
+    values = {}
+    units = {}
+
+    for key in form:
+        section = key.split('.')[1]
+        name = key.split('.')[0]
+        if section == 'Formula':
+            formulas.update({name: form[key]})
+        if section == 'Initial Value':
+            values.update({name: form[key]})
+        if section == 'Units':
+            units.update({name: form[key]})
+
+    load(formulas)
+    save('formula')
+
+    load(values)
+    save('value')
+
+    load(units)
+    save('unit')
+
+
+def save_init(form):
+    values = {}
+    units = {}
+
+    for key in form:
+        section = key.split('.')[1]
+        name = key.split('.')[0]
+        if section == 'init':
+            values.update({name: form[key]})
+        if section == 'units':
+            units.update({name: form[key]})
+
+    load(values)
+    save('conditions')
+
+    load(units)
+    save('cond_units')

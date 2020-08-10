@@ -1,8 +1,11 @@
 import json
+from django.conf import settings
+import os
 
+config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 def formula_setup():
-    with open('/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+    with open(os.path.join(config_path, 'species.json')) as f:
         data = json.loads(f.read())
 
     formulas = data["formula"]
@@ -10,7 +13,7 @@ def formula_setup():
 
 
 def value_setup():
-    with open('/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+    with open(os.path.join(config_path, 'species.json')) as f:
         data = json.loads(f.read())
 
     values = data["value"]
@@ -18,7 +21,7 @@ def value_setup():
 
 
 def unit_setup():
-    with open('/music-box-interactive/interactive/dashboard/static/config/species.json') as f:
+    with open(os.path.join(config_path, 'species.json')) as f:
         data = json.loads(f.read())
 
     units = data["unit"]
@@ -26,14 +29,14 @@ def unit_setup():
 
 
 def option_setup():
-    with open('/music-box-interactive/interactive/dashboard/static/config/options.json') as f:
+    with open(os.path.join(config_path, 'options.json')) as f:
         data = json.loads(f.read())
 
     return data
 
 
 def ini_cond_setup():
-    with open('/music-box-interactive/interactive/dashboard/static/config/initials.json') as f:
+    with open(os.path.join(config_path, 'initials.json')) as f:
         data = json.loads(f.read())
 
     return data
