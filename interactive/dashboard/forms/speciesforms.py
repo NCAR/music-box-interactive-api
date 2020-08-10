@@ -16,9 +16,6 @@ class SpeciesForm(forms.Form):
 
         for key in formulas:
             self.fields[key + '.Formula'] = forms.CharField(initial=formulas[key])
-
-        for key in values:
             self.fields[key + '.Initial Value'] = forms.FloatField(initial=values[key])
-        
-        for key in units:
             self.fields[key + '.Units'] = forms.ChoiceField(choices=[('mol m-3', 'mol-m-3',), ('mol/L', 'mol/L')])
+

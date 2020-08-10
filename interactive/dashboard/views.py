@@ -84,34 +84,15 @@ def init(request):
 
         if newConditions.is_valid():
             newConditions = newConditions.cleaned_data
-            load(newConditions)
-            save("conditions")
-
+            save_init(newConditions)
+            
 
     context = {
         'form': InitialConditionsForm,
-        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)
 
-
-def init_units(request):
-    if request.method == 'POST':
-        newUnits = ConditionsUnitsForm(request.POST)
-
-        if newUnits.is_valid():
-            newUnits = newUnits.cleaned_data
-            load(newUnits)
-            save("cond_units")
-
-
-    context = {
-        'form': InitialConditionsForm,
-        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
-        'csv_field' : UploadInitFileForm
-    }
-    return render(request, 'config/init-cond.html', context)
 
 
 def init_csv(request):
@@ -122,7 +103,6 @@ def init_csv(request):
 
     context = {
         'form': InitialConditionsForm,
-        'unitform': ConditionsUnitsForm(initial=ini_cond_setup()['units']),
         'csv_field': UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)

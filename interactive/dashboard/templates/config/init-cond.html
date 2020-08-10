@@ -22,21 +22,12 @@
          </form>
          <div class="configform">
              <h3 class="columnhead">Conditions:</h3>
-             <form method="post" class="col1" action="init-cond">
+             <form method="post" class="col1">
                  {% csrf_token %}
                  {{ form|crispy }}
                  <button type="submit">Save</button>
              </form>
          </div>
-         <div class="configform">
-            <h3 class="columnhead">Units:</h3>
-            <form class="col2" method='POST' action="cond-units">
-                 {% csrf_token %}
-                {{ unitform|crispy }}
-                <button type="submit" >Save</button>
-           </form>
-     </div>
-
      </div>
 
 {% endblock %}
