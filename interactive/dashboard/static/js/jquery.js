@@ -1,1 +1,0 @@
-$("button1").mouseover(function(){
