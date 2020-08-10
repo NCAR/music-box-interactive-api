@@ -5,5 +5,5 @@ To run:
 
        cd music-box-interactive
        cd interactive
-       python manage.py runserver
+       python3 manage.py runserver
 
