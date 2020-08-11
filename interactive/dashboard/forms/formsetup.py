@@ -40,3 +40,31 @@ def ini_cond_setup():
         data = json.loads(f.read())
 
     return data
+
+
+# def ini_cond_units():
+#     with open(os.path.join(config_path, 'initials.json')) as f:
+#         data = json.loads(f.read())
+#         choices = {}
+#         temp = data['units']['temperature']
+#         if temp == 'K':
+#             templist = [('K', 'K'), ('C', 'C')]
+#         if temp == 'C':
+#             templist = [('C', 'C'), ('K', 'K')]
+#         else:
+#             templist = [('K', 'K'), ('C', 'C')]
+#         choices.update({'temperature': templist})
+
+#         press = data['units']['pressure']
+#         if press == 'atm':
+#             preslist = [[('atm', 'atm'), ('kPa', 'kPa'), ('bar', 'bar')]
+#         if press == 'kPa':
+#              preslist = [[('kPa', 'kPa'), ('atm', 'atm'), ('bar', 'bar')]
+#         if press == 'bar':
+#             preslist = [[('bar', 'bar'), ('atm', 'atm'), ('kPa', 'kPa')]
+#         else:
+#             preslist = [[('atm', 'atm'), ('kPa', 'kPa'), ('bar', 'bar')]
+
+#         choices.update({'pressure': preslist})
+
+#         return choices

@@ -19,7 +19,11 @@
             {% csrf_token %}
             {{ csv_field }}
             <button type="submit">Upload</button>
+            <input type="radio" id="delimiter">
+            <label for="delimiter">Specify Delimiter</label>
          </form>
+         
+
          <div class="configform">
              <h3 class="columnhead">Conditions:</h3>
              <form method="post" class="col1">

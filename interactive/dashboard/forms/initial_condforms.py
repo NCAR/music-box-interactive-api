@@ -10,8 +10,6 @@ class InitialConditionsForm(forms.Form):
         super(InitialConditionsForm, self).__init__(*args, **kwargs)
         inits = ini_cond_setup()
         self.fields['temperature.init'] = forms.FloatField(initial=inits["values"]["temperature"])
-        self.fields['temperature.units'] = forms.ChoiceField(
-            choices=[('K', 'K'), ('C', 'C')])
+        self.fields['temperature.units'] = forms.ChoiceField(choices=[('K', 'K'), ('C', 'C')])
         self.fields['pressure.init'] = forms.FloatField(initial=inits["values"]["pressure"])
-        self.fields['pressure.units'] = forms.ChoiceField(
-            choices=[('atm', 'atm'), ('kPa', 'kPa'), ('bar', 'Bar')])
+        self.fields['pressure.units'] = forms.ChoiceField(choices=[('atm', 'atm'), ('kPa', 'kPa'), ('bar', 'Bar')])
