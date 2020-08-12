@@ -24,7 +24,7 @@
             "initial value [K]": 290.0
         },
         "pressure": {
-            "initial value [atm]": 0.9
+            "initial value [kPa]": 0.9
         }
     },
     "chemistry": {
