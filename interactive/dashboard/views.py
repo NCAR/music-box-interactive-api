@@ -6,6 +6,7 @@ from .forms.initial_condforms import *
 from .forms.photolysisforms import *
 from .csvload import handle_uploaded_csv, read_csv
 from .save import *
+from .models import Document
 
 
 def new_species(request):
@@ -116,8 +117,25 @@ def evolv(request):
 
 
 def photolysis(request):
+    if request.method == 'POST':
+        newPhoto = PhotoForm(request.POST)
+
+        if newPhoto.is_valid():
+            newPhoto = newPhoto.cleaned_data
+            save_photo(newPhoto)
+            
     context = {
-        'csv_field': UploadPhotoFileForm
+        'csv_field': UploadPhotoFileForm,
+        'form': PhotoForm
+    }
+    return render(request, 'config/photolysis.html', context)
+
+
+def photo_csv(request):
+
+    context = {
+        'csv_field': UploadPhotoFileForm,
+        "form": PhotoForm
     }
     return render(request, 'config/photolysis.html', context)
 

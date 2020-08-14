@@ -42,6 +42,13 @@ def ini_cond_setup():
     return data
 
 
+def photo_setup():
+    with open(os.path.join(config_path, 'photo.json')) as f:
+        data = json.loads(f.read())
+
+    return data
+
+
 # def ini_cond_units():
 #     with open(os.path.join(config_path, 'initials.json')) as f:
 #         data = json.loads(f.read())

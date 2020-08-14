@@ -27,6 +27,14 @@
             "initial value [atm]": 0.9
         }
     },
+    "photolysis": {
+        "O3 O1D": {
+            "initial value [s-1]": 0.0032
+        },
+        "O3 O3P": {
+            "initial value [s-1]": 0.0012
+        }
+    },
     "chemistry": {
         "type": "MICM",
         "solver": {

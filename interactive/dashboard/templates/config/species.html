@@ -15,7 +15,7 @@
 
     <div class="configbox">
         <h3>Upload File (.txt, .csv):</h3>
-        <form method="POST" action="species-csv">
+        <form method="POST" action="species-csv" enctype="multipart/form-data">
             {% csrf_token %}
             {{ csv_field }}
             <button type="submit">Upload</button>

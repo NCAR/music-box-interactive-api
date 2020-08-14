@@ -1,0 +1,10 @@
+{
+    "reactions": {
+        "reaction 1": "O3 O1D",
+        "reaction 2": "O3 O3P"
+    },
+    "initial value": {
+        "reaction 1": 0.0032,
+        "reaction 2": 0.0012
+    }
+}
