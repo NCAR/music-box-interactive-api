@@ -1,7 +1,7 @@
 {
     "reactions": {
-        "reaction 1": "O3 O1D",
-        "reaction 2": "O3 O3P"
+        "reaction 1": "O3_1",
+        "reaction 2": "O3_2"
     },
     "initial value": {
         "reaction 1": 0.0032,

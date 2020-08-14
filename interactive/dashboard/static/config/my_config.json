@@ -28,11 +28,11 @@
         }
     },
     "photolysis": {
-        "O3 O1D": {
-            "initial value [s-1]": 0.0032
+        "O3_1": {
+            "initial value [s-1]": 0.0
         },
-        "O3 O3P": {
-            "initial value [s-1]": 0.0012
+        "O3_2": {
+            "initial value [s-1]": 0.0
         }
     },
     "chemistry": {
