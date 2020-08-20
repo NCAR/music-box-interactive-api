@@ -6,7 +6,7 @@
         "simulation length [hr]": 2.0
     },
     "chemical species": {
-        "CO1": {
+        "Ar": {
             "initial value [mol m-3]": 1.0
         },
         "H2O": {
@@ -29,10 +29,10 @@
     },
     "photolysis": {
         "O3_1": {
-            "initial value [s-1]": 0.0
+            "initial value [s-1]": 0.0032
         },
         "O3_2": {
-            "initial value [s-1]": 0.0
+            "initial value [s-1]": 0.0012
         }
     },
     "chemistry": {

@@ -20,17 +20,4 @@ class SpeciesForm(forms.Form):
             self.fields[key + '.Units'] = forms.ChoiceField(choices=[('mol m-3', 'mol-m-3',), ('mol/L', 'mol/L')])
         
 
-        # def formgroup(self):
-        #     return [self[name] for name in filter(lambda x: x.endswith('Formula'), self.fields.values()]
-
-
-        # def valuegroup(self):
-        #     return [self[name] for name in filter(lambda x: x.endswith('Initial Value'), self.fields.values()]
-
-
-        # def unitgroup(self):
-        #     return [self[name] for name in filter(lambda x: x.endswith('units'), self.fields.values()]
-
-
-
 
