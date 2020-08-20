@@ -23,9 +23,38 @@
      <div class="specform">
          <h3 class="columnhead">Chemical Species:</h3>
          <form class="col1" method='POST'>
-             {% csrf_token %}
-             {{ form1|crispy }}
-             <button type="submit" >Save</button>
+                <table>
+                    <tr>
+                        <th>Formula</th>
+                        <th>Intial Value</th>
+                        <th>Units</th>
+                    </tr>
+                    {% for field in form1 %}
+                        {% if 'Formula' in field.name %}
+                            <tr>
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                        {% endif %}
+
+                        {% if 'Initial Value' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                        {% endif %}
+
+                        {% if 'Units' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            <button type="submit" >Save</button>
          </form>
      </div>
     

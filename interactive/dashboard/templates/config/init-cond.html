@@ -12,7 +12,6 @@
         </div>
     </div>
 
-     <div class=confighead>Initial Conditions</div>
 
      <div class="configbox">
          <h3>Upload File (.txt, .csv):</h3>
@@ -28,8 +27,24 @@
          <div class="configform">
              <h3 class="columnhead">Conditions:</h3>
              <form method="post" class="col1">
-                 {% csrf_token %}
-                 {{ form|crispy }}
+                 <table>
+                     {% for field in form %}
+                        {% if 'init' in field.name %}
+                            <tr>
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                        {% endif %}
+                        {% if 'units' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                            </tr>
+                        {% endif %}
+                     {% endfor %}
+                 </table>
                  <button type="submit">Save</button>
              </form>
          </div>

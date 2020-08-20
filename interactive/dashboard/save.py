@@ -253,9 +253,9 @@ def save_photo(form):
     for key in form:
         section = key.split('.')[1]
         name = key.split('.')[0]
-        if section == 'reaction':
+        if section == 'r_form':
             reactions.update({name: form[key]})
-        if section == 'initial_value':
+        if section == 'init':
             values.update({name: form[key]})
     
     load(reactions)

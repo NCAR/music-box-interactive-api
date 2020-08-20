@@ -10,7 +10,7 @@ class PhotoForm(forms.Form):
         super(PhotoForm, self).__init__(*args, **kwargs)
         inits = photo_setup()
         for key in inits['reactions']:
-            self.fields[key + '.reaction'] = forms.CharField(initial=inits['reactions'][key])
-            self.fields[key + '.inital_value'] = forms.FloatField(initial=inits['initial value'][key])
+            self.fields[key + '.r_form'] = forms.CharField(initial=inits['reactions'][key])
+            self.fields[key + '.init'] = forms.FloatField(initial=inits['initial value'][key])
         
 

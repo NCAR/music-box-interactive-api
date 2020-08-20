@@ -13,8 +13,6 @@
         </div>
     </div>
     
-     <div class=confighead>Photolysis Options</div>
-
 <div class="configbox">
     <h3>Upload File (.txt, .csv):</h3>
           <form method="POST" action="photo-csv">
@@ -22,11 +20,34 @@
             {{ csv_field }}
             <button type="submit">Upload</button>
          </form>
+
+
          <div class="specform">
             <h3 class="columnhead">Configure Photolysis Reactions:</h3>
             <form class="col1" method='POST'>
-                {% csrf_token %}
-                {{ form|crispy }}
+                <table>
+                    <tr>
+                        <th>Reaction</th>
+                        <th>Initial Value</th>
+                    </tr>
+                    {% for field in form %}
+                       {% if 'r_form' in field.name %}
+                           <tr>
+                               <td>
+                                   {% csrf_token %}
+                                   {{ field }}
+                               </td>
+                       {% endif %}
+
+                       {% if 'init' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                           </tr>
+                       {% endif %}
+                    {% endfor %}
+                </table>
                 <button type="submit" >Save</button>
             </form>
         </div>
