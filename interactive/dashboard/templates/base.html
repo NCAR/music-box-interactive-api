@@ -18,11 +18,11 @@
             {% endblock %}
         </div>
     <div class="sidenav" id="sidenav">
-        <a class="main" href="/configure">Configure</a>
-        <a class="main" href="/mechanism">View Mechanism</a>
-        <a class="main" href="/visualize">Plot Results</a>
-        <a class="main" href="https://wiki.ucar.edu/display/MusicBox/Quick+Start" target="_blank">Documentation</a>
-        <a class="main" href="/model/run">RUN</a>
+        <a class="{% if '/configure' in request.path %} current {% endif %}" href="/configure">Configure</a>
+        <a class="{% if '/mechanism' in request.path %} current {% endif %}" href="/mechanism">View Mechanism</a>
+        <a class="{% if '/visualize' in request.path %} current {% endif %}" href="/visualize">Plot Results</a>
+        <a href="https://wiki.ucar.edu/display/MusicBox/Quick+Start" target="_blank">Documentation</a>
+        <a class={% if '/model' in request.path %} current {% endif %} href="/model/run">Run Model</a>
 
         <img id="logo" src="{% static 'style/logo.png' %}">
     </div>

@@ -60,10 +60,19 @@ body {
 
 }
 
+.sidenav .current{
+    margin-left: 30px;
+}
+
 .sidenav a:hover{
     color: #bfbfbf;
-    margin-left: 20px;
+    margin-left: 30px;
 }
+
+.sidenav:hover > .current{
+    margin-left: 0px;
+}
+
 
 
 .navbar {
