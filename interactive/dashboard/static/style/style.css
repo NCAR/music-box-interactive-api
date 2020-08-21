@@ -11,7 +11,7 @@ body {
     top:0;
     left:0;
     background-color: black;
-    overflow-x: :hidden;
+    overflow-x: hidden;
     padding-top:10px;
     padding-bottom: 10px;
     padding-left: 10px;
@@ -41,7 +41,7 @@ body {
     top:80;
     left:0;
     background-color:#303030;
-    overflow-x: :hidden;
+    overflow-x: hidden;
     padding-top:20px;
 }
 .sidenav a {
@@ -73,6 +73,9 @@ body {
     margin-left: 0px;
 }
 
+.sidenav .current:hover{
+    margin-left: 30px;
+}
 
 
 .navbar {
@@ -110,10 +113,8 @@ body {
 
 .configbox .configform {
     display: inline-block;
-    width: 20%
-    margin-left: 10%;
+    width: 20%;
     z-index: 100;
-    background-color: ;
     color: black;
     font-family: 'Cabin';
     font-size: 18px;
