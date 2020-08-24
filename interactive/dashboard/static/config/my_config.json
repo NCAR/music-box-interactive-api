@@ -17,9 +17,6 @@
         },
         "O2": {
             "initial value [mol m-3]": 4.0
-        },
-        "Enter Formula": {
-            "initial value [mol m-3]": 0
         }
     },
     "environmental conditions": {

@@ -254,3 +254,21 @@ select {
     z-index: 1;
     position: fixed;
 }
+
+.plothead {
+    margin-left: 50%;
+    z-index: 20;
+    font-size: 30px;
+    color: white;
+    font-family: 'Cabin';
+    text-decoration: underline;
+}
+
+.plotbar {
+    margin-left: 260px;
+    z-index: 10;
+}
+
+.plotbar h3:hover{
+    text-decoration: underline;
+}
