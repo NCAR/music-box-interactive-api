@@ -1,15 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="plothead">Plot Results</div>
+<div class="navbox">
+  <div class="plotnav">
+      <a id="species">Chemical species</a>
+      <a id="rates">Reaction rates</a>
+      <a id="zenith">Solar zenith angle</a>
+      <a id="density">Density</a>
+      <a id="mass">Mean molar mass</a>
+      <a id="humidity">Relative humidity</a>
+  </div> 
+</div>
 
 <div class="plotbar">
-    <h3 id="species">Chemical species</h3>
-    <h3 id="rates">Reaction rates</h3>
-    <h3 id="zenith">Solar zenith angle</h3>
-    <h3 id="density">Density of air</h3>
-    <h3 id="mass">Mean molar mass of air</h3>
-    <h3 id="humidity">Relative humidity</h3>
+  <a id="species">Chemical species</a>
+  <a id="rates">Reaction rates</a>
+  <a id="zenith">Solar zenith angle</a>
+  <a id="density">Density of air</a>
+  <a id="mass">Mean molar mass of air</a>
+  <a id="humidity">Relative humidity</a>
 </div> 
+
 
 {% endblock %}

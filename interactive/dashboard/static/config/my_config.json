@@ -7,7 +7,7 @@
     },
     "chemical species": {
         "Ar": {
-            "initial value [mol m-3]": 1.0
+            "initial value [mol m-3]": 2.0
         },
         "H2O": {
             "initial value [mol m-3]": 2.0
