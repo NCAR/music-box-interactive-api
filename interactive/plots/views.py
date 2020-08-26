@@ -5,11 +5,9 @@ from django.shortcuts import render
 
 def get_contents(request):
     if request.method == 'GET':
-        print(request.GET)
-    
-    response = HttpResponse()
-    response.write("<li>Rates</li>")
-    response.write("<li>Species</li>")
+        get = request.GET
+        print(get['type'])
+    response = HttpResponse('<a>test</a>')
     return response
 
 

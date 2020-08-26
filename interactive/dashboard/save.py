@@ -263,3 +263,24 @@ def save_photo(form):
 
     load(values)
     save('photo-values')
+
+
+def remove_species(id):
+    removed = id.split('.')[0]
+    with open(os.path.join(config_path, "species.json")) as f:
+        specs = json.loads(f.read())
+
+    specs["formula"].pop(removed)
+    specs["value"].pop(removed)
+    specs["unit"].pop(removed)
+
+    i = 1
+    for key in specs["formula"]:
+        new_name = 'Species ' + str(i)
+        specs["formula"][new_name] = specs["formula"].pop(key)
+        specs["value"][new_name] = specs["value"].pop(key)
+        specs["unit"][new_name] = specs["unit"].pop(key)
+        i = i+1
+
+    with open(os.path.join(config_path, "species.json"), 'w') as f:
+        json.dump(specs, f, indent=4)

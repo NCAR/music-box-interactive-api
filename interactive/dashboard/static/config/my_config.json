@@ -11,12 +11,6 @@
         },
         "H2O": {
             "initial value [mol m-3]": 2.0
-        },
-        "O3": {
-            "initial value [mol m-3]": 3.0
-        },
-        "O2": {
-            "initial value [mol m-3]": 4.0
         }
     },
     "environmental conditions": {

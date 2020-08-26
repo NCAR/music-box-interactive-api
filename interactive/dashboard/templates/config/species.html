@@ -50,8 +50,14 @@
                                 {% csrf_token %}
                                 {{ field }}
                             </td>
+                            <td>
+                                <button class="r_button" id="{{ field.name }}">
+                                    Remove
+                                </button>
+                            </td>
                             </tr>
                         {% endif %}
+
                     {% endfor %}
                 </table>
             <button type="submit" >Save</button>
