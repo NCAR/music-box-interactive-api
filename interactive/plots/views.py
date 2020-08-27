@@ -1,13 +1,18 @@
 from django.http import HttpResponse, HttpRequest
-from .plot_setup import output_plot
+from .plot_setup import *
 from django.shortcuts import render
 
 
 def get_contents(request):
     if request.method == 'GET':
         get = request.GET
-        print(get['type'])
-    response = HttpResponse('<a>test</a>')
+        prop = get['type']
+        print(prop)
+
+    response = HttpResponse()
+    subs = sub_props(prop)
+    for i in subs:
+        response.write("<li><a>" + i + "</a></li>")
     return response
 
 

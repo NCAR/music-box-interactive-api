@@ -11,6 +11,34 @@ import matplotlib.pyplot as plt
 from pylab import *
 import PIL, PIL.Image, io
 import pandas
+from django.conf import settings
+
+def sub_props(prop):
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism/datamolec_info.json")
+    with open(mech_path) as a:
+            mechanism = json.loads(a.read())
+    
+    subs = []
+    if prop == 'species':
+        for molecule in mechanism['mechanism']['molecules']:
+            subs.append(molecule['moleculename'])
+    
+    elif prop == 'rates':
+        for photo in mechanism['mechanism']['photolysis']:
+            subs.append(photo['tuv_reaction'])
+
+        for reaction in mechanism['mechanism']['reactions']:
+            reactants = reaction['reactants']
+            products = []
+            for i in reaction['products']:
+                if int(i['coefficient']) > 1:
+                    coef = str(i['coefficient'])
+                else:
+                    coef = ""
+                molec = i['molecule']
+                products.append(coef + molec)
+            subs.append("+".join(i for i in reactants) + "->" + "+".join(j for j in reactants))
+    return subs
 
 
 def output_plot(request):
@@ -60,3 +88,6 @@ def output_plot(request):
     plt.close(figure)
 
     return buffer
+
+
+
