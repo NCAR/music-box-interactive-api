@@ -142,7 +142,10 @@ def photo_csv(request):
 
 
 def review(request):
-    context = {}
+    json = review_json()
+    context = {
+        "config": json
+    }
     return render(request, 'config/review.html', context)
 
 

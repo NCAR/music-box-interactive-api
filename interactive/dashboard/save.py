@@ -284,3 +284,11 @@ def remove_species(id):
 
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(specs, f, indent=4)
+
+# load config json for review
+
+def review_json():
+    with open(os.path.join(config_path, "my_config.json")) as f:
+        config = json.loads(f.read())
+    
+    return config

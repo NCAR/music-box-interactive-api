@@ -301,3 +301,8 @@ select {
 .plotnav .selection{
     border: 3px solid white;
 }
+
+#reviewbox{
+    font-size: 16px;
+    font-family: 'Cabin';
+}

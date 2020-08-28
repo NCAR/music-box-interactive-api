@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-
+//remove species button
   $('.r_button').on('click', function(){
     var buttonId = $(this).attr('id');
 
@@ -14,7 +14,7 @@ $(document).ready(function(){
    }); 
   });
 
-
+  // plot species and plot rates buttons
   $(".propfam").on('click', function(){
     var linkId = $(this).attr('id');
 
@@ -29,7 +29,7 @@ $(document).ready(function(){
       }
     });
   });
-
+  //plot property buttons
   $(".prop").on('click', function(){
     var linkId = $(this).attr('id');
 
@@ -46,6 +46,7 @@ $(document).ready(function(){
     });
   });
 
+  //run model button
   $("#run").on('click', function(){
     $.ajax({
       url: "/model/run",
@@ -56,12 +57,8 @@ $(document).ready(function(){
     });
   });
   
-});
-
-
-$(document).ready(function(){
-  
-  $(".sub_p").on('click', function(){
+  // 
+  $("body").on('click', "button.sub_p", function(){
     var linkId = $(this).attr('id');
     $.ajax({
       url: 'plots/get',
@@ -72,4 +69,6 @@ $(document).ready(function(){
       }
     });
   });
+ 
+  
 });

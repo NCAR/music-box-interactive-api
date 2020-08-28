@@ -4,7 +4,7 @@ from . import mpl_helper
 import scipy.io
 import json
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from matplotlib import pylab
 from matplotlib.ticker import *
 import matplotlib.pyplot as plt
@@ -41,7 +41,8 @@ def sub_props(prop):
     return subs
 
 
-def output_plot(props):
+def output_plot(prop):
+    
     matplotlib.use('agg')
 
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
@@ -50,22 +51,20 @@ def output_plot(props):
     # NetCDF output file
     nc_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    if os.path.isfile(nc_results_path):
-        ncf = scipy.io.netcdf_file(results_path)
-        time = ncf.variables["time"].data.copy()
-        for prop in props:
-            var = ncf.variables[prop].data.copy()
-            units = ncf.variables[prop].units
-            axes.plot(time, var, "-", label=prop.replace("_", " "))
+    # if os.path.isfile(nc_results_path):
+    #     ncf = scipy.io.netcdf_file(results_path)
+    #     time = ncf.variables["time"].data.copy()
+    #     for prop in props:
+    #         var = ncf.variables[prop].data.copy()
+    #         units = ncf.variables[prop].units
+    #         axes.plot(time, var, "-", label=prop.replace("_", " "))
     # CSV output file
-    elif os.path.isfile(csv_results_path):
-        csv = pandas.read_csv(csv_results_path, index_col="time")
-        csv_props = data.columns.str.strip('ENV.').strip('CONC.')
-        data.columns = csv_props
+    if os.path.isfile(csv_results_path):
+        csv = pandas.read_csv(csv_results_path)
+        print(csv)
+        csv_props = csv.columns
         units = "unknown"
-        time = csv.loc["time"]
-        for prop in props:
-            csv.plot(x="time", y=prop, ax=axes, legend=prop.replace("_", " "))
+        csv.plot(x="time", y=prop, ax=axes, legend=prop.replace("_", " "))
     else:
         return HttpResponseBadRequest('Missing results file', status=405)
 
