@@ -41,11 +41,11 @@ def sub_props(prop):
     return subs
 
 
-def output_plot(request):
+def output_plot(props):
     matplotlib.use('agg')
 
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
-    props = request.GET.get('props', None).split(",")
+    
 
     # NetCDF output file
     nc_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")

@@ -12,13 +12,14 @@ def get_contents(request):
     response = HttpResponse()
     subs = sub_props(prop)
     for i in subs:
-        response.write("<li><a>" + i + "</a></li>")
+        response.write('<li><button class="sub_p" id=' + i + ">" + i + "</button></li>")
     return response
 
 
 def get(request):
 
     if request.method == 'GET':
+        props = request.GET['type']
         buffer = output_plot(request)
 
         return HttpResponse(buffer.getvalue(), content_type="image/png")
