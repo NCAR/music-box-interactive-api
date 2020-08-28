@@ -20,7 +20,7 @@ def get(request):
 
     if request.method == 'GET':
         props = request.GET['type']
-        buffer = output_plot(request)
+        buffer = output_plot(props)
 
         return HttpResponse(buffer.getvalue(), content_type="image/png")
     return HttpResponseBadRequest('Bad format for plot request', status=405)

@@ -46,6 +46,15 @@ $(document).ready(function(){
     });
   });
 
+  $("#run").on('click', function(){
+    $.ajax({
+      url: "/model/run",
+      type: 'get',
+      success: function(response){
+      
+      }
+    });
+  });
   
 });
 
