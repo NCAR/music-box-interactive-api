@@ -7,6 +7,7 @@ from .forms.photolysisforms import *
 from .csvload import handle_uploaded_csv, read_csv
 from .save import *
 from .models import Document
+from django.http import HttpResponse, HttpRequest
 
 
 def new_species(request):
@@ -141,6 +142,17 @@ def photo_csv(request):
 
 
 def review(request):
-    context = {}
+    json = review_json()
+    context = {
+        "config": json
+    }
     return render(request, 'config/review.html', context)
 
+
+def remove(request):
+    if request.method == 'GET':
+        id = request.GET["species"]
+        print(id)
+        remove_species(id)
+
+    return HttpResponse()

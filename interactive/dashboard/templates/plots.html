@@ -1,108 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-      <div class="container-fluid mx-0 px-0 h-100">
-        <div class="row mx-md-0 xl-flex-nowrap h-100 w-100">
-          <div class="col-md-2 mx-0 px-0 h-100 column-sidenav">
-            <ul class="list-group list-group-flush list-group-sidenav" id="property-list">
-              <li class="list-group-item list-group-item-sidenav" id="species">Chemical species</li>
-              <li class="list-group-item list-group-item-sidenav" id="rates">Reaction rates</li>
-              <li class="list-group-item list-group-item-sidenav" id="Zenith">Solar zenith angle</li>
-              <li class="list-group-item list-group-item-sidenav" id="Density">Density of air</li>
-              <li class="list-group-item list-group-item-sidenav" id="Mbar">Mean molar mass of air</li>
-              <li class="list-group-item list-group-item-sidenav" id="RelHum">Relative humidity</li>
-            </ul>
-          </div>
-          <div class="col-md-10 m-0 p-0 h-100 w-100">
-            <div class="row m-0 p-0">
-              <div class="jumbotron m-0 p-0 w-100">
-                <div class="btn-toolbar" role="toolbar" id="subproperties">
-                </div>
-              </div>
-            </div>
-            <div class="row m-0 p-0 w-100">
-              <div class="jumbotron mb-0 w-100" id="property-detail">
-                <h1 class="display-4">Visualize the Results</h1>
-                <hr>
-                <p>Select a property on the left to plot you MusicBox results</p>
-              </div>
-            </div>
-            <div class="row m-0 p-0 w-100 h-100">
-              <div class="jumbotron m-0 p-0 h-100 w-100">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <script>
 
-        // Update the sub-property list and plot
-        function selectProperty(property) {
-          $('#subproperties').empty();
-          $('#property-detail').empty();
-          if (property == "species") {
-            var model_data = JSON.parse(localStorage.getItem("model_data"));
-            var species = model_data.mechanism.molecules;
-            for (key in species) {
-              $('#subproperties').append(`
-                <div class="btn-group m-1" role="group">
-                  <button type="button" class="btn btn-outline-primary" id="` + species[key].moleculename +
-                  `">` + species[key].moleculename + `</button>
-                </div>`);
-            }
-          } else if (property == "rates") {
-            var model_data = JSON.parse(localStorage.getItem("model_data"));
-            var photolysis = model_data.mechanism.photolysis;
-            for (key in photolysis) {
-              var rxn_id   = reactionId(photolysis[key], photolysis);
-              var rxn_name = reactionName('photolysis', photolysis[key], photolysis);
-              $('#subproperties').append(`
-                <div class="btn-group m-1" role="group">
-                  <button type="button" class="btn btn-outline-primary" id="rate_` + rxn_id +
-                  `">` + rxn_name + `</button>
-                </div>`);
-            }
-            var molecular_rxns= model_data.mechanism.reactions;
-            for (key in molecular_rxns) {
-              var rxn_id   = reactionId(molecular_rxns[key], molecular_rxns);
-              var rxn_name = reactionName('molecular', molecular_rxns[key], molecular_rxns);
-              $('#subproperties').append(`
-                <div class="btn-group m-1" role="group">
-                  <button type="button" class="btn btn-outline-primary" id="rate_` + rxn_id +
-                  `">` + rxn_name + `</button>
-                </div>`);
-            }
-          } else {
-            propertyDetail(property);
-          }
-        }
+<div class="navbox">
+  <div id="plotnav" class="plotnav">
+      <a class="propfam" id="species">Chemical species</a>
+      <a class="propfam" id="rates">Reaction rates</a>
+      <a class="prop" id="zenith">Solar zenith angle</a>
+      <a class="prop" id="density">Density</a>
+      <a class="prop" id="mass">Mean molar mass</a>
+      <a class="prop" id="humidity">Relative humidity</a>
+  </div> 
+</div>
 
-        // Populate the detail page with plots
-        function propertyDetail(property_list) {
-          $('#property-detail').html('<img src="plots/get?props=' + property_list + '">');
-        }
+<div id="plotbar">
+</div> 
 
-        // get the species and populate the sidebar
-        $(document).ready(function() {
-          $.ajax({
-            url: 'model_driver/mechanism_data',
-            type: 'get',
-            dataType: "json",
-            success: function(response) {
-              var model_data = response;
-              localStorage.setItem("model_data", JSON.stringify(model_data));
-            },
-            error: function(xhr, opts, error) {
-              $('property-detail').text(error);
-            }
-          });
-          $('#property-list').on('click', '.list-group-item-sidenav', function() {
-            $('.list-group-item-sidenav').removeClass("list-group-item-sidenav-active");
-            $(this).addClass("list-group-item-sidenav-active");
-            selectProperty($(this).attr('id'));
-          });
-          $('#subproperties').on('click', '.btn', function() {
-            propertyDetail($(this).attr('id'));
-          });
-        });
-      </script>
+
 {% endblock %}

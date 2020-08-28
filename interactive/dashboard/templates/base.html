@@ -5,6 +5,7 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
     <link rel="stylesheet" href="{% static 'style/style.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Cabin' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>   
     <meta charset="UTF-8">
     <title>MusicBox 2.0</title>
@@ -16,21 +17,18 @@
         <div id="content" class="main">
             {% block content %}
             {% endblock %}
-        </div>
+        </div>    
     <div class="sidenav" id="sidenav">
         <a class="{% if '/configure' in request.path %} current {% endif %}" href="/configure">Configure</a>
         <a class="{% if '/mechanism' in request.path %} current {% endif %}" href="/mechanism">View Mechanism</a>
         <a class="{% if '/visualize' in request.path %} current {% endif %}" href="/visualize">Plot Results</a>
-        <a href="https://wiki.ucar.edu/display/MusicBox/Quick+Start" target="_blank">Documentation</a>
-        <a class={% if '/model' in request.path %} current {% endif %} href="/model/run">Run Model</a>
+        <a href="https://github.com/NCAR/music-box/blob/master/README.md" target="_blank">Documentation</a>
+        <a id="run" class="{% if '/model' in request.path %} current {% endif %}" >Run Model</a>
+        
 
         <img id="logo" src="{% static 'style/logo.png' %}">
     </div>
 
-    <div class="footer">
-        <a href="https://ncar.ucar.edu/">National Center for Atmospheric Research</a>
-        <a href="https://github.com/NCAR/music-box">View on GitHub</a>
-    </div>
 
 </body>
 </html>

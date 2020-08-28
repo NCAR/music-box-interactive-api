@@ -2,19 +2,16 @@
     "formula": {
         "Species 1": "Ar",
         "Species 2": "H2O",
-        "Species 3": "O3",
-        "Species 4": "O2"
+        "Species 3": "O2"
     },
     "value": {
-        "Species 1": 1.0,
+        "Species 1": 2.0,
         "Species 2": 2.0,
-        "Species 3": 3.0,
-        "Species 4": 4.0
+        "Species 3": 3.0
     },
     "unit": {
         "Species 1": "mol m-3",
         "Species 2": "mol m-3",
-        "Species 3": "mol m-3",
-        "Species 4": "mol m-3"
+        "Species 3": "mol m-3"
     }
 }

@@ -11,7 +11,7 @@ body {
     top:0;
     left:0;
     background-color: black;
-    overflow-x: :hidden;
+    overflow-x: hidden;
     padding-top:10px;
     padding-bottom: 10px;
     padding-left: 10px;
@@ -41,7 +41,7 @@ body {
     top:80;
     left:0;
     background-color:#303030;
-    overflow-x: :hidden;
+    overflow-x: hidden;
     padding-top:20px;
 }
 .sidenav a {
@@ -73,6 +73,9 @@ body {
     margin-left: 0px;
 }
 
+.sidenav .current:hover{
+    margin-left: 30px;
+}
 
 
 .navbar {
@@ -110,10 +113,8 @@ body {
 
 .configbox .configform {
     display: inline-block;
-    width: 20%
-    margin-left: 10%;
+    width: 20%;
     z-index: 100;
-    background-color: ;
     color: black;
     font-family: 'Cabin';
     font-size: 18px;
@@ -252,4 +253,56 @@ select {
     height: 80px;
     z-index: 1;
     position: fixed;
+}
+
+.plothead {
+    margin-left: 50%;
+    z-index: 20;
+    font-size: 30px;
+    color: white;
+    font-family: 'Cabin';
+    text-decoration: underline;
+}
+
+#plotbar {
+    margin-left: 260px;
+    margin-top: 90px;
+    font-family: 'Cabin';
+    z-index: 10;
+}
+
+#plotbar a:hover{
+    text-decoration: underline;
+}
+
+
+.plotnav {
+    font-family: 'Cabin';
+    font-size:18px;
+    position: fixed;
+    z-index:1;
+    padding: 0px 0px 0px;
+    top:25;
+    left:20%;
+    transition: top 0.3s;
+}
+
+.plotnav a {
+    text-decoration: none;
+    color: white;
+    padding:6px 8px 6px;
+    border: 3px solid #2d6290;
+}
+
+.plotnav a:hover{
+    color: #bfbfbf;
+    border: 3px solid #bfbfbf;
+}
+.plotnav .selection{
+    border: 3px solid white;
+}
+
+#reviewbox{
+    font-size: 16px;
+    font-family: 'Cabin';
 }

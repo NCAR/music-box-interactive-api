@@ -4,40 +4,67 @@ from . import mpl_helper
 import scipy.io
 import json
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from matplotlib import pylab
 from matplotlib.ticker import *
 import matplotlib.pyplot as plt
 from pylab import *
 import PIL, PIL.Image, io
 import pandas
+from django.conf import settings
+
+def sub_props(prop):
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism/datamolec_info.json")
+    with open(mech_path) as a:
+            mechanism = json.loads(a.read())
+    
+    subs = []
+    if prop == 'species':
+        for molecule in mechanism['mechanism']['molecules']:
+            subs.append(molecule['moleculename'])
+    
+    elif prop == 'rates':
+        for photo in mechanism['mechanism']['photolysis']:
+            subs.append(photo['tuv_reaction'])
+
+        for reaction in mechanism['mechanism']['reactions']:
+            reactants = reaction['reactants']
+            products = []
+            for i in reaction['products']:
+                if int(i['coefficient']) > 1:
+                    coef = str(i['coefficient'])
+                else:
+                    coef = ""
+                molec = i['molecule']
+                products.append(coef + molec)
+            subs.append("+".join(i for i in reactants) + "->" + "+".join(j for j in reactants))
+    return subs
 
 
-def output_plot(request):
+def output_plot(prop):
+    
     matplotlib.use('agg')
 
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
-    props = request.GET.get('props', None).split(",")
+    
 
     # NetCDF output file
     nc_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    if os.path.isfile(nc_results_path):
-        ncf = scipy.io.netcdf_file(results_path)
-        time = ncf.variables["time"].data.copy()
-        for prop in props:
-            var = ncf.variables[prop].data.copy()
-            units = ncf.variables[prop].units
-            axes.plot(time, var, "-", label=prop.replace("_", " "))
+    # if os.path.isfile(nc_results_path):
+    #     ncf = scipy.io.netcdf_file(results_path)
+    #     time = ncf.variables["time"].data.copy()
+    #     for prop in props:
+    #         var = ncf.variables[prop].data.copy()
+    #         units = ncf.variables[prop].units
+    #         axes.plot(time, var, "-", label=prop.replace("_", " "))
     # CSV output file
-    elif os.path.isfile(csv_results_path):
-        csv = pandas.read_csv(csv_results_path, index_col="time")
-        csv_props = data.columns.str.strip('ENV.').strip('CONC.')
-        data.columns = csv_props
+    if os.path.isfile(csv_results_path):
+        csv = pandas.read_csv(csv_results_path)
+        print(csv)
+        csv_props = csv.columns
         units = "unknown"
-        time = csv.loc["time"]
-        for prop in props:
-            csv.plot(x="time", y=prop, ax=axes, legend=prop.replace("_", " "))
+        csv.plot(x="time", y=prop, ax=axes, legend=prop.replace("_", " "))
     else:
         return HttpResponseBadRequest('Missing results file', status=405)
 
@@ -60,3 +87,6 @@ def output_plot(request):
     plt.close(figure)
 
     return buffer
+
+
+

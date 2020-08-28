@@ -1,4 +1,5 @@
 {
-    "reaction 1": 0.0032,
-    "reaction 2": 0.0012
+    "Species 1": "mol m-3",
+    "Species 2": "mol m-3",
+    "Species 3": "mol m-3"
 }
