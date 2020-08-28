@@ -47,12 +47,11 @@ $(document).ready(function(){
   });
 
   //run model button
-  $("#run").on('click', function(){
+  $("#runM").on('click', function(){
     $.ajax({
       url: "/model/run",
       type: 'get',
       success: function(response){
-      
       }
     });
   });
@@ -70,5 +69,14 @@ $(document).ready(function(){
     });
   });
  
-  
+  //new photolysis reaction
+  $("#newPhoto").on('click', function(){
+    $.ajax({
+      url: "/configure/new-photo",
+      type: 'get',
+      success: function(response){
+        location.reload()
+      }
+    });
+  });
 });

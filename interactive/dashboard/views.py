@@ -141,6 +141,13 @@ def photo_csv(request):
     return render(request, 'config/photolysis.html', context)
 
 
+def new_photo(request):
+    if request.method == 'GET':
+        new_photolysis()
+    
+    return HttpResponse()
+
+
 def review(request):
     json = review_json()
     context = {

@@ -292,3 +292,19 @@ def review_json():
         config = json.loads(f.read())
     
     return config
+
+# add new photolysis reaction:
+
+def new_photolysis():
+    with open(os.path.join(config_path, "photo.json")) as f:
+        photo = json.loads(f.read())
+
+    number = 1+ len(photo['reactions'])
+    name = 'reaction ' + str(number)
+
+    photo['reactions'].update({name: "Enter Reaction"})
+
+    photo['initial value'].update({name: 0})
+
+    with open(os.path.join(config_path, "photo.json"), 'w') as f:
+        json.dump(photo, f, indent=4)
