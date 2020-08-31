@@ -8,7 +8,9 @@ from .csvload import handle_uploaded_csv, read_csv
 from .save import *
 from .models import Document
 from django.http import HttpResponse, HttpRequest
-
+import os
+from django.conf import settings
+import mimetypes
 
 def new_species(request):
 
@@ -163,3 +165,14 @@ def remove(request):
         remove_species(id)
 
     return HttpResponse()
+
+
+def download_file(request):
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/config/my_config.json')
+    filename = 'my_config.json'
+
+    fl = open(fl_path, 'r')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response

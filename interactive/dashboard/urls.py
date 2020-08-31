@@ -20,5 +20,6 @@ urlpatterns = [
     path('configure/photo-csv', views.photo_csv),
     path('configure/new-photo', views.new_photo),
     path('configure/run', views.configure),
-    path('configure/species/remove', views.remove)
+    path('configure/species/remove', views.remove),
+    path('configure/download_config', views.download_file)
 ]

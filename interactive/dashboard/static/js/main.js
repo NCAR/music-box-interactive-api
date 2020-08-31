@@ -52,11 +52,14 @@ $(document).ready(function(){
       url: "/model/run",
       type: 'get',
       success: function(response){
+        $('#download_results').remove();
+        $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
       }
     });
   });
   
-  // 
+  
+  // subproperty plot buttons
   $("body").on('click', "button.sub_p", function(){
     var linkId = $(this).attr('id');
     $.ajax({

@@ -3,6 +3,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 import json
 import os.path
 import subprocess
+import mimetypes
 
 
 def run(request):
@@ -46,16 +47,11 @@ def mechanism_data(request):
 
 
 def download(request):
-    nc_outfile_path  = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
-    csv_outfile_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    if os.path.isfile(nc_outfile_path):
-        with open(nc_outfile_path, 'rb') as outfile:
-            response = HttpResponse(outfile.read(), content_type="application/x-netcdf")
-            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(nc_outfile_path)
-            return response
-    if os.path.isfile(csv_output_path):
-        with open(csv_outfile_path, 'r') as outfile:
-            response = HttpResponse(outfile.read(), content_type="text/plain")
-            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(csv_outfile_path)
-            return response
-    return HttpResponseBadRequest('Missing output file', status=405)
+    fl_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    filename = 'output.csv'
+
+    fl = open(fl_path, 'r')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response
