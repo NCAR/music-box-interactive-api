@@ -13,32 +13,51 @@ import PIL, PIL.Image, io
 import pandas
 from django.conf import settings
 
-def sub_props(prop):
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism/datamolec_info.json")
-    with open(mech_path) as a:
-            mechanism = json.loads(a.read())
+# def sub_props(prop):
+#     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism/datamolec_info.json")
+#     with open(mech_path) as a:
+#             mechanism = json.loads(a.read())
     
-    subs = []
-    if prop == 'species':
-        for molecule in mechanism['mechanism']['molecules']:
-            subs.append(molecule['moleculename'])
+#     subs = []
+#     if prop == 'species':
+#         for molecule in mechanism['mechanism']['molecules']:
+#             subs.append(molecule['moleculename'])
     
-    elif prop == 'rates':
-        for photo in mechanism['mechanism']['photolysis']:
-            subs.append(photo['tuv_reaction'])
+#     elif prop == 'rates':
+#         for photo in mechanism['mechanism']['photolysis']:
+#             subs.append(photo['tuv_reaction'])
 
-        for reaction in mechanism['mechanism']['reactions']:
-            reactants = reaction['reactants']
-            products = []
-            for i in reaction['products']:
-                if int(i['coefficient']) > 1:
-                    coef = str(i['coefficient'])
-                else:
-                    coef = ""
-                molec = i['molecule']
-                products.append(coef + molec)
-            subs.append("+".join(i for i in reactants) + "->" + "+".join(j for j in reactants))
-    return subs
+#         for reaction in mechanism['mechanism']['reactions']:
+#             reactants = reaction['reactants']
+#             products = []
+#             for i in reaction['products']:
+#                 if int(i['coefficient']) > 1:
+#                     coef = str(i['coefficient'])
+#                 else:
+#                     coef = ""
+#                 molec = i['molecule']
+#                 products.append(coef + molec)
+#             subs.append("+".join(i for i in reactants) + "->" + "+".join(j for j in reactants))
+#     return subs
+
+
+def sub_props(prop):
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv = pandas.read_csv(csv_results_path)
+    titles = csv.columns.tolist()
+   # print(titles, type(titles))
+    spec = []
+    rate = []
+    for i in titles:
+        print(i, type(i))
+        if 'CONC' in i:
+            spec.append(str(i).split('.')[1])
+        elif 'RATE' in i:
+            rate.append(str(i).split('.')[1])
+    if prop == 'species':
+        return HttpResponse(spec)
+    if prop == 'rates':
+        return HttpResponse(rate)
 
 
 def output_plot(prop):

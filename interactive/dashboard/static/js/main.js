@@ -52,13 +52,24 @@ $(document).ready(function(){
       url: "/model/run",
       type: 'get',
       success: function(response){
-        $('#download_results').remove();
-        $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+        $.ajax({
+          url: "/model/check",
+          type: 'get',
+          success: function(response){
+            if (response == 'true') {
+              $('#download_results').remove();
+              $('#sidenav').append("<a class='" + "{% if '/visualize' in request.path %} current {% endif %}'" + 'href="/visualize">Plot Results</a>');
+              $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+            } else {
+              $('#download_results').remove();
+            }
+          }
+        });
       }
     });
   });
   
-  
+
   // subproperty plot buttons
   $("body").on('click', "button.sub_p", function(){
     var linkId = $(this).attr('id');

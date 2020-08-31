@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 import json
-import os.path
+import os
 import subprocess
 import mimetypes
 
@@ -55,3 +55,13 @@ def download(request):
     response = HttpResponse(fl, content_type=mime_type)
     response['Content-Disposition'] = "attachment; filename=%s" % filename
     return response
+
+def check(request):
+    response = HttpResponse()
+    if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
+        response.write('true')
+    else:
+        response.write('false')
+    
+    return response
+

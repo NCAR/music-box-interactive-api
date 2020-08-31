@@ -26,9 +26,9 @@ def read_csv():
             i = rows[1].index(bb)
             columns[i].append(bb)
 
-    dict = {}
+    dictionary = {}
     for col in columns:
-        dict.update({col[0]: float(col[1])})
+        dictionary.update({col[0]: float(col[1])})
 
     species = {}
     conc = {}
