@@ -269,6 +269,7 @@ select {
     margin-top: 90px;
     font-family: 'Cabin';
     z-index: 10;
+    width: min-content;
 }
 
 #plotbar a:hover{
@@ -285,6 +286,7 @@ select {
     top:25;
     left:20%;
     transition: top 0.3s;
+    display: inline-block;
 }
 
 .plotnav a {
@@ -305,4 +307,9 @@ select {
 #reviewbox{
     font-size: 16px;
     font-family: 'Cabin';
+}
+
+#plot{
+    display: inline-flex;
+    margin-left: 50px;
 }

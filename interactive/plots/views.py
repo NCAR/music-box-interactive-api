@@ -13,7 +13,7 @@ def get_contents(request):
     subs = sub_props(prop)
     for i in subs:
         print(i, type(i))
-        response.write('<li><button class="sub_p" id=' + i + ">" + i + "</button></li>")
+        response.write('<button class="sub_p" id=' + i + ">" + i + "</button>")
     return response
 
 

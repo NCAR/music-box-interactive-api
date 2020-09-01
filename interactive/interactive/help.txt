@@ -1,0 +1,5 @@
+build:
+docker build -t music-box-test . --build-arg TAG_ID=chapman
+
+run:
+docker run -p 8000:8000 -t music-box-test

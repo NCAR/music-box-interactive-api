@@ -58,7 +58,8 @@ $(document).ready(function(){
           success: function(response){
             if (response == 'true') {
               $('#download_results').remove();
-              $('#sidenav').append("<a class='" + "{% if '/visualize' in request.path %} current {% endif %}'" + 'href="/visualize">Plot Results</a>');
+              $('#plot_results').remove();
+              $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
               $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
             } else {
               $('#download_results').remove();
@@ -73,16 +74,17 @@ $(document).ready(function(){
   // subproperty plot buttons
   $("body").on('click', "button.sub_p", function(){
     var linkId = $(this).attr('id');
-    $.ajax({
-      url: 'plots/get',
-      type: 'get',
-      data: {"type": linkId},
-      success: function(response){
-        $("#plotbar").html(response);
-      }
-    });
+
+    if ($('#species').attr('class') == 'selection'){
+      var propType = 'CONC.'
+    } else if ($('#rates').attr('class') == 'selection'){
+      var propType = 'RATE.'
+    }
+    var prop = propType + linkId;
+    $('#plot').html('<img src="plots/get?type=' + prop + '">');
   });
  
+
   //new photolysis reaction
   $("#newPhoto").on('click', function(){
     $.ajax({
