@@ -95,4 +95,17 @@ $(document).ready(function(){
       }
     });
   });
+
+  // load mechanism item data
+  $(".mechanism_item").on('click', function(){
+    var itemName = $(this).attr('id')
+    $.ajax({
+      url: "/mechanism/load",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#molec_detail').html(response);
+      }
+    });
+  });
 });

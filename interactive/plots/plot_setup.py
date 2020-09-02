@@ -12,6 +12,9 @@ from pylab import *
 import PIL, PIL.Image, io
 import pandas
 from django.conf import settings
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
 def sub_props(prop):
@@ -27,8 +30,10 @@ def sub_props(prop):
         elif 'RATE' in i:
             rate.append(str(i).split('.')[1])
     if prop == 'species':
+        logging.info('getting concentrations')
         return spec
     if prop == 'rates':
+        logging.info('getting rates')
         return rate
 
 

@@ -313,3 +313,17 @@ select {
     display: inline-flex;
     margin-left: 50px;
 }
+
+#sidemenu{
+    margin-left: 250;
+    margin-top: 120;
+    list-style: none;
+}
+
+#sidemenu li{
+    width: fit-content;
+}
+
+#sidemenu li button{
+    width: 100;
+}

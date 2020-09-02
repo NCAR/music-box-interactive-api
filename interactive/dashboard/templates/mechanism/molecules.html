@@ -7,9 +7,20 @@
         <a class="selection" href="/mechanism/molecules">Molecules</a>
      </div>
 
-     <div class=confighead>Molecules (in progress)</div>
+     <div class=confighead>Molecules</div>
 
-     <div class="sideMenu"
+     <div id=molecule_content>
+      <div id="sidemenu" mech_section='molecule'>
+         {% for molecule in molecs %}
+            <li>
+               <button class="mechanism_item" id="{{molecule}}">
+                  {{ molecule }}
+               </button>
+            </li>
+         {% endfor %}
+      </div>
+      <div id="molec_detail"></div>
+     </div>
           
 
 
