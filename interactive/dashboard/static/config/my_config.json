@@ -15,7 +15,10 @@
         "O2": {
             "initial value [mol m-3]": 3.0
         },
-        "Enter Formula": {
+        "o": {
+            "initial value [mol m-3]": 0.0
+        },
+        "a": {
             "initial value [mol m-3]": 0.0
         }
     },

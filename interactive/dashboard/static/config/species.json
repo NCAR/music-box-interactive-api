@@ -3,18 +3,21 @@
         "Species 1": "Ar",
         "Species 2": "H2O",
         "Species 3": "O2",
-        "Species 4": "Enter Formula"
+        "Species 4": "o",
+        "Species 5": "a"
     },
     "value": {
         "Species 1": 2.0,
         "Species 2": 2.0,
         "Species 3": 3.0,
-        "Species 4": 0.0
+        "Species 4": 0.0,
+        "Species 5": 0.0
     },
     "unit": {
         "Species 1": "mol m-3",
         "Species 2": "mol m-3",
         "Species 3": "mol m-3",
-        "Species 4": "mol m-3"
+        "Species 4": "mol m-3",
+        "Species 5": "mol m-3"
     }
 }

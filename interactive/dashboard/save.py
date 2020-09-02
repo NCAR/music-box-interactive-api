@@ -1,9 +1,10 @@
 import json
 import os
 from django.conf import settings
-
+import logging
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 # Put the data from post request into post.json
 
@@ -97,6 +98,8 @@ def export():
 
     with open(os.path.join(config_path, "my_config.json"), 'w') as f:
         json.dump(config, f, indent=4)
+    
+    logging.info('my_config.json updated')
 
 
 # Save the data from the post request to the relevant configuration json
@@ -124,6 +127,7 @@ def save(type):
             species["formula"].update({key: dictionary[key]})
         with open(os.path.join(config_path, "species.json"), 'w') as f:
             json.dump(species, f, indent=4)
+        logging.info('Species updated')
 
  # Saves initial concentration values for chemical species
 
@@ -132,6 +136,7 @@ def save(type):
             species["value"].update({key: dictionary[key]})
         with open(os.path.join(config_path, "species.json"), 'w') as f:
             json.dump(species, f, indent=4)
+        logging.info('Species updated')
 
  # Saves units for species concentration
 
@@ -140,6 +145,7 @@ def save(type):
             species["unit"].update({key: dictionary[key]})
         with open(os.path.join(config_path, "species.json"), 'w') as f:
             json.dump(species, f, indent=4)
+        logging.info('Species updated')
 
  # Saves box model options
 
@@ -148,6 +154,7 @@ def save(type):
             options.update({key: dictionary[key]})
         with open(os.path.join(config_path, "options.json"), 'w') as f:
             json.dump(options, f, indent=4)
+        logging.info('box model options updated')
 
  # Saves initial condtions for the model
 
@@ -156,6 +163,7 @@ def save(type):
             initials['values'].update({key: dictionary[key]})
         with open(os.path.join(config_path, "initials.json"), 'w') as f:
             json.dump(initials, f, indent=4)
+        logging.info('initial conditions updated')
 
  # Saves units for the initial conditions
 
@@ -164,6 +172,7 @@ def save(type):
             initials['units'].update({key: dictionary[key]})
         with open(os.path.join(config_path, "initials.json"), 'w') as f:
             json.dump(initials, f, indent=4)
+        logging.info('initial conditions updated')
 
  # Saves units for the initial conditions
 
@@ -172,6 +181,7 @@ def save(type):
             photo['reactions'].update({key: dictionary[key]})
         with open(os.path.join(config_path, "photo.json"), 'w') as f:
             json.dump(photo, f, indent=4)
+        logging.info('photolysis updated')
 
  # Saves units for the initial conditions
 
@@ -180,6 +190,7 @@ def save(type):
             photo['initial value'].update({key: dictionary[key]})
         with open(os.path.join(config_path, "photo.json"), 'w') as f:
             json.dump(photo, f, indent=4)
+        logging.info('photolysis updated')
     export()
 
 
@@ -200,6 +211,7 @@ def new():
 
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(config, f, indent=4)
+    logging.info('new species added')
 
 
 def save_species(form):
@@ -265,6 +277,8 @@ def save_photo(form):
     save('photo-values')
 
 
+#remove a species from the species json
+
 def remove_species(id):
     removed = id.split('.')[0]
     with open(os.path.join(config_path, "species.json")) as f:
@@ -274,16 +288,11 @@ def remove_species(id):
     specs["value"].pop(removed)
     specs["unit"].pop(removed)
 
-    i = 1
-    for key in specs["formula"]:
-        new_name = 'Species ' + str(i)
-        specs["formula"][new_name] = specs["formula"].pop(key)
-        specs["value"][new_name] = specs["value"].pop(key)
-        specs["unit"][new_name] = specs["unit"].pop(key)
-        i = i+1
-
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(specs, f, indent=4)
+
+    export()
+
 
 # load config json for review
 
