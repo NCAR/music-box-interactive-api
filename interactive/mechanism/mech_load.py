@@ -82,6 +82,30 @@ def pretty_names():
         'dh1_r': "\\" + "begin{equation}\mathrm{dh1}_{r}\end{equation}",
         'k2_298': "\\" + "begin{equation}\mathrm{k2}_{298}\end{equation}",
         'dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
-        'henrys_law_type': "Henry's Law Type:"
+        'henrys_law_type': "Henry's Law Type:",
+        'transport': "Transport:"
     }
     return names
+
+
+def save_mol(name, myDict):
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
+            datafile = json.loads(g.read())
+    mechanism = datafile['mechanism']
+    molecules = mechanism['molecules']
+    for i in molecules:
+        if i['moleculename'] == name:
+            n = molecules.index(i)
+    old = molecules[n]
+    for key in myDict:
+        if key.split('.')[0] == 'hl':
+            old['henrys_law'].update({key.split('.')[1]: myDict[key]})
+        else:
+            old.update({key: myDict[key]})
+    molecules[n] = old
+    mechanism.update({'molecules':molecules})
+    datafile.update({'mechanism': mechanism})
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
+        json.dump(datafile, f, indent=4)

@@ -1,17 +1,17 @@
 {
-    "moleculename": "CO2",
-    "formula": null,
+    "moleculename": "Ar",
+    "formula": "Ar",
     "transport": "transported",
-    "solve": "explicit",
+    "solve": "implicit",
     "henrys_law": {
-        "henrys_law_type": "1",
-        "kh_298": "3.44E-02",
-        "dh_r": "2715",
-        "k1_298": "4.3e-07",
-        "dh1_r": "-1000",
-        "k2_298": "4.68e-11",
-        "dh2_r": "-1760"
+        "henrys_law_type": "0",
+        "kh_298": "0",
+        "dh_r": "0",
+        "k1_298": "0",
+        "dh1_r": "0",
+        "k2_298": "0",
+        "dh2_r": "0"
     },
-    "molecular_weight": "44.0098",
-    "standard_name": "CO2_std"
+    "molecular_weight": "39.948",
+    "standard_name": "Ar_std"
 }

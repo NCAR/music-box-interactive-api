@@ -276,6 +276,9 @@ select {
     text-decoration: underline;
 }
 
+#plotbar button{
+    width: 100;
+}
 
 .plotnav {
     font-family: 'Cabin';
@@ -312,6 +315,7 @@ select {
 #plot{
     display: inline-flex;
     margin-left: 50px;
+    margin-top: 100px;
 }
 
 #sidemenu{
@@ -341,13 +345,29 @@ select {
 
 h2 {
     font-family: 'Cabin';
-    font-size: 28;
+    font-size: 30;
     text-decoration: underline;
 }
 
 #equation_box {
     display: inline-block;
-    margin-top: 370;
+    margin-top: 120;
     margin-left: 80;
     list-style: none;
+}
+
+#reaction_content {
+    display: flex;
+}
+
+
+#react_detail {
+    display: inline-block;
+    margin-left: 60;
+    margin-top: 80;
+    width: 250;
+}
+
+#plots_content{
+    display: flex;
 }

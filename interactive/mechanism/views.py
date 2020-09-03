@@ -13,7 +13,9 @@ def molecules(request):
 
 
 def reactions(request):
-    context = {}
+    context = {
+        
+    }
     return render(request, 'mechanism/reactions.html', context)
 
 
@@ -25,6 +27,7 @@ def load(request):
     labels = pretty_names()
     response.write('<h2>' + info['moleculename'] + '</h2>')
     response.write('<table><tr><td><h3>Solve Type:</h3></td><td><h3>' + info['solve'] + '</h3></td></tr>')
+    response.write('<tr><td><h3>Transport:</h3></td><td><h3>' + info['transport'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Molecular Weight:</h3></td><td><h3>' + info['molecular_weight'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Standard Name:</h3></td><td><h3>' + info['standard_name'] + '</h3></td></tr></table>')
     response.write('<table>')
@@ -75,5 +78,6 @@ def save(request):
     item = id_molecule()
     data = request.GET
     myDict = data.dict()
+    save_mol(item,myDict)
     messages.success(request, item)
     return HttpResponseRedirect('/mechanism/molecules')

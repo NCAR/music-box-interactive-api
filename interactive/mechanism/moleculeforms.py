@@ -8,6 +8,7 @@ class MoleculeForm(forms.Form):
 
         self.fields['formula'] = forms.CharField(initial=inits['formula'],required=False)
         self.fields['solve'] = forms.CharField(initial=inits['solve'])
+        self.fields['transport'] = forms.CharField(initial=inits['transport'])
         self.fields['hl.henrys_law_type'] = forms.IntegerField(initial=inits['henrys_law']['henrys_law_type'])
         self.fields['hl.kh_298'] = forms.FloatField(initial=inits['henrys_law']['kh_298'])
         self.fields['hl.dh_r'] = forms.FloatField(initial=inits['henrys_law']['dh_r'])
