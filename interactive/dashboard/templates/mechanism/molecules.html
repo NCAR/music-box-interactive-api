@@ -19,7 +19,13 @@
             </li>
          {% endfor %}
       </div>
-      <div id="molec_detail"><h3>Select a molecule from the left to view</h3></div>
+      <div id="molec_detail"
+         {% if messages %}
+            {% for message in messages %}
+               save="{{ message }}"
+            {% endfor %}
+         {% endif %}>
+         <h3>Select a molecule from the left to view</h3></div>
       <div id="equation_box"></div>
      </div>
           

@@ -135,5 +135,27 @@ $(document).ready(function(){
     });
   });
 
+  if (typeof $("#molec_detail").attr('save') == 'string'){
+    var itemName = $("#molec_detail").attr('save');
+    $('#molec_detail').html('');
+    $.ajax({
+      url: "/mechanism/load",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#molec_detail').html(response);
+        MathJax.typeset()
 
+      }
+    });
+    $.ajax({
+      url: "/mechanism/equation",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#equation_box').html(response);
+        MathJax.typeset()
+      }
+    });
+  }
 });

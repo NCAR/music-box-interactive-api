@@ -7,5 +7,6 @@ urlpatterns = [
     path('reactions', views.reactions),
     path('load', views.load),
     path('edit', views.edit),
-    path('equation', views.equation)
+    path('equation', views.equation),
+    path('save', views.save)
     ]

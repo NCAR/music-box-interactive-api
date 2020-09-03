@@ -6,7 +6,7 @@ class MoleculeForm(forms.Form):
         super(MoleculeForm, self).__init__(*args, **kwargs)
         inits = initialize_form()
 
-        self.fields['formula'] = forms.CharField(initial=inits['formula'])
+        self.fields['formula'] = forms.CharField(initial=inits['formula'],required=False)
         self.fields['solve'] = forms.CharField(initial=inits['solve'])
         self.fields['hl.henrys_law_type'] = forms.IntegerField(initial=inits['henrys_law']['henrys_law_type'])
         self.fields['hl.kh_298'] = forms.FloatField(initial=inits['henrys_law']['kh_298'])

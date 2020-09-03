@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from .mech_load import *
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .moleculeforms import *
+from django.contrib import messages
+
 
 def molecules(request):
     context = {
@@ -40,7 +42,7 @@ def edit(request):
     info = molec_dict[name]
     formresponse = HttpResponse()
     formresponse.write('<h2>' + info['moleculename'] + '</h2>')
-    formresponse.write('<form method="post" class="mechform" id="' + name + '">')
+    formresponse.write('<form action="save" method="get" class="mechform" id="' + name + '">')
     # formresponse.write('{% csrf_token %}')
     form = MoleculeForm()
     formresponse.write('<table>')
@@ -67,3 +69,11 @@ def equation(request):
     for i in equations:
         response.write('<li><h3>' + i + '</h3></li>')
     return response
+
+
+def save(request):
+    item = id_molecule()
+    data = request.GET
+    myDict = data.dict()
+    messages.success(request, item)
+    return HttpResponseRedirect('/mechanism/molecules')
