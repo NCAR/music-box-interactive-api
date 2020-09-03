@@ -327,3 +327,27 @@ select {
 #sidemenu li button{
     width: 100;
 }
+
+#molec_detail {
+    display: inline-block;
+    margin-left: 60;
+    margin-top: 80;
+    width: 250;
+}
+
+#molecule_content {
+    display: flex;
+}
+
+h2 {
+    font-family: 'Cabin';
+    font-size: 28;
+    text-decoration: underline;
+}
+
+#equation_box {
+    display: inline-block;
+    margin-top: 370;
+    margin-left: 80;
+    list-style: none;
+}

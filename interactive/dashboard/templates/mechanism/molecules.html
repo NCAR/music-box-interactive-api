@@ -2,13 +2,13 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-     <div class="mechnav">
-        <a href="/mechanism/reactions">Reactions</a>
-        <a class="selection" href="/mechanism/molecules">Molecules</a>
-     </div>
-
-     <div class=confighead>Molecules</div>
-
+   <div class="navbox">
+      <div class="mechnav">
+         <a href="/mechanism/reactions">Reactions</a>
+         <a class="selection" href="/mechanism/molecules">Molecules</a>
+      </div>
+   </div>
+     
      <div id=molecule_content>
       <div id="sidemenu" mech_section='molecule'>
          {% for molecule in molecs %}
@@ -19,7 +19,8 @@
             </li>
          {% endfor %}
       </div>
-      <div id="molec_detail"></div>
+      <div id="molec_detail"><h3>Select a molecule from the left to view</h3></div>
+      <div id="equation_box"></div>
      </div>
           
 

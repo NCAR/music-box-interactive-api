@@ -1,0 +1,17 @@
+{
+    "moleculename": "CO2",
+    "formula": null,
+    "transport": "transported",
+    "solve": "explicit",
+    "henrys_law": {
+        "henrys_law_type": "1",
+        "kh_298": "3.44E-02",
+        "dh_r": "2715",
+        "k1_298": "4.3e-07",
+        "dh1_r": "-1000",
+        "k2_298": "4.68e-11",
+        "dh2_r": "-1760"
+    },
+    "molecular_weight": "44.0098",
+    "standard_name": "CO2_std"
+}

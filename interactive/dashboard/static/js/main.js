@@ -1,5 +1,5 @@
 $(document).ready(function(){
-
+  
 //remove species button
   $('.r_button').on('click', function(){
     var buttonId = $(this).attr('id');
@@ -99,13 +99,41 @@ $(document).ready(function(){
   // load mechanism item data
   $(".mechanism_item").on('click', function(){
     var itemName = $(this).attr('id')
+    $('#molec_detail').html('')
     $.ajax({
       url: "/mechanism/load",
       type: 'get',
       data: {'name': itemName},
       success: function(response){
         $('#molec_detail').html(response);
+        MathJax.typeset()
+
+      }
+    });
+    $.ajax({
+      url: "/mechanism/equation",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#equation_box').html(response);
+        MathJax.typeset()
       }
     });
   });
+
+  //edit mechanism item
+  $("body").on('click', "button.mech_edit", function(){
+    var itemId = $(this).attr('species');
+    $.ajax({
+      url: "/mechanism/edit",
+      type: 'get',
+      data: {'name': itemId},
+      success: function(response){
+        $('#molec_detail').html(response);
+        MathJax.typeset()
+      }
+    });
+  });
+
+
 });
