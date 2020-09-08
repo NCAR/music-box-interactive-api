@@ -38,3 +38,9 @@ K_{1}=\mathrm{k} 1_{298} \exp \left(\operatorname{dh} 1_{r}\left(\frac{1}{T}-\fr
 \begin{equation}
 K_{2}=\mathrm{k} 2_{298} \exp \left(\mathrm{dh} 2_{r}\left(\frac{1}{T}-\frac{1}{298}\right)\right)
 \end{equation}
+
+
+
+<script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>

@@ -3,15 +3,15 @@
         "Species 1": "Ar",
         "Species 2": "H2O",
         "Species 3": "O2",
-        "Species 4": "o",
-        "Species 5": "a"
+        "Species 4": "N2",
+        "Species 5": "O3"
     },
     "value": {
         "Species 1": 2.0,
         "Species 2": 2.0,
-        "Species 3": 3.0,
-        "Species 4": 0.0,
-        "Species 5": 0.0
+        "Species 3": 30.0,
+        "Species 4": 70.0,
+        "Species 5": 10.0
     },
     "unit": {
         "Species 1": "mol m-3",

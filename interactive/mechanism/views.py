@@ -14,7 +14,7 @@ def molecules(request):
 
 def reactions(request):
     context = {
-        
+
     }
     return render(request, 'mechanism/reactions.html', context)
 
@@ -26,6 +26,7 @@ def load(request):
     response = HttpResponse()
     labels = pretty_names()
     response.write('<h2>' + info['moleculename'] + '</h2>')
+    response.write('<button id="mech_edit" h_type="' + info['henrys_law']["henrys_law_type"] + '"class="mech_edit" species="'+ info['moleculename'] + '">Edit</button>')
     response.write('<table><tr><td><h3>Solve Type:</h3></td><td><h3>' + info['solve'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Transport:</h3></td><td><h3>' + info['transport'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Molecular Weight:</h3></td><td><h3>' + info['molecular_weight'] + '</h3></td></tr>')

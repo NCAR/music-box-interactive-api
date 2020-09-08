@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('PDF')
 import matplotlib.pyplot as plt
 
-matplotlib.rc('text', usetex = True)
+matplotlib.rc('text', usetex = False)
 matplotlib.rc('xtick.major', pad = 8)
 matplotlib.rc('ytick.major', pad = 8)
 matplotlib.rc('xtick', labelsize = 10)

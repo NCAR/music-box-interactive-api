@@ -37,6 +37,23 @@ def sub_props(prop):
         return rate
 
 
+def undo_double(dataframe):
+    dflist = dataframe.to_dict(orient='list')
+    for key in dflist:
+        for val in dflist[key]:
+            i = dflist[key].index(val)
+            old = val
+            if 'D+' in old:
+                delim = 'D+'
+            elif 'D-' in old:
+                delim = 'D-'
+            exp = float(old.split(delim)[1])
+            number = float(old.split(delim)[0])
+            new = number * (10 ** exp)
+            dflist[key][i] = new
+    return pandas.DataFrame(dflist)
+
+
 def output_plot(prop):
     
     matplotlib.use('agg')
@@ -44,10 +61,13 @@ def output_plot(prop):
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
-    print(prop)
-    subset = csv.reindex(columns=['time', prop])
-    subset.plot(x="time", ax=axes)
-    # length = time[-1]
+    subset = csv[['time', ' ' + str(prop)]]
+    cleaned_subset = undo_double(subset)
+    print(cleaned_subset)
+    cleaned_subset.plot(x="time", ax=axes)
+
+    # time = cleaned_subset[['time']].values.tolist()
+    # length = time[-1][0]
     # grad = length / 6
     # if grad < 700000:
     #     tick_spacing = [60, 3600, 7200, 14400, 18000, 21600, 25200, 36000, 43200, 86400, 172800, 345600, 604800]

@@ -12,7 +12,6 @@ def get_contents(request):
     response = HttpResponse()
     subs = sub_props(prop)
     for i in subs:
-        print(i, type(i))
         response.write('<button class="sub_p" id=' + i + ">" + i + "</button>")
     return response
 
@@ -21,7 +20,7 @@ def get(request):
 
     if request.method == 'GET':
         props = request.GET['type']
-        buffer = output_plot(props)
+        buffer = output_plot(str(props))
 
         return HttpResponse(buffer.getvalue(), content_type="image/png")
     return HttpResponseBadRequest('Bad format for plot request', status=405)
