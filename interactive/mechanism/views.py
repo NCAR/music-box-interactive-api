@@ -81,4 +81,34 @@ def save(request):
     myDict = data.dict()
     save_mol(item,myDict)
     messages.success(request, item)
+    
+    return HttpResponseRedirect('/mechanism/molecules')
+
+
+def new_molec(request):
+    labels = pretty_names()
+    formresponse = HttpResponse()
+    formresponse.write('<h2>Add new molecule</h2>')
+    formresponse.write('<form action="newM" method="get" class="mechform" id="newmolecform">')
+    form = NewMoleculeForm()
+    formresponse.write('<table>')
+    for field in form:
+        formresponse.write('<tr>')
+        formresponse.write('<td><h3>' + labels[str(field.name)] + '</h3></td><td>')
+        formresponse.write(field)
+        formresponse.write('</td></tr>')
+    formresponse.write('</table>')
+    formresponse.write('<button type="submit">Save to mechanism</button>')
+    formresponse.write('</form>')
+
+    return formresponse
+
+
+def new_molec_save(request):
+    data = request.GET
+    myDict = data.dict()
+    newMoleculeName = data['moleculename']
+    new_m(myDict)
+    messages.success(request, newMoleculeName)
+
     return HttpResponseRedirect('/mechanism/molecules')

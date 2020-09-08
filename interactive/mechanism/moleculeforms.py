@@ -19,3 +19,21 @@ class MoleculeForm(forms.Form):
         self.fields['molecular_weight'] = forms.FloatField(initial=inits['molecular_weight'])
         self.fields['standard_name'] = forms.CharField(initial=inits['standard_name'])
     
+
+class NewMoleculeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(NewMoleculeForm, self).__init__(*args, **kwargs)
+        
+        self.fields['moleculename'] = forms.CharField()
+        self.fields['formula'] = forms.CharField()
+        self.fields['solve'] = forms.CharField()
+        self.fields['transport'] = forms.CharField()
+        self.fields['hl.henrys_law_type'] = forms.IntegerField()
+        self.fields['hl.kh_298'] = forms.FloatField()
+        self.fields['hl.dh_r'] = forms.FloatField()
+        self.fields['hl.k1_298'] = forms.FloatField()
+        self.fields['hl.dh1_r'] = forms.FloatField()
+        self.fields['hl.k2_298'] = forms.FloatField()
+        self.fields['hl.dh2_r'] = forms.FloatField()
+        self.fields['molecular_weight'] = forms.FloatField()
+        self.fields['standard_name'] = forms.CharField()

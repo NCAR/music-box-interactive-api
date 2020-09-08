@@ -17,7 +17,7 @@ $(document).ready(function(){
   // plot species and plot rates buttons
   $(".propfam").on('click', function(){
     var linkId = $(this).attr('id');
-
+    $('#plot').html("<h3><div id='plotmessage'></div></h3>")
     $("#plotnav").children().attr('class', 'none');
     $('#'+linkId).attr('class','selection');
     $.ajax({
@@ -26,6 +26,7 @@ $(document).ready(function(){
       data: {"type": linkId},
       success: function(response){
         $("#plotbar").html(response);
+        $("#plotmessage").html('Select items from the left to plot');
       }
     });
   });
@@ -73,15 +74,21 @@ $(document).ready(function(){
 
   // subproperty plot buttons
   $("body").on('click', "button.sub_p", function(){
+    $("#plotmessage").html('')
     var linkId = $(this).attr('id');
-
+    if ($(this).attr('clickStatus') == 'true'){
+      $(this).attr('clickStatus', 'false')
+      $("#" + linkId +'plot').remove()
+    } else {
+      $(this).attr('clickStatus','true');
     if ($('#species').attr('class') == 'selection'){
       var propType = 'CONC.'
     } else if ($('#rates').attr('class') == 'selection'){
       var propType = 'RATE.'
     }
     var prop = propType + linkId;
-    $('#plot').html('<img src="plots/get?type=' + prop + '">');
+    $('#plot').append('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '">');
+    }
   });
  
 
@@ -99,7 +106,9 @@ $(document).ready(function(){
   // load mechanism item data
   $(".mechanism_item").on('click', function(){
     var itemName = $(this).attr('id')
-    $('#molec_detail').html('')
+    $('#molec_detail').html('');
+    $('#sidemenu').children().children().attr('status','null')
+    $('#'+ itemName).attr('status', 'selected')
     $.ajax({
       url: "/mechanism/load",
       type: 'get',
@@ -158,4 +167,17 @@ $(document).ready(function(){
       }
     });
   }
+
+  //new molecule in mechanism
+  $("#newmolecule").on('click', function(){
+    $.ajax({
+      url: "/mechanism/newmolec",
+      type: 'get',
+      success: function(response){
+        $('#equation_box').html('');
+        $('#molec_detail').html(response);
+        MathJax.typeset()
+      }
+    });
+  });
 });

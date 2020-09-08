@@ -173,6 +173,12 @@ button {
     border-radius: 3px;
     border: 2px solid #303030;;
 }
+button[status='selected']{
+    width: 125;
+    background-color: #272727;
+    border-color: #272727;
+}
+
 button:hover {
     background: white;
     font-size: 16px;
@@ -251,7 +257,7 @@ select {
     top: -0;
     width: 100%;
     height: 80px;
-    z-index: 1;
+    z-index: 2;
     position: fixed;
 }
 
@@ -268,16 +274,25 @@ select {
     margin-left: 260px;
     margin-top: 90px;
     font-family: 'Cabin';
-    z-index: 10;
-    width: min-content;
+    z-index: 1;
+    width: 188;
 }
 
-#plotbar a:hover{
-    text-decoration: underline;
-}
 
 #plotbar button{
     width: 150;
+    border-radius: 0;
+}
+
+#plotbar button:hover{
+    width: 188;
+    transition: 0.3s;
+}
+
+#plotbar button[clickStatus='true']{
+    background-color: #272727;
+    border-color: #272727;
+    width: 188;
 }
 
 .plotnav {
@@ -313,9 +328,14 @@ select {
 }
 
 #plot{
-    display: inline-flex;
+    display: block;
     margin-left: 50px;
     margin-top: 100px;
+}
+
+#plot img{
+    margin-top:5;
+    margin-bottom: 5;
 }
 
 #sidemenu{
@@ -370,4 +390,29 @@ h2 {
 
 #plots_content{
     display: flex;
+}
+
+#sidemenu button{
+    border-radius: 0;
+}
+
+#sidemenu li button[status='selected']{
+    width: 125;
+}
+
+#sidemenu li button:hover{
+    width: 125;
+    transition: 0.3s;
+}
+
+
+
+button:focus{
+    outline: none;   
+}
+
+#plotbar button[clickStatus='true']{
+    background-color: #272727;
+    border-color: #272727;
+    width: 188;
 }

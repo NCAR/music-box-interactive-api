@@ -83,7 +83,8 @@ def pretty_names():
         'k2_298': "\\" + "begin{equation}\mathrm{k2}_{298}\end{equation}",
         'dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
         'henrys_law_type': "Henry's Law Type:",
-        'transport': "Transport:"
+        'transport': "Transport:",
+        'moleculename': "Molecule Name:"
     }
     return names
 
@@ -109,3 +110,35 @@ def save_mol(name, myDict):
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
     with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
         json.dump(datafile, f, indent=4)
+
+
+def new_m(myDict):
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
+            datafile = json.loads(g.read())
+    mechanism = datafile['mechanism']
+    molecules = mechanism['molecules']
+    new = {
+                "moleculename": myDict['moleculename'],
+                "formula": myDict['formula'],
+                "transport": myDict['transport'],
+                "solve": myDict['solve'],
+                "henrys_law": {
+                    "henrys_law_type": myDict['hl.henrys_law_type'],
+                    "kh_298": myDict['hl.kh_298'],
+                    "dh_r": myDict['hl.dh_r'],
+                    "k1_298": myDict['hl.k1_298'],
+                    "dh1_r": myDict['hl.dh1_r'],
+                    "k2_298": myDict['hl.k2_298'],
+                    "dh2_r": myDict['hl.dh2_r']
+                },
+                "molecular_weight": myDict['molecular_weight'],
+                "standard_name": myDict['standard_name']
+            }
+    
+    molecules.append(new)
+    mechanism.update({'molecules': molecules})
+    datafile.update({'mechanism': mechanism})
+    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
+        json.dump(datafile, f, indent=4)
+    

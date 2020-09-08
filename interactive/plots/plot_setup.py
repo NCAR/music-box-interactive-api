@@ -75,6 +75,10 @@ def output_plot(prop):
     #     axes.xaxis.set_major_locator(plt.MultipleLocator(base))
 
     axes.set_xlabel(r"time / s")
+    if prop.split('.')[0] == 'CONC':
+        axes.set_ylabel(r"(mol/m^3)")
+    elif prop.split('.')[0] == 'CONC':
+        axes.set_ylabel(r"(mol/m^3 s^-1)")
     axes.legend()
     axes.grid(True)
 

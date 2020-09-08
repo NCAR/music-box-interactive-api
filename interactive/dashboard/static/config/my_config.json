@@ -1,9 +1,9 @@
 {
     "box model options": {
         "grid": "box",
-        "chemistry time step [min]": 7.0,
-        "output time step [hr]": 2.0,
-        "simulation length [hr]": 2.0
+        "chemistry time step [min]": 1.0,
+        "output time step [hr]": 0.1,
+        "simulation length [hr]": 12
     },
     "chemical species": {
         "Ar": {
@@ -13,13 +13,13 @@
             "initial value [mol m-3]": 2.0
         },
         "O2": {
-            "initial value [mol m-3]": 3.0
+            "initial value [mol m-3]": 30.0
         },
-        "o": {
-            "initial value [mol m-3]": 0.0
+        "N2": {
+            "initial value [mol m-3]": 70.0
         },
-        "a": {
-            "initial value [mol m-3]": 0.0
+        "O3": {
+            "initial value [mol m-3]": 10.0
         }
     },
     "environmental conditions": {
