@@ -37,3 +37,9 @@ class NewMoleculeForm(forms.Form):
         self.fields['hl.dh2_r'] = forms.FloatField()
         self.fields['molecular_weight'] = forms.FloatField()
         self.fields['standard_name'] = forms.CharField()
+
+
+class MoleculeSearchForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(MoleculeSearchForm, self).__init__(*args, **kwargs)
+        self.fields['query'] = forms.CharField(widget= forms.TextInput(attrs={'placeholder':'name'}))

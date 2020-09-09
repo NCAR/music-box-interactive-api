@@ -11,6 +11,12 @@
      
      <div id=molecule_content>
       <div id="sidemenu" mech_section='molecule'>
+         {% for field in searchForm %}
+         <form method="GET" action='searchM'>
+            <li>{{ field }}</li>
+            <li><button type="submit">Search</button></li>
+         </form>
+         {% endfor %}
          <li><button id='newmolecule'>New</button></li>
          {% for molecule in molecs %}
             <li>
@@ -23,10 +29,15 @@
       <div id="molec_detail"
          {% if messages %}
             {% for message in messages %}
-               save="{{ message }}"
+               {% if message.tags == 'error'%}
+                  error="{{ message }}"
+               {% endif %}
+               {% if message.tags == 'success' %}
+                  save="{{ message }}"
+               {% endif %}
             {% endfor %}
          {% endif %}>
-         <h3><div id='message_box'>Select a molecule from the left to view, or <a>add a new molecule to the mechansim</a></div></h3></div>
+         <h3><div id='message_box'>Select a molecule from the left to view, search with a molecule name, or <a>add a new molecule to the mechansim</a></div></h3></div>
       <div id="equation_box"></div>
      </div>
           

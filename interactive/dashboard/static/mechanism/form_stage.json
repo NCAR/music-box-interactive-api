@@ -1,6 +1,6 @@
 {
-    "moleculename": "N2",
-    "formula": "",
+    "moleculename": "Ar",
+    "formula": "Ar",
     "transport": "transported",
     "solve": "implicit",
     "henrys_law": {
@@ -12,6 +12,6 @@
         "k2_298": "0",
         "dh2_r": "0"
     },
-    "molecular_weight": "28.01348",
-    "standard_name": "N2_std"
+    "molecular_weight": "39.948",
+    "standard_name": "Ar_std"
 }

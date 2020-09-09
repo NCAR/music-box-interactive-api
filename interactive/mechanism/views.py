@@ -3,18 +3,19 @@ from .mech_load import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .moleculeforms import *
 from django.contrib import messages
-
+from .reactionforms import *
 
 def molecules(request):
     context = {
-        'molecs': molecule_list()
+        'molecs': molecule_list(),
+        'searchForm': MoleculeSearchForm
     }
     return render(request, 'mechanism/molecules.html', context)
 
 
 def reactions(request):
     context = {
-
+        'reacts': reaction_name_list()
     }
     return render(request, 'mechanism/reactions.html', context)
 
@@ -79,9 +80,9 @@ def save(request):
     item = id_molecule()
     data = request.GET
     myDict = data.dict()
-    save_mol(item,myDict)
+    save_mol(item, myDict)
     messages.success(request, item)
-    
+
     return HttpResponseRedirect('/mechanism/molecules')
 
 
@@ -112,3 +113,70 @@ def new_molec_save(request):
     messages.success(request, newMoleculeName)
 
     return HttpResponseRedirect('/mechanism/molecules')
+
+
+def molec_search(request):
+    query = request.GET['query']
+    mechlist = search_list()
+    if (query in mechlist):
+        messages.success(request, query)
+        return HttpResponseRedirect('/mechanism/molecules')
+    else:
+        messages.error(request, 'molecule not found')
+        return HttpResponseRedirect('/mechanism/molecules')
+
+
+def load_r(request):
+    name = request.GET['name']
+    info = reaction_dict()[name]
+    response = HttpResponse()
+    response.write('<h2>' + name + '</h2>')
+    response.write('<button id="mech_edit" r_type="' + info['rate_constant']["reaction_class"] + '"class="mech_edit_R" reaction="'+ name + '">Edit</button>')
+    response.write('<table><tr><td><h3>Rate:</h3></td><td><h3>' + str(info['rate']) + '</h3></td></tr>')
+    response.write('<tr><td><h3>Reactants:</h3></td><td><h3>')
+    for reactant in info['reactants']:
+        response.write('<li>' + reactant + '</li>') 
+    response.write('</h3></td></tr>')
+    response.write('<tr><td><h3>Rate Call:</h3></td><td><h3>' + info['rate_call'] + '</h3></td></tr>')
+    response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
+    for param in info['rate_constant']['parameters']:
+        response.write('<tr><td>' + param + '</td><td>' + info['rate_constant']['parameters'][param] + '</td></tr>')
+    response.write('</table></h3></td></tr>')
+    response.write('<tr><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
+    response.write('<tr><td><h3>Troe:</h3></td><td><h3>' + str(info['troe']) + '</h3></td></tr>')
+    response.write('<tr><td><h3>Products:</h3></td><td><h3>')
+    for product in info['products']:
+        response.write('<li>' + str(product['coefficient']) + ' ' + product['molecule'] + '</li>') 
+    response.write('</h3></td></tr></table>')
+    
+    return response
+
+
+def edit_r(request):
+    name = request.GET['name']
+    stage_reaction_form(name)
+    labels = pretty_reaction_names()
+    formresponse = HttpResponse()
+    formresponse.write('<h2>' + name + '</h2>')
+    formresponse.write('<form action="save_r" method="get" class="mechform" id="' + name + '">')
+    formresponse.write('<table><h3>')
+    form = ReactionForm()
+    for field in form:
+        formresponse.write('<tr>')
+        formresponse.write('<td><h3>' + labels[str(field.name)] + '</h3></td><td>')
+        formresponse.write(field)
+        formresponse.write('</td></tr>')
+    formresponse.write('</table></h3>')
+    formresponse.write('<button type="submit">Save</button></form>')
+
+
+    return formresponse
+
+
+def save_r(request):
+    data = request.GET
+    myDict = data.dict()
+    item = id_reaction()
+    messages.success(request, item)
+
+    return HttpResponseRedirect('/mechanism/reactions')

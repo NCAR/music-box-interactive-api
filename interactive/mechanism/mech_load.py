@@ -142,3 +142,137 @@ def new_m(myDict):
     with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
         json.dump(datafile, f, indent=4)
     
+
+def search_list():
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
+            datafile = json.loads(g.read())
+    mechanism = datafile['mechanism']
+    molecules = mechanism['molecules']
+    name_list = []
+    for i in molecules:
+        name_list.append(i['moleculename'])
+    return name_list
+
+
+def reaction_name_list():
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
+        datafile = json.loads(g.read())
+    mechanism = datafile['mechanism']
+    reactions = mechanism['reactions']
+    r_list = []
+    for i in reactions:
+        reactants = []
+        for j in i['reactants']:
+            reactants.append(j)
+        products = []
+        for k in i['products']:
+            coef = str(k['coefficient'])
+            if coef == '1':
+                coef = ''
+            prod = k['molecule']
+            products.append(coef + prod)
+        r_list.append(" + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products))
+    
+    return r_list
+
+
+def reaction_dict():
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
+        datafile = json.loads(g.read())
+    mechanism = datafile['mechanism']
+    reactions = mechanism['reactions']
+    r_dict = {}
+    for i in reactions:
+        reactants = []
+        for j in i['reactants']:
+            reactants.append(j)
+        products = []
+        for k in i['products']:
+            coef = str(k['coefficient'])
+            if coef == '1':
+                coef = ''
+            prod = k['molecule']
+            products.append(coef + prod)
+        name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
+        r_dict.update({name: i})
+    
+    return r_dict
+    
+
+def id_dict(namelist):
+    outlist = {}
+    i = 0
+    for x in namelist:
+        first = x.split(' ')[0]
+        name = first + str(i)
+        i = i+1
+        outlist.update({x: name})
+    print(outlist)
+    return outlist
+
+
+def stage_reaction_form(name):
+    initial = reaction_dict()[name]
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "reaction_stage.json"), 'w') as f:
+        json.dump(initial, f, indent=4)
+    
+
+def initialize_reactions():
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "reaction_stage.json")) as g:
+            info = json.loads(g.read())
+    
+    return info
+
+
+def pretty_reaction_names():
+    names = {
+        'rate': 'Rate:',
+        'rate_call': 'Rate Call:',
+        'rc.reaction_class': 'Reaction Class:',
+        'troe': "troe",
+        'reactant0': 'Reactant 0',
+        'reactant1': 'Reactant 1',
+        'reactant2': 'Reactant 2',
+        'reactant3': 'Reactant 3',
+        'reactant4': 'Reactant 4',
+        'rc.A': "A:",
+        'rc.B': "B:",
+        'rc.C': "C:",
+        'rc.D': "D:",
+        'rc.E': "E:",
+        'rc.A_k0': "A_k0:",
+        'rc.B_k0': "B_k0:",
+        'rc.C_k0': "C_k0:",
+        'p0.coefficient': 'Product 0 Coefficient:',
+        'p1.coefficient': 'Product 1 Coefficient:',
+        'p2.coefficient': 'Product 2 Coefficient:',
+        'p3.coefficient': 'Product 3 Coefficient:',
+        'p4.coefficient': 'Product 4 Coefficient:',
+        'p5.coefficient': 'Product 5 Coefficient:',
+        'p0.molecule': 'Product 0:',
+        'p1.molecule': 'Product 1:',
+        'p2.molecule': 'Product 2:',
+        'p3.molecule': 'Product 3:',
+        'p4.molecule': 'Product 4:',
+        'p5.molecule': 'Product 5:'
+    }
+    return names
+
+
+def id_reaction():
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "reaction_stage.json")) as g:
+            info = json.loads(g.read())
+    
+    r_dict = reaction_dict()
+
+    for key in r_dict:
+        if info == r_dict[key]:
+            name = key
+    
+    return name

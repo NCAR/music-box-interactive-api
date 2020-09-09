@@ -10,5 +10,9 @@ urlpatterns = [
     path('equation', views.equation),
     path('save', views.save),
     path('newmolec', views.new_molec),
-    path('newM', views.new_molec_save)
+    path('newM', views.new_molec_save),
+    path('searchM', views.molec_search),
+    path('load_reaction', views.load_r),
+    path('edit_reaction', views.edit_r),
+    path('save_r', views.save_r)
     ]

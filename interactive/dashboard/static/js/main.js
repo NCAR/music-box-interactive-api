@@ -166,6 +166,8 @@ $(document).ready(function(){
         MathJax.typeset()
       }
     });
+  } else if (typeof $("#molec_detail").attr('error') == 'string'){
+      alert($("#molec_detail").attr('error'))
   }
 
   //new molecule in mechanism
@@ -181,4 +183,60 @@ $(document).ready(function(){
       }
     });
   });
+  
+  // load mechanism reaction data
+  $(".mechanism_reaction").on('click', function(){
+    var itemName = $(this).attr('reaction')
+    $('#message_box').html('');
+    $('#sidemenu').children().children().attr('status','null')
+    $('#'+ itemName).attr('status', 'selected')
+    $.ajax({
+      url: "/mechanism/load_reaction",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#react_detail').html(response);
+        MathJax.typeset()
+      }
+    });
+  });
+
+  //edit mechanism reaction
+  $("body").on('click', "button.mech_edit_R", function(){
+    var itemId = $(this).attr('reaction');
+    $.ajax({
+      url: "/mechanism/edit_reaction",
+      type: 'get',
+      data: {'name': itemId},
+      success: function(response){
+        $('#react_detail').html(response);
+        MathJax.typeset()
+      }
+    });
+  });
+
+  if (typeof $("#react_detail").attr('save') == 'string'){
+    var itemName = $("#react_detail").attr('save');
+    $('#message_box').html('');
+    $.ajax({
+      url: "/mechanism/load_reaction",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#react_detail').html(response);
+
+      }
+    });
+    $.ajax({
+      url: "/mechanism/equation",
+      type: 'get',
+      data: {'name': itemName},
+      success: function(response){
+        $('#equation_box').html(response);
+        MathJax.typeset()
+      }
+    });
+  }
+
+
 });

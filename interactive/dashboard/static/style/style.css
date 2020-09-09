@@ -390,7 +390,12 @@ h2 {
     display: inline-block;
     margin-left: 60;
     margin-top: 80;
-    width: 250;
+    width: fit-content;
+    height: fit-content;
+    padding-left: 25;
+    padding-right: 25;
+    padding-bottom: 25;
+    background-color: #267871;
 }
 
 #plots_content{
@@ -434,4 +439,17 @@ button:hover a{
 
 #newmolecule {
     margin-bottom: 10;
+}
+
+input[name="query"]{
+    width: 100;
+    margin-bottom: 3;
+}
+
+#sidemenu[mech_section='reaction'] li button{
+    width: 200;
+}
+
+#sidemenu[mech_section='reaction']{
+    width: 225;
 }

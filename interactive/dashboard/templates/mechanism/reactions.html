@@ -10,10 +10,10 @@
    </div>
 
    <div id=reaction_content>
-      <div id="sidemenu" mech_section='molecule'>
+      <div id="sidemenu" mech_section='reaction'>
          {% for reaction in reacts %}
             <li>
-               <button class="mechanism_item" id="{{molecule}}">
+               <button class="mechanism_reaction" reaction="{{ reaction }}">
                   {{ reaction }}
                </button>
             </li>
@@ -25,12 +25,9 @@
                save="{{ message }}"
             {% endfor %}
          {% endif %}>
-         <h3>Select a reaction from the left to view</h3></div>
+         <h3><div id="message_box">Select a reaction from the left to view</div></h3></div>
       <div id="equation_box"></div>
      </div>
-
-
-
 
 {% endblock %}
 

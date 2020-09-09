@@ -1,0 +1,23 @@
+{
+    "rate": null,
+    "reactants": [
+        "O",
+        "O2"
+    ],
+    "rate_call": "Troe_low_pressure(Troe_low_pressure_parameters, environmental_state)",
+    "rate_constant": {
+        "parameters": {
+            "A_k0": "6.0e-34",
+            "B_k0": "2.4",
+            "C_k0": "0.0"
+        },
+        "reaction_class": "Troe_low_pressure"
+    },
+    "troe": true,
+    "products": [
+        {
+            "coefficient": 1,
+            "molecule": "O3"
+        }
+    ]
+}
