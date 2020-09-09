@@ -1,17 +1,17 @@
 {
-    "moleculename": "test",
-    "formula": "a",
-    "transport": "c",
-    "solve": "b",
+    "moleculename": "N2",
+    "formula": "",
+    "transport": "transported",
+    "solve": "implicit",
     "henrys_law": {
         "henrys_law_type": "0",
-        "kh_298": "1",
-        "dh_r": "2",
-        "k1_298": "3",
-        "dh1_r": "4",
-        "k2_298": "5",
-        "dh2_r": "6"
+        "kh_298": "0",
+        "dh_r": "0",
+        "k1_298": "0",
+        "dh1_r": "0",
+        "k2_298": "0",
+        "dh2_r": "0"
     },
-    "molecular_weight": "11",
-    "standard_name": "abc"
+    "molecular_weight": "28.01348",
+    "standard_name": "N2_std"
 }

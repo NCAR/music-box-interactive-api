@@ -356,7 +356,12 @@ select {
     display: inline-block;
     margin-left: 60;
     margin-top: 80;
-    width: 250;
+    width: fit-content;
+    height: fit-content;
+    padding-left: 25;
+    padding-right: 25;
+    padding-bottom: 25;
+    background-color: #267871;
 }
 
 #molecule_content {
@@ -425,4 +430,8 @@ button a{
 
 button:hover a{
     color: #272727;
+}
+
+#newmolecule {
+    margin-bottom: 10;
 }

@@ -106,7 +106,7 @@ $(document).ready(function(){
   // load mechanism item data
   $(".mechanism_item").on('click', function(){
     var itemName = $(this).attr('id')
-    $('#molec_detail').html('');
+    $('#message_box').html('');
     $('#sidemenu').children().children().attr('status','null')
     $('#'+ itemName).attr('status', 'selected')
     $.ajax({
@@ -170,6 +170,7 @@ $(document).ready(function(){
 
   //new molecule in mechanism
   $("#newmolecule").on('click', function(){
+    $('#sidemenu').children().children().attr('status','null');
     $.ajax({
       url: "/mechanism/newmolec",
       type: 'get',

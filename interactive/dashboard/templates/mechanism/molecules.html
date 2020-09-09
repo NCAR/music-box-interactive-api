@@ -11,6 +11,7 @@
      
      <div id=molecule_content>
       <div id="sidemenu" mech_section='molecule'>
+         <li><button id='newmolecule'>New</button></li>
          {% for molecule in molecs %}
             <li>
                <button class="mechanism_item" id="{{molecule}}">
@@ -18,8 +19,6 @@
                </button>
             </li>
          {% endfor %}
-         <li> </li>
-         <li><button id='newmolecule'>New</button></li>
       </div>
       <div id="molec_detail"
          {% if messages %}
@@ -27,7 +26,7 @@
                save="{{ message }}"
             {% endfor %}
          {% endif %}>
-         <h3>Select a molecule from the left to view, or <a>add a new molecule to the mechansim</a></h3></div>
+         <h3><div id='message_box'>Select a molecule from the left to view, or <a>add a new molecule to the mechansim</a></div></h3></div>
       <div id="equation_box"></div>
      </div>
           
