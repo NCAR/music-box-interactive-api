@@ -15,7 +15,8 @@ def molecules(request):
 
 def reactions(request):
     context = {
-        'reacts': reaction_name_list()
+        'reacts': reaction_name_list(),
+        'searchForm': ReactionSearchForm
     }
     return render(request, 'mechanism/reactions.html', context)
 

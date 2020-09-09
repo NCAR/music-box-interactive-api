@@ -23,3 +23,9 @@ class ReactionForm(forms.Form):
             self.fields['p'+ str(i) + '.coefficient'] = forms.FloatField(initial=inits['products'][i]['coefficient'])
             self.fields['p'+ str(i) + '.molecule'] = forms.CharField(initial=inits['products'][i]['molecule'])
             i = i + 1
+
+
+class ReactionSearchForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(ReactionSearchForm, self).__init__(*args, **kwargs)
+        self.fields['query'] = forms.CharField(widget= forms.TextInput(attrs={'placeholder':'search reactions', 'id':'r_search'}))

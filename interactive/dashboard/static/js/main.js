@@ -189,7 +189,7 @@ $(document).ready(function(){
     var itemName = $(this).attr('reaction')
     $('#message_box').html('');
     $('#sidemenu').children().children().attr('status','null')
-    $('#'+ itemName).attr('status', 'selected')
+    $(this).attr('status', 'selected')
     $.ajax({
       url: "/mechanism/load_reaction",
       type: 'get',

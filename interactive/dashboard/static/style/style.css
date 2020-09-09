@@ -446,10 +446,23 @@ input[name="query"]{
     margin-bottom: 3;
 }
 
+#r_search{
+    width: 200;
+}
+
 #sidemenu[mech_section='reaction'] li button{
     width: 200;
 }
 
 #sidemenu[mech_section='reaction']{
     width: 225;
+}
+
+#sidemenu[mech_section='reaction'] li button[status='selected']{
+    width: 225;
+}
+
+#sidemenu[mech_section='reaction'] li button:hover{
+    width: 225;
+    transition: 0.2s;
 }
