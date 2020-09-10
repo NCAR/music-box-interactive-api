@@ -4221,22 +4221,22 @@
                 "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
                 "rate_constant": {
                     "parameters": {
-                        "A": "4.300000e-13",
-                        "C": "-1040.00",
-                        "D": "300.0",
-                        "B": "0.0",
-                        "E": "0.0"
+                        "A": 4.3e-13,
+                        "C": -1040.0,
+                        "D": 300.0,
+                        "B": 0.0,
+                        "E": 0.0
                     },
                     "reaction_class": "Arrhenius"
                 },
-                "troe": false,
+                "troe": true,
                 "products": [
                     {
-                        "coefficient": "0.4",
+                        "coefficient": 0.4,
                         "molecule": "C6H5O2"
                     },
                     {
-                        "coefficient": "0.4",
+                        "coefficient": 0.4,
                         "molecule": "OH"
                     }
                 ]
@@ -4279,30 +4279,30 @@
                 "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
                 "rate_constant": {
                     "parameters": {
-                        "A": "1.600000e-12",
-                        "C": "0.00",
-                        "D": "300.0",
-                        "B": "0.0",
-                        "E": "0.0"
+                        "A": 1.6e-12,
+                        "C": 0.0,
+                        "D": 300.0,
+                        "B": 0.0,
+                        "E": 0.0
                     },
                     "reaction_class": "Arrhenius"
                 },
-                "troe": false,
+                "troe": true,
                 "products": [
                     {
-                        "coefficient": "0.4",
+                        "coefficient": 0.4,
                         "molecule": "CH2O"
                     },
                     {
-                        "coefficient": "0.8",
+                        "coefficient": 0.8,
                         "molecule": "CH3CHO"
                     },
                     {
-                        "coefficient": "0.8",
+                        "coefficient": 0.8,
                         "molecule": "CH3COCH3"
                     },
                     {
-                        "coefficient": 1,
+                        "coefficient": 1.0,
                         "molecule": "NO2"
                     }
                 ]
@@ -4341,38 +4341,38 @@
                 "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
                 "rate_constant": {
                     "parameters": {
-                        "A": "6.700000e-12",
-                        "C": "0.00",
-                        "D": "300.0",
-                        "B": "0.0",
-                        "E": "0.0"
+                        "A": 6.7e-12,
+                        "C": 0.0,
+                        "D": 300.0,
+                        "B": 0.0,
+                        "E": 0.0
                     },
                     "reaction_class": "Arrhenius"
                 },
-                "troe": false,
+                "troe": true,
                 "products": [
                     {
-                        "coefficient": "0.4",
+                        "coefficient": 0.4,
                         "molecule": "CH3CHO"
                     },
                     {
-                        "coefficient": "0.1",
+                        "coefficient": 0.1,
                         "molecule": "CH2O"
                     },
                     {
-                        "coefficient": "0.25",
+                        "coefficient": 0.25,
                         "molecule": "CH3COCH3"
                     },
                     {
-                        "coefficient": 1,
+                        "coefficient": 1.0,
                         "molecule": "HO2"
                     },
                     {
-                        "coefficient": "0.8",
+                        "coefficient": 0.8,
                         "molecule": "MEK"
                     },
                     {
-                        "coefficient": 1,
+                        "coefficient": 1.0,
                         "molecule": "NO2"
                     }
                 ]

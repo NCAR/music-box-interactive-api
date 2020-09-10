@@ -14,5 +14,6 @@ urlpatterns = [
     path('searchM', views.molec_search),
     path('load_reaction', views.load_r),
     path('edit_reaction', views.edit_r),
-    path('save_r', views.save_r)
+    path('save_r', views.save_r),
+    path('r_to_m', views.r_to_m)
     ]

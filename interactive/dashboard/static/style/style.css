@@ -466,3 +466,8 @@ input[name="query"]{
     width: 225;
     transition: 0.2s;
 }
+
+.r_to_m{
+    text-decoration: underline;
+    cursor: pointer;
+}

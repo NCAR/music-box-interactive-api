@@ -18,10 +18,10 @@
          </form>
          {% endfor %}
          <li><button id='newmolecule'>New</button></li>
-         {% for molecule in molecs %}
+         {% for molecule in shortnames %}
             <li>
-               <button class="mechanism_item" id="{{molecule}}">
-                  {{ molecule }}
+               <button class="mechanism_item" id="{{molecule.0}}">
+                  {{ molecule.1 }}
                </button>
             </li>
          {% endfor %}

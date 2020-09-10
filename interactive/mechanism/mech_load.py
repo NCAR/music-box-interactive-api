@@ -300,7 +300,7 @@ def save_reacts(name, myDict):
             reaction['reactants'][int(key.split('.')[1])] = myDict[key]
         elif key.split('.')[0] == 'p':
             if key.split('.')[2] == 'coefficient':
-                reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: int(myDict[key])})
+                reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: float(myDict[key])})
             else:
                 reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: myDict[key]})
         elif key == 'troe':
@@ -331,3 +331,29 @@ def save_reacts(name, myDict):
     new_name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
 
     return new_name
+
+
+def reaction_menu_names():
+    r_list = reaction_name_list()
+    newlist = []
+    for name in r_list:
+        if len(name) > 40:
+            shortname = name[0:38] + '...'
+            newlist.append(shortname)
+        else:
+            newlist.append(name)
+    zipped = zip(r_list, newlist)
+    return zipped
+
+
+def molecule_menu_names():
+    m_list = molecule_list()
+    newlist = []
+    for name in m_list:
+        if len(name) > 8:
+            shortname = name[0:8] + '..'
+            newlist.append(shortname)
+        else:
+            newlist.append(name)
+    zipped = zip(m_list, newlist)
+    return zipped

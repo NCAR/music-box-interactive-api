@@ -18,10 +18,10 @@
          </form>
          {% endfor %}
          <li><button id='new_reaction'>New</button></li>
-         {% for reaction in reacts %}
+         {% for reaction in shortnames %}
             <li>
-               <button class="mechanism_reaction" id="{{ reaction }}" reaction="{{ reaction }}">
-                  {{ reaction }}
+               <button class="mechanism_reaction" id="{{ reaction.0 }}" reaction="{{ reaction.0 }}">
+                  {{ reaction.1 }}
                </button>
             </li>
          {% endfor %}

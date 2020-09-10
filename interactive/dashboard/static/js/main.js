@@ -228,4 +228,17 @@ $(document).ready(function(){
       }
     });
   }
+
+  //link products and reactants to molecule pages
+  $("body").on('click', "a.r_to_m", function(){
+    var itemId = $(this).attr('id');
+    $.ajax({
+      url: "/mechanism/r_to_m",
+      type: 'get',
+      data: {'name': itemId},
+      success: function(response){
+      }
+    });
+  });
+
 });

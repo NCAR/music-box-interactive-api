@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .mech_load import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .moleculeforms import *
@@ -8,6 +8,7 @@ from .reactionforms import *
 def molecules(request):
     context = {
         'molecs': molecule_list(),
+        'shortnames': molecule_menu_names(),
         'searchForm': MoleculeSearchForm
     }
     return render(request, 'mechanism/molecules.html', context)
@@ -16,7 +17,8 @@ def molecules(request):
 def reactions(request):
     context = {
         'reacts': reaction_name_list(),
-        'searchForm': ReactionSearchForm
+        'searchForm': ReactionSearchForm,
+        'shortnames': reaction_menu_names()
     }
     return render(request, 'mechanism/reactions.html', context)
 
@@ -133,12 +135,15 @@ def load_r(request):
     name = request.GET['name']
     info = reaction_dict()[name]
     response = HttpResponse()
-    response.write('<h2>' + name + '</h2>')
+    shortname = name
+    if len(name) > 40:
+        shortname = name[0:38] + '...'
+    response.write('<h2>' + shortname + '</h2>')
     response.write('<button id="mech_edit" r_type="' + info['rate_constant']["reaction_class"] + '"class="mech_edit_R" reaction="'+ name + '">Edit</button>')
     response.write('<table><tr><td><h3>Rate:</h3></td><td><h3>' + str(info['rate']) + '</h3></td></tr>')
     response.write('<tr><td><h3>Reactants:</h3></td><td><h3>')
     for reactant in info['reactants']:
-        response.write('<li>' + reactant + '</li>') 
+        response.write('<li><a href="molecules" class="r_to_m" id="' + reactant + '">' + reactant + '<a></li>') 
     response.write('</h3></td></tr>')
     response.write('<tr><td><h3>Rate Call:</h3></td><td><h3>' + info['rate_call'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
@@ -151,7 +156,7 @@ def load_r(request):
     for product in info['products']:
         if product['coefficient'] == 1:
              product['coefficient'] = ''
-        response.write('<li>' + str(product['coefficient']) + ' ' + product['molecule'] + '</li>') 
+        response.write('<li>' + str(product['coefficient']) + ' ' + '<a class="r_to_m" id="' + product['molecule'] + '">' + product['molecule'] + '</a></li>') 
     response.write('</h3></td></tr></table>')
     
     return response
@@ -185,3 +190,9 @@ def save_r(request):
     newName = save_reacts(item, myDict)
     messages.success(request, newName)
     return HttpResponseRedirect('/mechanism/reactions')
+
+
+def r_to_m(request):
+    name = request.GET['name']
+    messages.success(request, name)
+    return redirect('/mechanism/molecules')
