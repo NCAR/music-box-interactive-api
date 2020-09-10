@@ -1,7 +1,6 @@
 {
-    "Species 1": "mol m-3",
-    "Species 2": "mol m-3",
-    "Species 3": "mol m-3",
-    "Species 4": "mol m-3",
-    "Species 5": "mol m-3"
+    "grid": "box",
+    "chemistry_time_step": 1.0,
+    "output_time_step": 0.1,
+    "simulation_length": 12.0
 }

@@ -1,23 +1,29 @@
 {
     "rate": null,
     "reactants": [
-        "O",
-        "O2"
+        "O1D",
+        "N2"
     ],
-    "rate_call": "Troe_low_pressure(Troe_low_pressure_parameters, environmental_state)",
+    "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
     "rate_constant": {
         "parameters": {
-            "A_k0": "6.0e-34",
-            "B_k0": "2.4",
-            "C_k0": "0.0"
+            "A": "2.150000e-11",
+            "C": "-110.00",
+            "D": "300.0",
+            "B": "0.0",
+            "E": "0.0"
         },
-        "reaction_class": "Troe_low_pressure"
+        "reaction_class": "Arrhenius"
     },
-    "troe": true,
+    "troe": false,
     "products": [
         {
             "coefficient": 1,
-            "molecule": "O3"
+            "molecule": "O"
+        },
+        {
+            "coefficient": 1,
+            "molecule": "N2"
         }
     ]
 }

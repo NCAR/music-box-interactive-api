@@ -45,9 +45,11 @@ def undo_double(dataframe):
             old = val
             if 'D+' in old:
                 delim = 'D+'
+                multiple = 1
             elif 'D-' in old:
                 delim = 'D-'
-            exp = float(old.split(delim)[1])
+                multiple = -1
+            exp = float(old.split(delim)[1]) * multiple
             number = float(old.split(delim)[0])
             new = number * (10 ** exp)
             dflist[key][i] = new

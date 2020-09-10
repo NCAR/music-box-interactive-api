@@ -178,6 +178,6 @@ def save_r(request):
     data = request.GET
     myDict = data.dict()
     item = id_reaction()
+    save_reacts(item, myDict)
     messages.success(request, item)
-
     return HttpResponseRedirect('/mechanism/reactions')

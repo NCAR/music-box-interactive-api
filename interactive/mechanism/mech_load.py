@@ -276,3 +276,36 @@ def id_reaction():
             name = key
     
     return name
+
+
+def save_reacts(name, myDict):
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
+            datafile = json.loads(g.read())
+    mechanism = datafile['mechanism']
+    reactions = mechanism['reactions']
+    info = reaction_dict()[name]
+    for i in reactions:
+        if i == info:
+            r_index = reactions.index(i)
+
+    reaction = reactions[r_index]
+    for key in myDict:
+        if key.split('.')[0] == 'rc':
+            if key.split('.')[1] == 'p':
+                reaction['rate_constant']['parameters'].update({key.split('.')[2]: myDict[key]})
+            else:
+                reaction['rate_constant'].update({key.split('.')[1]: myDict[key]})
+        elif key.split('.')[0] == 'reactant':
+            reaction['reactants'][int(key.split('.')[1])] = myDict[key]
+        elif key.split('.')[0] == 'p':
+            reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: myDict[key]})
+        else:
+            reaction.update({key: myDict[key]})
+    
+    reactions[r_index] = reaction
+    mechanism.update({'reactions': reactions})
+    datafile.update({'mechanism': mechanism})
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
+        json.dump(datafile, f, indent=4)

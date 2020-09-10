@@ -2,5 +2,5 @@
     "grid": "box",
     "chemistry_time_step": 1.0,
     "output_time_step": 0.1,
-    "simulation_length": 12
+    "simulation_length": 12.0
 }

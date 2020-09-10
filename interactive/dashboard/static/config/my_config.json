@@ -3,7 +3,7 @@
         "grid": "box",
         "chemistry time step [min]": 1.0,
         "output time step [hr]": 0.1,
-        "simulation length [hr]": 12
+        "simulation length [hr]": 12.0
     },
     "chemical species": {
         "Ar": {
