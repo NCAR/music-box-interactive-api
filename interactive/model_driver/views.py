@@ -62,6 +62,13 @@ def check(request):
         response.write('true')
     else:
         response.write('false')
+        #when error file is added by model
+        # if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")):
+        #     with open(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")) as g:
+        #         errorfile = json.loads(g.read())
+            
+        #     messages.error(request, str(errorfile['code']) + errorfile['description'])
+
     
     return response
 
