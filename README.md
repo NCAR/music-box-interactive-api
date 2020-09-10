@@ -10,3 +10,8 @@ To run interface without model:
 config file is located at:
 
         interactive/dashboard/static/config/my_config.json
+
+mechanism file is located at:
+
+       interactive/dashboard/static/mechanism/datamolec_info.json
+
