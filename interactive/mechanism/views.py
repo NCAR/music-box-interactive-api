@@ -30,6 +30,8 @@ def load(request):
     response.write('<h2>' + info['moleculename'] + '</h2>')
     response.write('<button id="mech_edit" h_type="' + info['henrys_law']["henrys_law_type"] + '"class="mech_edit" species="'+ info['moleculename'] + '">Edit</button>')
     response.write('<table><tr><td><h3>Solve Type:</h3></td><td><h3>' + info['solve'] + '</h3></td></tr>')
+    if info['formula'] is not None:
+        response.write('<tr><td><h3>Formula:</h3></td><td><h3>' + info['formula'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Transport:</h3></td><td><h3>' + info['transport'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Molecular Weight:</h3></td><td><h3>' + info['molecular_weight'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Standard Name:</h3></td><td><h3>' + info['standard_name'] + '</h3></td></tr></table>')
@@ -141,12 +143,14 @@ def load_r(request):
     response.write('<tr><td><h3>Rate Call:</h3></td><td><h3>' + info['rate_call'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
     for param in info['rate_constant']['parameters']:
-        response.write('<tr><td>' + param + '</td><td>' + info['rate_constant']['parameters'][param] + '</td></tr>')
+        response.write('<tr><td>' + param + '</td><td>' + str(info['rate_constant']['parameters'][param]) + '</td></tr>')
     response.write('</table></h3></td></tr>')
     response.write('<tr><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Troe:</h3></td><td><h3>' + str(info['troe']) + '</h3></td></tr>')
     response.write('<tr><td><h3>Products:</h3></td><td><h3>')
     for product in info['products']:
+        if product['coefficient'] == 1:
+             product['coefficient'] = ''
         response.write('<li>' + str(product['coefficient']) + ' ' + product['molecule'] + '</li>') 
     response.write('</h3></td></tr></table>')
     
@@ -178,6 +182,6 @@ def save_r(request):
     data = request.GET
     myDict = data.dict()
     item = id_reaction()
-    save_reacts(item, myDict)
-    messages.success(request, item)
+    newName = save_reacts(item, myDict)
+    messages.success(request, newName)
     return HttpResponseRedirect('/mechanism/reactions')

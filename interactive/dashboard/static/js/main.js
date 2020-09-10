@@ -227,16 +227,5 @@ $(document).ready(function(){
 
       }
     });
-    $.ajax({
-      url: "/mechanism/equation",
-      type: 'get',
-      data: {'name': itemName},
-      success: function(response){
-        $('#equation_box').html(response);
-        MathJax.typeset()
-      }
-    });
   }
-
-
 });

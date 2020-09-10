@@ -8,7 +8,7 @@ class ReactionForm(forms.Form):
         self.fields['rate'] = forms.CharField(initial=str(inits['rate']))
         i = 0
         for reactant in inits['reactants']:
-            self.fields['reactant.' + str(i) + '.'] = forms.CharField(initial=reactant)
+            self.fields['reactant.' + str(i) ] = forms.CharField(initial=reactant)
             i = i+1
 
         self.fields['rate_call'] = forms.CharField(initial=inits['rate_call'])

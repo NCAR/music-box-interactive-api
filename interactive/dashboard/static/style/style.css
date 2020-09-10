@@ -345,11 +345,11 @@ select {
 }
 
 #sidemenu li{
-    width: 125;
+    width: 150;
 }
 
 #sidemenu li button{
-    width: 100;
+    width: 125;
 }
 
 #molec_detail {
@@ -407,11 +407,11 @@ h2 {
 }
 
 #sidemenu li button[status='selected']{
-    width: 125;
+    width: 150;
 }
 
 #sidemenu li button:hover{
-    width: 125;
+    width: 150;
     transition: 0.3s;
 }
 
@@ -442,7 +442,7 @@ button:hover a{
 }
 
 input[name="query"]{
-    width: 100;
+    width: 125;
     margin-bottom: 3;
 }
 

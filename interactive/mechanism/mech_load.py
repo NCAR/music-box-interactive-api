@@ -235,31 +235,31 @@ def pretty_reaction_names():
         'rate_call': 'Rate Call:',
         'rc.reaction_class': 'Reaction Class:',
         'troe': "troe",
-        'reactant0': 'Reactant 0',
-        'reactant1': 'Reactant 1',
-        'reactant2': 'Reactant 2',
-        'reactant3': 'Reactant 3',
-        'reactant4': 'Reactant 4',
-        'rc.A': "A:",
-        'rc.B': "B:",
-        'rc.C': "C:",
-        'rc.D': "D:",
-        'rc.E': "E:",
-        'rc.A_k0': "A_k0:",
-        'rc.B_k0': "B_k0:",
-        'rc.C_k0': "C_k0:",
-        'p0.coefficient': 'Product 0 Coefficient:',
-        'p1.coefficient': 'Product 1 Coefficient:',
-        'p2.coefficient': 'Product 2 Coefficient:',
-        'p3.coefficient': 'Product 3 Coefficient:',
-        'p4.coefficient': 'Product 4 Coefficient:',
-        'p5.coefficient': 'Product 5 Coefficient:',
-        'p0.molecule': 'Product 0:',
-        'p1.molecule': 'Product 1:',
-        'p2.molecule': 'Product 2:',
-        'p3.molecule': 'Product 3:',
-        'p4.molecule': 'Product 4:',
-        'p5.molecule': 'Product 5:'
+        'reactant.0': 'Reactant 0',
+        'reactant.1': 'Reactant 1',
+        'reactant.2': 'Reactant 2',
+        'reactant.3': 'Reactant 3',
+        'reactant.4': 'Reactant 4',
+        'rc.p.A': "A:",
+        'rc.p.B': "B:",
+        'rc.p.C': "C:",
+        'rc.p.D': "D:",
+        'rc.p.E': "E:",
+        'rc.p.A_k0': "A_k0:",
+        'rc.p.B_k0': "B_k0:",
+        'rc.p.C_k0': "C_k0:",
+        'p.0.coefficient': 'Product 0 Coefficient:',
+        'p.1.coefficient': 'Product 1 Coefficient:',
+        'p.2.coefficient': 'Product 2 Coefficient:',
+        'p.3.coefficient': 'Product 3 Coefficient:',
+        'p.4.coefficient': 'Product 4 Coefficient:',
+        'p.5.coefficient': 'Product 5 Coefficient:',
+        'p.0.molecule': 'Product 0:',
+        'p.1.molecule': 'Product 1:',
+        'p.2.molecule': 'Product 2:',
+        'p.3.molecule': 'Product 3:',
+        'p.4.molecule': 'Product 4:',
+        'p.5.molecule': 'Product 5:'
     }
     return names
 
@@ -293,15 +293,23 @@ def save_reacts(name, myDict):
     for key in myDict:
         if key.split('.')[0] == 'rc':
             if key.split('.')[1] == 'p':
-                reaction['rate_constant']['parameters'].update({key.split('.')[2]: myDict[key]})
+                reaction['rate_constant']['parameters'].update({key.split('.')[2]: float(myDict[key])})
             else:
                 reaction['rate_constant'].update({key.split('.')[1]: myDict[key]})
         elif key.split('.')[0] == 'reactant':
             reaction['reactants'][int(key.split('.')[1])] = myDict[key]
         elif key.split('.')[0] == 'p':
-            reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: myDict[key]})
-        else:
-            reaction.update({key: myDict[key]})
+            if key.split('.')[2] == 'coefficient':
+                reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: int(myDict[key])})
+            else:
+                reaction['products'][int(key.split('.')[1])].update({key.split('.')[2]: myDict[key]})
+        elif key == 'troe':
+            reaction.update({key: bool(myDict[key])})
+        elif key == 'rate':
+            if myDict[key] == 'None':
+                reaction.update({'rate': None})
+            else:
+                reaction.update({'rate': myDict[key]})
     
     reactions[r_index] = reaction
     mechanism.update({'reactions': reactions})
@@ -309,3 +317,17 @@ def save_reacts(name, myDict):
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
     with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
         json.dump(datafile, f, indent=4)
+    
+    reactants = []
+    for j in reaction['reactants']:
+        reactants.append(j)
+    products = []
+    for k in reaction['products']:
+        coef = str(k['coefficient'])
+        if coef == '1':
+            coef = ''
+        prod = k['molecule']
+        products.append(coef + prod)
+    new_name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
+
+    return new_name

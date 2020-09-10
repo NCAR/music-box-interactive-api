@@ -1,17 +1,17 @@
 {
-    "moleculename": "Ar",
-    "formula": "Ar",
+    "moleculename": "ALKNIT",
+    "formula": "C5H11ONO2",
     "transport": "transported",
     "solve": "implicit",
     "henrys_law": {
-        "henrys_law_type": "0",
-        "kh_298": "0",
-        "dh_r": "0",
+        "henrys_law_type": "1",
+        "kh_298": "1.01",
+        "dh_r": "5790",
         "k1_298": "0",
         "dh1_r": "0",
         "k2_298": "0",
         "dh2_r": "0"
     },
-    "molecular_weight": "39.948",
-    "standard_name": "Ar_std"
+    "molecular_weight": "133.141",
+    "standard_name": "ALKNIT_std"
 }
