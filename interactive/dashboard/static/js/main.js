@@ -57,13 +57,15 @@ $(document).ready(function(){
           url: "/model/check",
           type: 'get',
           success: function(response){
-            if (response == 'true') {
+            if (response["status"] == 'done') {
               $('#download_results').remove();
               $('#plot_results').remove();
               $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
               $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+            } else if (response["status"] == 'error'){
+              alert("error:" + response["e_code"] + "message:" + response["e_message"])
             } else {
-              $('#download_results').remove();
+              alert('unknown error')
             }
           }
         });

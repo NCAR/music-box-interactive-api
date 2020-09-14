@@ -61,7 +61,7 @@ def initialize_form():
 def id_molecule():
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
     with open(os.path.join(mech_path, "form_stage.json")) as g:
-            info = json.loads(g.read())
+        info = json.loads(g.read())
     
     return info['moleculename']
 

@@ -1,49 +1,55 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.conf import settings
 import json
 import os
 import subprocess
 import mimetypes
+import pandas as pd
+import time
 
+mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
+out_path = os.path.join(mb_dir, 'output.csv')
+error_path = os.path.join(mb_dir, 'error.json')
 
 def run(request):
-    mb_dir           = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
-    nc_outfile_path  = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.nc")
-    csv_outfile_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    running_path     = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "MODEL_RUNNING")
-    done_path        = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "MODEL_RUN_COMPLETE")
-    if os.path.isfile(nc_outfile_path):
-        os.remove(nc_outfile_path)
-    if os.path.isfile(csv_outfile_path):
-        os.remove(csv_outfile_path)
-    if os.path.isfile(running_path):
-        os.remove(running_path)
-    if os.path.isfile(done_path):
-        os.remove(done_path)
-
+    if os.path.isfile(out_path):
+        os.remove(out_path)
+    if os.path.isfile(error_path):
+        os.remove(error_path)
     process = subprocess.Popen(
         [r'./music_box', r'/music-box-interactive/interactive/dashboard/static/config/my_config.json'], cwd=mb_dir)
 
-    return render(request, 'run_model.html', { "status" : "Started"})
+    return render(request, 'run_model.html')
 
 
-def check_status(request):
-    running_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "MODEL_RUNNING")
-    failure_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "MODEL_FAILURE")
-    done_path    = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "MODEL_RUN_COMPLETE")
-    if os.path.isfile(done_path):
-        return JsonResponse({ "status" : "done" })
-    if os.path.isfile(failure_path):
-        return JsonResponse({ "status" : "failure" })
-    if os.path.isfile(running_path):
-        return JsonResponse({ "status" : "running" })
-    return JsonResponse({ "status" : "not started" })
+def check(request):
+    response_message = {}
+    out_path = os.path.join(mb_dir, 'output.csv')
+    error_path = os.path.join(mb_dir, 'error.json')
+    status = 'checking'
+    while status == 'checking':
+        print(status)
+        time.sleep(.1)
+        if os.path.isfile(out_path):
+            if os.path.getsize(out_path) == 0:
+                if os.path.getsize(error_path) > 0:
+                    status = 'error'
+                else:
+                    status = 'empty_output'
+            else:
+                status = 'done'
 
+    response_message.update({'status': status})
 
-def mechanism_data(request):
-    mechanism_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "molec_info.json")
-    mech_json = json.load(open(mechanism_path, 'r'))
-    return JsonResponse(mech_json)
+    if status == 'error':
+        with open(error_path) as g:
+            errorfile = json.loads(g.read())
+        response_message.update({'e_code': errorfile['code']})
+        response_message.update({'e_message': errorfile['message']})
+
+    print(response_message)
+    return JsonResponse(response_message)
 
 
 def download(request):
@@ -55,21 +61,3 @@ def download(request):
     response = HttpResponse(fl, content_type=mime_type)
     response['Content-Disposition'] = "attachment; filename=%s" % filename
     return response
-
-def check(request):
-    print(os.environ['MUSIC_BOX_BUILD_DIR'])
-    response = HttpResponse()
-    if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
-        response.write('true')
-    else:
-        if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")):
-            with open(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")) as g:
-                errorfile = json.loads(g.read())
-            print(errorfile)
-            
-            messages.error(request, str(errorfile['code']) + errorfile['description'])
-        response.write('false')
-
-    
-    return response
-
