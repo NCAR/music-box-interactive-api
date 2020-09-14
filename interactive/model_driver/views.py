@@ -57,17 +57,18 @@ def download(request):
     return response
 
 def check(request):
+    print(os.environ['MUSIC_BOX_BUILD_DIR'])
     response = HttpResponse()
     if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
         response.write('true')
     else:
-        response.write('false')
-        #when error file is added by model
-        # if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")):
-        #     with open(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")) as g:
-        #         errorfile = json.loads(g.read())
+        if os.path.isfile(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")):
+            with open(os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "error.json")) as g:
+                errorfile = json.loads(g.read())
+            print(errorfile)
             
-        #     messages.error(request, str(errorfile['code']) + errorfile['description'])
+            messages.error(request, str(errorfile['code']) + errorfile['description'])
+        response.write('false')
 
     
     return response
