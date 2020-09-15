@@ -63,7 +63,11 @@ $(document).ready(function(){
               $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
               $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
             } else if (response["status"] == 'error'){
-              alert("error:" + response["e_code"] + "message:" + response["e_message"])
+                alert("ERROR " + response["e_code"] + "   " + response["e_message"]);
+                if (response["e_type"] == 'species'){
+                  $("#" + response['spec_ID']).css("border", "3px solid red")
+                  $("#" + response['spec_ID']).css("border-radius", "4px")
+                }
             } else {
               alert('unknown error')
             }
