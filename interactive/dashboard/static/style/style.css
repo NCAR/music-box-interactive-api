@@ -471,3 +471,7 @@ input[name="query"]{
     text-decoration: underline;
     cursor: pointer;
 }
+
+#download_mech_button{
+    margin-bottom: 8px;
+}

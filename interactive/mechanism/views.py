@@ -4,6 +4,8 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .moleculeforms import *
 from django.contrib import messages
 from .reactionforms import *
+from django.conf import settings
+import mimetypes
 
 def molecules(request):
     context = {
@@ -196,3 +198,14 @@ def r_to_m(request):
     name = request.GET['name']
     messages.success(request, name)
     return redirect('/mechanism/molecules')
+
+
+def download_mechanism(request):
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/mechanism/datamolec_info.json')
+    filename = 'datamolec_info.json'
+
+    fl = open(fl_path, 'r')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response

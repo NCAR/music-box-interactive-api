@@ -108,5 +108,6 @@ def check(request):
         response_message.update({'e_code': errorfile['code']})
         response_message.update({'e_message': errorfile['message']})
 
-    print(response_message)
     return JsonResponse(response_message)
+
+
