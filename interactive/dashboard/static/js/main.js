@@ -1,5 +1,4 @@
 $(document).ready(function(){
-  
 //remove species button
   $('.r_button').on('click', function(){
     var buttonId = $(this).attr('id');
@@ -76,7 +75,20 @@ $(document).ready(function(){
       }
     });
   });
-  
+  // check if model has been run
+  $.ajax({
+    url: "/model/check-load",
+    type: 'get',
+    success: function(response){
+      if (response["status"] == 'done') {
+        $('#download_results').remove();
+        $('#plot_results').remove();
+        $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
+        $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+      }
+    }
+  });
+
 
   // subproperty plot buttons
   $("body").on('click', "button.sub_p", function(){
