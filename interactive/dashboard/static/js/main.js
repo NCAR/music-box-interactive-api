@@ -52,26 +52,30 @@ $(document).ready(function(){
       url: "/model/run",
       type: 'get',
       success: function(response){
-        $.ajax({
-          url: "/model/check",
-          type: 'get',
-          success: function(response){
-            if (response["status"] == 'done') {
-              $('#download_results').remove();
-              $('#plot_results').remove();
-              $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
-              $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
-            } else if (response["status"] == 'error'){
-                alert("ERROR " + response["e_code"] + "   " + response["e_message"]);
-                if (response["e_type"] == 'species'){
-                  $("#" + response['spec_ID']).css("border", "3px solid red")
-                  $("#" + response['spec_ID']).css("border-radius", "4px")
-                }
-            } else {
-              alert('unknown error')
+        if (response["model_connected"]){
+          $.ajax({
+            url: "/model/check",
+            type: 'get',
+            success: function(response){
+              if (response["status"] == 'done') {
+                $('#download_results').remove();
+                $('#plot_results').remove();
+                $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
+                $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+              } else if (response["status"] == 'error'){
+                  alert("ERROR " + response["e_code"] + "   " + response["e_message"]);
+                  if (response["e_type"] == 'species'){
+                    $("#" + response['spec_ID']).css("border", "3px solid red")
+                    $("#" + response['spec_ID']).css("border-radius", "4px")
+                  }
+              } else {
+                alert('unknown error')
+              }
             }
-          }
-        });
+          });
+        } else {
+          alert('model is not connected')
+        }
       }
     });
   });

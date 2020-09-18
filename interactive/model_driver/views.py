@@ -9,11 +9,21 @@ import pandas as pd
 import time
 
 
-mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
+if "MUSIC_BOX_BUILD_DIR" in os.environ:
+    mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
+    interface_solo = False
+else:
+    mb_dir = ''
+    interface_solo = True
+
+print("interface_solo:", interface_solo)
+
 out_path = os.path.join(mb_dir, 'output.csv')
 error_path = os.path.join(mb_dir, 'error.json')
 
 def run(request):
+    if interface_solo:
+        return JsonResponse({'model_connected': False})
     if os.path.isfile(out_path):
         os.remove(out_path)
     if os.path.isfile(error_path):
@@ -21,7 +31,7 @@ def run(request):
     process = subprocess.Popen(
         [r'./music_box', r'/music-box-interactive/interactive/dashboard/static/config/my_config.json'], cwd=mb_dir)
 
-    return render(request, 'run_model.html')
+    return JsonResponse({'model_connected': True})
 
 
 def check_load(request):

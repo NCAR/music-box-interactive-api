@@ -377,9 +377,9 @@ def reaction_rate_equations(rc_dict):
         params.update({key: str(params[key])})
     if rc_type == "Arrhenius":            
         eq = "\\" + "begin{equation}" + params['A'] + "e^{(" + "\\" + "frac{-" + params['C'] + "}{T})}" +  "\\" + "left(" + "\\" + "frac{T}{" + params['D'] + "}" + "\\" + "right)^" + params['B'] + "(1.0+" + params['E'] + "*P)" + "\\" + "end{equation}"
-    else if rc_type == "CH3COCH3_OH":
+    elif rc_type == "CH3COCH3_OH":
         eq = "\\" + "begin{equation}" + "k = " + params['A'] + '+' + params['B'] + "e^{(" + "\\" + "frac{-" + params["C"] + "}{T})}" + "\\" + "end{equation}"
-    else if rc_type == "Combined_CO_OH":
+    elif rc_type == "Combined_CO_OH":
         eq1 = "\\" + "begin{equation}" + params['A'] + "(1 + " + params['B'] + "k_b M T )" + "\\" + "end{equation}"
         eq2 = "\\" + "begin{equation}" + "k_b = " + "\\" + "mbox{Boltzmann}" + "\\" + "end{equation}"
         eq3 = "\\" + "begin{equation}" + "M = " + "\\" + "mbox{number density}" + "\\" + "end{equation}"
