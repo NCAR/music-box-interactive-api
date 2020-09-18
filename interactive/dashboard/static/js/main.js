@@ -214,7 +214,15 @@ $(document).ready(function(){
       data: {'name': itemName},
       success: function(response){
         $('#react_detail').html(response);
-        MathJax.typeset()
+        $.ajax({
+          url: "/mechanism/load_reaction_equation",
+          type: 'get',
+          data: {'name': itemName},
+          success: function(response){
+            $('#rc_row').append(response);
+            MathJax.typeset()
+          }
+        });
       }
     });
   });
@@ -233,6 +241,7 @@ $(document).ready(function(){
     });
   });
 
+  // load correct reaction after save
   if (typeof $("#react_detail").attr('save') == 'string'){
     var itemName = $("#react_detail").attr('save');
     $('#message_box').html('');

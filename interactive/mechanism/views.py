@@ -147,12 +147,11 @@ def load_r(request):
     for reactant in info['reactants']:
         response.write('<li><a href="molecules" class="r_to_m" id="' + reactant + '">' + reactant + '<a></li>') 
     response.write('</h3></td></tr>')
-    response.write('<tr><td><h3>Rate Call:</h3></td><td><h3>' + info['rate_call'] + '</h3></td></tr>')
+    response.write('<tr  id="rc_row" ><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
     for param in info['rate_constant']['parameters']:
         response.write('<tr><td>' + param + '</td><td>' + str(info['rate_constant']['parameters'][param]) + '</td></tr>')
     response.write('</table></h3></td></tr>')
-    response.write('<tr><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Troe:</h3></td><td><h3>' + str(info['troe']) + '</h3></td></tr>')
     response.write('<tr><td><h3>Products:</h3></td><td><h3>')
     for product in info['products']:
@@ -208,4 +207,12 @@ def download_mechanism(request):
     mime_type, _ = mimetypes.guess_type(fl_path)
     response = HttpResponse(fl, content_type=mime_type)
     response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response
+
+
+def reaction_equations(request):
+    r_name = request.GET['name']
+    rc_info = reaction_dict()[r_name]['rate_constant']
+    rate_equation = reaction_rate_equations(rc_info)
+    response = HttpResponse("<td><h3>" + rate_equation + "</h3></td>")
     return response
