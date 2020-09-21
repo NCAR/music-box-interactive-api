@@ -272,4 +272,8 @@ $(document).ready(function(){
     });
   });
 
+  //check if there were reaction search results
+  if (typeof $("#react_detail").attr('error') == 'string'){
+    alert($("#react_detail").attr('error'))
+  }
 });

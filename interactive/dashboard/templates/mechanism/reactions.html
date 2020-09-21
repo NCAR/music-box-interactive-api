@@ -13,7 +13,7 @@
       <div id="sidemenu" mech_section='reaction'>
          <li><button><a id="download_mech_button" href='download_mech'>Download JSON</a></button></li>
          {% for field in searchForm %}
-         <form method="GET" action='searchR'>
+         <form method="GET" action="searchR">
             <li>{{ field }}</li>
             <li><button type="submit">Search</button></li>
          </form>
@@ -30,7 +30,12 @@
       <div id="react_detail"
          {% if messages %}
             {% for message in messages %}
-               save="{{ message }}"
+               {% if message.tags == 'error'%}
+                  error="{{ message }}"
+               {% endif %}
+               {% if message.tags == 'success' %}
+                  save="{{ message }}"
+               {% endif %}
             {% endfor %}
          {% endif %}>
          <h3><div id="message_box">Select a reaction from the left to view, search for a reaction, or add a new reaction to the mechanism</div></h3></div>

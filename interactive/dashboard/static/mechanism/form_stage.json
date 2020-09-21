@@ -1,17 +1,17 @@
 {
-    "moleculename": "ALKNIT",
-    "formula": "C5H11ONO2",
+    "moleculename": "APIN",
+    "formula": "C10H16",
     "transport": "transported",
     "solve": "implicit",
     "henrys_law": {
         "henrys_law_type": "1",
-        "kh_298": "1.01",
-        "dh_r": "5790",
+        "kh_298": "2.94E-02",
+        "dh_r": "1800",
         "k1_298": "0",
         "dh1_r": "0",
         "k2_298": "0",
         "dh2_r": "0"
     },
-    "molecular_weight": "133.141",
-    "standard_name": "ALKNIT_std"
+    "molecular_weight": "136.228",
+    "standard_name": "APIN_std"
 }

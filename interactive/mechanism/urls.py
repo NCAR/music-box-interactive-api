@@ -17,5 +17,6 @@ urlpatterns = [
     path('save_r', views.save_r),
     path('r_to_m', views.r_to_m),
     path('download_mech', views.download_mechanism),
-    path("load_reaction_equation", views.reaction_equations)
+    path("load_reaction_equation", views.reaction_equations),
+    path('searchR', views.search_reactions)
     ]

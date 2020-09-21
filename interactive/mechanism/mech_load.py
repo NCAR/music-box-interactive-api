@@ -388,3 +388,10 @@ def reaction_rate_equations(rc_dict):
         eq = 'Unknown reaction class'
     return eq
 
+
+def unfilled_r_equations(rc_dict):
+    for key in rc_dict['parameters']:
+        rc_dict['parameters'].update({key: key})
+    eqa = reaction_rate_equations(rc_dict)
+    return eqa
+

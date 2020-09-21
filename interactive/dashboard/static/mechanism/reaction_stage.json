@@ -1,14 +1,14 @@
 {
     "rate": null,
     "reactants": [
-        "ALKO2",
-        "NO"
+        "APIN",
+        "NO3"
     ],
     "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
     "rate_constant": {
         "parameters": {
-            "A": "6.700000e-12",
-            "C": "0.00",
+            "A": "1.200000e-12",
+            "C": "-490.00",
             "D": "300.0",
             "B": "0.0",
             "E": "0.0"
@@ -18,28 +18,8 @@
     "troe": false,
     "products": [
         {
-            "coefficient": "0.4",
-            "molecule": "CH3CHO"
-        },
-        {
-            "coefficient": "0.1",
-            "molecule": "CH2O"
-        },
-        {
-            "coefficient": "0.25",
-            "molecule": "CH3COCH3"
-        },
-        {
             "coefficient": 1,
-            "molecule": "HO2"
-        },
-        {
-            "coefficient": "0.8",
-            "molecule": "MEK"
-        },
-        {
-            "coefficient": 1,
-            "molecule": "NO2"
+            "molecule": "NTERPO2"
         }
     ]
 }

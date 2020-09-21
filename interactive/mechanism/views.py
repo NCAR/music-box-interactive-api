@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .mech_load import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from .moleculeforms import *
 from django.contrib import messages
 from .reactionforms import *
@@ -13,6 +13,8 @@ def molecules(request):
         'shortnames': molecule_menu_names(),
         'searchForm': MoleculeSearchForm
     }
+    if 'name' in request.GET:
+        messages.success(request, request.GET['name'])
     return render(request, 'mechanism/molecules.html', context)
 
 
@@ -43,6 +45,7 @@ def load(request):
     for key in info['henrys_law']:
         response.write('<tr><td><h3>' + labels[key] + '</h3></td><td><h3>' + info['henrys_law'][key] + '</h3></td></tr>')
     response.write('</table><button id="mech_edit" h_type="' + info['henrys_law']["henrys_law_type"] + '"class="mech_edit" species="'+ info['moleculename'] + '">Edit</button>')
+    response.write('<h3><a href="/mechanism/searchR?query=' + info['moleculename'] + '">View reactions</a></h3>')
     return response
 
 
@@ -145,7 +148,7 @@ def load_r(request):
     response.write('<table><tr><td><h3>Rate:</h3></td><td><h3>' + str(info['rate']) + '</h3></td></tr>')
     response.write('<tr><td><h3>Reactants:</h3></td><td><h3>')
     for reactant in info['reactants']:
-        response.write('<li><a href="molecules" class="r_to_m" id="' + reactant + '">' + reactant + '<a></li>') 
+        response.write('<li><a href="molecules?name=' + reactant + '" id="' + reactant + '">' + reactant + '<a></li>') 
     response.write('</h3></td></tr>')
     response.write('<tr  id="rc_row" ><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
     response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
@@ -157,7 +160,7 @@ def load_r(request):
     for product in info['products']:
         if product['coefficient'] == 1:
              product['coefficient'] = ''
-        response.write('<li>' + str(product['coefficient']) + ' ' + '<a class="r_to_m" id="' + product['molecule'] + '">' + product['molecule'] + '</a></li>') 
+        response.write('<li>' + str(product['coefficient']) + ' ' + '<a href="molecules?name=' + product['molecule'] + '" id="' + product['molecule'] + '">' + product['molecule'] + '</a></li>') 
     response.write('</h3></td></tr></table>')
     
     return response
@@ -168,6 +171,7 @@ def edit_r(request):
     stage_reaction_form(name)
     labels = pretty_reaction_names()
     formresponse = HttpResponse()
+    r_equation = unfilled_r_equations(reaction_dict()[name]['rate_constant'])
     formresponse.write('<h2>' + name + '</h2>')
     formresponse.write('<form action="save_r" method="get" class="mechform" id="' + name + '">')
     formresponse.write('<table><h3>')
@@ -177,6 +181,9 @@ def edit_r(request):
         formresponse.write('<td><h3>' + labels[str(field.name)] + '</h3></td><td>')
         formresponse.write(field)
         formresponse.write('</td></tr>')
+        if labels[str(field.name)] == 'Rate Call:':
+            formresponse.write('<tr><td><h3>Rate Equation:<h3></td>')
+            formresponse.write('<td>' + r_equation + '</td></tr>')
     formresponse.write('</table></h3>')
     formresponse.write('<button type="submit">Save</button></form>')
 
@@ -216,3 +223,33 @@ def reaction_equations(request):
     rate_equation = reaction_rate_equations(rc_info)
     response = HttpResponse("<td><h3>" + rate_equation + "</h3></td>")
     return response
+
+
+def search_reactions(request):
+    query = request.GET['query']
+    react_dict = reaction_dict()
+    resultlist = []
+    for reaction_name in react_dict:
+        for reactant in react_dict[reaction_name]['reactants']:
+            if query == reactant:
+                resultlist.append(reaction_name)
+        for product in react_dict[reaction_name]['products']:
+            if product['molecule'] == query:
+                resultlist.append(reaction_name)
+    
+    short_result_names = []
+    shortnames = reaction_menu_names()
+    for name in shortnames:
+        if name[0] in resultlist:
+            short_result_names.append(name)
+
+    if len(resultlist) == 0:
+        messages.error(request, 'No results found')
+        return HttpResponseRedirect('/mechanism/reactions')
+
+    context = {
+        'reacts': reaction_name_list(),
+        'searchForm': ReactionSearchForm,
+        'shortnames': short_result_names
+    }
+    return render(request, 'mechanism/reactions.html', context)
