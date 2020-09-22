@@ -395,3 +395,56 @@ def unfilled_r_equations(rc_dict):
     eqa = reaction_rate_equations(rc_dict)
     return eqa
 
+
+def reaction_search(query):
+    logging.info('searching...')
+    react_dict = reaction_dict()
+    resultlist = []
+    #for 'or' query
+    if ',' in query:
+        div_query = query.split(',')
+        cleaned = []
+        for q in div_query:
+            newq = q.replace(' ','')
+            cleaned.append(newq)
+        
+        for q in cleaned:
+            for reaction_name in react_dict:
+                for reactant in react_dict[reaction_name]['reactants']:
+                    if q == reactant:
+                        resultlist.append(reaction_name)
+            for product in react_dict[reaction_name]['products']:
+                if product['molecule'] == q:
+                    resultlist.append(reaction_name)
+        #for 'and' query
+    elif '+' in query:
+        div_query = query.split('+')
+        cleaned = []
+        for q in div_query:
+            newq = q.replace(' ','')
+            cleaned.append(newq)
+        
+        for reaction_name in react_dict: 
+            contains = []
+            for reactant in react_dict[reaction_name]['reactants']:
+                contains.append(reactant) 
+            for product in react_dict[reaction_name]['products']:
+                contains.append(product['molecule'])
+            if all(elem in contains  for elem in cleaned):
+                resultlist.append(reaction_name)
+                
+        #if single query
+    else:
+        for reaction_name in react_dict:
+            for reactant in react_dict[reaction_name]['reactants']:
+                if query == reactant:
+                    resultlist.append(reaction_name)
+            for product in react_dict[reaction_name]['products']:
+                if product['molecule'] == query:
+                    resultlist.append(reaction_name)
+    
+    #remove duplicate results
+    list(dict.fromkeys(resultlist))
+    logging.info('...search complete')
+    return resultlist
+    

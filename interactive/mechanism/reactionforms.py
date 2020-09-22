@@ -28,4 +28,4 @@ class ReactionForm(forms.Form):
 class ReactionSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ReactionSearchForm, self).__init__(*args, **kwargs)
-        self.fields['query'] = forms.CharField(widget= forms.TextInput(attrs={'placeholder':'search reactions', 'id':'r_search'}))
+        self.fields['query'] = forms.CharField(widget= forms.TextInput(attrs={'placeholder':'search with species', 'id':'r_search'}))

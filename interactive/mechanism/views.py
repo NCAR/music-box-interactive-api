@@ -34,6 +34,7 @@ def load(request):
     response = HttpResponse()
     labels = pretty_names()
     response.write('<h2>' + info['moleculename'] + '</h2>')
+    response.write('<h3><a href="/mechanism/searchR?query=' + info['moleculename'] + '">View reactions</a></h3>')
     response.write('<button id="mech_edit" h_type="' + info['henrys_law']["henrys_law_type"] + '"class="mech_edit" species="'+ info['moleculename'] + '">Edit</button>')
     response.write('<table><tr><td><h3>Solve Type:</h3></td><td><h3>' + info['solve'] + '</h3></td></tr>')
     if info['formula'] is not None:
@@ -227,16 +228,7 @@ def reaction_equations(request):
 
 def search_reactions(request):
     query = request.GET['query']
-    react_dict = reaction_dict()
-    resultlist = []
-    for reaction_name in react_dict:
-        for reactant in react_dict[reaction_name]['reactants']:
-            if query == reactant:
-                resultlist.append(reaction_name)
-        for product in react_dict[reaction_name]['products']:
-            if product['molecule'] == query:
-                resultlist.append(reaction_name)
-    
+    resultlist = reaction_search(query)
     short_result_names = []
     shortnames = reaction_menu_names()
     for name in shortnames:
