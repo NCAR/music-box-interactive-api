@@ -65,7 +65,6 @@ def output_plot(prop):
     csv = pandas.read_csv(csv_results_path)
     subset = csv[['time', ' ' + str(prop)]]
     cleaned_subset = undo_double(subset)
-    print(cleaned_subset)
     cleaned_subset.plot(x="time", ax=axes)
 
     # time = cleaned_subset[['time']].values.tolist()
@@ -77,12 +76,17 @@ def output_plot(prop):
     #     axes.xaxis.set_major_locator(plt.MultipleLocator(base))
 
     axes.set_xlabel(r"time / s")
+    name = prop.split('.')[1]
+
     if prop.split('.')[0] == 'CONC':
         axes.set_ylabel(r"(mol/m^3)")
-    elif prop.split('.')[0] == 'CONC':
+        axes.set_title(name + ' Concentration vs. Time')
+    elif prop.split('.')[0] == 'RATE':
         axes.set_ylabel(r"(mol/m^3 s^-1)")
+        axes.set_title(name + ' Rate vs. Time')
     axes.legend()
     axes.grid(True)
+    
 
     # Store image in a string buffer
     buffer = io.BytesIO()

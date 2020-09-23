@@ -233,7 +233,7 @@ def reaction_name_list():
 
 
 def reaction_dict():
-    logging.info('getting reaction info')
+    logging.info('getting reaction info..')
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
     with open(os.path.join(mech_path, "datamolec_info.json")) as g:
         datafile = json.loads(g.read())
@@ -253,6 +253,7 @@ def reaction_dict():
             products.append(coef + prod)
         name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
         r_dict.update({name: i})
+    logging.info('..retrieved')
     return r_dict
     
 
