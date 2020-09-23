@@ -7,6 +7,9 @@ from .reactionforms import *
 from django.conf import settings
 import mimetypes
 
+process_photolysis()
+
+
 def molecules(request):
     context = {
         'molecs': molecule_list(),
@@ -145,24 +148,48 @@ def load_r(request):
     if len(name) > 40:
         shortname = name[0:38] + '...'
     response.write('<h2>' + shortname + '</h2>')
-    response.write('<button id="mech_edit" r_type="' + info['rate_constant']["reaction_class"] + '"class="mech_edit_R" reaction="'+ name + '">Edit</button>')
-    response.write('<table><tr><td><h3>Rate:</h3></td><td><h3>' + str(info['rate']) + '</h3></td></tr>')
-    response.write('<tr><td><h3>Reactants:</h3></td><td><h3>')
-    for reactant in info['reactants']:
-        response.write('<li><a href="molecules?name=' + reactant + '" id="' + reactant + '">' + reactant + '<a></li>') 
-    response.write('</h3></td></tr>')
-    response.write('<tr  id="rc_row" ><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
-    response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
-    for param in info['rate_constant']['parameters']:
-        response.write('<tr><td>' + param + '</td><td>' + str(info['rate_constant']['parameters'][param]) + '</td></tr>')
-    response.write('</table></h3></td></tr>')
-    response.write('<tr><td><h3>Troe:</h3></td><td><h3>' + str(info['troe']) + '</h3></td></tr>')
-    response.write('<tr><td><h3>Products:</h3></td><td><h3>')
-    for product in info['products']:
-        if product['coefficient'] == 1:
-             product['coefficient'] = ''
-        response.write('<li>' + str(product['coefficient']) + ' ' + '<a href="molecules?name=' + product['molecule'] + '" id="' + product['molecule'] + '">' + product['molecule'] + '</a></li>') 
-    response.write('</h3></td></tr></table>')
+    if 'rate_constant' in info:
+        response.write('<button id="mech_edit" r_type="' + info['rate_constant']["reaction_class"] + '"class="mech_edit_R" reaction="'+ name + '">Edit</button>')
+        response.write('<table><tr><td><h3>Rate:</h3></td><td><h3>' + str(info['rate']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>Photolysis:</h3></td><td><h3>False</h3></td></tr>')
+        response.write('<tr><td><h3>Reactants:</h3></td><td><h3>')
+        for reactant in info['reactants']:
+            response.write('<li><a href="molecules?name=' + reactant + '" id="' + reactant + '">' + reactant + '<a></li>') 
+        response.write('</h3></td></tr>')
+        response.write('<tr  id="rc_row" ><td><h3>Reaction Class:</h3></td><td><h3>' + info['rate_constant']['reaction_class'] + '</h3></td></tr>')
+        response.write('<tr><td><h3>Rate Constant Parameters:</h3></td><td><h3><table>')
+        for param in info['rate_constant']['parameters']:
+            response.write('<tr><td>' + param_jax(param) + '</td><td>' + sci_note_jax(str(info['rate_constant']['parameters'][param])) + '</td></tr>')
+        response.write('</table></h3></td></tr>')
+        response.write('<tr><td><h3>Troe:</h3></td><td><h3>' + str(info['troe']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>Products:</h3></td><td><h3>')
+        for product in info['products']:
+            if product['coefficient'] == 1:
+                product['coefficient'] = ''
+            response.write('<li>' + str(product['coefficient']) + ' ' + '<a href="molecules?name=' + product['molecule'] + '" id="' + product['molecule'] + '">' + product['molecule'] + '</a></li>') 
+        response.write('</h3></td></tr></table>')
+    elif 'tuv_reaction' in info:
+        response.write('<button id="mech_edit" r_type="" class="mech_edit_R" reaction="'+ name + '">Edit</button>')
+        response.write('<table><tr><td><h3>Rate:</h3></td><td><h3>' + str(info['rate']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>Photolysis:</h3></td><td><h3>True</h3></td></tr>')
+        response.write('<tr><td><h3>ID:</h3></td><td><h3>' + str(info['id']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>TUV ID:</h3></td><td><h3>' + str(info['tuv_id']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>TUV Coefficient:</h3></td><td><h3>' + str(info['tuv_coeff']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>TUV Reaction:</h3></td><td><h3>' + str(info['tuv_reaction']) + '</h3></td></tr>')
+
+        response.write('<tr><td><h3>Reactants:</h3></td><td><h3>')
+        for reactant in info['reactants']:
+            response.write('<li><a href="molecules?name=' + reactant + '" id="' + reactant + '">' + reactant + '<a></li>') 
+        response.write('</h3></td></tr>')
+        response.write('<tr><td><h3>Troe:</h3></td><td><h3>' + str(info['troe']) + '</h3></td></tr>')
+        response.write('<tr><td><h3>Products:</h3></td><td><h3>')
+        for product in info['products']:
+            if product['coefficient'] == 1:
+                product['coefficient'] = ''
+            response.write('<li>' + str(product['coefficient']) + ' ' + '<a href="molecules?name=' + product['molecule'] + '" id="' + product['molecule'] + '">' + product['molecule'] + '</a></li>') 
+        response.write('</h3></td></tr></table>')
+    else:
+        response.write('mechanism reaction not recognized')
     
     return response
 

@@ -19,6 +19,36 @@ def molecule_info():
     return molec_dict
 
 
+def sci_note(dirty):
+    if 'e' in dirty:
+        a = dirty.split('e')
+        b = a[0].strip('0')
+        c = b.strip('.')
+        scinote = c + '*10^{' + a[1] + '}'
+    else: scinote = dirty
+    return scinote
+
+
+def sci_note_jax(dirty):
+    if 'e' in dirty:
+        a = dirty.split('e')
+        b = a[0].strip('0')
+        c = b.strip('.')
+        scinote = c + '*10^{' + a[1] + '}'
+    else: scinote = dirty
+    jax = "\\" + "begin{equation}" + scinote + "\\" + "end{equation}"
+    return jax
+
+
+def param_jax(dirty):
+    if "_" in dirty:
+        a = dirty.split('_')
+        b = "_{" + a[1] + "}"
+        return "\\" + "begin{equation}" + a[0] + b + "=\\" + "end{equation}"
+    else:
+        return "\\" + "begin{equation}" + dirty + "=\\" + "end{equation}"
+
+
 def molecule_list():
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
     with open(os.path.join(mech_path, "datamolec_info.json")) as g:
@@ -41,6 +71,23 @@ def henry_equations(value):
         return([equation1, equation3, equation4, equation5])
     if value == 1:
         return([equation2, equation3, equation4, equation5])
+
+
+# def filled_henry_equations(hl_dict):
+#     for key in hl_dict:
+#         if key != "henrys_law_type":
+#             hl_dict.update({key: sci_note(str(hl_dict[key]))})
+#     print(hl_dict)
+#     equation1 = "\\" + "begin{equation} H_{e f f}=K_{H}\left(1+" + "\\" + "frac{K_{1}}{K_{2}}[H+]" + "\\" + "right) " + "\\" + "end{equation}"
+#     equation2 = "\\" + "begin{equation}H_{e f f}=K_{H}" + "\\" + "left(1+" + "\\" + "frac{K_{1}}{[H+]}" + "\\" + "left(1+" + "\\" + "frac{K_{2}}{[H+]}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     equation3 = "\\" + "begin{equation}K_{H}=\mathrm{" + hl_dict['kh_298'] + "} " + "\\" + "exp " + "\\" + "left(" + "\\" + "mathrm{" + hl_dict['dh_r'] + "}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     equation4 = "\\" + "begin{equation}K_{1}=\mathrm{" + hl_dict['k1_298'] + "} " + "\\" + "exp " + "\\" + "left(" + "\\" + "operatorname{" + hl_dict['dh1_r'] + "}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     equation5 = "\\" + "begin{equation}K_{2}=\mathrm{" hl_dict['k2_298'] "} " + "\\" + "exp " + "\\" + "left(" + "\\" + "mathrm{" + hl_dict['dh2_r'] + "}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     if hl_dict['henrys_law_type'] == 0:
+#         return([equation1, equation3, equation4, equation5])
+#     if hl_dict['henrys_law_type'] == 1:
+#         return([equation2, equation3, equation4, equation5])
+
 
 
 def stage_form_info(item):
@@ -181,7 +228,7 @@ def reaction_name_list():
             prod = k['molecule']
             products.append(coef + prod)
         r_list.append(" + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products))
-    
+
     return r_list
 
 
@@ -206,7 +253,6 @@ def reaction_dict():
             products.append(coef + prod)
         name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
         r_dict.update({name: i})
-    
     return r_dict
     
 
@@ -374,16 +420,18 @@ def reaction_rate_equations(rc_dict):
     rc_type = rc_dict['reaction_class']
     params = rc_dict["parameters"]
     for key in params:
-        params.update({key: str(params[key])})
+        params.update({key: sci_note(str(params[key]))})
     if rc_type == "Arrhenius":            
-        eq = "\\" + "begin{equation}" + params['A'] + "e^{(" + "\\" + "frac{-" + params['C'] + "}{T})}" +  "\\" + "left(" + "\\" + "frac{T}{" + params['D'] + "}" + "\\" + "right)^" + params['B'] + "(1.0+" + params['E'] + "*P)" + "\\" + "end{equation}"
+        eq = "\\" + "begin{equation}{" + params['A'] + "}e^{(" + "\\" + "frac{-{" + params['C'] + "}}{T})}" +  "\\" + "left(" + "\\" + "frac{T}{" + params['D'] + "}" + "\\" + "right)^{" + params['B'] + "}(1.0+{" + params['E'] + "}*P)" + "\\" + "end{equation}"
     elif rc_type == "CH3COCH3_OH":
-        eq = "\\" + "begin{equation}" + "k = " + params['A'] + '+' + params['B'] + "e^{(" + "\\" + "frac{-" + params["C"] + "}{T})}" + "\\" + "end{equation}"
+        eq = "\\" + "begin{equation}" + "k = {" + params['A'] + '}+{' + params['B'] + "}e^{(" + "\\" + "frac{-{" + params["C"] + "}}{T})}" + "\\" + "end{equation}"
     elif rc_type == "Combined_CO_OH":
-        eq1 = "\\" + "begin{equation}" + params['A'] + "(1 + " + params['B'] + "k_b M T )" + "\\" + "end{equation}"
+        eq1 = "\\" + "begin{equation}{" + params['A'] + "}(1 + {" + params['B'] + "}k_b M T )" + "\\" + "end{equation}"
         eq2 = "\\" + "begin{equation}" + "k_b = " + "\\" + "mbox{Boltzmann}" + "\\" + "end{equation}"
         eq3 = "\\" + "begin{equation}" + "M = " + "\\" + "mbox{number density}" + "\\" + "end{equation}"
         eq = "<li>" + eq1 + "</li><li>" + eq2 + "</li><li>" + eq3 + "</li>"
+    elif rc_type == "Troe_low_pressure":
+        eq = "\\" + "begin{equation}" + "k_0 = {" + params['A_k0'] + "}e^{(" + '\\' + "frac{-{" + params['C_k0'] + "}}{T})} " + '\\' + "left( " + '\\' + "frac{T}{300} " + '\\' + "right)^{" + params['B_k0'] + "}" + "\\" + "end{equation}"
     else:
         eq = 'Unknown reaction class'
     return eq
@@ -400,7 +448,7 @@ def reaction_search(query):
     logging.info('searching...')
     react_dict = reaction_dict()
     resultlist = []
-    #for 'or' query
+    #for 'or' query with comma
     if ',' in query:
         div_query = query.split(',')
         cleaned = []
@@ -416,7 +464,7 @@ def reaction_search(query):
             for product in react_dict[reaction_name]['products']:
                 if product['molecule'] == q:
                     resultlist.append(reaction_name)
-        #for 'and' query
+        #for 'and' query with plus sign
     elif '+' in query:
         div_query = query.split('+')
         cleaned = []
@@ -448,3 +496,22 @@ def reaction_search(query):
     logging.info('...search complete')
     return resultlist
     
+
+
+def process_photolysis():
+    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+    with open(os.path.join(mech_path, "datamolec_info copy.json")) as g:
+            datafile = json.loads(g.read())
+    
+    mechanism = datafile['mechanism']
+    reactions = mechanism['reactions']
+    photo_reactions = mechanism['photolysis']
+
+    for p_reaction in photo_reactions:
+        reactions.append(p_reaction)
+    
+    mechanism.update({'reactions': reactions})
+    datafile.update({'mechanism': mechanism})
+
+    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
+        json.dump(datafile, f, indent=4)

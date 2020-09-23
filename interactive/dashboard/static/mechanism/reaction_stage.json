@@ -1,25 +1,21 @@
 {
-    "rate": null,
     "reactants": [
-        "APIN",
-        "NO3"
+        "O3"
     ],
-    "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
-    "rate_constant": {
-        "parameters": {
-            "A": "1.200000e-12",
-            "C": "-490.00",
-            "D": "300.0",
-            "B": "0.0",
-            "E": "0.0"
-        },
-        "reaction_class": "Arrhenius"
-    },
+    "id": "6150",
+    "rate": "jo3_a",
+    "tuv_id": "5",
+    "tuv_coeff": "1.0",
+    "tuv_reaction": "O3 -> O2 + O(1D)",
     "troe": false,
     "products": [
         {
             "coefficient": 1,
-            "molecule": "NTERPO2"
+            "molecule": "O1D"
+        },
+        {
+            "coefficient": 1,
+            "molecule": "O2"
         }
     ]
 }
