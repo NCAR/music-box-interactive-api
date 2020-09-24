@@ -21,5 +21,6 @@ urlpatterns = [
     path('configure/new-photo', views.new_photo),
     path('configure/run', views.configure),
     path('configure/species/remove', views.remove),
-    path('configure/download_config', views.download_file)
+    path('configure/download_config', views.download_file),
+    path('configure/config_json', views.config_json)
 ]

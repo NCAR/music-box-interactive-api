@@ -4,16 +4,16 @@ from .forms.optionsforms import *
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .forms.photolysisforms import *
-from .csvload import handle_uploaded_csv, read_csv
+from .upload_handler import handle_uploaded_csv, handle_uploaded_json
 from .save import *
 from .models import Document
 from django.http import HttpResponse, HttpRequest
 import os
 from django.conf import settings
 import mimetypes
+from django.core.files import File
 
 def new_species(request):
-
     if request.method == 'POST':
         new()
 
@@ -38,9 +38,9 @@ def species(request):
 
 def csv(request):
     if request.method == 'POST':
-        form = UploadFileForm(request.FILES)
-        if form.is_valid():
-            handle_uploaded_csv(request.FILES['file'])
+        uploaded = request.FILES['file']
+        handle_uploaded_csv(uploaded)
+        
 
     context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
@@ -77,7 +77,20 @@ def options(request):
     option_setup()
 
     context = {
-        'form': OptionsForm
+        'form': OptionsForm,
+        'file_form': UploadJsonConfigForm
+    }
+    return render(request, 'config/options.html', context)
+
+
+def config_json(request):
+    if request.method == 'POST':
+        uploaded = request.FILES['file']
+        handle_uploaded_json(uploaded)
+
+    context = {
+        'form': OptionsForm,
+        'file_form': UploadJsonConfigForm
     }
     return render(request, 'config/options.html', context)
 
@@ -96,7 +109,6 @@ def init(request):
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)
-
 
 
 def init_csv(request):

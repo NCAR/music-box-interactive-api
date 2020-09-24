@@ -2,6 +2,10 @@ from django import forms
 from .formsetup import option_setup
 
 
+class UploadJsonConfigForm(forms.Form):
+    file = forms.FileField()
+
+
 class OptionsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(OptionsForm, self).__init__(*args, **kwargs)

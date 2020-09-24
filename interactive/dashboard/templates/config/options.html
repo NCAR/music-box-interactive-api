@@ -16,7 +16,13 @@
 
      <div class="configbox">
          <div class="configform">
-             <form method="post">
+            <h3>Upload JSON Configuration File<h3>
+             <form enctype="multipart/form-data" method="POST" action="config_json">
+                 {% csrf_token %}
+                 {{ file_form }}
+                 <button type="submit">Upload JSON</button>
+             </form>
+             <form method="post" action="options">
                  {% csrf_token %}
                  {{ form|crispy }}
                  <button type="submit">Save</button>
