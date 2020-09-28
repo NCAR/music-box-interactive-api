@@ -87,7 +87,7 @@ def config_json(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         handle_uploaded_json(uploaded)
-
+        reverse_export()
     context = {
         'form': OptionsForm,
         'file_form': UploadJsonConfigForm

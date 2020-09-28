@@ -317,3 +317,76 @@ def new_photolysis():
 
     with open(os.path.join(config_path, "photo.json"), 'w') as f:
         json.dump(photo, f, indent=4)
+
+# fills form json files with info from config file
+def reverse_export():
+    with open(os.path.join(config_path, "my_config.json")) as f:
+        config = json.loads(f.read())
+    
+    species_dict = {
+        'formula': {},
+        'value': {},
+        'unit': {}
+    }
+    i = 1
+    for key in config['chemical species']:
+        name = 'Species ' + str(i)
+        species_dict['formula'].update({name: key})
+        unit = ""
+        iv = 0
+        for j in config['chemical species'][key]:
+            unit = j.split('[')[1]
+            unit = unit.split(']')[0]
+            iv = config['chemical species'][key][j]
+            species_dict['unit'].update({name: unit})
+            species_dict['value'].update({name: iv})
+        i = i+1
+    
+    option_dict = {}
+    for key in config['box model options']:
+        if '[' in key:
+            fixedname = key.split(' [')[0]
+            fixedname = fixedname.replace(' ', "_")
+            option_dict.update({fixedname: config['box model options'][key]})
+        else:
+            fixedname = key.replace(' ', "_")
+            option_dict.update({fixedname: config['box model options'][key]})
+
+
+    initial_dict = {
+        'values': {},
+        'units': {}
+    }
+    for condition in config['environmental conditions']:
+        unit = ''
+        for entry in config['environmental conditions'][condition]:
+            initial_dict['values'].update({condition: config['environmental conditions'][condition][entry]})
+            unit = entry.split('[')[1]
+            unit = unit.split(']')[0]
+            initial_dict['units'].update({condition: unit})
+    
+    photo_dict = {
+        "reactions": {},
+        "initial value": {}
+    }
+    i = 1
+    for reaction in config['photolysis']:
+        name = "reaction " + str(i)
+        photo_dict['reactions'].update({name: reaction})
+        for entry in config['photolysis'][reaction]:
+            photo_dict['initial value'].update({name: config['photolysis'][reaction][entry]})
+        
+        i = i+1
+    
+    with open(os.path.join(config_path, "photo.json"), 'w') as f:
+        json.dump(photo_dict, f, indent=4)
+    
+    with open(os.path.join(config_path, "initials.json"), 'w') as f:
+        json.dump(initial_dict, f, indent=4)
+
+    with open(os.path.join(config_path, "options.json"), 'w') as f:
+        json.dump(option_dict, f, indent=4)
+
+    with open(os.path.join(config_path, "species.json"), 'w') as f:
+        json.dump(species_dict, f, indent=4)
+    

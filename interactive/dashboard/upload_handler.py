@@ -7,6 +7,7 @@ from django.conf import settings
 import logging
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
+
 def handle_uploaded_csv(f):
     content = f.read()
     new = str(content.decode('utf-8'))
