@@ -389,4 +389,51 @@ def reverse_export():
 
     with open(os.path.join(config_path, "species.json"), 'w') as f:
         json.dump(species_dict, f, indent=4)
+
+
+# load data from csv upload handler into config files
+def uploaded_to_config(uploaded_dict):
+    conc = {}
+    env = {}
+
+    for key in uploaded_dict:
+        if 'CONC.' in key:
+            conc.update({key.replace('CONC.', ''): uploaded_dict[key]})
+        elif 'ENV.' in key:
+            env.update({key.replace('ENV.', ''): uploaded_dict[key]})
+
+    species_dict = {
+        'formula': {},
+        'value': {},
+        'unit': {}
+    }
+    initial_dict = {
+        'values': {},
+        'units': {
+        "temperature": "K",
+        "pressure": "atm"
+    }
+    }
     
+
+    i = 1
+    for species in conc:
+        name = 'Species ' + str(i)
+        species_dict['formula'].update({name: species})
+        species_dict['value'].update({name: conc[species]})
+        species_dict['unit'].update({name: 'mol m-3'})
+        i = i+1
+    
+    for condition in env:
+        initial_dict['values'].update({condition: env['condition']})
+    
+    if len(initial_dict['values']) > 0:
+        with open(os.path.join(config_path, "initials.json"), 'w') as f:
+            json.dump(initial_dict, f, indent=4)
+
+    if len(species_dict['formula']) > 0:
+        with open(os.path.join(config_path, "species.json"), 'w') as f:
+            json.dump(species_dict, f, indent=4)
+
+    export()
+

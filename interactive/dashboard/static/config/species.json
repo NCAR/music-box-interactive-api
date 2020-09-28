@@ -1,23 +1,20 @@
 {
     "formula": {
-        "Species 1": "Ar",
-        "Species 2": "H2O",
-        "Species 3": "O2",
-        "Species 4": "N2",
-        "Species 5": "O3"
+        "Species 1": "NO2",
+        "Species 2": "NO",
+        "Species 3": "O3",
+        "Species 4": "ISOP"
     },
     "value": {
-        "Species 1": 9.0,
-        "Species 2": 2.0,
-        "Species 3": 30.0,
-        "Species 4": 70.0,
-        "Species 5": 10.0
+        "Species 1": "1",
+        "Species 2": "2",
+        "Species 3": "3",
+        "Species 4": "4"
     },
     "unit": {
         "Species 1": "mol m-3",
         "Species 2": "mol m-3",
         "Species 3": "mol m-3",
-        "Species 4": "mol m-3",
-        "Species 5": "mol m-3"
+        "Species 4": "mol m-3"
     }
 }

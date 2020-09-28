@@ -39,7 +39,7 @@ def species(request):
 def csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
-        handle_uploaded_csv(uploaded)
+        uploaded_to_config(handle_uploaded_csv(uploaded))
         
 
     context = {'form1': SpeciesForm,
@@ -115,7 +115,7 @@ def init_csv(request):
     if request.method == 'POST':
         form = UploadFileForm( request.FILES)
         if form.is_valid():
-            handle_uploaded_csv(request.FILES['file'])
+            uploaded_to_config(handle_uploaded_csv(request.FILES['file']))
 
     context = {
         'form': InitialConditionsForm,

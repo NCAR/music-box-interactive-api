@@ -25,7 +25,7 @@ def handle_uploaded_csv(f):
         if len(dictFromFile) == fileitems:
             break
     
-    print(dictFromFile)
+    return(dictFromFile)
         
 
 def validate_config(testDict):
