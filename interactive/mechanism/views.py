@@ -132,7 +132,7 @@ def new_molec_save(request):
 def molec_search(request):
     query = request.GET['query']
     mechlist = search_list()
-    if (query in mechlist):
+    if query in mechlist:
         messages.success(request, query)
         return HttpResponseRedirect('/mechanism/molecules')
     else:

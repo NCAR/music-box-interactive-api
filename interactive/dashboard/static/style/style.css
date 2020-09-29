@@ -475,3 +475,12 @@ input[name="query"]{
 #download_mech_button{
     margin-bottom: 8px;
 }
+
+hr.solid {
+    border-top: 3px solid white;
+    width: 400px;
+}
+
+.optiontitle {
+    width: 400px;
+}

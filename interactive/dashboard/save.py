@@ -2,30 +2,23 @@ import json
 import os
 from django.conf import settings
 import logging
+from interactive.tools import *
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 # Put the data from post request into post.json
 
-def load(dict):
-    with open(os.path.join(config_path, "post.json"), 'w') as outfile:
-        json.dump(dict, outfile, indent=4)
+def load(dicti):
+    dump_json('post.json', dicti)
 
 
 # Combines all individual configuration json files and writes to the config file readable by the mode
 def export():
-    with open(os.path.join(config_path, "species.json")) as a:
-        species = json.loads(a.read())
-
-    with open(os.path.join(config_path, "options.json")) as b:
-        options = json.loads(b.read())
-
-    with open(os.path.join(config_path, "initials.json")) as c:
-        initials = json.loads(c.read())
-
-    with open(os.path.join(config_path, "photo.json")) as d:
-        photo = json.loads(d.read())
+    species = open_json('species.json')
+    options = open_json('options.json')
+    initials = open_json('initials.json')
+    photo = open_json('photo.json')
 
     config = {}
 
@@ -95,38 +88,25 @@ def export():
     })
 
     # write dict as json
-
-    with open(os.path.join(config_path, "my_config.json"), 'w') as f:
-        json.dump(config, f, indent=4)
-    
+    dump_json('my_config.json', config)
     logging.info('my_config.json updated')
 
 
 # Save the data from the post request to the relevant configuration json
 
 def save(type):
-    with open(os.path.join(config_path, "post.json")) as g:
-        dictionary = json.loads(g.read())
-
-    with open(os.path.join(config_path, "species.json")) as f:
-        species = json.loads(f.read())
-
-    with open(os.path.join(config_path, "options.json")) as h:
-        options = json.loads(h.read())
-
-    with open(os.path.join(config_path, "initials.json")) as i:
-        initials = json.loads(i.read())
-
-    with open(os.path.join(config_path, "photo.json")) as j:
-        photo = json.loads(j.read())
-
+    dictionary = open_json('post.json')
+    species = open_json('species.json')
+    options = open_json('options.json')
+    initials = open_json('initials.json')
+    photo = open_json('photo.json')
+   
  # Saves the formulas for chemical species
 
     if type == 'formula':
         for key in dictionary:
             species["formula"].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species, f, indent=4)
+        dump_json('species.json', species)
         logging.info('Species updated')
 
  # Saves initial concentration values for chemical species
@@ -134,8 +114,7 @@ def save(type):
     if type == 'value':
         for key in dictionary:
             species["value"].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species, f, indent=4)
+        dump_json('species.json', species)
         logging.info('Species updated')
 
  # Saves units for species concentration
@@ -143,8 +122,7 @@ def save(type):
     if type == 'unit':
         for key in dictionary:
             species["unit"].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species, f, indent=4)
+        dump_json('species.json', species)
         logging.info('Species updated')
 
  # Saves box model options
@@ -152,8 +130,7 @@ def save(type):
     if type == 'options':
         for key in dictionary:
             options.update({key: dictionary[key]})
-        with open(os.path.join(config_path, "options.json"), 'w') as f:
-            json.dump(options, f, indent=4)
+        dump_json('options.json', options)
         logging.info('box model options updated')
 
  # Saves initial condtions for the model
@@ -161,8 +138,7 @@ def save(type):
     if type == 'conditions':
         for key in dictionary:
             initials['values'].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "initials.json"), 'w') as f:
-            json.dump(initials, f, indent=4)
+        dump_json('initials.json', initials)
         logging.info('initial conditions updated')
 
  # Saves units for the initial conditions
@@ -170,8 +146,7 @@ def save(type):
     if type == 'cond_units':
         for key in dictionary:
             initials['units'].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "initials.json"), 'w') as f:
-            json.dump(initials, f, indent=4)
+        dump_json('initials.json', initials)
         logging.info('initial conditions updated')
 
  # Saves units for the initial conditions
@@ -179,8 +154,7 @@ def save(type):
     if type == 'photo-reactions':
         for key in dictionary:
             photo['reactions'].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "photo.json"), 'w') as f:
-            json.dump(photo, f, indent=4)
+        dump_json('photo.json', photo)
         logging.info('photolysis updated')
 
  # Saves units for the initial conditions
@@ -188,8 +162,7 @@ def save(type):
     if type == 'photo-values':
         for key in dictionary:
             photo['initial value'].update({key: dictionary[key]})
-        with open(os.path.join(config_path, "photo.json"), 'w') as f:
-            json.dump(photo, f, indent=4)
+        dump_json('photo.json', photo)
         logging.info('photolysis updated')
     export()
 
@@ -197,8 +170,7 @@ def save(type):
 # Adds a new blank species to the species configuration json
 
 def new():
-    with open(os.path.join(config_path, "species.json")) as f:
-        config = json.loads(f.read())
+    config = open_json('species.json')
 
     number = 1+ len(config['formula'])
     name = 'Species ' + str(number)
@@ -209,8 +181,7 @@ def new():
 
     config['unit'].update({name: 'mol m-3'})
 
-    with open(os.path.join(config_path, "species.json"), 'w') as f:
-        json.dump(config, f, indent=4)
+    dump_json('species.json', config)
     logging.info('new species added')
 
 
@@ -281,47 +252,37 @@ def save_photo(form):
 
 def remove_species(id):
     removed = id.split('.')[0]
-    with open(os.path.join(config_path, "species.json")) as f:
-        specs = json.loads(f.read())
+    specs = open_json('species.json')
 
     specs["formula"].pop(removed)
     specs["value"].pop(removed)
     specs["unit"].pop(removed)
 
-    with open(os.path.join(config_path, "species.json"), 'w') as f:
-        json.dump(specs, f, indent=4)
-
+    dump_json('species.json', specs)
     export()
 
 
 # load config json for review
 
 def review_json():
-    with open(os.path.join(config_path, "my_config.json")) as f:
-        config = json.loads(f.read())
-    
+    config = open_json('my_config.json')
     return config
 
 # add new photolysis reaction:
 
 def new_photolysis():
-    with open(os.path.join(config_path, "photo.json")) as f:
-        photo = json.loads(f.read())
+    photo = open_json('photo.json')
 
     number = 1+ len(photo['reactions'])
     name = 'reaction ' + str(number)
-
     photo['reactions'].update({name: "Enter Reaction"})
-
     photo['initial value'].update({name: 0})
 
-    with open(os.path.join(config_path, "photo.json"), 'w') as f:
-        json.dump(photo, f, indent=4)
+    dump_json('photo.json', photo)
 
-# fills form json files with info from config file
+# fills form json files with info from my_config file
 def reverse_export():
-    with open(os.path.join(config_path, "my_config.json")) as f:
-        config = json.loads(f.read())
+    config = open_json('my_config.json')
     
     species_dict = {
         'formula': {},
@@ -378,17 +339,10 @@ def reverse_export():
         
         i = i+1
     
-    with open(os.path.join(config_path, "photo.json"), 'w') as f:
-        json.dump(photo_dict, f, indent=4)
-    
-    with open(os.path.join(config_path, "initials.json"), 'w') as f:
-        json.dump(initial_dict, f, indent=4)
-
-    with open(os.path.join(config_path, "options.json"), 'w') as f:
-        json.dump(option_dict, f, indent=4)
-
-    with open(os.path.join(config_path, "species.json"), 'w') as f:
-        json.dump(species_dict, f, indent=4)
+    dump_json('photo.json', photo_dict)
+    dump_json('initials.json', initial_dict)
+    dump_json('options.json', option_dict)
+    dump_json('species.json', species_dict)
 
 
 # load data from csv upload handler into config files
@@ -428,12 +382,9 @@ def uploaded_to_config(uploaded_dict):
         initial_dict['values'].update({condition: env['condition']})
     
     if len(initial_dict['values']) > 0:
-        with open(os.path.join(config_path, "initials.json"), 'w') as f:
-            json.dump(initial_dict, f, indent=4)
+        dump_json('initials.json', initial_dict)
 
     if len(species_dict['formula']) > 0:
-        with open(os.path.join(config_path, "species.json"), 'w') as f:
-            json.dump(species_dict, f, indent=4)
-
+        dump_json('species.json', species_dict)
+        
     export()
-

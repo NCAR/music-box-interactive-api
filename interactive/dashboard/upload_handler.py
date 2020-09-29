@@ -4,10 +4,12 @@ import os
 from .save import load, save, export
 import json
 from django.conf import settings
+from interactive.tools import *
 import logging
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 
+# converts uploaded csv input file to dictionary of values
 def handle_uploaded_csv(f):
     content = f.read()
     new = str(content.decode('utf-8'))
@@ -27,10 +29,9 @@ def handle_uploaded_csv(f):
     
     return(dictFromFile)
         
-
+#checks uploaded configuration against current config file
 def validate_config(testDict):
-    with open(os.path.join(config_path, "my_config.json")) as f:
-        config = json.loads(f.read())
+    config = open_json('my_config.json')
     requirements = []
     for key in config:
         requirements.append(key)
@@ -46,7 +47,7 @@ def validate_config(testDict):
     elif len(errors) == 0:
         return {'success': True}
 
-
+# loads uploaded json file into dictionary, validates, and saves to json file
 def handle_uploaded_json(f):
     content = f.read()
     decoded = content.decode('utf-8')
@@ -54,5 +55,5 @@ def handle_uploaded_json(f):
     validation = validate_config(config)
     print(validation)
     if validation['success']:
-        with open(os.path.join(config_path, "my_config.json"), 'w') as outfile:
-            json.dump(config, outfile, indent=4)
+        dump_json('my_config.json', config)
+    

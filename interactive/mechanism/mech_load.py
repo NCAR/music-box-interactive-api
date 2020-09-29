@@ -2,14 +2,13 @@ import json
 from django.conf import settings
 import logging
 import os
+from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
 def molecule_info():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-            mechanism = json.loads(g.read())['mechanism']
+    mechanism = open_json('datamolec_info.json')['mechanism']
 
     molecules = mechanism['molecules']
     molec_dict = {}
@@ -19,40 +18,8 @@ def molecule_info():
     return molec_dict
 
 
-def sci_note(dirty):
-    if 'e' in dirty:
-        a = dirty.split('e')
-        b = a[0].strip('0')
-        c = b.strip('.')
-        scinote = c + '*10^{' + a[1] + '}'
-    else: scinote = dirty
-    return scinote
-
-
-def sci_note_jax(dirty):
-    if 'e' in dirty:
-        a = dirty.split('e')
-        b = a[0].strip('0')
-        c = b.strip('.')
-        scinote = c + '*10^{' + a[1] + '}'
-    else: scinote = dirty
-    jax = "\\" + "begin{equation}" + scinote + "\\" + "end{equation}"
-    return jax
-
-
-def param_jax(dirty):
-    if "_" in dirty:
-        a = dirty.split('_')
-        b = "_{" + a[1] + "}"
-        return "\\" + "begin{equation}" + a[0] + b + "=\\" + "end{equation}"
-    else:
-        return "\\" + "begin{equation}" + dirty + "=\\" + "end{equation}"
-
-
 def molecule_list():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-            mechanism = json.loads(g.read())['mechanism']
+    mechanism = open_json('datamolec_info.json')['mechanism']
 
     molecules = mechanism['molecules']
     molec_list = []
@@ -89,30 +56,27 @@ def henry_equations(value):
 #         return([equation2, equation3, equation4, equation5])
 
 
-
+# loads molecule info into form stage json
 def stage_form_info(item):
     initial = molecule_info()[item]
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "form_stage.json"), 'w') as f:
-        json.dump(initial, f, indent=4)
+    dump_json('form_stage.json', initial)
 
 
+# reads dict from form stage json
 def initialize_form():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "form_stage.json")) as g:
-            info = json.loads(g.read())
+    info = open_json('form_stage.json')
     logging.info('filling' + info['moleculename'] + 'form')
     return info
 
 
+# checks which molecule form was last initialized
 def id_molecule():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "form_stage.json")) as g:
-        info = json.loads(g.read())
-    
+    info = open_json('form_stage.json')
     return info['moleculename']
 
 
+# mathjax names and display names for form fields
 def pretty_names():
     names = {
         "formula": "Formula:",
@@ -139,11 +103,10 @@ def pretty_names():
     return names
 
 
+#saves updated molecule info from form into mechanism
 def save_mol(name, myDict):
-    logging.info('saving molecule...')
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-            datafile = json.loads(g.read())
+    logging.info('saving molecule...')    
+    datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     molecules = mechanism['molecules']
     for i in molecules:
@@ -158,17 +121,14 @@ def save_mol(name, myDict):
     molecules[n] = old
     mechanism.update({'molecules':molecules})
     datafile.update({'mechanism': mechanism})
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
-        json.dump(datafile, f, indent=4)
+    dump_json('datamolec_info.json', datafile)
     logging.info('...saved')
 
 
+# saves info from 'new molecule form' into mechanism
 def new_m(myDict):
     logging.info('adding new molecule...')
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-            datafile = json.loads(g.read())
+    datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     molecules = mechanism['molecules']
     new = {
@@ -192,15 +152,13 @@ def new_m(myDict):
     molecules.append(new)
     mechanism.update({'molecules': molecules})
     datafile.update({'mechanism': mechanism})
-    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
-        json.dump(datafile, f, indent=4)
+    dump_json('datamolec_info.json', datafile)
     logging.info('...added')
 
 
+# returns a list of molecule names to search on
 def search_list():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-            datafile = json.loads(g.read())
+    datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     molecules = mechanism['molecules']
     name_list = []
@@ -209,10 +167,9 @@ def search_list():
     return name_list
 
 
+# returns a list of reaction names, ex: "O3 -> 3O"
 def reaction_name_list():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-        datafile = json.loads(g.read())
+    datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     reactions = mechanism['reactions']
     r_list = []
@@ -232,11 +189,10 @@ def reaction_name_list():
     return r_list
 
 
+# returns a dictionary of reactions, with keys the same as names returned by reaction_name_list()
 def reaction_dict():
     logging.info('getting reaction info..')
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-        datafile = json.loads(g.read())
+    datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     reactions = mechanism['reactions']
     r_dict = {}
@@ -269,22 +225,20 @@ def id_dict(namelist):
     return outlist
 
 
+# saves a reaction info to 'reaction_stage.json'
 def stage_reaction_form(name):
     initial = reaction_dict()[name]
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "reaction_stage.json"), 'w') as f:
-        json.dump(initial, f, indent=4)
+    dump_json('reaction_stage.json', initial)
     
 
+# reads 'reaction_stage.json' to fill initial values for edit forms
 def initialize_reactions():
     logging.info('filling form')
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "reaction_stage.json")) as g:
-            info = json.loads(g.read())
-    
+    info = open_json('reaction_stage.json')
     return info
 
 
+# returns dict with display names for reaction edit form fields
 def pretty_reaction_names():
     names = {
         'rate': 'Rate:',
@@ -320,13 +274,11 @@ def pretty_reaction_names():
     return names
 
 
+# returns the name of the most recently staged reaction
+# used to save reaction edit form in correct place
 def id_reaction():
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "reaction_stage.json")) as g:
-            info = json.loads(g.read())
-    
+    info = open_json('reaction_stage.json')
     r_dict = reaction_dict()
-
     for key in r_dict:
         if info == r_dict[key]:
             name = key
@@ -334,11 +286,10 @@ def id_reaction():
     return name
 
 
+#save updated reaction info to mechanism, returns new reaction name
 def save_reacts(name, myDict):
     logging.info('saving reaction...')
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json")) as g:
-            datafile = json.loads(g.read())
+    datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     reactions = mechanism['reactions']
     info = reaction_dict()[name]
@@ -371,9 +322,7 @@ def save_reacts(name, myDict):
     reactions[r_index] = reaction
     mechanism.update({'reactions': reactions})
     datafile.update({'mechanism': mechanism})
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    with open(os.path.join(mech_path, "datamolec_info.json"), 'w') as f:
-        json.dump(datafile, f, indent=4)
+    dump_json('datamolec_info.json', datafile)
     
     reactants = []
     for j in reaction['reactants']:
@@ -391,6 +340,7 @@ def save_reacts(name, myDict):
     return new_name
 
 
+# returns zipped list of tuples with shortened names. [[long_name, short_name], [], ...]
 def reaction_menu_names():
     r_list = reaction_name_list()
     newlist = []
@@ -417,6 +367,7 @@ def molecule_menu_names():
     return zipped
 
 
+# returns mathjax formatted strings of rate equations
 def reaction_rate_equations(rc_dict):
     rc_type = rc_dict['reaction_class']
     params = rc_dict["parameters"]
@@ -438,6 +389,7 @@ def reaction_rate_equations(rc_dict):
     return eq
 
 
+# same as above, but with variables instead of filled values
 def unfilled_r_equations(rc_dict):
     for key in rc_dict['parameters']:
         rc_dict['parameters'].update({key: key})
@@ -445,6 +397,7 @@ def unfilled_r_equations(rc_dict):
     return eqa
 
 
+# searches for reactions containing query, returns list 
 def reaction_search(query):
     logging.info('searching...')
     react_dict = reaction_dict()
@@ -498,7 +451,7 @@ def reaction_search(query):
     return resultlist
     
 
-
+# add photolysis to reactions section
 def process_photolysis():
     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
     with open(os.path.join(mech_path, "datamolec_info copy.json")) as g:

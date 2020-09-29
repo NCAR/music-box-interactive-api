@@ -1,20 +1,24 @@
 {
+    "rate": null,
     "reactants": [
+        "O",
         "O3"
     ],
-    "id": "6150",
-    "rate": "jo3_a",
-    "tuv_id": "5",
-    "tuv_coeff": "1.0",
-    "tuv_reaction": "O3 -> O2 + O(1D)",
+    "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
+    "rate_constant": {
+        "parameters": {
+            "A": "8.000000e-12",
+            "C": "2060.00",
+            "D": "300.0",
+            "B": "0.0",
+            "E": "0.0"
+        },
+        "reaction_class": "Arrhenius"
+    },
     "troe": false,
     "products": [
         {
-            "coefficient": 1,
-            "molecule": "O1D"
-        },
-        {
-            "coefficient": 1,
+            "coefficient": "2",
             "molecule": "O2"
         }
     ]

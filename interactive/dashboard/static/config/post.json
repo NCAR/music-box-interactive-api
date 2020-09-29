@@ -1,6 +1,4 @@
 {
-    "Species 1": "mol m-3",
-    "Species 2": "mol m-3",
-    "Species 3": "mol m-3",
-    "Species 4": "mol m-3"
+    "temperature": "K",
+    "pressure": "atm"
 }
