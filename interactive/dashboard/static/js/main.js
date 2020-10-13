@@ -19,20 +19,29 @@ $(document).ready(function(){
     $('#plot').html("<h3><div id='plotmessage'></div></h3>")
     $("#plotnav").children().attr('class', 'none');
     $('#'+linkId).attr('class','selection');
-    $.ajax({
-      url: 'plots/get_contents',
-      type: 'get',
-      data: {"type": linkId},
-      success: function(response){
-        $("#plotbar").html(response);
-        $("#plotmessage").html('Select items from the left to plot');
-      }
-    });
+    if (linkId == "custom"){
+      $.ajax({
+        url: 'plots/custom',
+        type: 'get',
+        success: function(response){
+        
+        }
+      });
+    } else {
+      $.ajax({
+        url: 'plots/get_contents',
+        type: 'get',
+        data: {"type": linkId},
+        success: function(response){
+          $("#plotbar").html(response);
+          $("#plotmessage").html('Select items from the left to plot');
+        }
+      });
+    }
   });
   //plot property buttons
   $(".prop").on('click', function(){
     var linkId = $(this).attr('id');
-
     $("#plotnav").children().attr('class', 'none');
     $('#'+linkId).attr('class','selection');
     $("#plotbar").html("");
@@ -45,6 +54,8 @@ $(document).ready(function(){
       }
     });
   });
+
+
 
   //run model button
   $("#runM").on('click', function(){
@@ -103,10 +114,13 @@ $(document).ready(function(){
       $("#" + linkId +'plot').remove()
     } else {
       $(this).attr('clickStatus','true');
+
     if ($('#species').attr('class') == 'selection'){
       var propType = 'CONC.'
     } else if ($('#rates').attr('class') == 'selection'){
       var propType = 'RATE.'
+    } else if ($('#env').attr('class') == 'selection'){
+      var propType = 'ENV.'
     }
     var prop = propType + linkId;
     $('#plot').append('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '">');

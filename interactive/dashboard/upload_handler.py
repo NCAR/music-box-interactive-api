@@ -56,4 +56,3 @@ def handle_uploaded_json(f):
     print(validation)
     if validation['success']:
         dump_json('my_config.json', config)
-    

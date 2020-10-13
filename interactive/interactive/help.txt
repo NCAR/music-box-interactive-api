@@ -12,34 +12,3 @@ acid: type 0:
 \begin{equation}
 H_{e f f}=K_{H}\left(1+\frac{K_{1}}{K_{2}}[H+]\right)
 \end{equation}
-
-
-
-------------------------------------
-
-base type 1:
-
-\begin{equation}
-      H_{e f f}=K_{H}\left(1+\frac{K_{1}}{[H+]}\left(1+\frac{K_{2}}{[H+]}\right)\right)
-\end{equation}
-
------------------------------------
-\begin{equation}
-K_{H}=\mathrm{kh}_{298} \exp \left(\mathrm{dh}_{r}\left(\frac{1}{T}-\frac{1}{298}\right)\right)
-\end{equation}
-
-
-\begin{equation}
-K_{1}=\mathrm{k} 1_{298} \exp \left(\operatorname{dh} 1_{r}\left(\frac{1}{T}-\frac{1}{298}\right)\right)
-\end{equation}
-
-
-\begin{equation}
-K_{2}=\mathrm{k} 2_{298} \exp \left(\mathrm{dh} 2_{r}\left(\frac{1}{T}-\frac{1}{298}\right)\right)
-\end{equation}
-
-
-
-<script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
