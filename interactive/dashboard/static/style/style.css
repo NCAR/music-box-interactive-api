@@ -145,6 +145,7 @@ input {
     background-color: white;
     border: 2px solid white;
     border-radius: 4px;
+    box-shadow: 0px 1px 3px 0px #303030;
 }
 
 .confighead {
@@ -172,6 +173,7 @@ button {
     background-color: #303030;
     border-radius: 3px;
     border: 2px solid #303030;;
+    box-shadow: 0px 1px 3px 0px #303030;
 }
 button[status='selected']{
     width: 125;
@@ -207,6 +209,7 @@ select {
     padding: 12px 20px;
     border: 1px solid white;
     border-radius: 4px;
+    box-shadow: 0px 1px 3px 0px #303030;
 }
 
 .footer {
@@ -352,6 +355,7 @@ select {
 
 #sidemenu li button{
     width: 125;
+    box-shadow: 0px 2px 5px 0px #303030;
 }
 
 #molec_detail {
@@ -454,6 +458,7 @@ input[name="query"]{
 
 #sidemenu[mech_section='reaction'] li button{
     width: 200;
+    box-shadow: 0px 2px 5px 0px #303030;
 }
 
 #sidemenu[mech_section='reaction']{

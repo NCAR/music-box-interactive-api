@@ -7,6 +7,7 @@ import subprocess
 import mimetypes
 import pandas as pd
 import time
+from shutil import copy
 
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
@@ -20,11 +21,18 @@ print("interface_solo:", interface_solo)
 
 out_path = os.path.join(mb_dir, 'output.csv')
 error_path = os.path.join(mb_dir, 'error.json')
+copy_path = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/past.csv')
+config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")
+config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.json')
+
 
 def run(request):
     if interface_solo:
         return JsonResponse({'model_connected': False})
+    
+    copy(config_path, config_dest)
     if os.path.isfile(out_path):
+        copy(out_path, copy_path)
         os.remove(out_path)
     if os.path.isfile(error_path):
         os.remove(error_path)
@@ -38,6 +46,7 @@ def check_load(request):
     response_message = {}
     out_path = os.path.join(mb_dir, 'output.csv')
     error_path = os.path.join(mb_dir, 'error.json')
+    
     status = 'checking'
 
     # check if output file exists
@@ -49,6 +58,8 @@ def check_load(request):
                 status = 'empty_output'
         else:
             status = 'done'
+            
+
 
     response_message.update({'status': status})
 
