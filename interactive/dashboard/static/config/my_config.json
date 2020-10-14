@@ -1,6 +1,6 @@
 {
     "box model options": {
-        "grid": "notbox",
+        "grid": "box",
         "chemistry time step [min]": 1.0,
         "output time step [hr]": 0.1,
         "simulation length [hr]": 13.9
