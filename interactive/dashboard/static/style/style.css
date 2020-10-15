@@ -369,7 +369,7 @@ select {
     padding-bottom: 25;
     background-color: #267871;
     border-radius: 4px;
-    box-shadow: 0px 1px 3px 0px #303030;
+    box-shadow: 0px 1px 5px 0px #303030;
 }
 
 #molecule_content {
@@ -405,7 +405,7 @@ h2 {
     padding-bottom: 25;
     background-color: #267871;
     border-radius: 4px;
-    box-shadow: 0px 1px 3px 0px #303030;
+    box-shadow: 0px 1px 5px 0px #303030;
 }
 
 #plots_content{
