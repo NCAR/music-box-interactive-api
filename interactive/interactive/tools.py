@@ -17,7 +17,8 @@ def file_path(filename):
         'form_stage.json': 'mechanism',
         'latex.json': 'mechanism',
         'reaction_stage.json': 'mechanism',
-        'T1mozcart.json': 'mechanism'
+        'T1mozcart.json': 'mechanism',
+        'mol_name.json': 'mechanism'
     }
     file_loc = locations[filename]
     if file_loc == "config":

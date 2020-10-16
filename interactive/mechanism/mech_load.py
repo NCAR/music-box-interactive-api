@@ -7,37 +7,37 @@ from interactive.tools import *
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
-def molecule_info():
-    mechanism = open_json('datamolec_info.json')['mechanism']
+# def molecule_info():
+#     mechanism = open_json('datamolec_info.json')['mechanism']
 
-    molecules = mechanism['molecules']
-    molec_dict = {}
-    for i in molecules:
-        molec_dict.update({i['moleculename']: i})
-    logging.info('getting molecule info')
-    return molec_dict
-
-
-def molecule_list():
-    mechanism = open_json('datamolec_info.json')['mechanism']
-
-    molecules = mechanism['molecules']
-    molec_list = []
-    for i in molecules:
-        molec_list.append(i['moleculename'])
-    return molec_list
+#     molecules = mechanism['molecules']
+#     molec_dict = {}
+#     for i in molecules:
+#         molec_dict.update({i['moleculename']: i})
+#     logging.info('getting molecule info')
+#     return molec_dict
 
 
-def henry_equations(value):
-    equation1 = "\\" + "begin{equation} H_{e f f}=K_{H}\left(1+" + "\\" + "frac{K_{1}}{K_{2}}[H+]" + "\\" + "right) " + "\\" + "end{equation}"
-    equation2 = "\\" + "begin{equation}H_{e f f}=K_{H}" + "\\" + "left(1+" + "\\" + "frac{K_{1}}{[H+]}" + "\\" + "left(1+" + "\\" + "frac{K_{2}}{[H+]}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
-    equation3 = "\\" + "begin{equation}K_{H}=\mathrm{kh}_{298} " + "\\" + "exp " + "\\" + "left(" + "\\" + "mathrm{dh}_{r}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
-    equation4 = "\\" + "begin{equation}K_{1}=\mathrm{k} 1_{298} " + "\\" + "exp " + "\\" + "left(" + "\\" + "operatorname{dh} 1_{r}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
-    equation5 = "\\" + "begin{equation}K_{2}=\mathrm{k} 2_{298} " + "\\" + "exp " + "\\" + "left(" + "\\" + "mathrm{dh} 2_{r}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
-    if value == 0:
-        return([equation1, equation3, equation4, equation5])
-    if value == 1:
-        return([equation2, equation3, equation4, equation5])
+# def molecule_list():
+#     mechanism = open_json('datamolec_info.json')['mechanism']
+
+#     molecules = mechanism['molecules']
+#     molec_list = []
+#     for i in molecules:
+#         molec_list.append(i['moleculename'])
+#     return molec_list
+
+
+# def henry_equations(value):
+#     equation1 = "\\" + "begin{equation} H_{e f f}=K_{H}\left(1+" + "\\" + "frac{K_{1}}{K_{2}}[H+]" + "\\" + "right) " + "\\" + "end{equation}"
+#     equation2 = "\\" + "begin{equation}H_{e f f}=K_{H}" + "\\" + "left(1+" + "\\" + "frac{K_{1}}{[H+]}" + "\\" + "left(1+" + "\\" + "frac{K_{2}}{[H+]}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     equation3 = "\\" + "begin{equation}K_{H}=\mathrm{kh}_{298} " + "\\" + "exp " + "\\" + "left(" + "\\" + "mathrm{dh}_{r}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     equation4 = "\\" + "begin{equation}K_{1}=\mathrm{k} 1_{298} " + "\\" + "exp " + "\\" + "left(" + "\\" + "operatorname{dh} 1_{r}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     equation5 = "\\" + "begin{equation}K_{2}=\mathrm{k} 2_{298} " + "\\" + "exp " + "\\" + "left(" + "\\" + "mathrm{dh} 2_{r}" + "\\" + "left(" + "\\" + "frac{1}{T}-" + "\\" + "frac{1}{298}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
+#     if value == 0:
+#         return([equation1, equation3, equation4, equation5])
+#     if value == 1:
+#         return([equation2, equation3, equation4, equation5])
 
 
 # def filled_henry_equations(hl_dict):
@@ -56,51 +56,52 @@ def henry_equations(value):
 #         return([equation2, equation3, equation4, equation5])
 
 
-# loads molecule info into form stage json
-def stage_form_info(item):
-    initial = molecule_info()[item]
-    mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
-    dump_json('form_stage.json', initial)
+# # loads molecule info into form stage json
+# def stage_form_info(item):
+#     initial = molecule_info()[item]
+#     mech_path = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+#     dump_json('form_stage.json', initial)
 
 
-# reads dict from form stage json
-def initialize_form():
-    info = open_json('form_stage.json')
-    logging.info('filling' + info['moleculename'] + 'form')
-    return info
+# # reads dict from form stage json
+# def initialize_form():
+#     info = open_json('form_stage.json')
+#     logging.info('filling' + info['moleculename'] + 'form')
+#     return info
 
 
-# checks which molecule form was last initialized
-def id_molecule():
-    info = open_json('form_stage.json')
-    return info['moleculename']
+# # checks which molecule form was last initialized
+# def id_molecule():
+#     info = open_json('form_stage.json')
+#     return info['moleculename']
 
 
-# mathjax names and display names for form fields
-def pretty_names():
-    names = {
-        "formula": "Formula:",
-        'solve': "Solve Type:",
-        'hl.henrys_law_type': "Henry's Law Type:",
-        'hl.kh_298': "\\" + "begin{equation} \mathrm{kh}_{298}\end{equation}",
-        'hl.dh_r': "\\" + "begin{equation}\mathrm{dh}_{r}\end{equation}",
-        'hl.k1_298': "\\" + "begin{equation}\mathrm{k1}_{298}\end{equation}",
-        'hl.dh1_r': "\\" + "begin{equation}\mathrm{dh1}_{r}\end{equation}",
-        'hl.k2_298': "\\" + "begin{equation}\mathrm{k2}_{298}\end{equation}",
-        'hl.dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
-        'molecular_weight': "Molecular Weight:",
-        'standard_name': "Standard Name:",
-        'kh_298': "\\" + "begin{equation} \mathrm{kh}_{298}\end{equation}",
-        'dh_r': "\\" + "begin{equation}\mathrm{dh}_{r}\end{equation}",
-        'k1_298': "\\" + "begin{equation}\mathrm{k1}_{298}\end{equation}",
-        'dh1_r': "\\" + "begin{equation}\mathrm{dh1}_{r}\end{equation}",
-        'k2_298': "\\" + "begin{equation}\mathrm{k2}_{298}\end{equation}",
-        'dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
-        'henrys_law_type': "Henry's Law Type:",
-        'transport': "Transport:",
-        'moleculename': "Molecule Name:"
-    }
-    return names
+# # mathjax names and display names for form fields
+# def pretty_names():
+#     names = {
+#         "formula": "Formula:",
+#         'solve': "Solve Type:",
+#         'hl.henrys_law_type': "Henry's Law Type:",
+#         'hl.kh_298': "\\" + "begin{equation} \mathrm{kh}_{298}\end{equation}",
+#         'hl.dh_r': "\\" + "begin{equation}\mathrm{dh}_{r}\end{equation}",
+#         'hl.k1_298': "\\" + "begin{equation}\mathrm{k1}_{298}\end{equation}",
+#         'hl.dh1_r': "\\" + "begin{equation}\mathrm{dh1}_{r}\end{equation}",
+#         'hl.k2_298': "\\" + "begin{equation}\mathrm{k2}_{298}\end{equation}",
+#         'hl.dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
+#         'molecular_weight': "Molecular Weight:",
+#         'standard_name': "Standard Name:",
+#         'kh_298': "\\" + "begin{equation} \mathrm{kh}_{298}\end{equation}",
+#         'dh_r': "\\" + "begin{equation}\mathrm{dh}_{r}\end{equation}",
+#         'k1_298': "\\" + "begin{equation}\mathrm{k1}_{298}\end{equation}",
+#         'dh1_r': "\\" + "begin{equation}\mathrm{dh1}_{r}\end{equation}",
+#         'k2_298': "\\" + "begin{equation}\mathrm{k2}_{298}\end{equation}",
+#         'dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
+#         'henrys_law_type': "Henry's Law Type:",
+#         'transport': "Transport:",
+#         'moleculename': "Molecule Name:"
+#     }
+#     return names
+
 
 
 #saves updated molecule info from form into mechanism
@@ -354,17 +355,17 @@ def reaction_menu_names():
     return zipped
 
 
-def molecule_menu_names():
-    m_list = molecule_list()
-    newlist = []
-    for name in m_list:
-        if len(name) > 8:
-            shortname = name[0:8] + '..'
-            newlist.append(shortname)
-        else:
-            newlist.append(name)
-    zipped = zip(m_list, newlist)
-    return zipped
+# def molecule_menu_names():
+#     m_list = molecule_list()
+#     newlist = []
+#     for name in m_list:
+#         if len(name) > 8:
+#             shortname = name[0:8] + '..'
+#             newlist.append(shortname)
+#         else:
+#             newlist.append(name)
+#     zipped = zip(m_list, newlist)
+#     return zipped
 
 
 # returns mathjax formatted strings of rate equations

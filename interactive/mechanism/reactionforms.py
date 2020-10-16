@@ -1,5 +1,4 @@
 from django import forms
-from .mech_load import *
 
 class ReactionForm(forms.Form):
     def __init__(self, *args, **kwargs):

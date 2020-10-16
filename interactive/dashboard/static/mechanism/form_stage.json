@@ -1,17 +1,17 @@
 {
-    "moleculename": "APIN",
-    "formula": "C10H16",
-    "transport": "transported",
-    "solve": "implicit",
-    "henrys_law": {
-        "henrys_law_type": "1",
-        "kh_298": "2.94E-02",
-        "dh_r": "1800",
-        "k1_298": "0",
-        "dh1_r": "0",
-        "k2_298": "0",
-        "dh2_r": "0"
+    "formula": "O",
+    "henrys law constant": {
+        "at 298K": {
+            "value": "0",
+            "units": "?"
+        },
+        "exponential factor": {
+            "value": "0",
+            "units": "K"
+        }
     },
-    "molecular_weight": "136.228",
-    "standard_name": "APIN_std"
+    "molecular weight": {
+        "value": 0.0159994,
+        "units": "kg/mol"
+    }
 }

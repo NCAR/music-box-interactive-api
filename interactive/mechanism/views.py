@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect
-from .mech_load import *
+from .mech_read_write import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from .moleculeforms import *
 from django.contrib import messages
 from .reactionforms import *
+from .build_response import *
 from django.conf import settings
 import mimetypes
-
-process_photolysis()
 
 
 def molecules(request):
@@ -30,64 +29,31 @@ def reactions(request):
     return render(request, 'mechanism/reactions.html', context)
 
 
+# populates molecule page with species info
 def load(request):
-    molec_dict = molecule_info()
     item = request.GET['name']
-    info = molec_dict[item]
-    response = HttpResponse()
-    labels = pretty_names()
-    response.write('<h2>' + info['moleculename'] + '</h2>')
-    response.write('<h3><a href="/mechanism/searchR?query=' + info['moleculename'] + '">View reactions</a></h3>')
-    response.write('<button id="mech_edit" h_type="' + info['henrys_law']["henrys_law_type"] + '"class="mech_edit" species="'+ info['moleculename'] + '">Edit</button>')
-    response.write('<table><tr><td><h3>Solve Type:</h3></td><td><h3>' + info['solve'] + '</h3></td></tr>')
-    if info['formula'] is not None:
-        response.write('<tr><td><h3>Formula:</h3></td><td><h3>' + info['formula'] + '</h3></td></tr>')
-    response.write('<tr><td><h3>Transport:</h3></td><td><h3>' + info['transport'] + '</h3></td></tr>')
-    response.write('<tr><td><h3>Molecular Weight:</h3></td><td><h3>' + info['molecular_weight'] + '</h3></td></tr>')
-    response.write('<tr><td><h3>Standard Name:</h3></td><td><h3>' + info['standard_name'] + '</h3></td></tr></table>')
-    response.write('<table>')
-    for key in info['henrys_law']:
-        response.write('<tr><td><h3>' + labels[key] + '</h3></td><td><h3>' + info['henrys_law'][key] + '</h3></td></tr>')
-    response.write('</table><button id="mech_edit" h_type="' + info['henrys_law']["henrys_law_type"] + '"class="mech_edit" species="'+ info['moleculename'] + '">Edit</button>')
-    response.write('<h3><a href="/mechanism/searchR?query=' + info['moleculename'] + '">View reactions</a></h3>')
+    response = populate_mol_info(item)
     return response
 
 
 def edit(request):
     name = request.GET['name']
     stage_form_info(name)
-    labels = pretty_names()
-    molec_dict = molecule_info()
-    info = molec_dict[name]
-    formresponse = HttpResponse()
-    formresponse.write('<h2>' + info['moleculename'] + '</h2>')
-    formresponse.write('<form action="save" method="get" class="mechform" id="' + name + '">')
-    # formresponse.write('{% csrf_token %}')
-    form = MoleculeForm()
-    formresponse.write('<table>')
-    for field in form:
-        formresponse.write('<tr>')
-        formresponse.write('<td><h3>' + labels[str(field.name)] + '</h3></td><td>')
-        formresponse.write(field)
-        formresponse.write('</td></tr>')
-    formresponse.write('</table>')
-    formresponse.write('<button type="submit">Save</button>')
-    formresponse.write('</form>')
-
+    formresponse = build_mol_edit_form(name)
     return formresponse
 
 
 def equation(request):
-    name = request.GET['name']
-    molec_dict = molecule_info()
-    hType = int(molec_dict[name]['henrys_law']['henrys_law_type'])
+    # name = request.GET['name']
+    # molec_dict = molecule_info()
+    # hType = int(molec_dict[name]['henrys_law']['henrys_law_type'])
     
-    equations = henry_equations(hType)
-    response = HttpResponse()
-    response.write("<lh><h3>Henry's Law Coefficient:</h3><lh>")
-    for i in equations:
-        response.write('<li><h3>' + i + '</h3></li>')
-    return response
+    # equations = henry_equations(hType)
+    # response = HttpResponse()
+    # response.write("<lh><h3>Henry's Law Coefficient:</h3><lh>")
+    # for i in equations:
+    #     response.write('<li><h3>' + i + '</h3></li>')
+    return HttpResponse()
 
 
 def save(request):
@@ -101,28 +67,13 @@ def save(request):
 
 
 def new_molec(request):
-    labels = pretty_names()
-    formresponse = HttpResponse()
-    formresponse.write('<h2>Add new molecule</h2>')
-    formresponse.write('<form action="newM" method="get" class="mechform" id="newmolecform">')
-    form = NewMoleculeForm()
-    formresponse.write('<table>')
-    for field in form:
-        formresponse.write('<tr>')
-        formresponse.write('<td><h3>' + labels[str(field.name)] + '</h3></td><td>')
-        formresponse.write(field)
-        formresponse.write('</td></tr>')
-    formresponse.write('</table>')
-    formresponse.write('<button type="submit">Save to mechanism</button>')
-    formresponse.write('</form>')
-
-    return formresponse
+    return build_new_mol_form()
 
 
 def new_molec_save(request):
     data = request.GET
     myDict = data.dict()
-    newMoleculeName = data['moleculename']
+    newMoleculeName = myDict['moleculename']
     new_m(myDict)
     messages.success(request, newMoleculeName)
 

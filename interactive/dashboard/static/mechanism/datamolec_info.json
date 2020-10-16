@@ -1,386 +1,508 @@
 {
+    "schema version": 2,
     "mechanism": {
-        "mechanism_format": "0.1",
-        "tag_info": {
-            "id": "272",
-            "given_name": "Chapman with MICM_j",
-            "initials": "ajc",
-            "branchname": "Chapman",
-            "branch_id": "65",
-            "date": "2020-02-25 14:07:46.204967-07",
-            "buggy": false,
-            "filename": "MZ272_Chapman_20200225",
-            "previousComments": {
-                "comments": [
-                    "ajc : 2020-02-25 : Reconstruct Chapman using new labels for TUV Photodecomps"
-                ]
+        "species": {
+            "Ar": {
+                "formula": "Ar",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.039948,
+                    "units": "kg/mol"
+                }
+            },
+            "CO2": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "3.44E-02",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "2715",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.0440098,
+                    "units": "kg/mol"
+                }
+            },
+            "H2O": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "1.0e-14",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "-6716",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.018014199999999998,
+                    "units": "kg/mol"
+                }
+            },
+            "N2": {
+                "formula": "",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.02801348,
+                    "units": "kg/mol"
+                }
+            },
+            "O": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.0159994,
+                    "units": "kg/mol"
+                }
+            },
+            "O1D": {
+                "formula": "O",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": "0.0159994",
+                    "units": "kg/mol"
+                }
+            },
+            "O2": {
+                "formula": "",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "1.3E-03",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.0319988,
+                    "units": "kg/mol"
+                }
+            },
+            "O3": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "1.03E-02",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "2830",
+                        "units": "K"
+                    }
+                },
+                "molecular weight": {
+                    "value": 0.0479982,
+                    "units": "kg/mol"
+                }
             }
         },
-        "molecules": [
-            {
-                "moleculename": "Ar",
+        "processes": {
+            "O1D_N2__O_N2": {
+                "type": "PROCESS_ITH_ORDER",
+                "reactants": {
+                    "O1D": {
+                        "number": 1
+                    },
+                    "N2": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O": {
+                        "yield": "1"
+                    },
+                    "N2": {
+                        "yield": "1"
+                    }
+                },
+                "rate constant": {
+                    "type": "ARRHENIUS",
+                    "parameters": {
+                        "A": {
+                            "value": 3.57015899442377e-29,
+                            "unit": "(1/(moles/m^3))^(1)/s"
+                        },
+                        "C": {
+                            "value": -110.0,
+                            "unit": "K"
+                        },
+                        "D": {
+                            "value": 300.0,
+                            "unit": "K"
+                        },
+                        "B": {
+                            "value": 0.0,
+                            "unit": "K"
+                        },
+                        "E": {
+                            "value": 0.0,
+                            "unit": "1/Pa"
+                        }
+                    }
+                }
+            },
+            "O1D_O2__O_O2": {
+                "type": "PROCESS_ITH_ORDER",
+                "reactants": {
+                    "O1D": {
+                        "number": 1
+                    },
+                    "O2": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O": {
+                        "yield": "1"
+                    },
+                    "O2": {
+                        "yield": "1"
+                    }
+                },
+                "rate constant": {
+                    "type": "ARRHENIUS",
+                    "parameters": {
+                        "A": {
+                            "value": 5.479778921673694e-29,
+                            "unit": "(1/(moles/m^3))^(1)/s"
+                        },
+                        "C": {
+                            "value": -55.0,
+                            "unit": "K"
+                        },
+                        "D": {
+                            "value": 300.0,
+                            "unit": "K"
+                        },
+                        "B": {
+                            "value": 0.0,
+                            "unit": "K"
+                        },
+                        "E": {
+                            "value": 0.0,
+                            "unit": "1/Pa"
+                        }
+                    }
+                }
+            },
+            "O_O3__2O2": {
+                "type": "PROCESS_ITH_ORDER",
+                "reactants": {
+                    "O": {
+                        "number": 1
+                    },
+                    "O3": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O2": {
+                        "yield": "2"
+                    }
+                },
+                "rate constant": {
+                    "type": "ARRHENIUS",
+                    "parameters": {
+                        "A": {
+                            "value": 1.3284312537390773e-29,
+                            "unit": "(1/(moles/m^3))^(1)/s"
+                        },
+                        "C": {
+                            "value": 2060.0,
+                            "unit": "K"
+                        },
+                        "D": {
+                            "value": 300.0,
+                            "unit": "K"
+                        },
+                        "B": {
+                            "value": 0.0,
+                            "unit": "K"
+                        },
+                        "E": {
+                            "value": 0.0,
+                            "unit": "1/Pa"
+                        }
+                    }
+                }
+            },
+            "O_O2__O3": {
+                "type": "PROCESS_ITH_ORDER",
+                "reactants": {
+                    "O": {
+                        "number": 1
+                    },
+                    "O2": {
+                        "number": 1
+                    },
+                    "M": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O3": {
+                        "yield": "1"
+                    }
+                },
+                "rate constant": {
+                    "type": "TROE_LOW_PRESSURE",
+                    "parameters": {
+                        "A_k0": {
+                            "value": 6e-34,
+                            "unit": "1/sec*(1/mol/m^3)^2"
+                        },
+                        "B_k0": {
+                            "value": 2.4,
+                            "unit": "unitless"
+                        },
+                        "C_k0": {
+                            "value": 0.0,
+                            "unit": "K"
+                        }
+                    }
+                }
+            },
+            "O2__2O": {
+                "type": "PROCESS_FIRST_ORDER",
+                "reactants": {
+                    "O2": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O2": {
+                        "number": 1
+                    }
+                },
+                "rate constant": {
+                    "type": "PHOTOLYSIS",
+                    "parameters": {
+                        "tuv coefficient": "1.0",
+                        "tuv rate": "jo2_b"
+                    }
+                }
+            },
+            "O3__O1D_O2": {
+                "type": "PROCESS_FIRST_ORDER",
+                "reactants": {
+                    "O3": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O3": {
+                        "number": 1
+                    }
+                },
+                "rate constant": {
+                    "type": "PHOTOLYSIS",
+                    "parameters": {
+                        "tuv coefficient": "1.0",
+                        "tuv rate": "jo3_a"
+                    }
+                }
+            },
+            "O3__O_O2": {
+                "type": "PROCESS_FIRST_ORDER",
+                "reactants": {
+                    "O3": {
+                        "number": 1
+                    }
+                },
+                "products": {
+                    "O3": {
+                        "number": 1
+                    }
+                },
+                "rate constant": {
+                    "type": "PHOTOLYSIS",
+                    "parameters": {
+                        "tuv coefficient": "1.0",
+                        "tuv rate": "jo3_b"
+                    }
+                }
+            }
+        },
+        "molecules": {
+            "Ar": {
                 "formula": "Ar",
-                "transport": "transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "0",
-                    "kh_298": "0",
-                    "dh_r": "0",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "39.948",
-                "standard_name": "Ar_std"
+                "molecular weight": {
+                    "value": 0.039948,
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "CO2",
-                "formula": null,
-                "transport": "transported",
-                "solve": "explicit",
-                "henrys_law": {
-                    "henrys_law_type": "1",
-                    "kh_298": "3.44E-02",
-                    "dh_r": "2715",
-                    "k1_298": "4.3e-07",
-                    "dh1_r": "-1000",
-                    "k2_298": "4.68e-11",
-                    "dh2_r": "-1760"
+            "CO2": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "3.44E-02",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "2715",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "44.0098",
-                "standard_name": "CO2_std"
+                "molecular weight": {
+                    "value": 0.0440098,
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "H2O",
-                "formula": null,
-                "transport": "transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "1",
-                    "kh_298": "1.0e-14",
-                    "dh_r": "-6716",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+            "H2O": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "1.0e-14",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "-6716",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "18.0142",
-                "standard_name": "H2O_std"
+                "molecular weight": {
+                    "value": 0.018014199999999998,
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "N2",
+            "N2": {
                 "formula": "",
-                "transport": "transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "0",
-                    "kh_298": "0",
-                    "dh_r": "0",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "28.01348",
-                "standard_name": "N2_std"
+                "molecular weight": {
+                    "value": 0.02801348,
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "O",
-                "formula": null,
-                "transport": "transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "0",
-                    "kh_298": "0",
-                    "dh_r": "0",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+            "O": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "15.9994",
-                "standard_name": "O_std"
+                "molecular weight": {
+                    "value": 0.0159994,
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "O1D",
+            "O1D": {
                 "formula": "O",
-                "transport": "not-transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "0",
-                    "kh_298": "0",
-                    "dh_r": "0",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "0",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "15.9994",
-                "standard_name": "O1D_std"
+                "molecular weight": {
+                    "value": "0.0159994",
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "O2",
+            "O2": {
                 "formula": "",
-                "transport": "transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "1",
-                    "kh_298": "1.3E-03",
-                    "dh_r": "0",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "1.3E-03",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "0",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "31.9988",
-                "standard_name": "O2_std"
+                "molecular weight": {
+                    "value": 0.0319988,
+                    "units": "kg/mol"
+                }
             },
-            {
-                "moleculename": "O3",
-                "formula": "",
-                "transport": "transported",
-                "solve": "implicit",
-                "henrys_law": {
-                    "henrys_law_type": "1",
-                    "kh_298": "1.03E-02",
-                    "dh_r": "2830",
-                    "k1_298": "0",
-                    "dh1_r": "0",
-                    "k2_298": "0",
-                    "dh2_r": "0"
+            "O3": {
+                "formula": "None",
+                "henrys law constant": {
+                    "at 298K": {
+                        "value": "1.03E-02",
+                        "units": "?"
+                    },
+                    "exponential factor": {
+                        "value": "2830",
+                        "units": "K"
+                    }
                 },
-                "molecular_weight": "47.9982",
-                "standard_name": "O3_std"
+                "molecular weight": {
+                    "value": 0.0479982,
+                    "units": "kg/mol"
+                }
             }
-        ],
-        "photolysis": [
-            {
-                "reactants": [
-                    "O2"
-                ],
-                "id": "6147",
-                "rate": "jo2_b",
-                "tuv_id": "2",
-                "tuv_coeff": "1.0",
-                "tuv_reaction": "O2 + hv -> O(3P) + O(3P)",
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": "2",
-                        "molecule": "O"
-                    }
-                ]
-            },
-            {
-                "reactants": [
-                    "O3"
-                ],
-                "id": "6150",
-                "rate": "jo3_a",
-                "tuv_id": "5",
-                "tuv_coeff": "1.0",
-                "tuv_reaction": "O3 -> O2 + O(1D)",
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O1D"
-                    },
-                    {
-                        "coefficient": 1,
-                        "molecule": "O2"
-                    }
-                ]
-            },
-            {
-                "reactants": [
-                    "O3"
-                ],
-                "id": "6151",
-                "rate": "jo3_b",
-                "tuv_id": "6",
-                "tuv_coeff": "1.0",
-                "tuv_reaction": "O3 -> O2 + O(3P)",
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O"
-                    },
-                    {
-                        "coefficient": 1,
-                        "molecule": "O2"
-                    }
-                ]
-            }
-        ],
-        "reactions": [
-            {
-                "rate": null,
-                "reactants": [
-                    "O1D",
-                    "N2"
-                ],
-                "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
-                "rate_constant": {
-                    "parameters": {
-                        "A": "2.150000e-11",
-                        "C": "-110.00",
-                        "D": "300.0",
-                        "B": "0.0",
-                        "E": "0.0"
-                    },
-                    "reaction_class": "Arrhenius"
-                },
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O"
-                    },
-                    {
-                        "coefficient": 1,
-                        "molecule": "N2"
-                    }
-                ]
-            },
-            {
-                "rate": null,
-                "reactants": [
-                    "O1D",
-                    "O2"
-                ],
-                "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
-                "rate_constant": {
-                    "parameters": {
-                        "A": "3.300000e-11",
-                        "C": "-55.00",
-                        "D": "300.0",
-                        "B": "0.0",
-                        "E": "0.0"
-                    },
-                    "reaction_class": "Arrhenius"
-                },
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O"
-                    },
-                    {
-                        "coefficient": 1,
-                        "molecule": "O2"
-                    }
-                ]
-            },
-            {
-                "rate": null,
-                "reactants": [
-                    "O",
-                    "O3"
-                ],
-                "rate_call": "Arrhenius(Arrhenius_parameters, environmental_state)",
-                "rate_constant": {
-                    "parameters": {
-                        "A": "8.000000e-12",
-                        "C": "2060.00",
-                        "D": "300.0",
-                        "B": "0.0",
-                        "E": "0.0"
-                    },
-                    "reaction_class": "Arrhenius"
-                },
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": "2",
-                        "molecule": "O2"
-                    }
-                ]
-            },
-            {
-                "rate": null,
-                "reactants": [
-                    "O",
-                    "O2"
-                ],
-                "rate_call": "Troe_low_pressure(Troe_low_pressure_parameters, environmental_state)",
-                "rate_constant": {
-                    "parameters": {
-                        "A_k0": "6.0e-34",
-                        "B_k0": "2.4",
-                        "C_k0": "0.0"
-                    },
-                    "reaction_class": "Troe_low_pressure"
-                },
-                "troe": true,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O3"
-                    }
-                ]
-            },
-            {
-                "reactants": [
-                    "O2"
-                ],
-                "id": "6147",
-                "rate": "jo2_b",
-                "tuv_id": "2",
-                "tuv_coeff": "1.0",
-                "tuv_reaction": "O2 + hv -> O(3P) + O(3P)",
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": "2",
-                        "molecule": "O"
-                    }
-                ]
-            },
-            {
-                "reactants": [
-                    "O3"
-                ],
-                "id": "6150",
-                "rate": "jo3_a",
-                "tuv_id": "5",
-                "tuv_coeff": "1.0",
-                "tuv_reaction": "O3 -> O2 + O(1D)",
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O1D"
-                    },
-                    {
-                        "coefficient": 1,
-                        "molecule": "O2"
-                    }
-                ]
-            },
-            {
-                "reactants": [
-                    "O3"
-                ],
-                "id": "6151",
-                "rate": "jo3_b",
-                "tuv_id": "6",
-                "tuv_coeff": "1.0",
-                "tuv_reaction": "O3 -> O2 + O(3P)",
-                "troe": false,
-                "products": [
-                    {
-                        "coefficient": 1,
-                        "molecule": "O"
-                    },
-                    {
-                        "coefficient": 1,
-                        "molecule": "O2"
-                    }
-                ]
-            }
-        ]
+        }
     }
 }
