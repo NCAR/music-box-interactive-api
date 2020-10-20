@@ -232,15 +232,7 @@ $(document).ready(function(){
       data: {'name': itemName},
       success: function(response){
         $('#react_detail').html(response);
-        $.ajax({
-          url: "/mechanism/load_reaction_equation",
-          type: 'get',
-          data: {'name': itemName},
-          success: function(response){
-            $('#rc_row').append(response);
-            MathJax.typeset()
-          }
-        });
+        
       }
     });
   });

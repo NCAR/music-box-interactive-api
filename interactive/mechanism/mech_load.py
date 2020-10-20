@@ -104,114 +104,114 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
 
-#saves updated molecule info from form into mechanism
-def save_mol(name, myDict):
-    logging.info('saving molecule...')    
-    datafile = open_json('datamolec_info.json')
-    mechanism = datafile['mechanism']
-    molecules = mechanism['molecules']
-    for i in molecules:
-        if i['moleculename'] == name:
-            n = molecules.index(i)
-    old = molecules[n]
-    for key in myDict:
-        if key.split('.')[0] == 'hl':
-            old['henrys_law'].update({key.split('.')[1]: myDict[key]})
-        else:
-            old.update({key: myDict[key]})
-    molecules[n] = old
-    mechanism.update({'molecules':molecules})
-    datafile.update({'mechanism': mechanism})
-    dump_json('datamolec_info.json', datafile)
-    logging.info('...saved')
+# #saves updated molecule info from form into mechanism
+# def save_mol(name, myDict):
+#     logging.info('saving molecule...')    
+#     datafile = open_json('datamolec_info.json')
+#     mechanism = datafile['mechanism']
+#     molecules = mechanism['molecules']
+#     for i in molecules:
+#         if i['moleculename'] == name:
+#             n = molecules.index(i)
+#     old = molecules[n]
+#     for key in myDict:
+#         if key.split('.')[0] == 'hl':
+#             old['henrys_law'].update({key.split('.')[1]: myDict[key]})
+#         else:
+#             old.update({key: myDict[key]})
+#     molecules[n] = old
+#     mechanism.update({'molecules':molecules})
+#     datafile.update({'mechanism': mechanism})
+#     dump_json('datamolec_info.json', datafile)
+#     logging.info('...saved')
 
 
-# saves info from 'new molecule form' into mechanism
-def new_m(myDict):
-    logging.info('adding new molecule...')
-    datafile = open_json('datamolec_info.json')
-    mechanism = datafile['mechanism']
-    molecules = mechanism['molecules']
-    new = {
-                "moleculename": myDict['moleculename'],
-                "formula": myDict['formula'],
-                "transport": myDict['transport'],
-                "solve": myDict['solve'],
-                "henrys_law": {
-                    "henrys_law_type": myDict['hl.henrys_law_type'],
-                    "kh_298": myDict['hl.kh_298'],
-                    "dh_r": myDict['hl.dh_r'],
-                    "k1_298": myDict['hl.k1_298'],
-                    "dh1_r": myDict['hl.dh1_r'],
-                    "k2_298": myDict['hl.k2_298'],
-                    "dh2_r": myDict['hl.dh2_r']
-                },
-                "molecular_weight": myDict['molecular_weight'],
-                "standard_name": myDict['standard_name']
-            }
+# # saves info from 'new molecule form' into mechanism
+# def new_m(myDict):
+#     logging.info('adding new molecule...')
+#     datafile = open_json('datamolec_info.json')
+#     mechanism = datafile['mechanism']
+#     molecules = mechanism['molecules']
+#     new = {
+#                 "moleculename": myDict['moleculename'],
+#                 "formula": myDict['formula'],
+#                 "transport": myDict['transport'],
+#                 "solve": myDict['solve'],
+#                 "henrys_law": {
+#                     "henrys_law_type": myDict['hl.henrys_law_type'],
+#                     "kh_298": myDict['hl.kh_298'],
+#                     "dh_r": myDict['hl.dh_r'],
+#                     "k1_298": myDict['hl.k1_298'],
+#                     "dh1_r": myDict['hl.dh1_r'],
+#                     "k2_298": myDict['hl.k2_298'],
+#                     "dh2_r": myDict['hl.dh2_r']
+#                 },
+#                 "molecular_weight": myDict['molecular_weight'],
+#                 "standard_name": myDict['standard_name']
+#             }
     
-    molecules.append(new)
-    mechanism.update({'molecules': molecules})
-    datafile.update({'mechanism': mechanism})
-    dump_json('datamolec_info.json', datafile)
-    logging.info('...added')
+#     molecules.append(new)
+#     mechanism.update({'molecules': molecules})
+#     datafile.update({'mechanism': mechanism})
+#     dump_json('datamolec_info.json', datafile)
+#     logging.info('...added')
 
 
-# returns a list of molecule names to search on
-def search_list():
-    datafile = open_json('datamolec_info.json')
-    mechanism = datafile['mechanism']
-    molecules = mechanism['molecules']
-    name_list = []
-    for i in molecules:
-        name_list.append(i['moleculename'])
-    return name_list
+# # returns a list of molecule names to search on
+# def search_list():
+#     datafile = open_json('datamolec_info.json')
+#     mechanism = datafile['mechanism']
+#     molecules = mechanism['molecules']
+#     name_list = []
+#     for i in molecules:
+#         name_list.append(i['moleculename'])
+#     return name_list
 
 
-# returns a list of reaction names, ex: "O3 -> 3O"
-def reaction_name_list():
-    datafile = open_json('datamolec_info.json')
-    mechanism = datafile['mechanism']
-    reactions = mechanism['reactions']
-    r_list = []
-    for i in reactions:
-        reactants = []
-        for j in i['reactants']:
-            reactants.append(j)
-        products = []
-        for k in i['products']:
-            coef = str(k['coefficient'])
-            if coef == '1':
-                coef = ''
-            prod = k['molecule']
-            products.append(coef + prod)
-        r_list.append(" + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products))
+# # returns a list of reaction names, ex: "O3 -> 3O"
+# def reaction_name_list():
+#     datafile = open_json('datamolec_info.json')
+#     mechanism = datafile['mechanism']
+#     reactions = mechanism['reactions']
+#     r_list = []
+#     for i in reactions:
+#         reactants = []
+#         for j in i['reactants']:
+#             reactants.append(j)
+#         products = []
+#         for k in i['products']:
+#             coef = str(k['coefficient'])
+#             if coef == '1':
+#                 coef = ''
+#             prod = k['molecule']
+#             products.append(coef + prod)
+#         r_list.append(" + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products))
 
-    return r_list
+#     return r_list
 
 
-# returns a dictionary of reactions, with keys the same as names returned by reaction_name_list()
-def reaction_dict():
-    logging.info('getting reaction info..')
-    datafile = open_json('datamolec_info.json')
-    mechanism = datafile['mechanism']
-    reactions = mechanism['reactions']
-    r_dict = {}
-    for i in reactions:
-        reactants = []
-        for j in i['reactants']:
-            reactants.append(j)
-        products = []
-        for k in i['products']:
-            coef = str(k['coefficient'])
-            if coef == '1':
-                coef = ''
-            prod = k['molecule']
-            products.append(coef + prod)
-        name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
-        r_dict.update({name: i})
-    logging.info('..retrieved')
-    return r_dict
+# # returns a dictionary of reactions, with keys the same as names returned by reaction_name_list()
+# def reaction_dict():
+#     logging.info('getting reaction info..')
+#     datafile = open_json('datamolec_info.json')
+#     mechanism = datafile['mechanism']
+#     reactions = mechanism['reactions']
+#     r_dict = {}
+#     for i in reactions:
+#         reactants = []
+#         for j in i['reactants']:
+#             reactants.append(j)
+#         products = []
+#         for k in i['products']:
+#             coef = str(k['coefficient'])
+#             if coef == '1':
+#                 coef = ''
+#             prod = k['molecule']
+#             products.append(coef + prod)
+#         name = " + ".join(str(l) for l in reactants) + " -> " + " + ".join(str(x) for x in products)
+#         r_dict.update({name: i})
+#     logging.info('..retrieved')
+#     return r_dict
     
 
 def id_dict(namelist):
@@ -226,17 +226,17 @@ def id_dict(namelist):
     return outlist
 
 
-# saves a reaction info to 'reaction_stage.json'
-def stage_reaction_form(name):
-    initial = reaction_dict()[name]
-    dump_json('reaction_stage.json', initial)
+# # saves a reaction info to 'reaction_stage.json'
+# def stage_reaction_form(name):
+#     initial = reaction_dict()[name]
+#     dump_json('reaction_stage.json', initial)
     
 
-# reads 'reaction_stage.json' to fill initial values for edit forms
-def initialize_reactions():
-    logging.info('filling form')
-    info = open_json('reaction_stage.json')
-    return info
+# # reads 'reaction_stage.json' to fill initial values for edit forms
+# def initialize_reactions():
+#     logging.info('filling form')
+#     info = open_json('reaction_stage.json')
+#     return info
 
 
 # returns dict with display names for reaction edit form fields
@@ -341,18 +341,18 @@ def save_reacts(name, myDict):
     return new_name
 
 
-# returns zipped list of tuples with shortened names. [[long_name, short_name], [], ...]
-def reaction_menu_names():
-    r_list = reaction_name_list()
-    newlist = []
-    for name in r_list:
-        if len(name) > 40:
-            shortname = name[0:38] + '...'
-            newlist.append(shortname)
-        else:
-            newlist.append(name)
-    zipped = zip(r_list, newlist)
-    return zipped
+# # returns zipped list of tuples with shortened names. [[long_name, short_name], [], ...]
+# def reaction_menu_names():
+#     r_list = reaction_name_list()
+#     newlist = []
+#     for name in r_list:
+#         if len(name) > 40:
+#             shortname = name[0:38] + '...'
+#             newlist.append(shortname)
+#         else:
+#             newlist.append(name)
+#     zipped = zip(r_list, newlist)
+#     return zipped
 
 
 # def molecule_menu_names():

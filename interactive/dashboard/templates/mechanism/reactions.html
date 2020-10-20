@@ -11,7 +11,7 @@
 
    <div id=reaction_content>
       <div id="sidemenu" mech_section='reaction'>
-         <li><button><a id="download_mech_button" href='download_mech'>Download JSON</a></button></li>
+         <li><button class="download_mech_b"><a id="download_mech_button" href='download_mech'>Download JSON</a></button></li>
          {% for field in searchForm %}
          <form method="GET" action="searchR">
             <li>{{ field }}</li>
@@ -39,7 +39,7 @@
             {% endfor %}
          {% endif %}>
          <h3><div id="message_box">Select a reaction from the left to view, search for a reaction, or add a new reaction to the mechanism</div></h3></div>
-      <div id="equation_box"></div>
+      {% comment %} <div id="equation_box"></div> {% endcomment %}
      </div>
 
 {% endblock %}

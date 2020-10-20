@@ -155,3 +155,65 @@ def search_list():
     for i in molecules:
         name_list.append(i['moleculename'])
     return name_list
+
+
+#------------------------------
+
+# REACTION FUNCTIONS:
+
+# converts from "O__O3" format to  "O3 -> 3O" format
+def convert_reaction_format(stringg):
+    equalses = stringg.replace('__', ' -> ')
+    plusses = equalses.replace('_',' + ')
+    return plusses
+
+
+# returns a list of reaction names, ex: "O3 -> 3O"
+def reaction_name_list():
+    datafile = open_json('datamolec_info.json')
+    mechanism = datafile['mechanism']
+    reactions = mechanism['processes']
+    r_list = []
+    for key in reactions:
+        equalses = key.replace('__', ' -> ')
+        plusses = equalses.replace('_',' + ')
+        r_list.append(plusses)
+    return r_list
+
+
+# returns a dictionary of reactions
+def reaction_dict():
+    logging.info('getting reaction info..')
+    datafile = open_json('datamolec_info.json')
+    mechanism = datafile['mechanism']
+    reactions = mechanism['processes']
+    logging.info('..retrieved')
+    return reactions
+    
+
+# returns zipped list of tuples with shortened names. [[long_name, short_name], [], ...]
+def reaction_menu_names():
+    r_list = reaction_name_list()
+    newlist = []
+    for name in r_list:
+        if len(name) > 40:
+            shortname = name[0:38] + '...'
+            newlist.append(shortname)
+        else:
+            newlist.append(name)
+    zipped = zip(reaction_dict().keys(), newlist)
+    return zipped
+
+
+# saves a reaction info to 'reaction_stage.json'
+def stage_reaction_form(name):
+    initial = reaction_dict()[name]
+    dump_json('reaction_stage.json', initial)
+
+
+# reads 'reaction_stage.json' to fill initial values for edit forms
+def initialize_reactions():
+    logging.info('filling form')
+    info = open_json('reaction_stage.json')
+    return info
+
