@@ -125,9 +125,10 @@ def init_csv(request):
 
 
 def evolv(request):
-    display_evolves()
     context = {
-        'csv_field': UploadEvolvFileForm
+        'csv_field': UploadEvolvFileForm,
+        'conditions': display_evolves()
+
     }
     return render(request, 'config/evolv-cond.html', context)
 

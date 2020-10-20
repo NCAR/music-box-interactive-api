@@ -22,6 +22,19 @@
             <button type="submit">Upload</button>
          </form>
 </div>
+{% if conditions %}
+   <div id="evolvtable"><h3>
+      <table>
+            {% for condition in conditions %}
+               <tr>
+                  {% for item in condition %}
+                     <td>{{ item }}</td>
+                  {% endfor %}
+               </tr>
+            {% endfor %}
+      </table>
+   </h3></div
+{% endif %}
 
 
 

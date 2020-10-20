@@ -501,3 +501,16 @@ hr.solid {
 .download_mech_b {
     margin-bottom: 12px;
 }
+
+#evolvtable {
+    margin-left: 295;
+    width: fit-content;
+    border-radius: 4px;
+    background-color: #267871;
+    box-shadow: 0px 1px 5px 0px #303030;
+    padding: 5px 15px;
+}
+
+#evolvtable td{
+    padding-left: 10;
+}
