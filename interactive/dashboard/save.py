@@ -3,6 +3,8 @@ import os
 from django.conf import settings
 import logging
 from interactive.tools import *
+from csv import reader
+
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -388,3 +390,12 @@ def uploaded_to_config(uploaded_dict):
         dump_json('species.json', species_dict)
         
     export()
+
+
+# load evolving_conditions data into an array
+def display_evolves():
+    path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'evolving_conditions.csv')
+    with open(path, 'r') as read_obj:
+        csv_reader = reader(read_obj)
+        list_of_rows = list(csv_reader)
+    print(list_of_rows)

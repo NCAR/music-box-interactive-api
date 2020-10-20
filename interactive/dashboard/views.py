@@ -4,10 +4,10 @@ from .forms.optionsforms import *
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .forms.photolysisforms import *
-from .upload_handler import handle_uploaded_csv, handle_uploaded_json
+from .upload_handler import *
 from .save import *
 from .models import Document
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 import os
 from django.conf import settings
 import mimetypes
@@ -113,9 +113,9 @@ def init(request):
 
 def init_csv(request):
     if request.method == 'POST':
-        form = UploadFileForm( request.FILES)
-        if form.is_valid():
-            uploaded_to_config(handle_uploaded_csv(request.FILES['file']))
+        uploaded = request.FILES['file']
+        uploaded_to_config(handle_uploaded_csv(uploaded))
+        
 
     context = {
         'form': InitialConditionsForm,
@@ -125,10 +125,18 @@ def init_csv(request):
 
 
 def evolv(request):
+    display_evolves()
     context = {
         'csv_field': UploadEvolvFileForm
     }
     return render(request, 'config/evolv-cond.html', context)
+
+
+def evolv_csv(request):
+    if request.method == 'POST':
+        uploaded = request.FILES['file']
+        handle_uploaded_evolve(uploaded)
+    return HttpResponseRedirect('/configure/evolv-cond')
 
 
 def photolysis(request):

@@ -56,3 +56,21 @@ def handle_uploaded_json(f):
     print(validation)
     if validation['success']:
         dump_json('my_config.json', config)
+
+
+# saves uploaded evolving_conditions file to config folder
+def handle_uploaded_evolve(f):
+    content = f.read()
+    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'evolving_conditions.csv')
+    g = open(destination, 'wb')
+    g.write(content)
+    g.close()
+
+    #writes config json pointing to csv file
+    config = open_json('my_config.json')
+    config.update({
+        'evolving conditions': {
+            'evolving_conditions.csv': {}
+        }
+    })
+    dump_json('my_config.json', config)
