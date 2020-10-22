@@ -70,7 +70,9 @@ def handle_uploaded_evolve(f):
     config = open_json('my_config.json')
     config.update({
         'evolving conditions': {
-            'evolving_conditions.csv': {}
+            'evolving_conditions.csv': {
+                'linear combinations': {}
+            }
         }
     })
     dump_json('my_config.json', config)

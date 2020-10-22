@@ -399,3 +399,49 @@ def display_evolves():
         csv_reader = reader(read_obj)
         list_of_rows = list(csv_reader)
     return list_of_rows
+
+
+def save_linear_combo(comboDict):
+    name = 'combo' + next(iter(comboDict))
+
+    output_dict = {
+        'properties': {},
+        'scale factor': 1.0
+    }
+    if comboDict['Scale Factor'] == '':
+        comboDict.pop('Scale Factor')
+    for key in comboDict:
+        if 'on' in comboDict[key]:
+            output_dict['properties'].update({
+                'CONC.' + key.split('.')[1]: {}
+            })
+        elif key == 'Scale Factor':
+            output_dict.update({'scale factor': float(comboDict[key])})
+            
+    
+    config = open_json('my_config.json')
+    evolving_conditions = config['evolving conditions']
+    lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
+    
+    lcs.update({name: output_dict})
+    evolving_conditions.update({"evolving_conditions.csv":{'linear combinations': lcs}})
+    config.update({'evolving conditions':evolving_conditions})
+    dump_json('my_config.json', config)
+
+
+def display_linear_combinations():
+    config = open_json('my_config.json')
+    if 'evolving conditions' not in config:
+        return []
+    lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
+    
+    lc_list = []
+
+    for combo in lcs:
+        props = []
+        for key in lcs[combo]['properties']:
+            props.append(key.split('.')[1])
+        scale = lcs[combo]['scale factor']
+        lc_list.append([props, scale])
+    
+    return lc_list

@@ -22,19 +22,36 @@
             <button type="submit">Upload</button>
          </form>
 </div>
-{% if conditions %}
-   <div id="evolvtable"><h3>
-      <table>
-            {% for condition in conditions %}
-               <tr>
-                  {% for item in condition %}
-                     <td>{{ item }}</td>
+<div id="evolvcontent">
+   {% if conditions %}
+      <div id="evolvtable"><h3>
+         <table>
+               {% for condition in conditions %}
+                  <tr>
+                     {% for item in condition %}
+                        <td>{{ item }}</td>
+                     {% endfor %}
+                  </tr>
+               {% endfor %}
+         </table>
+      </h3></div
+   {% endif %}
+   {% if linear_combinations %}
+      <div id="display-linear-combos"><h3>
+         <table>
+            <tr><td>Linear Combinations:</td></tr>
+            {% for i in linear_combinations %}
+               <tr><td>
+                  {% for prop in i.0 %}
+                     <li> {{prop}} <li>
                   {% endfor %}
-               </tr>
+                  <li>Scale Factor: {{i.1}}</li>
+               </tr></td>
             {% endfor %}
-      </table>
-   </h3></div
+         </table></h3>
+      </div>
 {% endif %}
+</div>
 
 
 

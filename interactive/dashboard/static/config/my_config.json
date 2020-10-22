@@ -42,8 +42,5 @@
             "absolute tolerance": 1e-12,
             "relative tolerance": 0.0001
         }
-    },
-    "evolving conditions": {
-        "evolving_conditions.csv": {}
     }
 }

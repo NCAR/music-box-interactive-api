@@ -127,8 +127,8 @@ def init_csv(request):
 def evolv(request):
     context = {
         'csv_field': UploadEvolvFileForm,
-        'conditions': display_evolves()
-
+        'conditions': display_evolves(),
+        'linear_combinations': display_linear_combinations()
     }
     return render(request, 'config/evolv-cond.html', context)
 
@@ -197,3 +197,24 @@ def download_file(request):
     response = HttpResponse(fl, content_type=mime_type)
     response['Content-Disposition'] = "attachment; filename=%s" % filename
     return response
+
+
+def linear_combination_form(request):
+    form = LinearCombinationForm()
+    response = HttpResponse()
+    response.write('<form action="evolv-linear-combo" method="GET"><h3>')
+    for field in form:
+        response.write('<li>')
+        response.write(field)
+        response.write(field.name)
+        response.write('</li>')
+    response.write('<button type="submit">Add</button></h3></form>')
+
+    return response
+
+def evolv_linear_combo(request):
+    if request.method == 'GET':
+        comboDict = request.GET.dict()
+        save_linear_combo(comboDict)
+    return HttpResponseRedirect('/configure/evolv-cond')
+    

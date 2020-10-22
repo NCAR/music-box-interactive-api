@@ -23,5 +23,7 @@ urlpatterns = [
     path('configure/run', views.configure),
     path('configure/species/remove', views.remove),
     path('configure/download_config', views.download_file),
-    path('configure/config_json', views.config_json)
+    path('configure/config_json', views.config_json),
+    path('configure/linear_combination_form', views.linear_combination_form),
+    path('configure/evolv-linear-combo', views.evolv_linear_combo)
 ]

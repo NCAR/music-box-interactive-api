@@ -1,6 +1,8 @@
 import json
 from django.conf import settings
 import os
+from csv import reader
+
 
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
@@ -75,3 +77,11 @@ def photo_setup():
 #         choices.update({'pressure': preslist})
 
 #         return choices
+
+
+def display_evolves():
+    path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'evolving_conditions.csv')
+    with open(path, 'r') as read_obj:
+        csv_reader = reader(read_obj)
+        list_of_rows = list(csv_reader)
+    return list_of_rows

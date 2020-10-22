@@ -282,4 +282,22 @@ $(document).ready(function(){
   if (typeof $("#react_detail").attr('error') == 'string'){
     alert($("#react_detail").attr('error'))
   }
+
+ // if evolving conditions have been read in show linear combination button
+  if ( $("#evolvtable").length ){
+    $("#evolvcontent").append('<button id="linear_combo">Add Linear Combination</button>')
+  }
+
+
+  $("#linear_combo").on('click', function(){
+    $('#evolvcontent').html('');
+    $.ajax({
+      url: "/configure/linear_combination_form",
+      type: 'get',
+      success: function(response){
+        $('#evolvcontent').html(response);
+      }
+    });
+  });
+
 });
