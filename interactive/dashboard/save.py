@@ -4,6 +4,7 @@ from django.conf import settings
 import logging
 from interactive.tools import *
 from csv import reader
+import random
 
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
@@ -402,7 +403,7 @@ def display_evolves():
 
 
 def save_linear_combo(comboDict):
-    name = 'combo' + next(iter(comboDict))
+    name = 'combo' + str(random.randint(0, 9999))
 
     output_dict = {
         'properties': {},

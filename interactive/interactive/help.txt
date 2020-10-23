@@ -4,11 +4,3 @@ docker build -t music-box-test . --build-arg TAG_ID=chapman
 run:
 docker run -p 8000:8000 -t music-box-test
  
-----------------------------------
-equations:
-
-acid: type 0:
-
-\begin{equation}
-H_{e f f}=K_{H}\left(1+\frac{K_{1}}{K_{2}}[H+]\right)
-\end{equation}
