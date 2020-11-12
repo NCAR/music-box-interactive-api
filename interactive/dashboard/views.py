@@ -155,13 +155,18 @@ def photolysis(request):
     return render(request, 'config/photolysis.html', context)
 
 
-def photo_csv(request):
 
+def photo_ncf(request):
+    if request.method == 'POST':
+        uploaded = request.FILES['file']
+        print(str(request.FILES))
+        handle_uploaded_p_rates(uploaded)
     context = {
         'csv_field': UploadPhotoFileForm,
         "form": PhotoForm
     }
-    return render(request, 'config/photolysis.html', context)
+    return HttpResponseRedirect('/configure/photolysis')
+
 
 
 def new_photo(request):

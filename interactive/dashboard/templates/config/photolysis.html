@@ -14,8 +14,8 @@
     </div>
     
 <div class="configbox">
-    <h3>Upload File (.txt, .csv):</h3>
-          <form method="POST" action="photo-csv">
+    <h3>Upload Photolysis Rate File (NetCDF)):</h3>
+          <form method="POST" action="photo-ncf" enctype="multipart/form-data">
             {% csrf_token %}
             {{ csv_field }}
             <button type="submit">Upload</button>

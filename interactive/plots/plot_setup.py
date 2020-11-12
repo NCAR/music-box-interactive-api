@@ -109,6 +109,8 @@ def output_plot(prop):
             axes.set_ylabel(r"K")
         elif name == 'pressure':
             axes.set_ylabel(r"Pa")
+        elif name == 'number_density_air':
+            axes.set_ylabel(r"moles/m^3")
         
     axes.legend()
     axes.grid(True)

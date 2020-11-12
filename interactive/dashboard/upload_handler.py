@@ -76,3 +76,24 @@ def handle_uploaded_evolve(f):
         }
     })
     dump_json('my_config.json', config)
+
+
+# saves uploaded photo rate file to config folder
+def handle_uploaded_p_rates(f):
+    content = f.read()
+    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'photo_rates.nc')
+    g = open(destination, 'wb')
+    g.write(content)
+    g.close()
+
+    #writes config json pointing to csv file
+    config = open_json('my_config.json')
+    if 'evolving conditions' in config:
+        evolvs = config['evolving conditions']
+    else:
+        evolvs = {}
+    evolvs.update({
+        'photo_rates.nc': {}
+    })
+    config.update({'evolving conditions': evolvs})
+    dump_json('my_config.json', config)
