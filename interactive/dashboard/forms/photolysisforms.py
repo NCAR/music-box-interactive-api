@@ -14,3 +14,11 @@ class PhotoForm(forms.Form):
             self.fields[key + '.init'] = forms.FloatField(initial=inits['initial value'][key])
         
 
+class PhotoDatetimeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(PhotoDatetimeForm, self).__init__(*args, **kwargs)
+        self.fields['time zone'] = forms.CharField()
+        self.fields['year'] = forms.IntegerField()
+        self.fields['month'] = forms.CharField()
+        self.fields['day'] = forms.IntegerField()
+        self.fields['hour'] = forms.IntegerField()

@@ -150,7 +150,8 @@ def photolysis(request):
             
     context = {
         'csv_field': UploadPhotoFileForm,
-        'form': PhotoForm
+        'form': PhotoForm,
+        'isUploaded': check_photo_uploaded()
     }
     return render(request, 'config/photolysis.html', context)
 
@@ -161,19 +162,40 @@ def photo_ncf(request):
         uploaded = request.FILES['file']
         print(str(request.FILES))
         handle_uploaded_p_rates(uploaded)
-    context = {
-        'csv_field': UploadPhotoFileForm,
-        "form": PhotoForm
-    }
+    
     return HttpResponseRedirect('/configure/photolysis')
 
+
+def photo_dt_form(request):
+    if request.method == 'GET':
+        response = HttpResponse()
+        form = PhotoDatetimeForm()
+        response.write('<form action="photo_start_results"><table>')
+        for field in form:
+            response.write('<tr><td>')
+            response.write(field.name)
+            response.write('</td><td>')
+            response.write(field)
+            response.write('</td></tr>')
+        response.write('</table><button type="submit">Save</button></form>')
+    
+        return response
+    else:
+        return HttpResponse()
+
+
+def save_photo_dt(request):
+    print(request.GET)
+
+    return HttpResponseRedirect('/configure/photolysis')
 
 
 def new_photo(request):
     if request.method == 'GET':
         new_photolysis()
     
-    return HttpResponse()
+    return HttpResponseRedirect('/configure/photolysis')
+
 
 
 def review(request):

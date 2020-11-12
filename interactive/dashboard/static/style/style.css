@@ -520,3 +520,13 @@ hr.solid {
 #display-linear-combos table tr td{
     border: 2px solid black;
 }
+
+
+#photo_file_panel {
+    background: #267871;
+    width: fit-content;        
+    padding: 5px;
+    height: fit-content;
+    border-radius: 4px;
+    box-shadow: 0px 1px 5px 0px #303030;
+}

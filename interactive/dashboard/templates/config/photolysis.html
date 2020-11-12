@@ -21,6 +21,14 @@
             <button type="submit">Upload</button>
          </form>
 
+    {% if isUploaded %}
+        <div id="photo_file_panel">
+            <div id="isFileUploaded"><h3>Photolysis Rate File Uploaded</h3></div>
+            <div id='simstartinfo'></div>
+        </div>
+    {% endif %}
+
+
 
          <div class="specform">
             <h3 class="columnhead">Configure Photolysis Reactions:</h3>

@@ -97,3 +97,13 @@ def handle_uploaded_p_rates(f):
     })
     config.update({'evolving conditions': evolvs})
     dump_json('my_config.json', config)
+
+
+def check_photo_uploaded():
+    if os.path.isfile(os.path.join(config_path, 'photo_rates.nc')):
+        if os.path.getsize(os.path.join(config_path, 'photo_rates.nc')) > 0:
+            return True
+        else:
+            return False
+    else:
+        return False
