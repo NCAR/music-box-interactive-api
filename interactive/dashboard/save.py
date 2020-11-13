@@ -434,7 +434,10 @@ def display_linear_combinations():
     config = open_json('my_config.json')
     if 'evolving conditions' not in config:
         return []
-    lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
+    elif 'evolving_conditions.csv' in config['evolving conditions']:
+        lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
+    else:
+        return []
     
     lc_list = []
 
@@ -446,3 +449,21 @@ def display_linear_combinations():
         lc_list.append([props, scale])
     
     return lc_list
+
+
+def save_photo_start_time(mydict):
+    config = open_json('my_config.json')
+    options = config['box model options']
+    options.update({'simulation start': mydict})
+    config.update({'box model options': options})
+    dump_json('my_config.json', config)
+
+
+def display_photo_start_time():
+    config = open_json('my_config.json')
+    if 'simulation start' in config['box model options']:
+        return config['box model options']['simulation start']
+    else:
+        return {}
+    
+

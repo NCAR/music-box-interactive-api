@@ -151,7 +151,8 @@ def photolysis(request):
     context = {
         'csv_field': UploadPhotoFileForm,
         'form': PhotoForm,
-        'isUploaded': check_photo_uploaded()
+        'isUploaded': check_photo_uploaded(),
+        'simstart': display_photo_start_time()
     }
     return render(request, 'config/photolysis.html', context)
 
@@ -185,7 +186,9 @@ def photo_dt_form(request):
 
 
 def save_photo_dt(request):
-    print(request.GET)
+    if request.method == 'GET':
+        dt = request.GET.dict()
+        save_photo_start_time(dt)
 
     return HttpResponseRedirect('/configure/photolysis')
 

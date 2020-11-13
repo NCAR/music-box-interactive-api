@@ -3,7 +3,14 @@
         "grid": "box",
         "chemistry time step [min]": 1.0,
         "output time step [hr]": 0.1,
-        "simulation length [hr]": 13.9
+        "simulation length [hr]": 13.9,
+        "simulation start": {
+            "time zone": "EST",
+            "year": "2011",
+            "month": "July",
+            "day": "29",
+            "hour": "6"
+        }
     },
     "chemical species": {
         "NO2": {
@@ -42,6 +49,18 @@
             "absolute tolerance": 1e-12,
             "relative tolerance": 0.0001
         }
+    },
+    "evolving conditions": {
+        "evolving_conditions.csv": {
+            "linear combinations": {
+                "combo48": {
+                    "properties": {
+                        "CONC.O2": {},
+                        "CONC.N2": {}
+                    },
+                    "scale factor": 1.2
+                }
+            }
+        }
     }
-    
 }

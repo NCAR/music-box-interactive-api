@@ -303,9 +303,8 @@ $(document).ready(function(){
 
   // if photolysis file is uploaded and no start date is selected
   if ( $('#isFileUploaded').length ){
-    if ($('#simstartinfo').html() == ''){
-      $('#photo_file_panel').append('<button id="simstart">Choose simulation start time</button>')
-    }
+    $('#photo_file_panel').append('<button id="simstart">Choose simulation start time</button>')
+    
   }
 
   $("#simstart").on('click', function(){

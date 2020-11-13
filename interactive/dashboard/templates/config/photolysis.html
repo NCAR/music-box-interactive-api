@@ -24,7 +24,18 @@
     {% if isUploaded %}
         <div id="photo_file_panel">
             <div id="isFileUploaded"><h3>Photolysis Rate File Uploaded</h3></div>
-            <div id='simstartinfo'></div>
+            <div id='simstartinfo'>
+                {% if simstart %}
+                    <h3>Simulation start time:</h3>
+                    <table>
+                    {% for key,value in simstart.items %}
+                        <tr>
+                            <td><h4>{{ key }}:</h4></td><td><h4>{{ value }}</h4></td>
+                        </tr>
+                    {% endfor %}
+                    </table>
+                {% endif %}
+            </div>
         </div>
     {% endif %}
 
