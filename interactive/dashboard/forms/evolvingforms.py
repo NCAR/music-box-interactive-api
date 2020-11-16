@@ -4,6 +4,8 @@ from .formsetup import display_evolves
 class UploadEvolvFileForm(forms.Form):
     file = forms.FileField()
 
+class UploadLossFileForm(forms.Form):
+    file = forms.FileField()
 
 class LinearCombinationForm(forms.Form):
     def __init__(self, *args, **kwargs):

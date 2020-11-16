@@ -5,11 +5,11 @@
         "output time step [hr]": 0.1,
         "simulation length [hr]": 13.9,
         "simulation start": {
-            "time zone": "EST",
-            "year": "2011",
-            "month": "July",
-            "day": "29",
-            "hour": "6"
+            "time zone": "UTC -8",
+            "year": "2009",
+            "month": "June",
+            "day": "20",
+            "hour": "22"
         }
     },
     "chemical species": {
@@ -53,7 +53,7 @@
     "evolving conditions": {
         "evolving_conditions.csv": {
             "linear combinations": {
-                "combo48": {
+                "combo1429": {
                     "properties": {
                         "CONC.O2": {},
                         "CONC.N2": {}
@@ -61,6 +61,8 @@
                     "scale factor": 1.2
                 }
             }
-        }
+        },
+        "loss_rates.txt": {},
+        "photo_rates.nc": {}
     }
 }

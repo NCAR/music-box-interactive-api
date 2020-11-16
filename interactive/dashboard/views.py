@@ -126,9 +126,11 @@ def init_csv(request):
 
 def evolv(request):
     context = {
-        'csv_field': UploadEvolvFileForm,
+        'csv_field': UploadEvolvFileForm(),
         'conditions': display_evolves(),
-        'linear_combinations': display_linear_combinations()
+        'linear_combinations': display_linear_combinations(),
+        'lr_field': UploadLossFileForm(),
+        'is_lr_uploaded': check_loss_uploaded(),
     }
     return render(request, 'config/evolv-cond.html', context)
 
@@ -137,6 +139,13 @@ def evolv_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         handle_uploaded_evolve(uploaded)
+    return HttpResponseRedirect('/configure/evolv-cond')
+
+
+def evolv_lr(request):
+    if request.method == 'POST':
+        uploaded = request.FILES['file']
+        handle_uploaded_loss_rates(uploaded)
     return HttpResponseRedirect('/configure/evolv-cond')
 
 
@@ -155,7 +164,6 @@ def photolysis(request):
         'simstart': display_photo_start_time()
     }
     return render(request, 'config/photolysis.html', context)
-
 
 
 def photo_ncf(request):

@@ -11,48 +11,61 @@
          <a id="review" href="/configure/review">Review</a>
       </div>
    </div>
-     <div class=confighead>Evolving Conditions</div>
 
-
-<div class="configbox">
-    <h3>Upload File (.txt, .csv):</h3>
-          <form method="POST" action="evolv-csv" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ csv_field }}
-            <button type="submit">Upload</button>
-         </form>
-</div>
-<div id="evolvcontent">
-   {% if conditions %}
-      <div id="evolvtable"><h3>
-         <table>
-               {% for condition in conditions %}
-                  <tr>
-                     {% for item in condition %}
-                        <td>{{ item }}</td>
-                     {% endfor %}
-                  </tr>
-               {% endfor %}
-         </table>
-      </h3></div
-   {% endif %}
-   {% if linear_combinations %}
-      <div id="display-linear-combos"><h3>
-         <table>
-            <tr><td>Linear Combinations:</td></tr>
-            {% for i in linear_combinations %}
-               <tr><td>
-                  {% for prop in i.0 %}
-                     <li> {{prop}} <li>
+<div id="content_container">
+   <div class="configbox">
+      <h3>Upload Evolving Conditions File (.txt, .csv):</h3>
+            <form method="POST" action="evolv-csv" enctype="multipart/form-data">
+               {% csrf_token %}
+               {{ csv_field }}
+               <button type="submit">Upload</button>
+            </form>
+   </div>
+   <div id="evolvcontent">
+      {% if conditions %}
+         <div id="evolvtable"><h3>
+            <table>
+                  {% for condition in conditions %}
+                     <tr>
+                        {% for part in condition %}
+                           <td>{{ part }}</td>
+                        {% endfor %}
+                     </tr>
                   {% endfor %}
-                  <li>Scale Factor: {{i.1}}</li>
-               </tr></td>
-            {% endfor %}
-         </table></h3>
-      </div>
-{% endif %}
-</div>
+            </table>
+         </h3></div>
+      {% endif %}
+      {% if linear_combinations %}
+         <div id="display-linear-combos"><h3>
+            <table>
+               <tr><td>Linear Combinations:</td></tr>
+               {% for i in linear_combinations %}
+                  <tr><td>
+                     {% for prop in i.0 %}
+                        <li> {{prop}} <li>
+                     {% endfor %}
+                     <li>Scale Factor: {{i.1}}</li>
+                  </tr></td>
+               {% endfor %}
+            </table></h3>
+         </div>
+      {% endif %}
+   </div>
 
+   <div class="configbox" id="lrUpload">
+      <h3>Upload Loss-Rates File (.txt):</h3>
+            <form method="POST" action="evolv-lr-txt" enctype="multipart/form-data">
+               {% csrf_token %}
+               {{ csv_field }}
+               <button type="submit">Upload</button>
+            </form>
+   </div>
+   {% if is_lr_uploaded %}
+      <div id="is_lr_uploaded_panel">
+         <h3>Non-standard loss-rate file uploaded</h3>
+      </div>
+   {% endif %}
+</div>
 
 
 {% endblock %}

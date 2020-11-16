@@ -18,6 +18,7 @@ urlpatterns = [
     path('configure/species-csv', views.csv),
     path('configure/cond-csv', views.init_csv),
     path('configure/evolv-csv', views.evolv_csv),
+    path('configure/evolv-lr-txt', views.evolv_lr),
     path('configure/photo-ncf', views.photo_ncf),
     path('configure/new-photo', views.new_photo),
     path('configure/run', views.configure),
