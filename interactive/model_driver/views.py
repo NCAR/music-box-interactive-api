@@ -8,6 +8,7 @@ import mimetypes
 import pandas as pd
 import time
 from shutil import copy
+from .run_setup import setup_run
 
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
@@ -27,7 +28,7 @@ config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.
 
 
 def run(request):
-    
+    setup_run()
     return JsonResponse({'model_connected': True})
 
 
