@@ -3,27 +3,20 @@
         "grid": "box",
         "chemistry time step [min]": 1.0,
         "output time step [hr]": 0.1,
-        "simulation length [hr]": 13.9,
-        "simulation start": {
-            "time zone": "UTC -8",
-            "year": "2009",
-            "month": "June",
-            "day": "20",
-            "hour": "22"
-        }
+        "simulation length [hr]": 13.9
     },
     "chemical species": {
         "NO2": {
-            "initial value [mol m-3]": "1"
+            "initial value [mol m-3]": 1.0
         },
-        "NO": {
-            "initial value [mol m-3]": "2"
+        "O2": {
+            "initial value [mol m-3]": 2.0
         },
         "O3": {
-            "initial value [mol m-3]": "3"
+            "initial value [mol m-3]": 3.0
         },
-        "ISOP": {
-            "initial value [mol m-3]": "4"
+        "H2O": {
+            "initial value [mol m-3]": 4.0
         }
     },
     "environmental conditions": {
@@ -52,17 +45,7 @@
     },
     "evolving conditions": {
         "evolving_conditions.csv": {
-            "linear combinations": {
-                "combo1429": {
-                    "properties": {
-                        "CONC.O2": {},
-                        "CONC.N2": {}
-                    },
-                    "scale factor": 1.2
-                }
-            }
-        },
-        "loss_rates.txt": {},
-        "photo_rates.nc": {}
+            "linear combinations": {}
+        }
     }
 }

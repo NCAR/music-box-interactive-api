@@ -90,9 +90,11 @@ def check(request):
     status = 'checking'
 
     # check if output file exists
+    t = 0
     while status == 'checking':
         print(status)
         time.sleep(.1)
+        t += 0.1
         if os.path.isfile(out_path):
             if os.path.getsize(out_path) == 0:  # check if output file has content
                 if os.path.getsize(error_path) > 0: #check if error file has content
@@ -101,6 +103,9 @@ def check(request):
                     status = 'empty_output'
             else:
                 status = 'done'
+        if t > 10:
+            status = 'timeout'
+            break
 
     response_message.update({'status': status})
 

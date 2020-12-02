@@ -1,7 +1,9 @@
 import os
+import time
 import subprocess
 from shutil import copy
 from django.conf import settings
+from interactive.tools import *
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
@@ -50,13 +52,23 @@ def setup_run():
         if os.path.getsize(os.path.join(config_folder_path, f)) == 0:
             filelist.remove(f)
     
-    os.mkdir(os.path.join(mb_dir, 'mb_configuration'))
+    # while True:
+    #     mydir = os.path.join(mb_dir, 'mb_configuration')
+    #     try:
+    #         os.mkdir(mydir)
+    #         break
+    #     except OSError:
+            
+    #         time.sleep(0.05)
+    #         pass
+
     newpath = os.path.join(mb_dir, 'mb_configuration')
     for f in filelist:
         copy(os.path.join(config_folder_path, f), os.path.join(newpath, f))
 
     
+    print(os.getcwd())
 
-
+    print(os.listdir(newpath))
     process = subprocess.Popen(
-        [r'./music_box', r'/my_config.json'], cwd=newpath)
+        [r'./music_box', r'/mb_configuration/my_config.json'], cwd=mb_dir)
