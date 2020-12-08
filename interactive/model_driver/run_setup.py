@@ -3,7 +3,7 @@ import time
 import subprocess
 from django.conf import settings
 from interactive.tools import *
-
+from shutil import rmtree
 
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
@@ -31,6 +31,21 @@ def copyConfigFile(source, destination):
     configFile.close()
     
 
+def create_file_list():
+    config = open_json('my_config.json')
+    filelist = []
+    configFolderContents = os.listdir(config_folder_path)
+
+    for configSection in config:
+        section = config[configSection]
+        for configItem in section:
+            if '.' in configItem:
+                filelist.append(configItem)
+    
+    for name in filelist:
+        if name not in configFolderContents:
+            filelist.remove(name)
+    return filelist
 
 def setup_run():
     if interface_solo:
@@ -63,12 +78,19 @@ def setup_run():
     
 
     newpath = os.path.join(mb_dir, 'mb_configuration')
-    os.mkdir(newpath)
+    if os.path.exists(newpath):
+        rmtree(newpath)
+        os.mkdir(newpath)
+    else:
+        os.mkdir(newpath)
+    filelist = create_file_list()
+    filelist.append('my_config.json')
+    print(filelist)
     for f in filelist:
         copyConfigFile(os.path.join(config_folder_path, f), os.path.join(newpath, f))
 
-
+    time.sleep(0.1)
    
-
+    print(os.getcwd())
     process = subprocess.Popen(
-        [r'./music_box', r'/mb_configuration/my_config.json'], cwd=mb_dir)
+        [r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
