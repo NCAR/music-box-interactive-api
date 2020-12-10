@@ -51,30 +51,13 @@ def setup_run():
     if interface_solo:
         return JsonResponse({'model_connected': False})
     
-    copyConfigFile(config_path, config_dest)
     if os.path.isfile(out_path):
-        copyConfigFile(out_path, copy_path)
         os.remove(out_path)
     if os.path.isfile(error_path):
         os.remove(error_path)
 
 
     config = open_json('my_config.json')
-    filelist = os.listdir(config_folder_path)
-    internals = [
-        'initials.json',
-        'options.json',
-        'photo.json',
-        'post.json',
-        'species.json',
-        'linear_combinations.json'
-    ]
-    for f in internals:
-        filelist.remove(f)
-    
-    for f in filelist:
-        if os.path.getsize(os.path.join(config_folder_path, f)) > 1:
-            filelist.remove(f)
     
 
     newpath = os.path.join(mb_dir, 'mb_configuration')
