@@ -28,5 +28,7 @@ urlpatterns = [
     path('configure/linear_combination_form', views.linear_combination_form),
     path('configure/evolv-linear-combo', views.evolv_linear_combo),
     path('configure/photo_datetime_form', views.photo_dt_form),
-    path('configure/photo_start_results', views.save_photo_dt)
+    path('configure/photo_start_results', views.save_photo_dt),
+    path('configure/logging-toggle', views.toggle_logging),
+    path('configure/logging-toggle-check', views.toggle_logging_check)
 ]

@@ -19,13 +19,17 @@ def file_path(filename):
         'reaction_stage.json': 'mechanism',
         'T1mozcart.json': 'mechanism',
         'mol_name.json': 'mechanism',
-        'linear_combinations.json': 'config'
+        'linear_combinations.json': 'config',
+        'log_config.json': 'log'
     }
     file_loc = locations[filename]
     if file_loc == "config":
         return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
     elif file_loc == "mechanism":
         return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/mechanism"), filename)
+    elif file_loc == "log":
+        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/log"), filename)
+
 
 
 # open json file with filename
