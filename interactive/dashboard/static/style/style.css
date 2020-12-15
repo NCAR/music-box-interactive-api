@@ -617,3 +617,8 @@ h4 {
     display: block;
     margin-top: 5;
 }
+
+#clearEvolvFiles {
+    margin-left: 300;
+    margin-top: 20;
+}

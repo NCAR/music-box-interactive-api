@@ -319,7 +319,7 @@ $(document).ready(function(){
   });
 
   // logging update toggle switch
-  $("#updatelogtog").on('click', function(){
+  $("#islogon").on('click', function(){
     if ($('#islogon').is(":checked")){
       var loggingOn = "True";
     } else {
@@ -337,7 +337,7 @@ $(document).ready(function(){
   });
 
   // fill logging toggle switch correctly
-  if ( $('#updatelogtog').length ){
+  if ( $('#islogon').length ){
     $.ajax({
       url: "/configure/logging-toggle-check",
       type: 'get',
@@ -350,7 +350,16 @@ $(document).ready(function(){
       }
     });
   }
-
+ // clear evolving conditions files button
+  $("#clearEvolvFiles").on('click', function(){
+    $.ajax({
+      url: "/configure/clear-evolv-files",
+      type: 'get',
+      success: function(response){
+        location.reload();
+      }
+    });
+  });
 
 
 });
