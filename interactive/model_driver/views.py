@@ -9,7 +9,7 @@ import pandas as pd
 import time
 from shutil import copy
 from .run_setup import setup_run
-
+from .run_logging import *
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
@@ -20,6 +20,8 @@ else:
 
 print("interface_solo:", interface_solo)
 
+clear_log()
+
 out_path = os.path.join(mb_dir, 'output.csv')
 error_path = os.path.join(mb_dir, 'error.json')
 copy_path = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/past.csv')
@@ -28,8 +30,10 @@ config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.
 
 
 def run(request):
-    setup_run()
-    return JsonResponse({'model_connected': True})
+    run = setup_run()
+    print(run)
+    save_run()
+    return JsonResponse(run)
 
 
 def check_load(request):
@@ -106,7 +110,8 @@ def check(request):
         if t > 10:
             status = 'timeout'
             break
-
+        
+    update_with_result(status)
     response_message.update({'status': status})
 
     if status == 'error':

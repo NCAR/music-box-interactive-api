@@ -3,3 +3,11 @@ docker build -t music-box-test . --build-arg TAG_ID=chapman
 
 run:
 docker run -p 8000:8000 -t music-box-test
+
+=============================================================
+
+enter container w/o running:
+docker run -p 8000:8000 -it music-box-test bash
+
+run from within container:
+nohup python3 music-box-interactive/interactive/manage.py runserver 0.0.0.0:8000 &

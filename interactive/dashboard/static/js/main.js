@@ -317,8 +317,49 @@ $(document).ready(function(){
       }
     });
   });
-  
 
+  // logging update toggle switch
+  $("#islogon").on('click', function(){
+    if ($('#islogon').is(":checked")){
+      var loggingOn = "True";
+    } else {
+      var loggingOn = "False";
+    }
+    $.ajax({
+      url: "/configure/logging-toggle",
+      type: 'get',
+      data: {
+        "isOn": loggingOn
+      },
+      success: function(response){
+      }
+    });
+  });
+
+  // fill logging toggle switch correctly
+  if ( $('#islogon').length ){
+    $.ajax({
+      url: "/configure/logging-toggle-check",
+      type: 'get',
+      success: function(response){
+        if (response["isOn"]){
+          $('#islogon').prop("checked", true)
+        } else {
+          $('#islogon').prop("checked", false)
+        }
+      }
+    });
+  }
+ // clear evolving conditions files button
+  $("#clearEvolvFiles").on('click', function(){
+    $.ajax({
+      url: "/configure/clear-evolv-files",
+      type: 'get',
+      success: function(response){
+        location.reload();
+      }
+    });
+  });
 
 
 });

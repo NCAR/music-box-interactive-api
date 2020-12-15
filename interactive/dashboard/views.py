@@ -7,11 +7,13 @@ from .forms.photolysisforms import *
 from .upload_handler import *
 from .save import *
 from .models import Document
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 import os
 from django.conf import settings
 import mimetypes
 from django.core.files import File
+from interactive.tools import *
+
 
 def new_species(request):
     if request.method == 'POST':
@@ -255,4 +257,22 @@ def evolv_linear_combo(request):
         comboDict = request.GET.dict()
         save_linear_combo(comboDict)
     return HttpResponseRedirect('/configure/evolv-cond')
-    
+
+
+def toggle_logging(request):
+    if request.method == 'GET':
+        resultDict = request.GET.dict()  
+        result = resultDict['isOn']
+        lcfig = open_json('log_config.json')
+        if "True" in result:
+            lcfig.update({'logging_enabled': True})
+        else:
+            lcfig.update({'logging_enabled': False})
+        dump_json('log_config.json', lcfig)
+    return HttpResponse()
+
+
+def toggle_logging_check(request):
+    lcfig = open_json('log_config.json')
+    isOn = lcfig['logging_enabled']
+    return JsonResponse({"isOn": isOn})

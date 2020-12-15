@@ -10,6 +10,7 @@ if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
     interface_solo = False
 else:
+    print(os.environ)
     mb_dir = ''
     interface_solo = True
 
@@ -49,7 +50,7 @@ def create_file_list():
 
 def setup_run():
     if interface_solo:
-        return JsonResponse({'model_connected': False})
+        return {'model_connected': False}
     
     if os.path.isfile(out_path):
         os.remove(out_path)
@@ -74,6 +75,11 @@ def setup_run():
 
     time.sleep(0.1)
    
-    print(os.getcwd())
-    process = subprocess.Popen(
-        [r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
+    # filelist.remove('my_config.json')
+    # for f in filelist:
+    #     os.system('cp ')
+
+    copyConfigFile('/build/mb_configuration/evolving_conditions.csv', '/build/evolving_conditions.csv')
+    process = subprocess.Popen([r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
+
+    return {'model_connected': True}
