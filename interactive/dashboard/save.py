@@ -23,6 +23,14 @@ def export():
     initials = open_json('initials.json')
     photo = open_json('photo.json')
 
+    #gets evolving conditions section if it exists
+    oldConfig = open_json('my_config.json')
+    if 'evolving conditions' in oldConfig:
+        evolves = oldConfig['evolving conditions']
+    else:
+        evolves = ''
+    
+
     config = {}
 
     # write model options section
@@ -79,6 +87,10 @@ def export():
     config.update({"chemical species": species_section})
     config.update({"environmental conditions": init_section})
     config.update({"photolysis": photo_section})
+
+    if evolves:
+        config.update({'evolving conditions': evolves})
+
     config.update({
         "chemistry": {
             "type": "MICM",
@@ -102,8 +114,10 @@ def save(type):
     species = open_json('species.json')
     options = open_json('options.json')
     initials = open_json('initials.json')
+    
     photo = open_json('photo.json')
    
+
  # Saves the formulas for chemical species
 
     if type == 'formula':
@@ -467,3 +481,17 @@ def display_photo_start_time():
         return {}
     
 
+def clear_e_files():
+    config = open_json('my_config.json')
+    config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+    csv_path = os.path.join(config_path, 'evolving_conditions.csv')
+    if 'evolving conditions' in config:
+        config.pop('evolving conditions')
+
+    content = b''
+    g = open(csv_path, 'wb')
+    g.write(content)
+    g.close()
+    configFile.close()
+    
+    print('ev_conditions files cleared')

@@ -75,11 +75,9 @@ def setup_run():
 
     time.sleep(0.1)
    
-    # filelist.remove('my_config.json')
-    # for f in filelist:
-    #     os.system('cp ')
-
-    copyConfigFile('/build/mb_configuration/evolving_conditions.csv', '/build/evolving_conditions.csv')
+    filelist.remove('my_config.json')
+    for f in filelist:
+        copyConfigFile(os.path.join('/build/mb_configuration', f), os.path.join('/build', f))
     process = subprocess.Popen([r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
 
     return {'model_connected': True}

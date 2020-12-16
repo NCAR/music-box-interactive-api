@@ -37,6 +37,8 @@ def save_run():
     foldername = os.path.join(log_path, logEntryName)
 
     lc = open_json('log_config.json')
+    if not lc['logging_enabled']:
+        return
     lc.update({'current': foldername})
     history = lc['history']
     history.update({foldername: 'running'})
@@ -53,17 +55,26 @@ def save_run():
         if name not in configFolderContents:
             filelist.remove(name)
 
-    
     filelist.append('my_config.json')
 
     os.mkdir(foldername)
 
     for f in filelist:
         copyAFile(os.path.join(config_folder_path, f), os.path.join(foldername, f))
+
     
+    # li = [int(x.split('_')[1]) for x in history.keys()]
+    # largest = li.sort()[-1]
+    # if largest > lc['log_length']:
+    #     smallest = li.sort()[0]
+    #     path_for_deletion = os.path.join(log_path, 'run_' + str(smallest))
+    #     rmtree(path_for_deletion)
+
 
 def update_with_result(status):
     lc = open_json('log_config.json')
+    if not lc['logging_enabled']:
+        return
     current = lc['current']
     history = lc['history']
     if status == 'error':

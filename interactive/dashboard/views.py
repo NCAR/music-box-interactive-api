@@ -31,7 +31,7 @@ def species(request):
         new_spec = SpeciesForm(request.POST)
         if new_spec.is_valid():
             save_species(new_spec.cleaned_data)
-
+ 
     context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
                }
@@ -148,6 +148,12 @@ def evolv_lr(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         handle_uploaded_loss_rates(uploaded)
+    return HttpResponseRedirect('/configure/evolv-cond')
+
+
+def clear_evolv_files(request):
+    if request.method == 'GET':
+        clear_e_files()
     return HttpResponseRedirect('/configure/evolv-cond')
 
 

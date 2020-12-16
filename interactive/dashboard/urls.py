@@ -30,5 +30,6 @@ urlpatterns = [
     path('configure/photo_datetime_form', views.photo_dt_form),
     path('configure/photo_start_results', views.save_photo_dt),
     path('configure/logging-toggle', views.toggle_logging),
-    path('configure/logging-toggle-check', views.toggle_logging_check)
+    path('configure/logging-toggle-check', views.toggle_logging_check),
+    path('configure/clear-evolv-files', views.clear_evolv_files)
 ]
