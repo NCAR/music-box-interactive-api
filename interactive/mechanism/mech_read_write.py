@@ -151,10 +151,9 @@ def search_list():
     datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
     molecules = mechanism['molecules']
-    name_list = []
-    for i in molecules:
-        name_list.append(i['moleculename'])
+    name_list = molecules.keys()
     return name_list
+
 
 
 #------------------------------
