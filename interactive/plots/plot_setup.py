@@ -13,6 +13,7 @@ import PIL, PIL.Image, io
 import pandas
 from django.conf import settings
 import logging
+from .compare import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -42,6 +43,10 @@ def sub_props(prop):
     if prop == 'env':
         logging.info('getting conditions')
         return env
+    if prop == 'compare':
+        logging.info('getting runs')
+        runs = get_valid_runs()
+        return runs
 
 
 def undo_double(dataframe):

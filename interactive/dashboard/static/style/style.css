@@ -311,6 +311,7 @@ select {
     left:20%;
     transition: top 0.3s;
     display: inline-block;
+    margin-left: 30;
 }
 
 .plotnav a {

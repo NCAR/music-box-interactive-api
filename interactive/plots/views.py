@@ -11,8 +11,12 @@ def get_contents(request):
 
     response = HttpResponse()
     subs = sub_props(prop)
-    for i in subs:
-        response.write('<button class="sub_p" id=' + i + ">" + sub_props_names(i) + "</button>")
+    if prop != 'compare':
+        for i in subs:
+            response.write('<button subType="normal" class="sub_p" id=' + i + ">" + sub_props_names(i) + "</button>")
+    elif prop == 'compare':
+        for i in subs:
+            response.write('<button subType="compare" class="sub_p" id=' + i + ">" + sub_props_names(i) + "</button>")
     return response
 
 
@@ -32,3 +36,10 @@ def custom(request):
 
     return HttpResponse()
 
+
+def compare(request):
+    
+    context = {
+        'runs': get_valid_runs()
+    }
+    return render(request, 'pcompare.html', context)

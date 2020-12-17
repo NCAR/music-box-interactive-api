@@ -101,10 +101,9 @@ def check(request):
         t += 0.1
         if os.path.isfile(out_path):
             if os.path.getsize(out_path) == 0:  # check if output file has content
-                if os.path.getsize(error_path) > 0: #check if error file has content
-                    status = 'error'
-                else:
-                    status = 'empty_output'
+                if os.path.isfile(error_path): #check if error file exists
+                    if os.path.getsize(error_path) > 0: #check if error file has content
+                        status = 'error'
             else:
                 status = 'done'
         if t > 10:

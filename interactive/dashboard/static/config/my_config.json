@@ -6,7 +6,7 @@
         "simulation length [hr]": 13.9
     },
     "chemical species": {
-        "NO2": {
+        "N2": {
             "initial value [mol m-3]": 1.0
         },
         "O2": {
@@ -35,17 +35,17 @@
             "initial value [s-1]": 0.0012
         }
     },
+    "evolving conditions": {
+        "evolving_conditions.csv": {
+            "linear combinations": {}
+        }
+    },
     "chemistry": {
         "type": "MICM",
         "solver": {
             "type": "Rosenbrock",
             "absolute tolerance": 1e-12,
             "relative tolerance": 0.0001
-        }
-    },
-    "evolving conditions": {
-        "evolving_conditions.csv": {
-            "linear combinations": {}
         }
     }
 }

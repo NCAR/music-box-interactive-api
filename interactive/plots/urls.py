@@ -5,5 +5,6 @@ urlpatterns = [
     path('', views.get, name='get'),
     path('get_contents', views.get_contents),
     path('get', views.get, name='get'),
-    path('custom', views.custom)
+    path('custom', views.custom),
+    path('compare', views.compare)
 ]

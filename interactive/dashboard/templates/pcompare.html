@@ -11,11 +11,21 @@
   </div> 
 </div>
 
+<div class="compare-navbox">
+  {% if runs %}
+    {% for run in runs %}
+        <a class="modelrun" id="{{run}}">{{run}}</a>
+    {% endfor %}
+  {% endif %}
+</div>
+
+
+
 <div id=plots_content>
   <div id="plotbar">
   </div> 
   <div id="plot">
-    <h3><div id='plotmessage'>Select chemical species, reaction rates, or enviornmental conditions to plot.</div></h3>
+    <h3><div id='plotmessage'>Select two plot runs to compare.</div></h3>
   </div>
 </div>
 
