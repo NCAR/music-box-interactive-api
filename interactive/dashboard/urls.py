@@ -4,7 +4,7 @@ from . import views
 
 app_name = 'dashboard'
 urlpatterns = [
-    path('',          views.options, name='default'),
+    path('',          views.landing_page, name='default'),
     path('visualize', views.visualize, name='visualize'),
     path('configure/options', views.options, name='options'),
     path('configure/species', views.species, name='species'),

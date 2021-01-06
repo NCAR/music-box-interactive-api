@@ -19,6 +19,7 @@ body {
     font-family: 'Cabin';
     font-size: 42px;
     font-weight: bold;
+    text-decoration: none;
 }
 
 .version{
@@ -625,3 +626,31 @@ h4 {
     margin-top: 20;
 }
 
+
+#landing_container{
+    margin-left: 300;
+    margin-top: 50;
+    font-family: 'Cabin';
+    color: white;
+}
+
+#landing_header{
+    font-size: 28;
+}
+
+#landing_list{
+    font-size: 18px;
+}
+
+#landing_list li{
+    padding-bottom: 5;
+}
+
+#ghublink{
+    margin-top: 40;
+}
+#ghublink a{
+    color: white;
+    display: block;
+    padding-bottom: 15;
+}
