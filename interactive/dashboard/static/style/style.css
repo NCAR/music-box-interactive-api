@@ -680,3 +680,7 @@ a[sidebarButton] button:hover{
     background-color:#1a5385;
     color: white;
 }
+
+.navbox[scrolled="yes"] {
+    box-shadow: 0px 1px 15px 10px #2f4e6d;
+}

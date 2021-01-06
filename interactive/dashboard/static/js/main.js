@@ -370,8 +370,14 @@ $(document).ready(function(){
   //     }
   //   });
   // });
-
-
-
-
+  
+  // menu bar shadows when scrolled down
+  $(window).scroll(function(){
+    var scroll = $(window).scrollTop();
+    if (scroll > 10){
+      $('.navbox').attr('scrolled','yes')
+    } else {
+      $('.navbox').attr('scrolled','no')
+    }
+  });
 });
