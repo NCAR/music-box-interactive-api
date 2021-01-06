@@ -360,6 +360,18 @@ $(document).ready(function(){
       }
     });
   });
+  // // 'start from scratch' landing page button
+  // $("#start_from_scratch").on('click', function(){
+  //   $.ajax({
+  //     url: "/configure/start_from_scratch",
+  //     type: 'get',
+  //     success: function(response){
+  //       location.reload();
+  //     }
+  //   });
+  // });
+
+
 
 
 });

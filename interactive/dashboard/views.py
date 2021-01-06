@@ -15,6 +15,14 @@ from django.core.files import File
 from interactive.tools import *
 
 
+def landing_page(request):
+
+
+    context = {}
+
+    return render(request, 'landing.html', context)
+
+
 def new_species(request):
     if request.method == 'POST':
         new()
