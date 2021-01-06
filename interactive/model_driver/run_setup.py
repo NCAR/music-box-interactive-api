@@ -21,7 +21,7 @@ config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config
 config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.json')
 
 config_folder_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-
+camp_folder_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data")
 
 def copyConfigFile(source, destination):
     configFile = open(source, 'rb')
@@ -51,15 +51,13 @@ def create_file_list():
 def setup_run():
     if interface_solo:
         return {'model_connected': False}
-    
+
     if os.path.isfile(out_path):
         os.remove(out_path)
     if os.path.isfile(error_path):
         os.remove(error_path)
 
-
     config = open_json('my_config.json')
-    
 
     newpath = os.path.join(mb_dir, 'mb_configuration')
     if os.path.exists(newpath):
@@ -73,8 +71,15 @@ def setup_run():
     for f in filelist:
         copyConfigFile(os.path.join(config_folder_path, f), os.path.join(newpath, f))
 
+    camp_path = os.path.join(mb_dir, 'camp_data')
+    if os.path.exists(camp_path):
+        rmtree(camp_path)
+    os.mkdir(camp_path)
+    for f in os.listdir(camp_folder_path):
+        copyConfigFile(os.path.join(camp_folder_path, f), os.path.join(camp_path, f))
+
     time.sleep(0.1)
-   
+
     filelist.remove('my_config.json')
     for f in filelist:
         copyConfigFile(os.path.join('/build/mb_configuration', f), os.path.join('/build', f))
