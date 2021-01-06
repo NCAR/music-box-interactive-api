@@ -654,3 +654,29 @@ h4 {
     display: block;
     padding-bottom: 15;
 }
+
+a[sidebarButton]{
+    width: 150;
+    padding-top: 20;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+a[sidebarButton]:hover{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+a[sidebarButton] button{
+    background-color: #2d6290;
+    border: none;
+    font-size: 18;
+    box-shadow: 0px 1px 3px 0px black;
+}
+
+a[sidebarButton] button:hover{
+    box-shadow: none;
+    background-color:#1a5385;
+    color: white;
+}
