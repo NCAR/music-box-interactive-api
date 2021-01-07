@@ -23,27 +23,7 @@ def landing_page(request):
     return render(request, 'landing.html', context)
 
 
-def new_species(request):
-    if request.method == 'POST':
-        new()
-
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'config/species.html', context)
-
-
-def species(request):
-
-    if request.method == 'POST':
-        new_spec = SpeciesForm(request.POST)
-        if new_spec.is_valid():
-            save_species(new_spec.cleaned_data)
- 
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'config/species.html', context)
+######### species page
 
 
 def csv(request):
@@ -57,6 +37,7 @@ def csv(request):
                }
     return render(request, 'config/species.html', context)
 
+###########
 
 def run_model(request):
     context = {}
@@ -66,6 +47,7 @@ def run_model(request):
 def visualize(request):
     context = {}
     return render(request, 'plots.html', context)
+
 
 
 def configure(request):
@@ -104,7 +86,9 @@ def config_json(request):
     }
     return render(request, 'config/options.html', context)
 
+# ========== INITAL CONDITIONS PAGE =================
 
+# initial conditions page render
 def init(request):
     if request.method == 'POST':
         newConditions = InitialConditionsForm(request.POST)
@@ -115,12 +99,14 @@ def init(request):
             
 
     context = {
-        'form': InitialConditionsForm,
+        'icform': InitialConditionsForm,
+        'speciesform': SpeciesForm,
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)
 
 
+# input file upload
 def init_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
@@ -131,7 +117,44 @@ def init_csv(request):
         'form': InitialConditionsForm,
         'csv_field': UploadInitFileForm
     }
-    return render(request, 'config/init-cond.html', context)
+    return HttpResponseRedirect('/configure/init-cond')
+
+# species form
+def species(request):
+
+    if request.method == 'POST':
+        new_spec = SpeciesForm(request.POST)
+        if new_spec.is_valid():
+            save_species(new_spec.cleaned_data)
+ 
+    context = {'form1': SpeciesForm,
+               'csv_field': UploadFileForm
+               }
+    return HttpResponseRedirect('/configure/init-cond')
+
+#new species button
+def new_species(request):
+    if request.method == 'POST':
+        new()
+
+    context = {'form1': SpeciesForm,
+               'csv_field': UploadFileForm
+               }
+    return HttpResponseRedirect('/configure/init-cond')
+
+#remove species button
+def remove(request):
+    if request.method == 'GET':
+        spec = request.GET["species"]
+        spec = spec.split('.')[0]
+        
+        print(spec)
+        remove_species(spec)
+
+    return HttpResponse()
+
+
+#============== EVOLVING CONDITIONS PAGE ===============
 
 
 def evolv(request):
@@ -231,15 +254,6 @@ def review(request):
         "config": json
     }
     return render(request, 'config/review.html', context)
-
-
-def remove(request):
-    if request.method == 'GET':
-        id = request.GET["species"]
-        print(id)
-        remove_species(id)
-
-    return HttpResponse()
 
 
 def download_file(request):

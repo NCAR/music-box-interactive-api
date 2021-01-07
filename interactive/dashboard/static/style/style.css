@@ -124,13 +124,13 @@ body {
 }
 
 .configbox .specform {
-    display: inline-block;
+    display: block;
     color: black;
     font-family: 'Cabin';
 }
 
 h3 {
-    color: black;
+    color: white;
     font-size: 18px;
     font-family: 'Cabin'
 }

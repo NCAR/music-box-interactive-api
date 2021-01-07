@@ -268,14 +268,33 @@ def save_photo(form):
 #remove a species from the species json
 
 def remove_species(id):
-    removed = id.split('.')[0]
-    specs = open_json('species.json')
+    sp_file = open_json('species.json')
 
-    specs["formula"].pop(removed)
-    specs["value"].pop(removed)
-    specs["unit"].pop(removed)
+    di = {}
+    for key in sp_file['formula']:
+        subdi = {}
+        subdi.update({'formula': sp_file['formula'][key]})
+        subdi.update({'value': sp_file['value'][key]})
+        subdi.update({'unit': sp_file['unit'][key]})
+        di.update({key: subdi})
 
-    dump_json('species.json', specs)
+    di.pop(id)
+
+    empty = {
+        'formula': {},
+        'value': {},
+        'unit': {}
+    }
+
+    i = 1
+    for key in di:
+        name = 'Species ' + str(i)
+        for item in di[key]:
+            empty[item].update({name: di[key][item]})
+        i = i + 1
+
+
+    dump_json('species.json', empty)
     export()
 
 
