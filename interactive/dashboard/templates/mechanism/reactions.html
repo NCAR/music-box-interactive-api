@@ -4,14 +4,13 @@
 
    <div class="navbox">
       <div class="mechnav">
+         <a href="/mechanism/species">Chemical Species</a>
          <a class="selection" href="/mechanism/reactions">Reactions</a>
-         <a href="/mechanism/molecules">Molecules</a>
       </div>
    </div>
 
    <div id=reaction_content>
       <div id="sidemenu" mech_section='reaction'>
-         <li><button class="download_mech_b"><a id="download_mech_button" href='download_mech'>Download JSON</a></button></li>
          {% for field in searchForm %}
          <form method="GET" action="searchR">
             <li>{{ field }}</li>

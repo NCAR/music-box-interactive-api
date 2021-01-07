@@ -4,30 +4,28 @@
 
    <div class="navbox">
       <div class="mechnav">
+         <a class="selection" href="/mechanism/species">Chemical Species</a>
          <a href="/mechanism/reactions">Reactions</a>
-         <a class="selection" href="/mechanism/molecules">Molecules</a>
       </div>
    </div>
-     
-     <div id=molecule_content>
-      <div id="sidemenu" mech_section='molecule'>
-         <li><button class="download_mech_b"><a id="download_mech_button" href='download_mech'>Download JSON</a></button></li>
+     <div id=species_content>
+      <div id="sidemenu" mech_section='species'>
          {% for field in searchForm %}
          <form method="GET" action='searchM'>
             <li>{{ field }}</li>
             <li><button type="submit">Search</button></li>
          </form>
          {% endfor %}
-         <li><button id='newmolecule'>New</button></li>
-         {% for molecule in shortnames %}
+         <li><button id='newspecies'>New</button></li>
+         {% for species in shortnames %}
             <li>
-               <button class="mechanism_item" id="{{molecule.0}}">
-                  {{ molecule.1 }}
+               <button class="mechanism_item" id="{{species.0}}">
+                  {{ species.1 }}
                </button>
             </li>
          {% endfor %}
       </div>
-      <div id="molec_detail"
+      <div id="species_detail"
          {% if messages %}
             {% for message in messages %}
                {% if message.tags == 'error'%}
@@ -38,12 +36,9 @@
                {% endif %}
             {% endfor %}
          {% endif %}>
-         <h3><div id='message_box'>Select a molecule from the left to view, search with a molecule name, or <a>add a new molecule to the mechansim</a></div></h3></div>
+         <h3><div id='message_box'>Select a chemical species from the list to view/edit its properties, search for a chemical species by name, or <a>add a new chemical species to the mechansim</a></div></h3></div>
       <div id="equation_box"></div>
      </div>
-          
-
-
 {% endblock %}
 
 

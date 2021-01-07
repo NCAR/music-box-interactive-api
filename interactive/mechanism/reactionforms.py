@@ -20,7 +20,7 @@ class ReactionForm(forms.Form):
         i = 0
         for product in inits['products']:
             self.fields['p.'+ str(i) + '.coefficient'] = forms.FloatField(initial=inits['products'][i]['coefficient'])
-            self.fields['p.'+ str(i) + '.molecule'] = forms.CharField(initial=inits['products'][i]['molecule'])
+            self.fields['p.'+ str(i) + '.species'] = forms.CharField(initial=inits['products'][i]['species'])
             i = i + 1
 
 
