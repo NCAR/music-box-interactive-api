@@ -92,14 +92,18 @@ def export():
         config.update({'evolving conditions': evolves})
 
     config.update({
-        "chemistry": {
-            "type": "MICM",
-            "solver": {
-                "type": "Rosenbrock",
-                "absolute tolerance": 1.0e-12,
-                "relative tolerance": 1.0e-4
-            }
+        "model components": [
+        {
+            "type": "CAMP",
+            "configuration file" : "camp_data/config.json",
+            "override species" : {
+            "M" : { "mixing ratio mol mol-1" : 1.0 }
+        },
+            "suppress output" : {
+            "M" : { }
         }
+      }
+    ]
     })
 
     # write dict as json
