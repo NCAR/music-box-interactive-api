@@ -6,7 +6,6 @@
             <a href="/configure/options">Model Options</a>
             <a class="selection" href="/configure/init-cond">Initial Conditions</a>
             <a href="/configure/evolv-cond">Evolving Conditions</a>
-            <a href="/configure/photolysis">Photolysis</a>
             <a id="review" href="/configure/review">Review</a>
         </div>
     </div>
@@ -22,14 +21,14 @@
             <label for="delimiter">Specify Delimiter</label>
          </form>
          
-        <div class="specform">
+            <div class="specform">
          <h3 class="columnhead">Species Concentrations:</h3>
          <form class="col1" method='POST' action='species' >
                 <table>
                     <tr>
-                        <th>Formula</th>
-                        <th>Intial Value</th>
-                        <th>Units</th>
+                        <th><h4>Formula</h4></th>
+                        <th><h4>Intial Value</h4></th>
+                        <th><h4>Units</h4></th>
                     </tr>
                     {% for field in speciesform %}
                         {% if 'Formula' in field.name %}
@@ -63,12 +62,12 @@
                     {% endfor %}
                 </table>
             <button type="submit" >Save</button>
-         </form>
-     </div>
-     <form method="post" action="new-species">
-            {% csrf_token %}
-            <button type="submit">Add New Species</button>
-        </form>
+            </form>
+            </div>
+            <form method="post" action="new-species">
+                {% csrf_token %}
+                <button type="submit">Add New Species</button>
+            </form>
 
 
          <div class="configform">
@@ -95,6 +94,39 @@
                  <button type="submit">Save</button>
              </form>
          </div>
+         <div class="specform">
+            <h3 class="columnhead">Configure Photolysis Reactions:</h3>
+            <form class="col1" method='POST'>
+                    <table>
+                    <tr>
+                        <th><h4>Reaction</h4></th>
+                        <th><h4>Initial Value</h4></th>
+                    </tr>
+                    {% for field in photoform %}
+                       {% if 'r_form' in field.name %}
+                           <tr>
+                               <td>
+                                   {% csrf_token %}
+                                   {{ field }}
+                               </td>
+                       {% endif %}
+
+                       {% if 'init' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                           </tr>
+                       {% endif %}
+                    {% endfor %}
+                    </table>
+                    <button type="submit" >Save</button>
+                </form>
+            </div>
+            <button id="newPhoto" type="submit">Add New Reaction</button>
+
+        </div>
+
      </div>
 
 {% endblock %}

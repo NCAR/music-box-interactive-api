@@ -101,6 +101,7 @@ def init(request):
     context = {
         'icform': InitialConditionsForm,
         'speciesform': SpeciesForm,
+        'photoform': PhotoForm,
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'config/init-cond.html', context)
@@ -119,6 +120,7 @@ def init_csv(request):
     }
     return HttpResponseRedirect('/configure/init-cond')
 
+
 # species form
 def species(request):
 
@@ -132,15 +134,14 @@ def species(request):
                }
     return HttpResponseRedirect('/configure/init-cond')
 
+
 #new species button
 def new_species(request):
     if request.method == 'POST':
         new()
 
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
     return HttpResponseRedirect('/configure/init-cond')
+
 
 #remove species button
 def remove(request):
@@ -152,6 +153,18 @@ def remove(request):
         remove_species(spec)
 
     return HttpResponse()
+
+
+#photolysis rate form
+def photolysis(request):
+    if request.method == 'POST':
+        newPhoto = PhotoForm(request.POST)
+
+        if newPhoto.is_valid():
+            newPhoto = newPhoto.cleaned_data
+            save_photo(newPhoto)
+            
+    return HttpResponseRedirect('/configure/init-cond')
 
 
 #============== EVOLVING CONDITIONS PAGE ===============
@@ -186,23 +199,6 @@ def clear_evolv_files(request):
     if request.method == 'GET':
         clear_e_files()
     return HttpResponseRedirect('/configure/evolv-cond')
-
-
-def photolysis(request):
-    if request.method == 'POST':
-        newPhoto = PhotoForm(request.POST)
-
-        if newPhoto.is_valid():
-            newPhoto = newPhoto.cleaned_data
-            save_photo(newPhoto)
-            
-    context = {
-        'csv_field': UploadPhotoFileForm,
-        'form': PhotoForm,
-        'isUploaded': check_photo_uploaded(),
-        'simstart': display_photo_start_time()
-    }
-    return render(request, 'config/photolysis.html', context)
 
 
 def photo_ncf(request):
