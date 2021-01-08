@@ -683,6 +683,20 @@ a[sidebarButton] button:hover{
     color: white;
 }
 
+#runMB[emphasis="false"]{
+    background-color: #738390;
+    box-shadow: none;
+}
+
+#runMB[emphasis="false"]:hover{
+    background-color: #738390;
+}
+
+#runMB[emphasis="true"]{
+    cursor: pointer;
+}
+
+
 .navbox[scrolled="yes"] {
     box-shadow: 0px 1px 15px 10px #2f4e6d;
 }

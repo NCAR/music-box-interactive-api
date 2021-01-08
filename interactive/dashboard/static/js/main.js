@@ -90,7 +90,7 @@ $(document).ready(function(){
       }
     });
   });
-  // check if model has been run
+  // check if model has been run or if config changed
   $.ajax({
     url: "/model/check-load",
     type: 'get',
@@ -101,9 +101,18 @@ $(document).ready(function(){
         $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
         $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
       }
+      if (response["buttonstatus"]){
+        $('#runMB').attr('emphasis', 'true')
+      } else {
+        $('#runMB').attr('emphasis', 'false')
+      }
     }
   });
 
+  // change run button after click
+  $("#runMB").on('click', function(){
+    $('#runMB').attr('emphasis', 'false')
+  });
 
   // subproperty plot buttons
   $("body").on('click', "button.sub_p", function(){
