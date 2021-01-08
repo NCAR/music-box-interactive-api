@@ -70,7 +70,7 @@ body {
     margin-left: 30px;
 }
 
-.sidenav:hover > .current{
+#navwrapper:hover > .current{
     margin-left: 0px;
 }
 

@@ -23,12 +23,13 @@
             {% endblock %}
         </div>    
     <div class="sidenav" id="sidenav">
-        <a class="{% if '/mechanism' in request.path %} current {% endif %}" href="/mechanism">Edit Mechanism</a>
-        <a class="{% if '/configure' in request.path %} current {% endif %}" href="/configure">Edit Conditions</a>
-        
-        {% comment %} <a href="https://github.com/NCAR/music-box/blob/master/README.md" target="_blank">Documentation</a> {% endcomment %}
-        <a sidebarButton='true' id="runM" class="{% if '/model' in request.path %} current {% endif %}" ><button>Run Model</button></a>
-        
+        <div id="navwrapper">
+            <a class="{% if '/mechanism' in request.path %} current {% endif %}" href="/mechanism">Edit Mechanism</a>
+            <a class="{% if '/configure' in request.path %} current {% endif %}" href="/configure">Edit Conditions</a>
+            
+            {% comment %} <a href="https://github.com/NCAR/music-box/blob/master/README.md" target="_blank">Documentation</a> {% endcomment %}
+            <a sidebarButton='true' id="runM" class="{% if '/model' in request.path %} current {% endif %}" ><button>Run Model</button></a>
+        </div>    
 
         <img id="logo" src="{% static 'style/logo2.png' %}">
     </div>
