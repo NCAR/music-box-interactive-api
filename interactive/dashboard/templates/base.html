@@ -1,38 +1,61 @@
-{% load static %}
-
-<html lang="en">
-<head>
+<!doctype html>
+<html lang="en" style="height: 100%;">
+  <head>
+    <title>MusicBox 2.0</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <!-- MusicBox style sheet -->
     <link rel="stylesheet" href="{% static 'style/style.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Cabin' rel='stylesheet'>
+
+    <!-- MusicBox common JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- jQuery, Popper.js, and Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
-    <script src="{% static 'js/main.js' %}"></script>   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>
-    <meta charset="UTF-8">
-    <title>MusicBox 2.0</title>
-</head>
-<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 
-    <div id="head"><a class="header" href="/">MusicBox</a></div>
-    <div class="version">v2.0</div>
-        <div id="content" class="main">
-            {% block content %}
-            {% endblock %}
-        </div>    
-    <div class="sidenav" id="sidenav">
-        <a class="{% if '/mechanism' in request.path %} current {% endif %}" href="/mechanism">Mechanism</a>
-        <a class="{% if '/configure' in request.path %} current {% endif %}" href="/configure">Conditions</a>
-        
-        {% comment %} <a href="https://github.com/NCAR/music-box/blob/master/README.md" target="_blank">Documentation</a> {% endcomment %}
-        <a sidebarButton='true' id="runM" class="{% if '/model' in request.path %} current {% endif %}" ><button>Run Model</button></a>
-        
+    <!-- MathJax -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  </head>
 
-        <img id="logo" src="{% static 'style/logo2.png' %}">
+  <body>
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">MusicBox v2.0</a>
+      <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-ncar-menu sidebar collapse" style>
+          <div class="position-sticky pt-3">
+            <div class="nav flex-column pt-2">
+              <a class="nav-link {% if '/intro' in request.path %}active{% endif %}" aria-current="{% if '/intro' in request.path %}page{% endif %}" href="/intro">Getting Started</a>
+              <a class="nav-link {% if '/mechanism' in request.path %}active{% endif %}" aria-current="{% if '/mechanism' in request.path %}page{% endif %}" href="/mechanism">Mechanism</a>
+              <a class="nav-link {% if '/configure' in request.path %}active{% endif %}" aria-current="{% if '/configure' in request.path %}page{% endif %}" href="/configure">Configure</a>
+              <a sidebarButton='true' id="runM" align="center" class="py-2 {% if '/model' in request.path %} current {% endif %}" >
+                <button class="btn btn-primary btn-ncar-active">Run Model</button>
+              </a>
+            </div>
+          </div>
+          <div class="mt-auto mb-4" style="position: absolute; bottom: 0; width: 100%;">
+            <img id="logo" class="img-fluid" src="{% static 'img/ncarucar-seal-final-gray.png' %}">
+          </div>
+        </nav>
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
     </div>
+  </body>
 
-
-</body>
 </html>

@@ -1,117 +1,59 @@
-body {
-    background-image: linear-gradient(#2E6492, #234c70);
-
+html,body {
+    background-image: linear-gradient(#C3D7EE, #CED9E5);
+    font-family: 'Cabin';
 }
 
-.header {
-    height:80px;
-    width:240px;
+.navbar .navbar-toggler {
+    top: .25rem;
+    right: 1rem;
+}
+
+.sidebar {
     position: fixed;
-    z-index:10;
-    top:0;
-    left:0;
-    background-color: black;
-    overflow-x: hidden;
-    padding-top:10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.btn-ncar-active {
+    background-color: #00797C;
+    border-color: #00797C;
     color: white;
-    font-family: 'Cabin';
-    font-size: 42px;
-    font-weight: bold;
-    text-decoration: none;
 }
 
-.version{
-    font-family: 'Cabin';
-    font-size: 18;
-    color: #ffffff;
-    position: fixed;
-    z-index:10;
-    top:35;
-    left:185;
-
+a {
+    color: #00797C;
 }
 
-
-.sidenav {
-    height:100%;
-    width:250px;
-    position: fixed;
-    z-index:11;
-    top:80;
-    left:0;
-    background-color:#303030;
-    overflow-x: hidden;
-    padding-top:20px;
-}
-.sidenav a {
-    padding:6px 8px 20px;
-    text-decoration: none;
-    font-family: 'Cabin';
-    font-size:25px;
-    color: #ffffff;
-    display:block;
-    transition-duration: 0.3s;
+.bg-ncar-menu {
+    background-color: #BBBCBC;
 }
 
-.runlink {
-    color: black;
-    padding: 0px 20px;
-
-}
-
-.sidenav .current{
-    margin-left: 30px;
-}
-
-.sidenav a:hover{
-    color: #bfbfbf;
-    margin-left: 30px;
-}
-
-.sidenav:hover > .current{
-    margin-left: 0px;
-}
-
-.sidenav .current:hover{
-    margin-left: 30px;
-}
-
-
-.navbar {
-    font-family: 'Cabin';
-    font-size:18px;
-    position: fixed;
-    z-index:1;
-    padding: 0px 0px 0px;
-    top:25;
-    left:30%;
-    transition: top 0.3s;
-}
-
-.navbar a {
-    text-decoration: none;
+.navbar-brand {
     color: white;
-    padding:6px 8px 6px;
-    border: 3px solid #2d6290;
+    font-size: 28px;
 }
 
-.navbar a:hover{
-    color: #bfbfbf;
-    border: 3px solid #bfbfbf;
-}
-.navbar .selection{
-    border: 3px solid white;
+.nav-link {
+    color: #333;
 }
 
-.sidenav img {
-    position: absolute;
-    margin-left: 65;
-    bottom: 140;
-    width: 120px;
-
+.nav-link.active {
+    color: #00797C;
 }
+
+#logo {
+    max-height: 200px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* pre-bootstrap styles */
+
 
 .configbox .configform {
     display: inline-block;
@@ -162,49 +104,6 @@ input {
 }
 
 
-.configbox{
-    margin-left: 270px;
-    margin-top: 115px;
-}
-
-button {
-    font-family: 'Cabin';
-    color: white;
-    padding: 10px 24px;
-    font-size: 16px;
-    background-color: #303030;
-    border-radius: 3px;
-    border: 2px solid #303030;;
-    box-shadow: 0px 1px 3px 0px #303030;
-}
-button[status='selected']{
-    width: 125;
-    background-color: #272727;
-    border-color: #272727;
-}
-
-button:hover {
-    background: white;
-    font-size: 16px;
-    border: 2px solid #303030;
-    border-radius: 3px;
-    color: #303030;
-    box-shadow: none;
-}
-
-#run {
-    background: white;
-    color: black;
-    margin-top: 60px;
-    margin-bottom: 60px;
-
-}
-
-#run:hover {
-    background: #c4c4c4;
-    color: black;
-}
-
 select {
     font-family: 'Cabin';
     font-size: 16px;
@@ -232,41 +131,6 @@ select {
 
 }
 
-.mechnav {
-    font-family: 'Cabin';
-    font-size:18px;
-    position: fixed;
-    z-index:1;
-
-    top:25;
-    left:47%;
-}
-
-.mechnav a {
-    text-decoration: none;
-    color: white;
-    padding:6px 8px 6px;
-    border: 3px solid #2d6290;
-}
-
-.mechnav a:hover{
-    color: #bfbfbf;
-    border: 3px solid #bfbfbf;
-}
-
-.mechnav .selection{
-    border: 3px solid white;
-}
-
-.navbox {
-    background-color: #2d6290;
-    top: -0;
-    width: 100%;
-    height: 80px;
-    z-index: 2;
-    position: fixed;
-}
-
 .plothead {
     margin-left: 50%;
     z-index: 20;
@@ -277,8 +141,6 @@ select {
 }
 
 #plotbar {
-    margin-left: 260px;
-    margin-top: 90px;
     font-family: 'Cabin';
     z-index: 1;
     width: fit-content;
@@ -347,21 +209,6 @@ select {
     margin-bottom: 5;
 }
 
-#sidemenu{
-    margin-left: 250;
-    margin-top: 120;
-    list-style: none;
-}
-
-#sidemenu li{
-    width: 150;
-}
-
-#sidemenu li button{
-    width: 125;
-    box-shadow: 0px 2px 5px 0px #303030;
-}
-
 #molec_detail {
     display: inline-block;
     margin-left: 60;
@@ -416,39 +263,10 @@ h2 {
     display: flex;
 }
 
-#sidemenu button{
-    border-radius: 0;
-}
-
-#sidemenu li button[status='selected']{
-    width: 150;
-}
-
-#sidemenu li button:hover{
-    width: 150;
-    transition: 0.3s;
-}
-
-
-
-button:focus{
-    outline: none;   
-}
-
 #plotbar button[clickStatus='true']{
     background-color: #272727;
     border-color: #272727;
     width: 188;
-}
-
-button a{
-    text-decoration: none;
-    color: white;
-    font-size: 16px;
-}
-
-button:hover a{
-    color: #272727;
 }
 
 #newmolecule {
@@ -627,25 +445,6 @@ h4 {
 }
 
 
-#landing_container{
-    margin-left: 300;
-    margin-top: 50;
-    font-family: 'Cabin';
-    color: white;
-}
-
-#landing_header{
-    font-size: 28;
-}
-
-#landing_list{
-    font-size: 18px;
-}
-
-#landing_list li{
-    padding-bottom: 5;
-}
-
 #ghublink{
     margin-top: 40;
 }
@@ -655,28 +454,3 @@ h4 {
     padding-bottom: 15;
 }
 
-a[sidebarButton]{
-    width: 150;
-    padding-top: 20;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-
-a[sidebarButton]:hover{
-    margin-left: auto;
-    margin-right: auto;
-}
-
-a[sidebarButton] button{
-    background-color: #2d6290;
-    border: none;
-    font-size: 18;
-    box-shadow: 0px 1px 3px 0px black;
-}
-
-a[sidebarButton] button:hover{
-    box-shadow: none;
-    background-color:#1a5385;
-    color: white;
-}
