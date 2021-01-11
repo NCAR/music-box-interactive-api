@@ -34,19 +34,11 @@ html,body {
   }
 }
 
-.btn-ncar-active {
-    background-color: #00797C;
-    border-color: #00797C;
-    color: white;
+.row-full-width {
+    width: 100%;
 }
 
-.btn-ncar-active:hover {
-    background-color: #00797C;
-    border-color: #00797C;
-    color: white;
-}
-
-.btn-ncar-active:active {
+.btn-ncar-active, .btn-ncar-active:hover, .btn-ncar-active:active {
     background-color: #00797C;
     border-color: #00797C;
     color: white;
@@ -58,6 +50,10 @@ a {
 
 .bg-ncar-menu {
     background-color: #BBBCBC;
+}
+
+.bg-ncar-menu-secondary {
+    background-color: #D9D9D6;
 }
 
 .navbar-brand {

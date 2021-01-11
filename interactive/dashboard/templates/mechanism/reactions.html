@@ -2,45 +2,39 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-   <div class="navbox">
-      <div class="mechnav">
-         <a href="/mechanism/species">Chemical Species</a>
-         <a class="selection" href="/mechanism/reactions">Reactions</a>
-      </div>
-   </div>
-
-   <div id=reaction_content>
-      <div id="sidemenu" mech_section='reaction'>
-         {% for field in searchForm %}
-         <form method="GET" action="searchR">
-            <li>{{ field }}</li>
-            <li><button type="submit">Search</button></li>
-         </form>
-         {% endfor %}
-         <li><button id='new_reaction'>New</button></li>
-         {% for reaction in shortnames %}
-            <li>
-               <button class="mechanism_reaction" id="{{ reaction.0 }}" reaction="{{ reaction.0 }}">
+<div class="container text-center">
+  <div class="navbox pt-2">
+    <a class="btn btn-secondary" href="/mechanism/species">Chemical Species</a>
+    <a class="btn btn-primary btn-ncar-active" href="/mechanism/reactions">Reactions</a>
+  </div>
+</div>
+<p class="lead-muted p-2">
+Select a reaction from the list to view/edit its properties, or add a new reaction to the mechansim. The chemical species available to participate in reactions can be modified <a href="mechanism/species">here</a>.
+</p>
+<div id="reaction_content" class="container-fluid p-2">
+  <div class="row row-full-width">
+    <nav class="col-md-4 col-lg-4 bg-ncar-menu-secondary p-2">
+      <button id="new_reaction" class="btn btn-primary btn-ncar-active mb-2">New</button>
+      <ul class="list-group">
+        {% for reaction in shortnames %}
+          <a href="#" class="list-group-item list-group-item-action" id="rxn_{{ reaction.0 }}">
                   {{ reaction.1 }}
-               </button>
-            </li>
-         {% endfor %}
-      </div>
-      <div id="react_detail"
-         {% if messages %}
-            {% for message in messages %}
-               {% if message.tags == 'error'%}
-                  error="{{ message }}"
-               {% endif %}
-               {% if message.tags == 'success' %}
-                  save="{{ message }}"
-               {% endif %}
-            {% endfor %}
-         {% endif %}>
-         <h3><div id="message_box">Select a reaction from the left to view, search for a reaction, or add a new reaction to the mechanism</div></h3></div>
-      {% comment %} <div id="equation_box"></div> {% endcomment %}
-     </div>
-
+          </a>
+        {% endfor %}
+      </ul>
+    </nav>
+    <div id="reaction_detail" class="col"
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'error'%}
+            error="{{ message }}"
+          {% endif %}
+          {% if message.tags == 'success' %}
+            save="{{ message }}"
+          {% endif %}
+        {% endfor %}
+      {% endif %}>
+    </div>
+  </div>
+</div>
 {% endblock %}
-
-
