@@ -1,6 +1,6 @@
 html,body {
     background-image: linear-gradient(#C3D7EE, #CED9E5);
-    font-family: 'Cabin';
+    font-family: 'Poppins';
 }
 
 .navbar .navbar-toggler {
@@ -18,6 +18,22 @@ html,body {
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
+:root {
+  --jumbotron-padding-y: 3rem;
+}
+
+.jumbotron {
+  padding-top: var(--jumbotron-padding-y);
+  padding-bottom: var(--jumbotron-padding-y);
+  margin-bottom: 0;
+}
+@media (min-width: 768px) {
+  .jumbotron {
+    padding-top: calc(var(--jumbotron-padding-y) * 2);
+    padding-bottom: calc(var(--jumbotron-padding-y) * 2);
+  }
+}
+
 .btn-ncar-active {
     background-color: #00797C;
     border-color: #00797C;
@@ -25,6 +41,12 @@ html,body {
 }
 
 .btn-ncar-active:hover {
+    background-color: #00797C;
+    border-color: #00797C;
+    color: white;
+}
+
+.btn-ncar-active:active {
     background-color: #00797C;
     border-color: #00797C;
     color: white;
@@ -66,7 +88,7 @@ a {
     width: 20%;
     z-index: 100;
     color: black;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 18px;
     padding: 0px 0px;
 }
@@ -74,13 +96,13 @@ a {
 .configbox .specform {
     display: inline-block;
     color: black;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
 }
 
 h3 {
     color: black;
     font-size: 18px;
-    font-family: 'Cabin'
+    font-family: 'Poppins'
 }
 
 .configbox .configform control-group{
@@ -90,7 +112,7 @@ h3 {
 input {
     padding: 12px 20px;
     color: black;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 16px;
     background-color: white;
     border: 2px solid white;
@@ -99,7 +121,7 @@ input {
 }
 
 .confighead {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     color: white;
     font-size: 24px;
     position: fixed;
@@ -111,7 +133,7 @@ input {
 
 
 select {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 16px;
     background: white;
     padding: 12px 20px;
@@ -121,7 +143,7 @@ select {
 }
 
 .footer {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size:12px;
     position: relative;
     z-index:1;
@@ -142,12 +164,12 @@ select {
     z-index: 20;
     font-size: 30px;
     color: white;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     text-decoration: underline;
 }
 
 #plotbar {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     z-index: 1;
     width: fit-content;
 }
@@ -172,7 +194,7 @@ select {
 }
 
 .plotnav {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size:18px;
     position: fixed;
     z-index:1;
@@ -201,7 +223,7 @@ select {
 
 #reviewbox{
     font-size: 16px;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
 }
 
 #plot{
@@ -234,7 +256,7 @@ select {
 }
 
 h2 {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 30;
     text-decoration: underline;
 }
@@ -359,7 +381,7 @@ hr.solid {
 }
 
 h4 {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 16px;
 }
 
