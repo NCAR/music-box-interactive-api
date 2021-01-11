@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en" style="height: 100%;">
   <head>
@@ -27,7 +28,7 @@
 
   <body>
     <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">MusicBox v2.0</a>
+      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/home">MusicBox v2.0</a>
       <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -38,7 +39,7 @@
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-ncar-menu sidebar collapse" style>
           <div class="position-sticky pt-3">
             <div class="nav flex-column pt-2">
-              <a class="nav-link {% if '/intro' in request.path %}active{% endif %}" aria-current="{% if '/intro' in request.path %}page{% endif %}" href="/intro">Getting Started</a>
+              <a class="nav-link {% if '/getting_started' in request.path %}active{% endif %}" aria-current="{% if '/getting_started' in request.path %}page{% endif %}" href="/getting_started">Getting Started</a>
               <a class="nav-link {% if '/mechanism' in request.path %}active{% endif %}" aria-current="{% if '/mechanism' in request.path %}page{% endif %}" href="/mechanism">Mechanism</a>
               <a class="nav-link {% if '/configure' in request.path %}active{% endif %}" aria-current="{% if '/configure' in request.path %}page{% endif %}" href="/configure">Configure</a>
               <a sidebarButton='true' id="runM" align="center" class="py-2 {% if '/model' in request.path %} current {% endif %}" >

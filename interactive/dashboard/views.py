@@ -20,7 +20,11 @@ def landing_page(request):
 
     context = {}
 
-    return render(request, 'landing.html', context)
+    return render(request, 'home.html', context)
+
+def getting_started_page(request):
+    context = {}
+    return render(request, 'getting_started.html', context)
 
 
 def new_species(request):

@@ -24,6 +24,12 @@ html,body {
     color: white;
 }
 
+.btn-ncar-active:hover {
+    background-color: #00797C;
+    border-color: #00797C;
+    color: white;
+}
+
 a {
     color: #00797C;
 }
