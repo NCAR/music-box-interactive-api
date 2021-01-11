@@ -38,7 +38,10 @@ html,body {
     width: 100%;
 }
 
-.btn-ncar-active, .btn-ncar-active:hover, .btn-ncar-active:active {
+.btn-ncar-active,
+.btn-ncar-active:hover,
+.btn-ncar-active:active,
+.btn-ncar-active:focus {
     background-color: #00797C;
     border-color: #00797C;
     color: white;

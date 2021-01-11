@@ -14,9 +14,6 @@
     <link rel="stylesheet" href="{% static 'style/style.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
 
-    <!-- MusicBox common JS -->
-    <script src="{% static 'js/main.js' %}"></script>
-
     <!-- jQuery, Popper.js, and Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>
@@ -24,6 +21,9 @@
 
     <!-- MathJax -->
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- MusicBox common JS -->
+    <script src="{% static 'js/main.js' %}"></script>
   </head>
 
   <body>
@@ -38,12 +38,12 @@
       <div class="row">
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-ncar-menu sidebar collapse" style>
           <div class="position-sticky pt-3">
-            <div class="nav flex-column pt-2">
+            <div id="main-nav" class="nav flex-column pt-2">
               <a class="nav-link {% if '/getting_started' in request.path %}active{% endif %}" aria-current="{% if '/getting_started' in request.path %}page{% endif %}" href="/getting_started">Getting Started</a>
               <a class="nav-link {% if '/mechanism' in request.path %}active{% endif %}" aria-current="{% if '/mechanism' in request.path %}page{% endif %}" href="/mechanism">Mechanism</a>
               <a class="nav-link {% if '/configure' in request.path %}active{% endif %}" aria-current="{% if '/configure' in request.path %}page{% endif %}" href="/configure">Conditions</a>
               <a sidebarButton='true' id="runM" align="center" class="py-2 {% if '/model' in request.path %} current {% endif %}" >
-                <button class="btn btn-primary btn-ncar-active">Run Model</button>
+                <button id="run-model" class="btn btn-primary btn-ncar-active">Run Model</button>
               </a>
             </div>
           </div>

@@ -58,7 +58,7 @@ $(document).ready(function(){
 
 
   //run model button
-  $("#runM").on('click', function(){
+  $("#run-model").on('click', function(){
     $.ajax({
       url: "/model/run",
       type: 'get',
@@ -71,8 +71,8 @@ $(document).ready(function(){
               if (response["status"] == 'done') {
                 $('#download_results').remove();
                 $('#plot_results').remove();
-                $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
-                $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+                $('#main-nav').append("<a class='nav-link' id='plot_results' href='/visualize'>Plot Results</a>");
+                $('#main-nav').append("<a class='nav-link' href='/model/download' id='download_results' class='download_results'>Download Results</a>");
               } else if (response["status"] == 'error'){
                   alert("ERROR " + response["e_code"] + "   " + response["e_message"]);
                   if (response["e_type"] == 'species'){
