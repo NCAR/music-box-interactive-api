@@ -5,10 +5,8 @@
 <div class="container text-center">
   <div class="navbox pt-2">
     <a class="btn btn-secondary" href="/conditions/options">Model options</a>
-    <a class="btn btn-secondary" href="/conditions/species">Species</a>
     <a class="btn btn-primary btn-ncar-active" href="/conditions/initial">Initial</a>
     <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
-    <a class="btn btn-secondary" href="/conditions/photolysis">Photolysis</a>
     <a class="btn btn-secondary" href="/conditions/review">Review</a>
   </div>
 </div>
@@ -16,122 +14,128 @@
   Add paragraph describing this section.
 </p>
 
-     <div class="configbox">
-         <h3>Upload File (.txt, .csv):</h3>
-          <form method="POST" action="cond-csv" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ csv_field }}
-            <button type="submit">Upload</button>
-            <input type="radio" id="delimiter">
-            <label for="delimiter">Specify Delimiter</label>
-         </form>
-         
-            <div class="specform">
-         <h3 class="columnhead">Species Concentrations:</h3>
-         <form class="col1" method='POST' action='species' >
-                <table>
-                    <tr>
-                        <th><h4>Formula</h4></th>
-                        <th><h4>Intial Value</h4></th>
-                        <th><h4>Units</h4></th>
-                    </tr>
-                    {% for field in speciesform %}
-                        {% if 'Formula' in field.name %}
-                            <tr>
-                                <td>
-                                    {% csrf_token %}
-                                    {{ field }}
-                                </td>
-                        {% endif %}
-
-                        {% if 'Initial Value' in field.name %}
-                            <td>
-                                {% csrf_token %}
-                                {{ field }}
-                            </td>
-                        {% endif %}
-
-                        {% if 'Units' in field.name %}
-                            <td>
-                                {% csrf_token %}
-                                {{ field }}
-                            </td>
-                            <td>
-                                <button class="r_button" id="{{ field.name }}">
-                                    Remove
-                                </button>
-                            </td>
-                            </tr>
-                        {% endif %}
-
-                    {% endfor %}
-                </table>
-            <button type="submit" >Save</button>
-            </form>
-            </div>
-            <form method="post" action="new-species">
+     <div class="configbox container">
+        <div class="row m-2">
+            <h3>Upload File (.txt, .csv):</h3>
+            <form method="POST" action="cond-csv" enctype="multipart/form-data">
                 {% csrf_token %}
-                <button type="submit">Add New Species</button>
+                {{ csv_field }}
+                <button class="btn btn-secondary" type="submit">Upload</button>
+                <input type="radio" id="delimiter">
+                <label for="delimiter">Specify Delimiter</label>
             </form>
+        </div>
+        <div class="row m-2">
+                <div class="specform">
+            <h3 class="columnhead">Species Concentrations:</h3>
+            <form class="col1" method='POST' action='species' >
+                    <table>
+                        <tr>
+                            <th><h4>Formula</h4></th>
+                            <th><h4>Intial Value</h4></th>
+                            <th><h4>Units</h4></th>
+                        </tr>
+                        {% for field in speciesform %}
+                            {% if 'Formula' in field.name %}
+                                <tr>
+                                    <td>
+                                        {% csrf_token %}
+                                        {{ field }}
+                                    </td>
+                            {% endif %}
 
-
-         <div class="configform">
-             <h3 class="columnhead">Enviornmental Conditions:</h3>
-             <form method="post" class="col1">
-                 <table>
-                     {% for field in icform %}
-                        {% if 'init' in field.name %}
-                            <tr>
+                            {% if 'Initial Value' in field.name %}
                                 <td>
                                     {% csrf_token %}
                                     {{ field }}
                                 </td>
-                        {% endif %}
-                        {% if 'units' in field.name %}
-                            <td>
-                                {% csrf_token %}
-                                {{ field }}
-                            </td>
-                            </tr>
-                        {% endif %}
-                     {% endfor %}
-                 </table>
-                 <button type="submit">Save</button>
-             </form>
-         </div>
-         <div class="specform">
-            <h3 class="columnhead">Configure Photolysis Reactions:</h3>
-            <form class="col1" method='POST'>
-                    <table>
-                    <tr>
-                        <th><h4>Reaction</h4></th>
-                        <th><h4>Initial Value</h4></th>
-                    </tr>
-                    {% for field in photoform %}
-                       {% if 'r_form' in field.name %}
-                           <tr>
-                               <td>
-                                   {% csrf_token %}
-                                   {{ field }}
-                               </td>
-                       {% endif %}
+                            {% endif %}
 
-                       {% if 'init' in field.name %}
-                            <td>
-                                {% csrf_token %}
-                                {{ field }}
-                            </td>
-                           </tr>
-                       {% endif %}
-                    {% endfor %}
+                            {% if 'Units' in field.name %}
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary r_button" id="{{ field.name }}">
+                                        Remove
+                                    </button>
+                                </td>
+                                </tr>
+                            {% endif %}
+
+                        {% endfor %}
                     </table>
-                    <button type="submit" >Save</button>
+                <button class="btn btn-secondary m-2" type="submit" >Save</button>
                 </form>
-            </div>
-            <button id="newPhoto" type="submit">Add New Reaction</button>
-
+                </div>
+                <form method="post" action="new-species">
+                    {% csrf_token %}
+                    <button class="btn btn-secondary mx-2" type="submit">Add New Species</button>
+                </form>
         </div>
 
+        <div class="row m-2">
+            <div class="configform">
+                <h3 class="columnhead">Enviornmental Conditions:</h3>
+                <form method="post" class="col1">
+                    <table>
+                        {% for field in icform %}
+                            {% if 'init' in field.name %}
+                                <tr>
+                                    <td>
+                                        {% csrf_token %}
+                                        {{ field }}
+                                    </td>
+                            {% endif %}
+                            {% if 'units' in field.name %}
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                    <button class="btn btn-secondary m-2" type="submit">Save</button>
+                </form>
+            </div>
+        </div>  
+        <div class="row m-2">
+            <div class="specform">
+                <h3 class="columnhead">Configure Photolysis Reactions:</h3>
+                <form class="col1" method='POST'>
+                        <table>
+                        <tr>
+                            <th><h4>Reaction</h4></th>
+                            <th><h4>Initial Value</h4></th>
+                        </tr>
+                        {% for field in photoform %}
+                        {% if 'r_form' in field.name %}
+                            <tr>
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                        {% endif %}
+
+                        {% if 'init' in field.name %}
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
+                        </table>
+                        <button class="btn btn-secondary m-2" type="submit">Save</button>
+                    </form>
+                    <button class="btn btn-secondary mx-2" id="newPhoto" type="submit">Add New Reaction</button>
+
+                </div>
+
+            </div>
+        </div>
      </div>
 
 {% endblock %}

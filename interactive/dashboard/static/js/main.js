@@ -297,7 +297,7 @@ $(document).ready(function(){
 
  // if evolving conditions have been read in show linear combination button
   if ( $("#evolvtable").length ){
-    $("#evolvcontent").append('<button id="linear_combo">Add Linear Combination</button>')
+    $("#evolvcontent").append('<button class="btn btn-secondary" id="linear_combo">Add Linear Combination</button>')
   }
 
 
@@ -338,7 +338,7 @@ $(document).ready(function(){
       var loggingOn = "False";
     }
     $.ajax({
-      url: "/configure/logging-toggle",
+      url: "/conditions/logging-toggle",
       type: 'get',
       data: {
         "isOn": loggingOn
@@ -351,7 +351,7 @@ $(document).ready(function(){
   // fill logging toggle switch correctly
   if ( $('#islogon').length ){
     $.ajax({
-      url: "/configure/logging-toggle-check",
+      url: "/conditions/logging-toggle-check",
       type: 'get',
       success: function(response){
         if (response["isOn"]){
@@ -372,24 +372,5 @@ $(document).ready(function(){
       }
     });
   });
-  // // 'start from scratch' landing page button
-  // $("#start_from_scratch").on('click', function(){
-  //   $.ajax({
-  //     url: "/configure/start_from_scratch",
-  //     type: 'get',
-  //     success: function(response){
-  //       location.reload();
-  //     }
-  //   });
-  // });
   
-  // menu bar shadows when scrolled down
-  $(window).scroll(function(){
-    var scroll = $(window).scrollTop();
-    if (scroll > 10){
-      $('.navbox').attr('scrolled','yes')
-    } else {
-      $('.navbox').attr('scrolled','no')
-    }
-  });
 });
