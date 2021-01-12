@@ -9,6 +9,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 species_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
 reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
 
+# returns the full set of json objects from the species file
 def species_info():
     logging.info('getting species_info')
     with open(species_path) as f:
@@ -16,6 +17,7 @@ def species_info():
     return camp_data['pmc-data']
 
 
+# returns the list of chemical species names from the species file
 def species_list():
     species_list = []
     for entry in species_info():
@@ -24,6 +26,7 @@ def species_list():
     return species_list
 
 
+# returns a list of chemical species names from the species file for use in a menu
 def species_menu_names():
     m_list = species_list()
     newlist = []

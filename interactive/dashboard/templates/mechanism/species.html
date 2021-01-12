@@ -14,29 +14,26 @@ Select a chemical species from the list to view/edit its properties, or add a ne
 <div id="species_content" class="container-fluid p-2">
   <div class="row row-full-width">
     <nav id="sidemenu" mech_section='species' class="col-md-3 col-lg-2 bg-ncar-menu-secondary p-2">
-      <button id='newspecies' class="btn btn-primary btn-ncar-active mb-2">New</button>
+      <button id='newspecies' class="btn btn-primary btn-ncar-active mb-2">
+        <span class="oi oi-plus pr-1" toggle="tooltip" title="Add a new species"></span>New
+      </button>
       <ul class="list-group">
         {% for species in shortnames %}
-          <a href="#" class="list-group-item list-group-item-action" id="species_{{species.0}}">
+          <li class="list-group-item list-group-item-action">
+            <a href="#" class="species-detail-link" species="{{species.0}}">
               {{ species.1 }}
-          </a>
+            </a>
+            <a href="#" class="navlink p-2 species-remove" species="{{species.0}}">
+              <span class="oi oi-x" toggle="tooltip" title="remove {{species.0}}"></span>
+            </a>
+          </li>
         {% endfor %}
       </ul>
     </nav>
-    <div id="species_detail" class="col"
-      {% if messages %}
-        {% for message in messages %}
-          {% if message.tags == 'error'%}
-            error="{{ message }}"
-          {% endif %}
-          {% if message.tags == 'success' %}
-            save="{{ message }}"
-          {% endif %}
-        {% endfor %}
-      {% endif %}>
+    <div class="col my-3 species-detail">
     </div>
   </div>
 </div>
-
+<script src="/static/js/species.js"></script>
 
 {% endblock %}

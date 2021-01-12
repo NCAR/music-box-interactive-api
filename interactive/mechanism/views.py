@@ -1,12 +1,52 @@
 from django.shortcuts import render, redirect
 from .mech_read_write import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpRequest, HttpResponseRedirect, JsonResponse
 from .speciesforms import *
 from django.contrib import messages
 from .reactionforms import *
 from .build_response import *
 from django.conf import settings
 import mimetypes
+
+# removes a chemical species from the mechanism
+def species_remove(request):
+    if not 'name' in request.GET:
+        return HttpResponseBadRequest("missing species name")
+    species = species_info()
+    index = 0
+    for entry in species:
+        if entry['type'] == "CHEM_SPEC" and entry['name'] == request.GET['name']:
+            species.pop(index)
+            break
+        index += 1
+    json_data = {}
+    json_data['pmc-data'] = species
+    with open(species_path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+    return HttpResponse("species removed")
+
+
+# saves a chemical species to the mechanism
+def species_save(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest("saving chemical species should be POST request")
+    species_data = json.loads(request.body)
+    if not 'name' in species_data:
+        return HttpResponseBadRequest("missing species name")
+    species_data['type'] = "CHEM_SPEC"
+    species_remove(species_data['name'])
+    with open(species_path, 'w') as f:
+        json.dump(species_info().append(species_data), f, indent=2)
+    return HttpResponse("species data saved")
+
+# returns a json object for a chemical species from the mechanism
+def species_detail(request):
+    if not 'name' in request.GET:
+        return HttpResponseBadRequest("missing species name")
+    for entry in species_info():
+        if entry['type'] == 'CHEM_SPEC' and entry['name'] == request.GET['name']:
+            return JsonResponse(entry)
+    return JsonResponse({})
 
 
 def species(request):
