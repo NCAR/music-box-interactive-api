@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .mech_read_write import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
-from .moleculeforms import *
+from .speciesforms import *
 from django.contrib import messages
 from .reactionforms import *
 from .build_response import *
@@ -9,15 +9,15 @@ from django.conf import settings
 import mimetypes
 
 
-def molecules(request):
+def species(request):
     context = {
-        'molecs': molecule_list(),
-        'shortnames': molecule_menu_names(),
-        'searchForm': MoleculeSearchForm
+        'species': species_list(),
+        'shortnames': species_menu_names(),
+        'searchForm': SpeciesSearchForm
     }
     if 'name' in request.GET:
         messages.success(request, request.GET['name'])
-    return render(request, 'mechanism/molecules.html', context)
+    return render(request, 'mechanism/species.html', context)
 
 
 def reactions(request):
@@ -29,17 +29,11 @@ def reactions(request):
     return render(request, 'mechanism/reactions.html', context)
 
 
-# populates molecule page with species info
+# populates species page with species info
 def load(request):
-    item = request.GET['name']
-    response = populate_mol_info(item)
-    return response
-
-
-def edit(request):
     name = request.GET['name']
     stage_form_info(name)
-    formresponse = build_mol_edit_form(name)
+    formresponse = build_species_form(name)
     return formresponse
 
 
@@ -57,44 +51,35 @@ def equation(request):
 
 
 def save(request):
-    item = id_molecule()
-    data = request.GET
-    myDict = data.dict()
-    save_mol(item, myDict)
+    item = id_species()
+    save_species(item, request.GET.data.dict())
     messages.success(request, item)
-
-    return HttpResponseRedirect('/mechanism/molecules')
-
-
-def new_molec(request):
-    return build_new_mol_form()
+    return HttpResponseRedirect('/mechanism/species')
 
 
-def new_molec_save(request):
-    data = request.GET
-    myDict = data.dict()
-    newMoleculeName = myDict['moleculename']
+def new_species(request):
+    return build_new_species_form()
+
+
+def new_species_save(request):
+    myDict = request.GET.dict()
     new_m(myDict)
-    messages.success(request, newMoleculeName)
+    messages.success(request, myDict['speciesname'])
+    return HttpResponseRedirect('/mechanism/species')
 
-    return HttpResponseRedirect('/mechanism/molecules')
 
-
-def molec_search(request):
+def species_search(request):
     query = request.GET['query']
-    mechlist = search_list()
-    if query in mechlist:
+    if query in search_list():
         messages.success(request, query)
-        return HttpResponseRedirect('/mechanism/molecules')
+        return HttpResponseRedirect('/mechanism/species')
     else:
-        messages.error(request, 'molecule not found')
-        return HttpResponseRedirect('/mechanism/molecules')
+        messages.error(request, 'chemical species not found')
+        return HttpResponseRedirect('/mechanism/species')
 
 
 def load_r(request):
-    name = request.GET['name']
-    
-    return populate_react_info(name)
+    return populate_react_info(request.GET['name'])
 
 
 def edit_r(request):
@@ -132,20 +117,8 @@ def save_r(request):
 
 
 def r_to_m(request):
-    name = request.GET['name']
-    messages.success(request, name)
-    return redirect('/mechanism/molecules')
-
-
-def download_mechanism(request):
-    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/mechanism/datamolec_info.json')
-    filename = 'datamolec_info.json'
-
-    fl = open(fl_path, 'r')
-    mime_type, _ = mimetypes.guess_type(fl_path)
-    response = HttpResponse(fl, content_type=mime_type)
-    response['Content-Disposition'] = "attachment; filename=%s" % filename
-    return response
+    messages.success(request, request.GET['name'])
+    return redirect('/mechanism/species')
 
 
 def reaction_equations(request):

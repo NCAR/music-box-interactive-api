@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container text-center">
+  <div class="navbox pt-2">
+    <a class="btn btn-secondary" href="/conditions/options">Model options</a>
+    <a class="btn btn-secondary" href="/conditions/species">Species</a>
+    <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
+    <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
+    <a class="btn btn-secondary" href="/conditions/photolysis">Photolysis</a>
+    <a class="btn btn-primary btn-ncar-active" href="/conditions/review">Review</a>
+  </div>
+</div>
+<p class="lead-muted p-2">
+  Add paragraph describing this section.
+</p>
+
+     <div class=confighead>Review Configuration JSON</div>
+
+     <div id='reviewbox' class="configbox">
+      <button><a href='download_config'>Download Configuration File</a></button>
+      {% for key,value in config.items %}
+      <tr>
+         <td>
+            <h3>{{ key }}:</h3>
+         </td>
+         <td>
+            {% for key1, value1 in value.items %}
+               <li>
+                  {{ key1 }}: {{value1}}
+               </li>
+            {% endfor %}
+         </td>
+      </tr>
+      {% endfor %}
+     </div>
+
+
+{% endblock %}
+
+
+

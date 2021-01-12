@@ -1,138 +1,107 @@
-body {
-    background-image: linear-gradient(#2E6492, #234c70);
-
+html,body {
+    background-image: linear-gradient(#C3D7EE, #CED9E5);
+    font-family: 'Poppins';
 }
 
-.header {
-    height:80px;
-    width:240px;
+.navbar .navbar-toggler {
+    top: .25rem;
+    right: 1rem;
+}
+
+.sidebar {
     position: fixed;
-    z-index:10;
-    top:0;
-    left:0;
-    background-color: black;
-    overflow-x: hidden;
-    padding-top:10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+:root {
+  --jumbotron-padding-y: 3rem;
+}
+
+.jumbotron {
+  padding-top: var(--jumbotron-padding-y);
+  padding-bottom: var(--jumbotron-padding-y);
+  margin-bottom: 0;
+}
+@media (min-width: 768px) {
+  .jumbotron {
+    padding-top: calc(var(--jumbotron-padding-y) * 2);
+    padding-bottom: calc(var(--jumbotron-padding-y) * 2);
+  }
+}
+
+.row-full-width {
+    width: 100%;
+}
+
+.btn-ncar-active,
+.btn-ncar-active:hover,
+.btn-ncar-active:active,
+.btn-ncar-active:focus {
+    background-color: #00797C;
+    border-color: #00797C;
     color: white;
-    font-family: 'Cabin';
-    font-size: 42px;
-    font-weight: bold;
-    text-decoration: none;
 }
 
-.version{
-    font-family: 'Cabin';
-    font-size: 18;
-    color: #ffffff;
-    position: fixed;
-    z-index:10;
-    top:35;
-    left:185;
-
+a {
+    color: #00797C;
 }
 
-
-.sidenav {
-    height:100%;
-    width:250px;
-    position: fixed;
-    z-index:11;
-    top:80;
-    left:0;
-    background-color:#303030;
-    overflow-x: hidden;
-    padding-top:20px;
-}
-.sidenav a {
-    padding:6px 8px 20px;
-    text-decoration: none;
-    font-family: 'Cabin';
-    font-size:25px;
-    color: #ffffff;
-    display:block;
-    transition-duration: 0.3s;
+.bg-ncar-menu {
+    background-color: #BBBCBC;
 }
 
-.runlink {
-    color: black;
-    padding: 0px 20px;
-
+.bg-ncar-menu-secondary {
+    background-color: #D9D9D6;
 }
 
-.sidenav .current{
-    margin-left: 30px;
-}
-
-.sidenav a:hover{
-    color: #bfbfbf;
-    margin-left: 30px;
-}
-
-#navwrapper:hover > .current{
-    margin-left: 0px;
-}
-
-#navwrapper .current:hover{
-    margin-left: 30px;
-}
-
-
-.navbar {
-    font-family: 'Cabin';
-    font-size:18px;
-    position: fixed;
-    z-index:1;
-    padding: 0px 0px 0px;
-    top:25;
-    left:30%;
-    transition: top 0.3s;
-}
-
-.navbar a {
-    text-decoration: none;
+.navbar-brand {
     color: white;
-    padding:6px 8px 6px;
-    border: 3px solid #2d6290;
+    font-size: 28px;
 }
 
-.navbar a:hover{
-    color: #bfbfbf;
-    border: 3px solid #bfbfbf;
-}
-.navbar .selection{
-    border: 3px solid white;
+.nav-link {
+    color: #333;
 }
 
-.sidenav img {
-    position: absolute;
-    margin-left: 65;
-    bottom: 140;
-    width: 120px;
-
+.nav-link.active {
+    color: #00797C;
 }
+
+#logo {
+    max-height: 200px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* pre-bootstrap styles */
+
 
 .configbox .configform {
     display: inline-block;
     width: 20%;
     z-index: 100;
-    color: #edd271;
-    font-family: 'Cabin';
+    color: black;
+    font-family: 'Poppins';
     font-size: 18px;
     padding: 0px 0px;
 }
 
 .configbox .specform {
-    display: block;
-    color: white;
-    font-family: 'Cabin';
+    display: inline-block;
+    color: black;
+    font-family: 'Poppins';
 }
 
 h3 {
     color: #edd271;
     font-size: 18px;
-    font-family: 'Cabin'
+    font-family: 'Poppins'
 }
 
 .configbox .configform control-group{
@@ -142,7 +111,7 @@ h3 {
 input {
     padding: 12px 20px;
     color: black;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 16px;
     background-color: white;
     border: 2px solid white;
@@ -151,7 +120,7 @@ input {
 }
 
 .confighead {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     color: white;
     font-size: 24px;
     position: fixed;
@@ -162,51 +131,8 @@ input {
 }
 
 
-.configbox{
-    margin-left: 270px;
-    margin-top: 115px;
-}
-
-button {
-    font-family: 'Cabin';
-    color: white;
-    padding: 10px 24px;
-    font-size: 16px;
-    background-color: #303030;
-    border-radius: 3px;
-    border: 2px solid #303030;;
-    box-shadow: 0px 1px 3px 0px #303030;
-}
-button[status='selected']{
-    width: 125;
-    background-color: #272727;
-    border-color: #272727;
-}
-
-button:hover {
-    background: white;
-    font-size: 16px;
-    border: 2px solid #303030;
-    border-radius: 3px;
-    color: #303030;
-    box-shadow: none;
-}
-
-#run {
-    background: white;
-    color: black;
-    margin-top: 60px;
-    margin-bottom: 60px;
-
-}
-
-#run:hover {
-    background: #c4c4c4;
-    color: black;
-}
-
 select {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 16px;
     background: white;
     padding: 12px 20px;
@@ -216,7 +142,7 @@ select {
 }
 
 .footer {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size:12px;
     position: relative;
     z-index:1;
@@ -232,108 +158,18 @@ select {
 
 }
 
-.mechnav {
-    font-family: 'Cabin';
-    font-size:18px;
-    position: fixed;
-    z-index:1;
-
-    top:25;
-    left:47%;
-}
-
-.mechnav a {
-    text-decoration: none;
-    color: white;
-    padding:6px 8px 6px;
-    border: 3px solid #2d6290;
-}
-
-.mechnav a:hover{
-    color: #bfbfbf;
-    border: 3px solid #bfbfbf;
-}
-
-.mechnav .selection{
-    border: 3px solid white;
-}
-
-.navbox {
-    background-color: #2d6290;
-    top: -0;
-    width: 100%;
-    height: 80px;
-    z-index: 2;
-    position: fixed;
-}
-
 .plothead {
     margin-left: 50%;
     z-index: 20;
     font-size: 30px;
     color: white;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     text-decoration: underline;
-}
-
-#plotbar {
-    margin-left: 260px;
-    margin-top: 90px;
-    font-family: 'Cabin';
-    z-index: 1;
-    width: fit-content;
-}
-
-
-#plotbar button{
-    width: 150;
-    border-radius: 0;
-    display: block;
-    box-shadow: 0px 2px 5px 0px #303030;
-}
-
-#plotbar button:hover{
-    width: 188;
-    transition: 0.3s;
-}
-
-#plotbar button[clickStatus='true']{
-    background-color: #272727;
-    border-color: #272727;
-    width: 188;
-}
-
-.plotnav {
-    font-family: 'Cabin';
-    font-size:18px;
-    position: fixed;
-    z-index:1;
-    padding: 0px 0px 0px;
-    top:25;
-    left:20%;
-    transition: top 0.3s;
-    display: inline-block;
-    margin-left: 30;
-}
-
-.plotnav a {
-    text-decoration: none;
-    color: white;
-    padding:6px 8px 6px;
-    border: 3px solid #2d6290;
-}
-
-.plotnav a:hover{
-    color: #bfbfbf;
-    border: 3px solid #bfbfbf;
-}
-.plotnav .selection{
-    border: 3px solid white;
 }
 
 #reviewbox{
     font-size: 16px;
-    font-family: 'Cabin';
+    font-family: 'Poppins';
 }
 
 #plot{
@@ -345,21 +181,6 @@ select {
 #plot img{
     margin-top:5;
     margin-bottom: 5;
-}
-
-#sidemenu{
-    margin-left: 250;
-    margin-top: 120;
-    list-style: none;
-}
-
-#sidemenu li{
-    width: 150;
-}
-
-#sidemenu li button{
-    width: 125;
-    box-shadow: 0px 2px 5px 0px #303030;
 }
 
 #molec_detail {
@@ -381,7 +202,7 @@ select {
 }
 
 h2 {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 30;
     text-decoration: underline;
 }
@@ -416,39 +237,10 @@ h2 {
     display: flex;
 }
 
-#sidemenu button{
-    border-radius: 0;
-}
-
-#sidemenu li button[status='selected']{
-    width: 150;
-}
-
-#sidemenu li button:hover{
-    width: 150;
-    transition: 0.3s;
-}
-
-
-
-button:focus{
-    outline: none;   
-}
-
 #plotbar button[clickStatus='true']{
     background-color: #272727;
     border-color: #272727;
     width: 188;
-}
-
-button a{
-    text-decoration: none;
-    color: white;
-    font-size: 16px;
-}
-
-button:hover a{
-    color: #272727;
 }
 
 #newmolecule {
@@ -535,7 +327,7 @@ hr.solid {
 }
 
 h4 {
-    font-family: 'Cabin';
+    font-family: 'Poppins';
     font-size: 16px;
     color: #edd271;
     margin: 10px;
@@ -628,25 +420,6 @@ h4 {
     margin-top: 20;
 }
 
-
-#landing_container{
-    margin-left: 300;
-    margin-top: 50;
-    font-family: 'Cabin';
-    color: white;
-}
-
-#landing_header{
-    font-size: 28;
-}
-
-#landing_list{
-    font-size: 18px;
-}
-
-#landing_list li{
-    padding-bottom: 5;
-}
 
 #ghublink{
     margin-top: 40;

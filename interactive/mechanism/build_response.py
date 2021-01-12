@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonRes
 from django.shortcuts import render, redirect
 from .mech_read_write import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
-from .moleculeforms import *
+from .speciesforms import *
 from django.contrib import messages
 from .reactionforms import *
 from .build_response import *
@@ -10,10 +10,10 @@ from django.conf import settings
 import mimetypes
 
 
-def populate_mol_info(item):
+def populate_species_info(item):
 
-    molec_dict = molecule_info()
-    info = molec_dict[item]
+    species_dict = species_info()
+    info = species_dict[item]
     response = HttpResponse()
     labels = pretty_names()
     response.write('<h2>' + item + '</h2>')
@@ -26,19 +26,17 @@ def populate_mol_info(item):
     response.write('<td><table><tr><td>At 298K:</td><td>' + str(info['henrys law constant']['at 298K']['value']) + '</td><td>' + info['henrys law constant']['at 298K']['units'] + '</td></tr>')
     response.write('<tr><td>Exponential Factor:</td><td>' + str(info['henrys law constant']['exponential factor']['value']) + '</td><td>' + info['henrys law constant']['exponential factor']['units'] + '</td></tr>')
     response.write('</table></td></tr>')
-
     return response
 
 
-
-def build_mol_edit_form(name):
+def build_species_edit_form(name):
     labels = pretty_names()
-    molec_dict = molecule_info()
-    info = molec_dict[name]
+    species_dict = species_info()
+    info = species_dict[name]
     formresponse = HttpResponse()
     formresponse.write('<h2>' + name + '</h2>')
     formresponse.write('<form action="save" method="get" class="mechform" id="' + name + '">')
-    form = MoleculeForm()
+    form = SpeciesForm()
     formresponse.write('<table>')
     for field in form:
         formresponse.write('<tr>')
@@ -51,12 +49,12 @@ def build_mol_edit_form(name):
     return formresponse
 
 
-def build_new_mol_form():
+def build_new_species_form():
     labels = pretty_names()
     formresponse = HttpResponse()
-    formresponse.write('<h2>Add new molecule</h2>')
-    formresponse.write('<form action="newM" method="get" class="mechform" id="newmolecform">')
-    form = NewMoleculeForm()
+    formresponse.write('<h2>Add a new chemical species</h2>')
+    formresponse.write('<form action="newM" method="get" class="mechform" id="newspeciesform">')
+    form = NewSpeciesForm()
     formresponse.write('<table>')
     for field in form:
         formresponse.write('<tr>')

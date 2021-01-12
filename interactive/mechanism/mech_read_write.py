@@ -6,21 +6,26 @@ from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
+species_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
 
-def molecule_info():
-    logging.info('getting molecule_info')
-    mechanism = open_json('datamolec_info.json')['mechanism']
-    return mechanism['species']
-
-
-def molecule_list():
-    mechanism = open_json('datamolec_info.json')['mechanism']
-    molecules = mechanism['species']
-    return list(molecules.keys())
+def species_info():
+    logging.info('getting species_info')
+    with open(species_path) as f:
+        camp_data = json.loads(f.read())
+    return camp_data['pmc-data']
 
 
-def molecule_menu_names():
-    m_list = molecule_list()
+def species_list():
+    species_list = []
+    for entry in species_info():
+      if entry['type'] == "CHEM_SPEC":
+          species_list.append(entry['name'])
+    return species_list
+
+
+def species_menu_names():
+    m_list = species_list()
     newlist = []
     for name in m_list:
         if len(name) > 8:
@@ -44,23 +49,23 @@ def henry_equations(value):
         return([equation2, equation3, equation4, equation5])
 
 
-# loads molecule info into form stage json
+# loads chemical species info into form stage json
 def stage_form_info(item):
-    initial = molecule_info()[item]
+    initial = species_info()[item]
     dump_json('form_stage.json', initial)
-    dump_json('mol_name.json', {'name': item})
+    dump_json('species_name.json', {'name': item})
 
 
 # reads dict from form stage json
 def initialize_form():
     info = open_json('form_stage.json')
-    logging.info('filling molecule edit form')
+    logging.info('filling species edit form')
     return info
 
 
-# checks which molecule form was last initialized
-def id_molecule():
-    info = open_json('mol_name.json')
+# checks which chemical species form was last initialized
+def id_species():
+    info = open_json('species_name.json')
     return info['name']
 
 
@@ -86,19 +91,19 @@ def pretty_names():
         'dh2_r': "\\" + "begin{equation}\mathrm{dh2}_{r}\end{equation}",
         'henrys_law_type': "Henry's Law Type:",
         'transport': "Transport:",
-        'moleculename': "Molecule Name:"
+        'speciesname': "Species Name:"
     }
     return names
 
 
 
-#saves updated molecule info from form into mechanism
-def save_mol(name, myDict):
-    logging.info('saving molecule...')    
+#saves updated chemical species info from form into mechanism
+def save_species(name, myDict):
+    logging.info('saving species...')
     datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
-    molecules = mechanism['species']
-    old = molecules[name]
+    species = mechanism['species']
+    old = species[name]
     for key in myDict:
         if key.split('.')[0] == 'hl':
             old['henrys law constant'][key.split('.')[1]].update({key.split('.')[2]: myDict[key]})
@@ -106,8 +111,8 @@ def save_mol(name, myDict):
             old['molecular weight'].update({key.split('.')[1]: myDict[key]})
         else:
             old.update({key: myDict[key]})
-    molecules.update({name: old})
-    mechanism.update({'molecules':molecules})
+    species.update({name: old})
+    mechanism.update({'species':species})
     datafile.update({'mechanism': mechanism})
     dump_json('datamolec_info.json', datafile)
     logging.info('...saved')
@@ -115,12 +120,12 @@ def save_mol(name, myDict):
 
 
 
-# saves info from 'new molecule form' into mechanism
+# saves info from 'new species form' into mechanism
 def new_m(myDict):
-    logging.info('adding new molecule...')
+    logging.info('adding new chemical species...')
     datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
-    molecules = mechanism['species']
+    species = mechanism['species']
     new = {
                 "formula": myDict['formula'],
                 "henrys law constant": {
@@ -138,20 +143,20 @@ def new_m(myDict):
                     "units": "kg/mol"
                 }
             }
-    molecules.update({myDict['moleculename']: new})
-    mechanism.update({'species': molecules})
+    species.update({myDict['speciesname']: new})
+    mechanism.update({'species': species})
     datafile.update({'mechanism': mechanism})
     dump_json('datamolec_info.json', datafile)
     logging.info('...added')
 
 
 
-# returns a list of molecule names to search on
+# returns a list of species names to search on
 def search_list():
     datafile = open_json('datamolec_info.json')
     mechanism = datafile['mechanism']
-    molecules = mechanism['molecules']
-    name_list = molecules.keys()
+    species = mechanism['species']
+    name_list = species.keys()
     return name_list
 
 

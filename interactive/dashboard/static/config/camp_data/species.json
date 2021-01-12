@@ -1,10 +1,6 @@
 {
   "pmc-data" : [
     {
-      "type" : "RELATIVE_TOLERANCE",
-      "value" : 1.0e-4
-    },
-    {
       "name" : "M",
       "type" : "CHEM_SPEC",
       "tracer type" : "CONSTANT"

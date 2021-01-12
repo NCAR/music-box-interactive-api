@@ -1,15 +1,21 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class="navbox">
-        <div class="navbar">
-            <a class="selection" href="/configure/options">Model Options</a>
-            <a href="/configure/init-cond">Initial Conditions</a>
-            <a href="/configure/evolv-cond">Evolving Conditions</a>
-            <a id="review" href="/configure/review">Review</a>
-        </div>
-    </div>
-    
+
+<div class="container text-center">
+  <div class="navbox pt-2">
+    <a class="btn btn-primary btn-ncar-active" href="/conditions/options">Model options</a>
+    <a class="btn btn-secondary" href="/conditions/species">Species</a>
+    <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
+    <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
+    <a class="btn btn-secondary" href="/conditions/photolysis">Photolysis</a>
+    <a class="btn btn-secondary" href="/conditions/review">Review</a>
+  </div>
+</div>
+<p class="lead-muted p-2">
+  Add paragraph describing this section.
+</p>
+
      <div class="configbox">
          <div class="configform">
             <div class="optiontitle"><h3>Upload JSON Configuration File<h3></div>
