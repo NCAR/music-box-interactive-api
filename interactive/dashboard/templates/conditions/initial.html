@@ -26,12 +26,60 @@
             <label for="delimiter">Specify Delimiter</label>
          </form>
          
+            <div class="specform">
+         <h3 class="columnhead">Species Concentrations:</h3>
+         <form class="col1" method='POST' action='species' >
+                <table>
+                    <tr>
+                        <th><h4>Formula</h4></th>
+                        <th><h4>Intial Value</h4></th>
+                        <th><h4>Units</h4></th>
+                    </tr>
+                    {% for field in speciesform %}
+                        {% if 'Formula' in field.name %}
+                            <tr>
+                                <td>
+                                    {% csrf_token %}
+                                    {{ field }}
+                                </td>
+                        {% endif %}
+
+                        {% if 'Initial Value' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                        {% endif %}
+
+                        {% if 'Units' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                            <td>
+                                <button class="r_button" id="{{ field.name }}">
+                                    Remove
+                                </button>
+                            </td>
+                            </tr>
+                        {% endif %}
+
+                    {% endfor %}
+                </table>
+            <button type="submit" >Save</button>
+            </form>
+            </div>
+            <form method="post" action="new-species">
+                {% csrf_token %}
+                <button type="submit">Add New Species</button>
+            </form>
+
 
          <div class="configform">
-             <h3 class="columnhead">Conditions:</h3>
+             <h3 class="columnhead">Enviornmental Conditions:</h3>
              <form method="post" class="col1">
                  <table>
-                     {% for field in form %}
+                     {% for field in icform %}
                         {% if 'init' in field.name %}
                             <tr>
                                 <td>
@@ -51,6 +99,39 @@
                  <button type="submit">Save</button>
              </form>
          </div>
+         <div class="specform">
+            <h3 class="columnhead">Configure Photolysis Reactions:</h3>
+            <form class="col1" method='POST'>
+                    <table>
+                    <tr>
+                        <th><h4>Reaction</h4></th>
+                        <th><h4>Initial Value</h4></th>
+                    </tr>
+                    {% for field in photoform %}
+                       {% if 'r_form' in field.name %}
+                           <tr>
+                               <td>
+                                   {% csrf_token %}
+                                   {{ field }}
+                               </td>
+                       {% endif %}
+
+                       {% if 'init' in field.name %}
+                            <td>
+                                {% csrf_token %}
+                                {{ field }}
+                            </td>
+                           </tr>
+                       {% endif %}
+                    {% endfor %}
+                    </table>
+                    <button type="submit" >Save</button>
+                </form>
+            </div>
+            <button id="newPhoto" type="submit">Add New Reaction</button>
+
+        </div>
+
      </div>
 
 {% endblock %}

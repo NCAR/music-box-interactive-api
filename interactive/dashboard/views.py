@@ -54,6 +54,7 @@ def csv(request):
                }
     return render(request, 'conditions/species.html', context)
 
+###########
 
 def run_model(request):
     context = {}
@@ -99,7 +100,9 @@ def config_json(request):
     }
     return render(request, 'conditions/options.html', context)
 
+# ========== INITAL CONDITIONS PAGE =================
 
+# initial conditions page render
 def initial_conditions(request):
     if request.method == 'POST':
         newConditions = InitialConditionsForm(request.POST)
@@ -107,12 +110,15 @@ def initial_conditions(request):
             newConditions = newConditions.cleaned_data
             save_init(newConditions)
     context = {
-        'form': InitialConditionsForm,
+        'icform': InitialConditionsForm,
+        'speciesform': SpeciesForm,
+        'photoform': PhotoForm,
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'conditions/initial.html', context)
 
 
+# input file upload
 def init_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
@@ -123,6 +129,8 @@ def init_csv(request):
     }
     return render(request, 'conditions/intial.html', context)
 
+
+#============== EVOLVING CONDITIONS PAGE ===============
 
 def evolving_conditions(request):
     context = {

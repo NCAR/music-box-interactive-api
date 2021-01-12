@@ -20,7 +20,8 @@ def file_path(filename):
         'T1mozcart.json': 'mechanism',
         'mol_name.json': 'mechanism',
         'linear_combinations.json': 'config',
-        'log_config.json': 'log'
+        'log_config.json': 'log',
+        'old_config.json': 'config'
     }
     file_loc = locations[filename]
     if file_loc == "config":

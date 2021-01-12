@@ -18,6 +18,8 @@ out_path = os.path.join(mb_dir, 'output.csv')
 error_path = os.path.join(mb_dir, 'error.json')
 copy_path = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/past.csv')
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")
+old_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/old_config.json")
+
 config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.json')
 
 config_folder_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
@@ -86,3 +88,26 @@ def setup_run():
     process = subprocess.Popen([r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
 
     return {'model_connected': True}
+
+# copy inital config file on first model run
+def setup_config_check():
+    copyConfigFile(config_path, old_path)
+
+
+# check if config has changed since last model run
+# returns true if config has changed or has not been run yet
+def check_if_config_changed():
+    isChanged = True
+    if not os.path.isfile(out_path):
+        ischanged = True
+    else:
+        config = open_json('my_config.json')
+        old = open_json('old_config.json')
+        if config == old:
+            isChanged = False
+        else:
+            isChanged = True
+    
+    setup_config_check()
+
+    return isChanged

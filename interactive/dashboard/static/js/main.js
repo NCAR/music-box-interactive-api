@@ -89,7 +89,7 @@ $(document).ready(function(){
       }
     });
   });
-  // check if model has been run
+  // check if model has been run or if config changed
   $.ajax({
     url: "/model/check-load",
     type: 'get',
@@ -104,9 +104,18 @@ $(document).ready(function(){
           $('#plot_results').attr('aria-current', 'page');
         }
       }
+      if (response["buttonstatus"]){
+        $('#runMB').attr('emphasis', 'true')
+      } else {
+        $('#runMB').attr('emphasis', 'false')
+      }
     }
   });
 
+  // change run button after click
+  $("#runMB").on('click', function(){
+    $('#runMB').attr('emphasis', 'false')
+  });
 
   // subproperty plot buttons
   $("body").on('click', "a.sub_p", function(){
@@ -373,8 +382,14 @@ $(document).ready(function(){
   //     }
   //   });
   // });
-
-
-
-
+  
+  // menu bar shadows when scrolled down
+  $(window).scroll(function(){
+    var scroll = $(window).scrollTop();
+    if (scroll > 10){
+      $('.navbox').attr('scrolled','yes')
+    } else {
+      $('.navbox').attr('scrolled','no')
+    }
+  });
 });
