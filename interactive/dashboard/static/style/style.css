@@ -167,59 +167,6 @@ select {
     text-decoration: underline;
 }
 
-#plotbar {
-    font-family: 'Poppins';
-    z-index: 1;
-    width: fit-content;
-}
-
-
-#plotbar button{
-    width: 150;
-    border-radius: 0;
-    display: block;
-    box-shadow: 0px 2px 5px 0px #303030;
-}
-
-#plotbar button:hover{
-    width: 188;
-    transition: 0.3s;
-}
-
-#plotbar button[clickStatus='true']{
-    background-color: #272727;
-    border-color: #272727;
-    width: 188;
-}
-
-.plotnav {
-    font-family: 'Poppins';
-    font-size:18px;
-    position: fixed;
-    z-index:1;
-    padding: 0px 0px 0px;
-    top:25;
-    left:20%;
-    transition: top 0.3s;
-    display: inline-block;
-    margin-left: 30;
-}
-
-.plotnav a {
-    text-decoration: none;
-    color: white;
-    padding:6px 8px 6px;
-    border: 3px solid #2d6290;
-}
-
-.plotnav a:hover{
-    color: #bfbfbf;
-    border: 3px solid #bfbfbf;
-}
-.plotnav .selection{
-    border: 3px solid white;
-}
-
 #reviewbox{
     font-size: 16px;
     font-family: 'Poppins';

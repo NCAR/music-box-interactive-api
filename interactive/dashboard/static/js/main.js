@@ -16,9 +16,9 @@ $(document).ready(function(){
   // plot species and plot rates buttons
   $(".propfam").on('click', function(){
     var linkId = $(this).attr('id');
-    $('#plot').html("<h3><div id='plotmessage'></div></h3>")
-    $("#plotnav").children().attr('class', 'none');
-    $('#'+linkId).attr('class','selection');
+    $('#plot').html("")
+    $(".propfam").attr('class', 'propfam btn btn-secondary');
+    $('#'+linkId).attr('class','propfam btn btn-primary btn-ncar-active');
     if (linkId == "custom"){
       $.ajax({
         url: 'plots/custom',
@@ -34,7 +34,6 @@ $(document).ready(function(){
         data: {"type": linkId},
         success: function(response){
           $("#plotbar").html(response);
-          $("#plotmessage").html('Select items from the left to plot');
         }
       });
     }
@@ -98,15 +97,19 @@ $(document).ready(function(){
       if (response["status"] == 'done') {
         $('#download_results').remove();
         $('#plot_results').remove();
-        $('#sidenav').append("<a id='plot_results' href='/visualize'>Plot Results</a>");
-        $('#sidenav').append("<a href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+        $('#main-nav').append("<a class='nav-link' id='plot_results' href='/visualize'>Plot Results</a>");
+        $('#main-nav').append("<a class='nav-link' href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+        if (window.location.href.indexOf("visualize") > -1) {
+          $('#plot_results').addClass('active');
+          $('#plot_results').attr('aria-current', 'page');
+        }
       }
     }
   });
 
 
   // subproperty plot buttons
-  $("body").on('click', "button.sub_p", function(){
+  $("body").on('click', "a.sub_p", function(){
     $("#plotmessage").html('')
     var linkId = $(this).attr('id');
     if ($(this).attr('clickStatus') == 'true'){
@@ -115,11 +118,11 @@ $(document).ready(function(){
     } else {
       $(this).attr('clickStatus','true');
 
-    if ($('#species').attr('class') == 'selection'){
+    if ($('#species').hasClass('btn-ncar-active')){
       var propType = 'CONC.'
-    } else if ($('#rates').attr('class') == 'selection'){
+    } else if ($('#rates').hasClass('btn-ncar-active')){
       var propType = 'RATE.'
-    } else if ($('#env').attr('class') == 'selection'){
+    } else if ($('#env').hasClass('btn-ncar-active')){
       var propType = 'ENV.'
     }
     var prop = propType + linkId;

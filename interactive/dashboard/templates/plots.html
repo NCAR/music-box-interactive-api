@@ -1,23 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="navbox">
-  <div id="plotnav" class="plotnav">
-      <a class="propfam" id="species">Chemical species</a>
-      <a class="propfam" id="rates">Reaction rates</a>
-      <a class="propfam" id="env">Enviornmental conditions</a>
-      <a class="propfam" id="custom">Custom plot</a>
-      <a href="/plots/compare" id="compare">Compare results</a>
-  </div> 
-</div>
-
-<div id=plots_content>
-  <div id="plotbar">
-  </div> 
-  <div id="plot">
-    <h3><div id='plotmessage'>Select chemical species, reaction rates, or enviornmental conditions to plot.</div></h3>
+<div class="container text-center">
+  <div class="plotnav navbox pt-2">
+    <a class="propfam btn btn-secondary" id="species">Chemical species</a>
+    <a class="propfam btn btn-secondary" id="rates">Reaction rates</a>
+    <a class="propfam btn btn-secondary" id="env">Environmental conditions</a>
+    <a class="propfam btn btn-secondary" id="custom">Custom plot</a>
+    <a class="propfam btn btn-secondary" id="compare">Compare results</a>
   </div>
 </div>
-
+<p class="lead-muted p-2">
+Select a category from the top and then choose specific elements to plot from the left.
+</p>
+<div id=plots_content class="container-fluid p-2">
+  <div class="row row-full-width">
+    <nav class="col-md-4 col-lg-3">
+      <ul class="list-group bg-ncar-menu-secondary p-2" id="plotbar">
+      </ul>
+    </nav>
+    <div id="plot" class="col">
+    </div>
+  </div>
+</div>
 
 {% endblock %}
