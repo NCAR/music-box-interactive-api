@@ -47,6 +47,12 @@ html,body {
     color: white;
 }
 
+.btn-form{
+    background-color: #212529;
+    color: white;
+}
+
+
 a {
     color: #00797C;
 }
@@ -99,7 +105,7 @@ a {
 }
 
 h3 {
-    color: #edd271;
+    color: #212529;
     font-size: 18px;
     font-family: 'Poppins'
 }
@@ -329,7 +335,7 @@ hr.solid {
 h4 {
     font-family: 'Poppins';
     font-size: 16px;
-    color: #edd271;
+    color: #212529;
     margin: 10px;
 }
 
@@ -467,10 +473,5 @@ a[sidebarButton] button:hover{
 
 #runMB[emphasis="true"]{
     cursor: pointer;
-}
-
-
-.navbox[scrolled="yes"] {
-    box-shadow: 0px 1px 15px 10px #2f4e6d;
 }
 

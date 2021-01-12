@@ -31,7 +31,7 @@ def new_species(request):
     context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
                }
-    return render(request, 'conditions/species.html', context)
+    return HttpResponseRedirect('/conditions/initial')
 
 
 def species(request):
@@ -39,11 +39,8 @@ def species(request):
         new_spec = SpeciesForm(request.POST)
         if new_spec.is_valid():
             save_species(new_spec.cleaned_data)
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'conditions/species.html', context)
-
+    
+    return HttpResponseRedirect('/conditions/initial')
 
 def csv(request):
     if request.method == 'POST':
@@ -228,8 +225,8 @@ def remove(request):
     if request.method == 'GET':
         id = request.GET["species"]
         print(id)
-        remove_species(id)
-    return HttpResponse()
+        remove_species(id.split('.')[0])
+    return HttpResponseRedirect('/configure/initial')
 
 
 def download_file(request):
