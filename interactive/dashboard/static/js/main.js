@@ -297,7 +297,7 @@ $(document).ready(function(){
 
  // if evolving conditions have been read in show linear combination button
   if ( $("#evolvtable").length ){
-    $("#evolvcontent").append('<button id="linear_combo">Add Linear Combination</button>')
+    $("#evolvcontent").append('<button class="btn btn-secondary" id="linear_combo">Add Linear Combination</button>')
   }
 
 
