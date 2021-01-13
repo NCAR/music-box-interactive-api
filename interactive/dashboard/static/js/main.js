@@ -126,7 +126,7 @@ $(document).ready(function(){
       $(this).attr('clickStatus', 'false')
       $("#" + linkId +'plot').remove()
     } else {
-      $(this).attr('class', 'sub_p list-group-item list-group-item-action ncar-active-sidelink')
+      $(this).attr('class', 'sub_p list-group-item list-group-item-action active')
       $(this).attr('clickStatus','true');
 
     if ($('#species').hasClass('btn-ncar-active')){
@@ -374,5 +374,14 @@ $(document).ready(function(){
       }
     });
   });
+
+
+  // check if forms have been changed
+  $('form :input').on('change input', function() {
+      var name = $(this).attr('savebutton')
+      $("#" + name).addClass('btn-ncar-active')
+  });
+
+
   
 });

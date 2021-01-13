@@ -20,7 +20,7 @@
             <form method="POST" action="cond-csv" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ csv_field }}
-                <button class="btn btn-secondary" type="submit">Upload</button>
+                <button id="initFileSave" class="btn btn-secondary" type="submit">Upload</button>
                 <input type="radio" id="delimiter">
                 <label for="delimiter">Specify Delimiter</label>
             </form>
@@ -66,7 +66,7 @@
 
                         {% endfor %}
                     </table>
-                <button class="btn btn-secondary m-2" type="submit" >Save</button>
+                <button id="speciesSave" class="btn btn-secondary m-2 formsave" type="submit" >Save</button>
                 </form>
                 </div>
                 <form method="post" action="new-species">
@@ -97,14 +97,14 @@
                             {% endif %}
                         {% endfor %}
                     </table>
-                    <button class="btn btn-secondary m-2" type="submit">Save</button>
+                    <button id="initialsSave" class="btn btn-secondary m-2" type="submit">Save</button>
                 </form>
             </div>
         </div>  
         <div class="row m-2">
             <div class="specform">
                 <h3 class="columnhead">Configure Photolysis Reactions:</h3>
-                <form class="col1" method='POST'>
+                <form formid="photo" class="col1" method='POST'>
                         <table>
                         <tr>
                             <th><h4>Reaction</h4></th>
@@ -128,7 +128,7 @@
                         {% endif %}
                         {% endfor %}
                         </table>
-                        <button class="btn btn-secondary m-2" type="submit">Save</button>
+                        <button id="photoSave" class="btn btn-secondary m-2" type="submit">Save</button>
                     </form>
                     <button class="btn btn-secondary mx-2" id="newPhoto" type="submit">Add New Reaction</button>
 
