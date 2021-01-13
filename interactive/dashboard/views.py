@@ -57,11 +57,12 @@ def run_model(request):
     context = {}
     return render(request, 'run_model.html', context)
 
-
+#renders plots page
 def visualize(request):
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
+    plot_property_list = [x.replace(' ','') for x in plot_property_list]
     context = {
         'plots_list': plot_property_list
     }
