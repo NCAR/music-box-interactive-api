@@ -22,13 +22,13 @@
                  {% for field in file_form %}
                     {{ field }}
                  {% endfor %}
-                 <button class="btn btn-secondary" type="submit">Upload JSON</button>
+                 <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
              </form>
              <hr class=solid>
              <form method="post" action="/configure/options">
                  {% csrf_token %}
                  {{ form|crispy }}
-                 <button class="btn btn-secondary" type="submit">Save</button>
+                 <button id="optionsSave" class="btn btn-secondary" type="submit">Save</button>
              </form>
             
             <div id="logtoggle">

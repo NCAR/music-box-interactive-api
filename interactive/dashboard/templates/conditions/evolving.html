@@ -19,7 +19,7 @@
             <form method="POST" action="evolv-csv" enctype="multipart/form-data">
                {% csrf_token %}
                {{ csv_field }}
-               <button class="btn btn-secondary" type="submit">Upload</button>
+               <button id="evolvFileSave" class="btn btn-secondary" type="submit">Upload</button>
             </form>
    </div>
    <div class="row" id="evolvcontent">
@@ -58,7 +58,7 @@
             <form method="POST" action="evolv-lr-txt" enctype="multipart/form-data">
                {% csrf_token %}
                {{ csv_field }}
-               <button class="btn btn-secondary" type="submit">Upload</button>
+               <button id="lossFileSave" class="btn btn-secondary" type="submit">Upload</button>
             </form>
    </div>
    {% if is_lr_uploaded %}
