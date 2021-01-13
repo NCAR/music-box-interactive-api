@@ -47,6 +47,10 @@ html,body {
     color: white;
 }
 
+.oi {
+    font-size: 10px;
+}
+
 a {
     color: #00797C;
 }
@@ -98,25 +102,8 @@ a {
     font-family: 'Poppins';
 }
 
-h3 {
-    color: #edd271;
-    font-size: 18px;
-    font-family: 'Poppins'
-}
-
 .configbox .configform control-group{
     padding: 20px;
-}
-
-input {
-    padding: 12px 20px;
-    color: black;
-    font-family: 'Poppins';
-    font-size: 16px;
-    background-color: white;
-    border: 2px solid white;
-    border-radius: 4px;
-    box-shadow: 0px 1px 3px 0px #303030;
 }
 
 .confighead {
@@ -201,12 +188,6 @@ select {
     display: flex;
 }
 
-h2 {
-    font-family: 'Poppins';
-    font-size: 30;
-    text-decoration: underline;
-}
-
 #equation_box {
     display: inline-block;
     margin-top: 120;
@@ -256,31 +237,9 @@ input[name="query"]{
     width: 200;
 }
 
-#sidemenu[mech_section='reaction'] li button{
-    width: 200;
-    box-shadow: 0px 2px 5px 0px #303030;
-}
-
-#sidemenu[mech_section='reaction']{
-    width: 225;
-}
-
-#sidemenu[mech_section='reaction'] li button[status='selected']{
-    width: 225;
-}
-
-#sidemenu[mech_section='reaction'] li button:hover{
-    width: 225;
-    transition: 0.2s;
-}
-
 .r_to_m{
     text-decoration: underline;
     cursor: pointer;
-}
-
-#download_mech_button{
-    margin-bottom: 8px;
 }
 
 hr.solid {
@@ -290,11 +249,6 @@ hr.solid {
 
 .optiontitle {
     width: 400px;
-}
-
-
-.download_mech_b {
-    margin-bottom: 12px;
 }
 
 #evolvcontent{
@@ -324,13 +278,6 @@ hr.solid {
     height: fit-content;
     border-radius: 4px;
     box-shadow: 0px 1px 5px 0px #303030;
-}
-
-h4 {
-    font-family: 'Poppins';
-    font-size: 16px;
-    color: #edd271;
-    margin: 10px;
 }
 
 #lrUpload {
