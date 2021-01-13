@@ -122,9 +122,11 @@ $(document).ready(function(){
     $("#plotmessage").html('')
     var linkId = $(this).attr('id');
     if ($(this).attr('clickStatus') == 'true'){
+      $(this).attr('class', 'sub_p list-group-item list-group-item-action')
       $(this).attr('clickStatus', 'false')
       $("#" + linkId +'plot').remove()
     } else {
+      $(this).attr('class', 'sub_p list-group-item list-group-item-action ncar-active-sidelink')
       $(this).attr('clickStatus','true');
 
     if ($('#species').hasClass('btn-ncar-active')){

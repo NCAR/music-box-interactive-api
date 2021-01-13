@@ -13,7 +13,7 @@ from django.conf import settings
 import mimetypes
 from django.core.files import File
 from interactive.tools import *
-
+import pandas
 
 def landing_page(request):
     context = {}
@@ -57,9 +57,15 @@ def run_model(request):
     context = {}
     return render(request, 'run_model.html', context)
 
-
+#renders plots page
 def visualize(request):
-    context = {}
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv = pandas.read_csv(csv_results_path)
+    plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
+    plot_property_list = [x.replace(' ','') for x in plot_property_list]
+    context = {
+        'plots_list': plot_property_list
+    }
     return render(request, 'plots.html', context)
 
 
