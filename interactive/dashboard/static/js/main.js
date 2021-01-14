@@ -105,9 +105,11 @@ $(document).ready(function(){
         }
       }
       if (response["buttonstatus"]){
-        $('#runMB').attr('emphasis', 'true')
+        $('#run-model').addClass('enabled')
+        $('#run-model').removeClass('disabled')
       } else {
-        $('#runMB').attr('emphasis', 'false')
+        $('#run-model').removeClass('enabled')
+        $('#run-model').addClass('disabled')
       }
     }
   });
