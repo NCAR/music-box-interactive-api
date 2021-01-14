@@ -384,6 +384,11 @@ $(document).ready(function(){
       $("#" + name).addClass('btn-ncar-active')
   });
 
+  
+
+  $("#exampleToggle").on('click', function(){
+    $(".example-panel").collapse('show')
+  });
 
   
 });

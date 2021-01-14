@@ -36,6 +36,7 @@ def sub_props(prop):
             env.append(str(i).split('.')[1])
     if prop == 'species':
         logging.info('getting concentrations')
+        print(spec)
         return spec
     if prop == 'rates':
         logging.info('getting rates')
