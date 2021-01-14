@@ -25,7 +25,7 @@
                  <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
              </form>
              <hr class=solid>
-             <form method="post" action="/configure/options">
+             <form method="post" action="/conditions/options">
                  {% csrf_token %}
                  {{ form|crispy }}
                  <button id="optionsSave" class="btn btn-secondary" type="submit">Save</button>
