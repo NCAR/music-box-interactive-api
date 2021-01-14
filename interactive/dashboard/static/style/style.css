@@ -38,10 +38,14 @@ html,body {
     width: 100%;
 }
 
-.btn-ncar-active,
-.btn-ncar-active:hover,
-.btn-ncar-active:active,
-.btn-ncar-active:focus {
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus,
+.btn-check:active+.btn-primary,
+.btn-check:checked+.btn-primary,
+.btn-primary.active,
+.show>.btn-primary.dropdown-toggle {
     background-color: #00797C;
     border-color: #00797C;
     color: white;
@@ -415,9 +419,3 @@ a[sidebarButton] button:hover{
 #runMB[emphasis="true"]{
     cursor: pointer;
 }
-
-
-.navbox[scrolled="yes"] {
-    box-shadow: 0px 1px 15px 10px #2f4e6d;
-}
-
