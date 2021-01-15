@@ -369,7 +369,7 @@ $(document).ready(function(){
  // clear evolving conditions files button
   $("#clearEvolvFiles").on('click', function(){
     $.ajax({
-      url: "/configure/clear-evolv-files",
+      url: "/conditions/clear-evolv-files",
       type: 'get',
       success: function(response){
         location.reload();

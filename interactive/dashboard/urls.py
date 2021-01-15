@@ -19,7 +19,7 @@ urlpatterns = [
     path('conditions/save-formula', views.species),
     path('conditions/species-csv', views.csv),
     path('conditions/cond-csv', views.init_csv),
-    path('conditions/evolv-csv', views.evolv_csv),
+    path('conditions/evolving-file', views.evolv_file),
     path('conditions/evolv-lr-txt', views.evolv_lr),
     path('conditions/photo-ncf', views.photo_ncf),
     path('conditions/new-photo', views.new_photo),

@@ -4,6 +4,7 @@ import os
 from csv import reader
 
 
+
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 def formula_setup():
@@ -49,39 +50,3 @@ def photo_setup():
         data = json.loads(f.read())
 
     return data
-
-
-# def ini_cond_units():
-#     with open(os.path.join(config_path, 'initials.json')) as f:
-#         data = json.loads(f.read())
-#         choices = {}
-#         temp = data['units']['temperature']
-#         if temp == 'K':
-#             templist = [('K', 'K'), ('C', 'C')]
-#         if temp == 'C':
-#             templist = [('C', 'C'), ('K', 'K')]
-#         else:
-#             templist = [('K', 'K'), ('C', 'C')]
-#         choices.update({'temperature': templist})
-
-#         press = data['units']['pressure']
-#         if press == 'atm':
-#             preslist = [[('atm', 'atm'), ('kPa', 'kPa'), ('bar', 'bar')]
-#         if press == 'kPa':
-#              preslist = [[('kPa', 'kPa'), ('atm', 'atm'), ('bar', 'bar')]
-#         if press == 'bar':
-#             preslist = [[('bar', 'bar'), ('atm', 'atm'), ('kPa', 'kPa')]
-#         else:
-#             preslist = [[('atm', 'atm'), ('kPa', 'kPa'), ('bar', 'bar')]
-
-#         choices.update({'pressure': preslist})
-
-#         return choices
-
-
-def display_evolves():
-    path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'evolving_conditions.csv')
-    with open(path, 'r') as read_obj:
-        csv_reader = reader(read_obj)
-        list_of_rows = list(csv_reader)
-    return list_of_rows

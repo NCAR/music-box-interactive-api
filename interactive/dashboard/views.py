@@ -137,19 +137,17 @@ def init_csv(request):
 
 def evolving_conditions(request):
     context = {
-        'csv_field': UploadEvolvFileForm(),
-        'conditions': display_evolves(),
-        'linear_combinations': display_linear_combinations(),
-        'lr_field': UploadLossFileForm(),
-        'is_lr_uploaded': check_loss_uploaded(),
-    }
+        'file_field': UploadEvolvFileForm(),
+        'filedict': sorted(display_evolves().items())
+        }
     return render(request, 'conditions/evolving.html', context)
 
 
-def evolv_csv(request):
+def evolv_file(request):
     if request.method == 'POST':
+        filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
-        handle_uploaded_evolve(uploaded)
+        manage_uploaded_evolving_conditions_files(uploaded, filename)
     return HttpResponseRedirect('/conditions/evolving')
 
 

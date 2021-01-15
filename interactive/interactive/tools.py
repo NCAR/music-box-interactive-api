@@ -78,3 +78,11 @@ def param_jax(dirty):
     else:
         return "\\" + "begin{equation}" + dirty + "=\\" + "end{equation}"
 
+
+def copyAFile(source, destination):
+    configFile = open(source, 'rb')
+    content = configFile.read()
+    g = open(destination, 'wb')
+    g.write(content)
+    g.close()
+    configFile.close()
