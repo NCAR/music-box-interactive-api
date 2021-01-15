@@ -15,58 +15,38 @@
 
 <div id="container content_container">
    <div class="row configbox">
-      <h3>Upload Evolving Conditions File (.txt, .csv):</h3>
-            <form method="POST" action="evolv-csv" enctype="multipart/form-data">
+      <h3>Upload Evolving Conditions File (.txt, .csv, .nc):</h3>
+            <form method="POST" action="evolving-file" enctype="multipart/form-data">
                {% csrf_token %}
-               {{ csv_field }}
+               {{ file_field }}
                <button id="evolvFileSave" class="btn btn-secondary" type="submit">Upload</button>
             </form>
    </div>
-   <div class="row" id="evolvcontent">
-      {% if conditions %}
-         <div id="evolvtable"><h3>
-            <table>
-                  {% for condition in conditions %}
-                     <tr>
-                        {% for part in condition %}
-                           <td>{{ part }}</td>
-                        {% endfor %}
-                     </tr>
-                  {% endfor %}
-            </table>
-         </h3></div>
-      {% endif %}
-      {% if linear_combinations %}
-         <div id="display-linear-combos"><h3>
-            <table>
-               <tr><td>Linear Combinations:</td></tr>
-               {% for i in linear_combinations %}
-                  <tr><td>
-                     {% for prop in i.0 %}
-                        <li> {{prop}} <li>
-                     {% endfor %}
-                     <li>Scale Factor: {{i.1}}</li>
-                  </tr></td>
-               {% endfor %}
-            </table></h3>
+   {% if filedict %}
+      {% for key, value in filedict %}
+         <div class="row m-2">
+            <div class="col">
+               <div class="card card-body m-2">
+                     <h3>{{ key }}</h3>
+                     <form method="get" action="/conditions/evolving-linear-combination">
+                        <input type="hidden" name="filename" value="{{ key }}">
+                        <ul class="list-group">
+                           {% for i in value %}
+                              <li class="list-group-item"><input name="{{ i }}" addButton="{{ key }}" class="form-check-input linear-combo-check mx-2" type="checkbox" value="" id="{{i}}"><label for="{{ i }}">{{ i }}</label></li>
+                           {% endfor %}
+                        </ul>
+                        <button type="submit" id="{{key}}" class="btn btn-secondary submit-linear-combination disabled">Add linear combination</button>
+                     </form>
+               </div>
+            </div>
+            <div class="col">
+               
+            </div>
          </div>
-      {% endif %}
-   </div>
-
-   <div class="row" class="configbox" id="lrUpload">
-      <h3>Upload Loss-Rates File (.txt):</h3>
-            <form method="POST" action="evolv-lr-txt" enctype="multipart/form-data">
-               {% csrf_token %}
-               {{ csv_field }}
-               <button id="lossFileSave" class="btn btn-secondary" type="submit">Upload</button>
-            </form>
-   </div>
-   {% if is_lr_uploaded %}
-      <div id="is_lr_uploaded_panel">
-         <h3>Non-standard loss-rate file successfully uploaded</h3>
-      </div>
+      {% endfor %}
    {% endif %}
-   <button class="row btn btn-secondary" id="clearEvolvFiles">Clear configuration files</button>
+   
+   <button class="row btn btn-secondary m-2" id="clearEvolvFiles">Clear configuration files</button>
 </div>
 
 
