@@ -451,8 +451,10 @@ def display_evolves():
                 file_header_dict.update({i:list_of_rows[0]})
             except IndexError:
                 file_header_dict.update({i:['EMPTY FILE']})
-    print(file_header_dict)
+        elif '.nc' in i:
+            file_header_dict.update({i:['NETCDF FILE']})
     return file_header_dict
+
 
 def save_linear_combo(comboDict):
     name = 'combo' + str(random.randint(0, 9999))
