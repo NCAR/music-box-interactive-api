@@ -151,6 +151,16 @@ def evolv_file(request):
     return HttpResponseRedirect('/conditions/evolving')
 
 
+def evolving_linear_combination(request):
+    data = request.GET.dict()
+    filename = data['filename'].replace('-', '.')
+    data.pop('filename')
+    combo = data.keys()
+    save_linear_combo(filename, combo)
+
+    return HttpResponseRedirect('/conditions/evolving')
+
+
 def evolv_lr(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
@@ -163,20 +173,6 @@ def clear_evolv_files(request):
         clear_e_files()
     return HttpResponseRedirect('/conditions/evolving')
 
-
-def photolysis(request):
-    if request.method == 'POST':
-        newPhoto = PhotoForm(request.POST)
-        if newPhoto.is_valid():
-            newPhoto = newPhoto.cleaned_data
-            save_photo(newPhoto)
-    context = {
-        'csv_field': UploadPhotoFileForm,
-        'form': PhotoForm,
-        'isUploaded': check_photo_uploaded(),
-        'simstart': display_photo_start_time()
-    }
-    return render(request, 'conditions/photolysis.html', context)
 
 
 def photo_ncf(request):

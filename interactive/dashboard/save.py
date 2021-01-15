@@ -453,35 +453,32 @@ def display_evolves():
                 file_header_dict.update({i:['EMPTY FILE']})
         elif '.nc' in i:
             file_header_dict.update({i:['NETCDF FILE']})
+        new = {}
+        for key in file_header_dict:
+            val = file_header_dict[key]
+            newval = [x.replace('.', "-") for x in val]
+            new.update({key.replace('.', '-'): newval})  
+        file_header_dict = new          
     return file_header_dict
 
 
-def save_linear_combo(comboDict):
-    name = 'combo' + str(random.randint(0, 9999))
-
-    output_dict = {
-        'properties': {},
-        'scale factor': 1.0
-    }
-    if comboDict['Scale Factor'] == '':
-        comboDict.pop('Scale Factor')
-    for key in comboDict:
-        if 'on' in comboDict[key]:
-            output_dict['properties'].update({
-                'CONC.' + key.split('.')[1]: {}
-            })
-        elif key == 'Scale Factor':
-            output_dict.update({'scale factor': float(comboDict[key])})
-            
-    
+def save_linear_combo(filename, combo):
+    combo = [x.replace('EMIS-', 'CONC.') for x in combo]
+    combodict = {'properties': {}}
+    for i in combo:
+        combodict['properties'].update({i:{}})
     config = open_json('my_config.json')
-    evolving_conditions = config['evolving conditions']
-    lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
-    
-    lcs.update({name: output_dict})
-    evolving_conditions.update({"evolving_conditions.csv":{'linear combinations': lcs}})
-    config.update({'evolving conditions':evolving_conditions})
+    evolving = config['evolving conditions']
+    f = evolving[filename]
+    lc = f['linear combinations']
+    name = str(len(lc) + 1) + 'combination'
+    lc.update({name: combodict})
+    f.update({'linear combinations': lc})
+    evolving.update({filename: f})
+    config.update({'evolving conditions': evolving})
     dump_json('my_config.json', config)
+
+
 
 
 def display_linear_combinations():

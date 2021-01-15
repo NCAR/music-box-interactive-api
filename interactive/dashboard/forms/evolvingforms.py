@@ -1,5 +1,5 @@
 from django import forms
-# from .formsetup import display_evolves
+from .formsetup import display_evolves
 
 class UploadEvolvFileForm(forms.Form):
     file = forms.FileField(widget= forms.FileInput(attrs={'savebutton': 'evolvFileSave'}))

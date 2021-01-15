@@ -391,4 +391,11 @@ $(document).ready(function(){
   });
 
   
+  $(".linear-combo-check").on('change input', function(){
+    var name = $(this).attr('addButton');
+    $("#" + name).removeClass('disabled')
+    $("#" + name).addClass('btn-ncar-active')
+  });
+
+
 });
