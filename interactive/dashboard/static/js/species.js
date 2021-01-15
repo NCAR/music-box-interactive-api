@@ -43,6 +43,35 @@ $(document).ready(function(){
     $('.new-property .dropdown-item[property="'+property_name+'"]').hide();
   });
 
+  // cancel any changes and exit species detail
+  $('.species-detail').on('click', '.btn-cancel', function() {
+    $('.species-detail').empty();
+  });
+
+  // save changes and exit species detail
+  $('.species-detail').on('click', '.btn-save', function() {
+    const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+    var species_data = { 'type': "CHEM_SPEC" };
+    species_data['name'] = $('.species-detail .body').attr('species');
+    $('.species-detail .properties .input-group').each(function(index) {
+      species_data[$(this).attr('property')] = $(this).children('input:first').val();
+    });
+    $.ajax({
+      url: 'species-save',
+      type: 'post',
+      headers: {'X-CSRFToken': csrftoken},
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify(species_data),
+      success: function(response) {
+        $('.species-detail').empty();
+      },
+      error: function(response) {
+        alert(response['error']);
+      }
+    });
+  });
+
   // show editable chemical species detail
   $(".species-detail-link").on('click', function(){
     $.ajax({
@@ -56,7 +85,7 @@ $(document).ready(function(){
             <div class="card-header">
               <h4 class="my-0 fw-normal">`+response.name+`</h4>
             </div>
-            <form class="body card-body">
+            <form class="body card-body" species="`+response.name+`">
               <div class="form-group properties">
               </div>
               <div class="dropdown show">

@@ -3,9 +3,9 @@ from . import views
 
 urlpatterns = [
     path('', views.species),
-    path('species-remove', views.species_remove),
-    path('species-detail', views.species_detail),
-    path('species-save', views.species_save),
+    path('species-remove', views.species_remove_handler),
+    path('species-detail', views.species_detail_handler),
+    path('species-save', views.species_save_handler),
     path('species', views.species),
     path('reactions', views.reactions),
     path('load', views.load),

@@ -9,40 +9,30 @@ from django.conf import settings
 import mimetypes
 
 # removes a chemical species from the mechanism
-def species_remove(request):
+def species_remove_handler(request):
     if not 'name' in request.GET:
         return HttpResponseBadRequest("missing species name")
-    species = species_info()
-    index = 0
-    for entry in species:
-        if entry['type'] == "CHEM_SPEC" and entry['name'] == request.GET['name']:
-            species.pop(index)
-            break
-        index += 1
-    json_data = {}
-    json_data['pmc-data'] = species
-    with open(species_path, 'w') as f:
-        json.dump(json_data, f, indent=2)
-    return HttpResponse("species removed")
+    species_remove(request.GET['name'])
+    return HttpResponse('')
 
 
 # saves a chemical species to the mechanism
-def species_save(request):
+def species_save_handler(request):
     if request.method != 'POST':
-        return HttpResponseBadRequest("saving chemical species should be POST request")
+        return JsonResponse({"error":"saving chemical species should be POST request"})
     species_data = json.loads(request.body)
     if not 'name' in species_data:
-        return HttpResponseBadRequest("missing species name")
+        return JsonResponse({"error":"missing species name"})
     species_data['type'] = "CHEM_SPEC"
     species_remove(species_data['name'])
-    with open(species_path, 'w') as f:
-        json.dump(species_info().append(species_data), f, indent=2)
-    return HttpResponse("species data saved")
+    species_save(species_data)
+    return JsonResponse({})
+
 
 # returns a json object for a chemical species from the mechanism
-def species_detail(request):
+def species_detail_handler(request):
     if not 'name' in request.GET:
-        return HttpResponseBadRequest("missing species name")
+        return JsonResponse({"error":"missing species name"})
     for entry in species_info():
         if entry['type'] == 'CHEM_SPEC' and entry['name'] == request.GET['name']:
             return JsonResponse(entry)

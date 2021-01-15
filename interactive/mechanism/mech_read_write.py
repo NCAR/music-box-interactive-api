@@ -40,6 +40,30 @@ def species_menu_names():
     return zipped
 
 
+# removes a chemical species from the mechanism
+def species_remove(species_name):
+    species = species_info()
+    index = 0
+    for entry in species:
+        if entry['type'] == "CHEM_SPEC" and entry['name'] == species_name:
+            species.pop(index)
+            break
+        index += 1
+    json_data = {}
+    json_data['pmc-data'] = species
+    with open(species_path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+
+# saves a chemical species to the mechanism
+def species_save(species_data):
+    json_data = {}
+    json_data['pmc-data'] = species_info()
+    json_data['pmc-data'].append(species_data)
+    with open(species_path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+
 def henry_equations(value):
     equation1 = "\\" + "begin{equation} H_{e f f}=K_{H}\left(1+" + "\\" + "frac{K_{1}}{K_{2}}[H+]" + "\\" + "right) " + "\\" + "end{equation}"
     equation2 = "\\" + "begin{equation}H_{e f f}=K_{H}" + "\\" + "left(1+" + "\\" + "frac{K_{1}}{[H+]}" + "\\" + "left(1+" + "\\" + "frac{K_{2}}{[H+]}" + "\\" + "right)" + "\\" + "right)" + "\\" + "end{equation}"
