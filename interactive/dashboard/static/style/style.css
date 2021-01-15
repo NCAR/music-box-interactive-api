@@ -55,6 +55,11 @@ html,body {
     font-size: 10px;
 }
 
+.btn-form {
+    background-color: #212529;
+    color: white;
+}
+
 a {
     color: #00797C;
 }
@@ -104,6 +109,12 @@ a {
     display: inline-block;
     color: black;
     font-family: 'Poppins';
+}
+
+h3 {
+    color: #212529;
+    font-size: 18px;
+    font-family: 'Poppins'
 }
 
 .configbox .configform control-group{
@@ -282,6 +293,13 @@ hr.solid {
     height: fit-content;
     border-radius: 4px;
     box-shadow: 0px 1px 5px 0px #303030;
+}
+
+h4 {
+    font-family: 'Poppins';
+    font-size: 16px;
+    color: #212529;
+    margin: 10px;
 }
 
 #lrUpload {

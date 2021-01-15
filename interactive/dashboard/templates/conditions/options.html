@@ -5,10 +5,8 @@
 <div class="container text-center">
   <div class="navbox pt-2">
     <a class="btn btn-primary btn-ncar-active" href="/conditions/options">Model options</a>
-    <a class="btn btn-secondary" href="/conditions/species">Species</a>
     <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
     <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
-    <a class="btn btn-secondary" href="/conditions/photolysis">Photolysis</a>
     <a class="btn btn-secondary" href="/conditions/review">Review</a>
   </div>
 </div>
@@ -24,13 +22,13 @@
                  {% for field in file_form %}
                     {{ field }}
                  {% endfor %}
-                 <button type="submit">Upload JSON</button>
+                 <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
              </form>
              <hr class=solid>
-             <form method="post" action="/configure/options">
+             <form method="post" action="/conditions/options">
                  {% csrf_token %}
                  {{ form|crispy }}
-                 <button type="submit">Save</button>
+                 <button id="optionsSave" class="btn btn-secondary" type="submit">Save</button>
              </form>
             
             <div id="logtoggle">

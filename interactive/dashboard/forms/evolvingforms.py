@@ -2,10 +2,10 @@ from django import forms
 from .formsetup import display_evolves
 
 class UploadEvolvFileForm(forms.Form):
-    file = forms.FileField()
+    file = forms.FileField(widget= forms.FileInput(attrs={'savebutton': 'evolvFileSave'}))
 
 class UploadLossFileForm(forms.Form):
-    file = forms.FileField()
+    file = forms.FileField(widget= forms.FileInput(attrs={'savebutton': 'lossFileSave'}))
 
 class LinearCombinationForm(forms.Form):
     def __init__(self, *args, **kwargs):

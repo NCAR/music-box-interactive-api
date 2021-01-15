@@ -4,10 +4,8 @@
 <div class="container text-center">
   <div class="navbox pt-2">
     <a class="btn btn-secondary" href="/conditions/options">Model options</a>
-    <a class="btn btn-secondary" href="/conditions/species">Species</a>
     <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
     <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
-    <a class="btn btn-secondary" href="/conditions/photolysis">Photolysis</a>
     <a class="btn btn-primary btn-ncar-active" href="/conditions/review">Review</a>
   </div>
 </div>
@@ -15,10 +13,9 @@
   Add paragraph describing this section.
 </p>
 
-     <div class=confighead>Review Configuration JSON</div>
 
      <div id='reviewbox' class="configbox">
-      <button><a href='download_config'>Download Configuration File</a></button>
+      <a class="btn btn-secondary m-2" href='download_config'>Download Configuration File</a>
       {% for key,value in config.items %}
       <tr>
          <td>

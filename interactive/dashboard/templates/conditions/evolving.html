@@ -4,10 +4,8 @@
 <div class="container text-center">
   <div class="navbox pt-2">
     <a class="btn btn-secondary" href="/conditions/options">Model options</a>
-    <a class="btn btn-secondary" href="/conditions/species">Species</a>
     <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
     <a class="btn btn-primary btn-ncar-active" href="/conditions/evolving">Evolving</a>
-    <a class="btn btn-secondary" href="/conditions/photolysis">Photolysis</a>
     <a class="btn btn-secondary" href="/conditions/review">Review</a>
   </div>
 </div>
@@ -15,16 +13,16 @@
   Add paragraph describing this section.
 </p>
 
-<div id="content_container">
-   <div class="configbox">
+<div id="container content_container">
+   <div class="row configbox">
       <h3>Upload Evolving Conditions File (.txt, .csv):</h3>
             <form method="POST" action="evolv-csv" enctype="multipart/form-data">
                {% csrf_token %}
                {{ csv_field }}
-               <button type="submit">Upload</button>
+               <button id="evolvFileSave" class="btn btn-secondary" type="submit">Upload</button>
             </form>
    </div>
-   <div id="evolvcontent">
+   <div class="row" id="evolvcontent">
       {% if conditions %}
          <div id="evolvtable"><h3>
             <table>
@@ -55,12 +53,12 @@
       {% endif %}
    </div>
 
-   <div class="configbox" id="lrUpload">
+   <div class="row" class="configbox" id="lrUpload">
       <h3>Upload Loss-Rates File (.txt):</h3>
             <form method="POST" action="evolv-lr-txt" enctype="multipart/form-data">
                {% csrf_token %}
                {{ csv_field }}
-               <button type="submit">Upload</button>
+               <button id="lossFileSave" class="btn btn-secondary" type="submit">Upload</button>
             </form>
    </div>
    {% if is_lr_uploaded %}
@@ -68,7 +66,7 @@
          <h3>Non-standard loss-rate file successfully uploaded</h3>
       </div>
    {% endif %}
-   <button id="clearEvolvFiles">Clear configuration files</button>
+   <button class="row btn btn-secondary" id="clearEvolvFiles">Clear configuration files</button>
 </div>
 
 

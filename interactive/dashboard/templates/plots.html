@@ -3,11 +3,15 @@
 
 <div class="container text-center">
   <div class="plotnav navbox pt-2">
-    <a class="propfam btn btn-secondary" id="species">Chemical species</a>
-    <a class="propfam btn btn-secondary" id="rates">Reaction rates</a>
-    <a class="propfam btn btn-secondary" id="env">Environmental conditions</a>
-    <a class="propfam btn btn-secondary" id="custom">Custom plot</a>
-    <a class="propfam btn btn-secondary" id="compare">Compare results</a>
+    {% if "CONC" in plots_list %}
+      <a class="propfam btn btn-secondary" id="species">Chemical species</a>
+    {% endif %}
+    {% if "RATE" in plots_list %}
+      <a class="propfam btn btn-secondary" id="rates">Reaction rates</a>
+    {% endif %}
+    {% if "ENV" in plots_list %}
+      <a class="propfam btn btn-secondary" id="env">Environmental conditions</a>
+    {% endif %}
   </div>
 </div>
 <p class="lead-muted p-2">

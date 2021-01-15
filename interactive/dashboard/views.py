@@ -13,7 +13,7 @@ from django.conf import settings
 import mimetypes
 from django.core.files import File
 from interactive.tools import *
-
+import pandas
 
 def landing_page(request):
     context = {}
@@ -31,7 +31,7 @@ def new_species(request):
     context = {'form1': SpeciesForm,
                'csv_field': UploadFileForm
                }
-    return render(request, 'conditions/species.html', context)
+    return HttpResponseRedirect('/conditions/initial')
 
 
 def species(request):
@@ -39,11 +39,8 @@ def species(request):
         new_spec = SpeciesForm(request.POST)
         if new_spec.is_valid():
             save_species(new_spec.cleaned_data)
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'conditions/species.html', context)
-
+    
+    return HttpResponseRedirect('/conditions/initial')
 
 def csv(request):
     if request.method == 'POST':
@@ -60,9 +57,15 @@ def run_model(request):
     context = {}
     return render(request, 'run_model.html', context)
 
-
+#renders plots page
 def visualize(request):
-    context = {}
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv = pandas.read_csv(csv_results_path)
+    plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
+    plot_property_list = [x.replace(' ','') for x in plot_property_list]
+    context = {
+        'plots_list': plot_property_list
+    }
     return render(request, 'plots.html', context)
 
 
@@ -228,8 +231,8 @@ def remove(request):
     if request.method == 'GET':
         id = request.GET["species"]
         print(id)
-        remove_species(id)
-    return HttpResponse()
+        remove_species(id.split('.')[0])
+    return HttpResponseRedirect('/configure/initial')
 
 
 def download_file(request):

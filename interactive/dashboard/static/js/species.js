@@ -12,6 +12,26 @@ $(document).ready(function(){
     });
   });
 
+  // look for changes to species name
+  $('.species-detail').on('change', '.species-name', function(){
+    if( $('.species-list .species-detail-link[species="'+$(this).val()+'"]').length ) {
+      $(this).addClass('is-invalid');
+      $(this).parents('.species-card').attr('species', '');
+      return
+    }
+    $(this).removeClass('is-invalid');
+    $(this).parents('.species-card').attr('species', $(this).val());
+  });
+
+  // add a new species to the mechanism
+  $(".species-new").on('click', function(){
+    $('.species-detail').html(species_detail_html(""));
+    $('.species-detail .card-header').html(`
+      <div class="input-group">
+        <input type="text" class="form-control species-name" placeholder="Species name">
+      </div>`);
+  });
+
   // return html for a property input box
   function property_input_html(property_name, property_value) {
     return `
@@ -47,12 +67,12 @@ $(document).ready(function(){
   $('.species-detail').on('click', '.btn-cancel', function() {
     $('.species-detail').empty();
   });
-
   // save changes and exit species detail
   $('.species-detail').on('click', '.btn-save', function() {
+    if( $('.species-detail .species-card').attr('species') == '' ) return;
     const csrftoken = $('[name=csrfmiddlewaretoken]').val();
     var species_data = { 'type': "CHEM_SPEC" };
-    species_data['name'] = $('.species-detail .body').attr('species');
+    species_data['name'] = $('.species-detail .species-card').attr('species');
     $('.species-detail .properties .input-group').each(function(index) {
       species_data[$(this).attr('property')] = $(this).children('input:first').val();
     });
@@ -64,7 +84,7 @@ $(document).ready(function(){
       dataType: 'json',
       data: JSON.stringify(species_data),
       success: function(response) {
-        $('.species-detail').empty();
+        location.reload();
       },
       error: function(response) {
         alert(response['error']);
@@ -72,20 +92,14 @@ $(document).ready(function(){
     });
   });
 
-  // show editable chemical species detail
-  $(".species-detail-link").on('click', function(){
-    $.ajax({
-      url: 'species-detail',
-      type: 'get',
-      dataType: 'json',
-      data: { 'name': $(this).attr('species') },
-      success: function(response){
-        $('.species-detail').html(`
-          <div class="card mb-4 shadow-sm">
+  // returns html for species detail window
+  function species_detail_html(species_name) {
+    return `
+          <div class="card mb-4 species-card shadow-sm" species="`+species_name+`">
             <div class="card-header">
-              <h4 class="my-0 fw-normal">`+response.name+`</h4>
+              <h4 class="my-0 fw-normal">`+species_name+`</h4>
             </div>
-            <form class="body card-body" species="`+response.name+`">
+            <form class="body card-body">
               <div class="form-group properties">
               </div>
               <div class="dropdown show">
@@ -103,8 +117,18 @@ $(document).ready(function(){
                 <button class="btn btn-secondary btn-cancel">Cancel</button>
               </div>
             </form>
-          </div>
-        `);
+          </div>`
+  }
+
+  // show editable chemical species detail
+  $(".species-detail-link").on('click', function(){
+    $.ajax({
+      url: 'species-detail',
+      type: 'get',
+      dataType: 'json',
+      data: { 'name': $(this).attr('species') },
+      success: function(response){
+        $('.species-detail').html(species_detail_html(response.name));
         for (var key of Object.keys(response)) {
           if (key == "name" || key == "type") continue;
           $('.new-property .dropdown-item[property="'+key+'"]').hide();
