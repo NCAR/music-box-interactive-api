@@ -23,7 +23,7 @@ def species_list():
     for entry in species_info():
       if entry['type'] == "CHEM_SPEC":
           species_list.append(entry['name'])
-    return species_list
+    return sorted(species_list)
 
 
 # returns a list of chemical species names from the species file for use in a menu

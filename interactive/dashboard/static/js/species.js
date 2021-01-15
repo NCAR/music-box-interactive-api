@@ -59,7 +59,16 @@ $(document).ready(function(){
   // add property to species
   $('.species-detail').on('click', '.new-property .dropdown-item', function(){
     var property_name = $(this).attr('property');
-    $('.species-detail .properties').append(property_input_html(property_name, $(this).attr('default-value')));
+    var added = false;
+    var default_value = $(this).attr('default-value');
+    $('.species-detail .properties .input-group').each(function(){
+      if ($(this).attr('property') > property_name) {
+        $(this).before(property_input_html(property_name, default_value));
+        added = true;
+        return false;
+      }
+    });
+    if (!added) $('.species-detail .properties').append(property_input_html(property_name, default_value));
     $('.new-property .dropdown-item[property="'+property_name+'"]').hide();
   });
 
@@ -129,7 +138,7 @@ $(document).ready(function(){
       data: { 'name': $(this).attr('species') },
       success: function(response){
         $('.species-detail').html(species_detail_html(response.name));
-        for (var key of Object.keys(response)) {
+        for (var key of Object.keys(response).sort()) {
           if (key == "name" || key == "type") continue;
           $('.new-property .dropdown-item[property="'+key+'"]').hide();
           $('.species-detail .properties').append(property_input_html(key, response[key]));
