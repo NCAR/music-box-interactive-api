@@ -431,40 +431,54 @@ def uploaded_to_config(uploaded_dict):
 
 
 # load evolving_conditions data into an array
+
 def display_evolves():
-    path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'evolving_conditions.csv')
-    with open(path, 'r') as read_obj:
-        csv_reader = reader(read_obj)
-        list_of_rows = list(csv_reader)
-    return list_of_rows
+    with open(os.path.join(config_path, 'my_config.json')) as f:
+        config = json.loads(f.read())
+
+    e = config['evolving conditions']
+    evolving_conditions_list = e.keys()
+
+    file_header_dict = {} #contains a dictionary w/ key as filename and value as header of file
+    for i in evolving_conditions_list:
+        if '.csv' in i or '.txt' in i:
+            path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), i)
+            with open(path, 'r') as read_obj:
+                csv_reader = reader(read_obj)
+                list_of_rows = list(csv_reader)
+
+            try:
+                file_header_dict.update({i:list_of_rows[0]})
+            except IndexError:
+                file_header_dict.update({i:['EMPTY FILE']})
+        elif '.nc' in i:
+            file_header_dict.update({i:['NETCDF FILE']})
+        new = {}
+        for key in file_header_dict:
+            val = file_header_dict[key]
+            newval = [x.replace('.', "-") for x in val]
+            new.update({key.replace('.', '-'): newval})  
+        file_header_dict = new          
+    return file_header_dict
 
 
-def save_linear_combo(comboDict):
-    name = 'combo' + str(random.randint(0, 9999))
-
-    output_dict = {
-        'properties': {},
-        'scale factor': 1.0
-    }
-    if comboDict['Scale Factor'] == '':
-        comboDict.pop('Scale Factor')
-    for key in comboDict:
-        if 'on' in comboDict[key]:
-            output_dict['properties'].update({
-                'CONC.' + key.split('.')[1]: {}
-            })
-        elif key == 'Scale Factor':
-            output_dict.update({'scale factor': float(comboDict[key])})
-            
-    
+def save_linear_combo(filename, combo):
+    combo = [x.replace('EMIS-', 'CONC.') for x in combo]
+    combodict = {'properties': {}}
+    for i in combo:
+        combodict['properties'].update({i:{}})
     config = open_json('my_config.json')
-    evolving_conditions = config['evolving conditions']
-    lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
-    
-    lcs.update({name: output_dict})
-    evolving_conditions.update({"evolving_conditions.csv":{'linear combinations': lcs}})
-    config.update({'evolving conditions':evolving_conditions})
+    evolving = config['evolving conditions']
+    f = evolving[filename]
+    lc = f['linear combinations']
+    name = str(len(lc) + 1) + 'combination'
+    lc.update({name: combodict})
+    f.update({'linear combinations': lc})
+    evolving.update({filename: f})
+    config.update({'evolving conditions': evolving})
     dump_json('my_config.json', config)
+
+
 
 
 def display_linear_combinations():
@@ -505,16 +519,21 @@ def display_photo_start_time():
     
 
 def clear_e_files():
-    config = open_json('my_config.json')
     config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-    csv_path = os.path.join(config_path, 'evolving_conditions.csv')
-    if 'evolving conditions' in config:
-        config.pop('evolving conditions')
+    with open(os.path.join(config_path, 'my_config.json')) as f:
+        config = json.loads(f.read())
 
-    content = b''
-    g = open(csv_path, 'wb')
-    g.write(content)
-    g.close()
-    configFile.close()
-    
+    e = config['evolving conditions']
+    evolving_conditions_list = e.keys()    
+
+    for i in evolving_conditions_list:
+        file_path = os.path.join(config_path, i)
+        try:
+            os.remove(file_path)
+        except:
+            print('file not found')
+    config.update({'evolving conditions': {}})
+    dump_json('my_config.json', config)
+
     print('ev_conditions files cleared')
+    return

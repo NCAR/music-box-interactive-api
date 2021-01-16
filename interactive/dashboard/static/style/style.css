@@ -92,6 +92,11 @@ a {
     margin-right: auto;
 }
 
+.linear-combo-check {
+    box-shadow:none;
+    size: default;
+}
+
 /* pre-bootstrap styles */
 
 

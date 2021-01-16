@@ -35,21 +35,19 @@
             "initial value [s-1]": 0.0012
         }
     },
-    "evolving conditions": {
-        "evolving_conditions.csv": {
-            "linear combinations": {}
-        }
-    },
+    "evolving conditions": {},
     "model components": [
-      {
-        "type": "CAMP",
-        "configuration file" : "camp_data/config.json",
-        "override species" : {
-          "M" : { "mixing ratio mol mol-1" : 1.0 }
-        },
-        "suppress output" : {
-          "M" : { }
+        {
+            "type": "CAMP",
+            "configuration file": "camp_data/config.json",
+            "override species": {
+                "M": {
+                    "mixing ratio mol mol-1": 1.0
+                }
+            },
+            "suppress output": {
+                "M": {}
+            }
         }
-      }
     ]
 }

@@ -9,6 +9,33 @@ import logging
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 
+# handles all uploaded evolving conditions files
+def manage_uploaded_evolving_conditions_files(f, filename):
+    filetype = filename.split('.')[1]
+    
+    content = f.read()
+    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+    g = open(destination, 'wb')
+    g.write(content)
+    g.close()
+
+    #writes config json pointing to csv file
+    config = open_json('my_config.json')
+    if 'evolving conditions' in config:
+        evolvs = config['evolving conditions']
+    else:
+        evolvs = {}
+    evolvs.update({filename: {
+                'linear combinations': {}
+            }
+    })
+    config.update({'evolving conditions': evolvs})
+    dump_json('my_config.json', config)
+
+
+
+
+
 # converts uploaded csv input file to dictionary of values
 def handle_uploaded_csv(f):
     content = f.read()
@@ -56,28 +83,6 @@ def handle_uploaded_json(f):
     print(validation)
     if validation['success']:
         dump_json('my_config.json', config)
-
-
-# saves uploaded evolving_conditions file to config folder
-def handle_uploaded_evolve(f):
-    content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'evolving_conditions.csv')
-    g = open(destination, 'wb')
-    g.write(content)
-    g.close()
-
-    #writes config json pointing to csv file
-    config = open_json('my_config.json')
-    if 'evolving conditions' in config:
-        evolvs = config['evolving conditions']
-    else:
-        evolvs = {}
-    evolvs.update({'evolving_conditions.csv': {
-                'linear combinations': {}
-            }
-    })
-    config.update({'evolving conditions': evolvs})
-    dump_json('my_config.json', config)
 
 
 # saves uploaded loss rates file to config folder
