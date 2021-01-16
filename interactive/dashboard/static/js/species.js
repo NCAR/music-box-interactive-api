@@ -33,9 +33,9 @@ $(document).ready(function(){
   });
 
   // return html for a property input box
-  function property_input_html(property_name, property_value) {
+  function property_input_html(property_name, data_type, property_value) {
     return `
-      <div class="input-group mb-3" property="`+property_name+`">
+      <div class="input-group mb-3" property="`+property_name+`" data-type="`+data_type+`">
         <div class="input-group-prepend">
           <span class="input-group-text">`+property_name+`</span>
         </div>
@@ -61,14 +61,15 @@ $(document).ready(function(){
     var property_name = $(this).attr('property');
     var added = false;
     var default_value = $(this).attr('default-value');
+    var data_type = $(this).attr('data-type');
     $('.species-detail .properties .input-group').each(function(){
       if ($(this).attr('property') > property_name) {
-        $(this).before(property_input_html(property_name, default_value));
+        $(this).before(property_input_html(property_name, data_type, default_value));
         added = true;
         return false;
       }
     });
-    if (!added) $('.species-detail .properties').append(property_input_html(property_name, default_value));
+    if (!added) $('.species-detail .properties').append(property_input_html(property_name, data_type, default_value));
     $('.new-property .dropdown-item[property="'+property_name+'"]').hide();
   });
 
@@ -83,7 +84,11 @@ $(document).ready(function(){
     var species_data = { 'type': "CHEM_SPEC" };
     species_data['name'] = $('.species-detail .species-card').attr('species');
     $('.species-detail .properties .input-group').each(function(index) {
-      species_data[$(this).attr('property')] = $(this).children('input:first').val();
+      if ($(this).attr('data-type') == "string") {
+        species_data[$(this).attr('property')] = $(this).children('input:first').val();
+      } else {
+        species_data[$(this).attr('property')] = +$(this).children('input:first').val();
+      }
     });
     $.ajax({
       url: 'species-save',
@@ -116,9 +121,9 @@ $(document).ready(function(){
                   Add property
                 </a>
                 <div class="dropdown-menu new-property" aria-labelledby="new-property-dropdown">
-                  <a class="dropdown-item" href="#" property="descrition" default-value="">description</a>
-                  <a class="dropdown-item" href="#" property="absolute tolerance" default-value="1e-12">absolute tolerance</a>
-                  <a class="dropdown-item" href="#" property="molecular weight [kg mol-1]" default-value="0">molecular weight</a>
+                  <a class="dropdown-item" href="#" property="descrition" data-type="string" default-value="">description</a>
+                  <a class="dropdown-item" href="#" property="absolute tolerance" data-type="number" default-value="1e-12">absolute tolerance</a>
+                  <a class="dropdown-item" href="#" property="molecular weight [kg mol-1]" data-type="number" default-value="0">molecular weight</a>
                 </div>
               </div>
               <div class="container text-center mt-3">
@@ -141,7 +146,11 @@ $(document).ready(function(){
         for (var key of Object.keys(response).sort()) {
           if (key == "name" || key == "type") continue;
           $('.new-property .dropdown-item[property="'+key+'"]').hide();
-          $('.species-detail .properties').append(property_input_html(key, response[key]));
+          if (response[key] instanceof String) {
+            $('.species-detail .properties').append(property_input_html(key, "string", response[key]));
+          } else {
+            $('.species-detail .properties').append(property_input_html(key, "number", response[key]));
+          }
         }
       }
     });
