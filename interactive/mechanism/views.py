@@ -1,12 +1,42 @@
 from django.shortcuts import render, redirect
 from .mech_read_write import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpRequest, HttpResponseRedirect, JsonResponse
 from .speciesforms import *
 from django.contrib import messages
 from .reactionforms import *
 from .build_response import *
 from django.conf import settings
 import mimetypes
+
+# removes a chemical species from the mechanism
+def species_remove_handler(request):
+    if not 'name' in request.GET:
+        return HttpResponseBadRequest("missing species name")
+    species_remove(request.GET['name'])
+    return HttpResponse('')
+
+
+# saves a chemical species to the mechanism
+def species_save_handler(request):
+    if request.method != 'POST':
+        return JsonResponse({"error":"saving chemical species should be POST request"})
+    species_data = json.loads(request.body)
+    if not 'name' in species_data:
+        return JsonResponse({"error":"missing species name"})
+    species_data['type'] = "CHEM_SPEC"
+    species_remove(species_data['name'])
+    species_save(species_data)
+    return JsonResponse({})
+
+
+# returns a json object for a chemical species from the mechanism
+def species_detail_handler(request):
+    if not 'name' in request.GET:
+        return JsonResponse({"error":"missing species name"})
+    for entry in species_info():
+        if entry['type'] == 'CHEM_SPEC' and entry['name'] == request.GET['name']:
+            return JsonResponse(entry)
+    return JsonResponse({})
 
 
 def species(request):

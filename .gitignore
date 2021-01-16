@@ -1,5 +1,6 @@
 **/__pycache__/
 **/*.pyc
+**/*.DS_Store
 venv/bin/activate
 venv/bin/activate.csh
 venv/bin/activate.fish
