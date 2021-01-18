@@ -16,7 +16,7 @@
 <div class="container">
   <div class="row">
     <div class="col-8">
-      <form enctype="multipart/form-data" method="POST" action="config_json">
+      <form enctype="multipart/form-data" method="POST" action="/conditions/config_json">
         {% csrf_token %}
         {% for field in file_form %}
           {{ field }}

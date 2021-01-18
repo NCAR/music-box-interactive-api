@@ -21,7 +21,9 @@ def landing_page(request):
 
 
 def getting_started_page(request):
-    context = {}
+    context = {
+        'configFileForm': UploadJsonConfigForm
+    }
     return render(request, 'getting_started.html', context)
 
 

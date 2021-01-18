@@ -388,7 +388,13 @@ $(document).ready(function(){
   
 
   $("#exampleToggle").on('click', function(){
+    $(".load-panel").collapse('hide')
     $(".example-panel").collapse('show')
+  });
+
+  $("#loadToggle").on('click', function(){
+    $(".example-panel").collapse('hide')
+    $(".load-panel").collapse('show')
   });
 
   
