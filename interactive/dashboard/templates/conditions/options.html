@@ -13,37 +13,35 @@
 <p class="lead-muted p-2">
   Add paragraph describing this section.
 </p>
-
-     <div class="configbox">
-         <div class="configform">
-            <div class="optiontitle"><h3>Upload JSON Configuration File<h3></div>
-              <div class="col-8">
-                <form enctype="multipart/form-data" method="POST" action="config_json">
-                    {% csrf_token %}
-                    {% for field in file_form %}
-                        {{ field }}
-                    {% endfor %}
-                    <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
-                </form>
-              </div>
-             <hr class=solid>
-             <form method="post" action="/conditions/options">
-                 {% csrf_token %}
-                 {{ form|crispy }}
-                 <button id="optionsSave" class="btn btn-secondary" type="submit">Save</button>
-             </form>
-            
-            <div id="logtoggle">
-                    <h3 id="logtogtitle">Model Run Logging</h3>
-                    <label class="switch">
-                        <input id="islogon" type="checkbox">
-                            <span class="slider round"></span>
-                    </label>
-            </div>
-         </div>
-     </div>
-
-
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+      <form enctype="multipart/form-data" method="POST" action="config_json">
+        {% csrf_token %}
+        {% for field in file_form %}
+          {{ field }}
+        {% endfor %}
+        <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-3"
+      <form method="post" action="/conditions/options">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button id="optionsSave" class="btn btn-secondary" type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <h3 id="logtogtitle">Model Run Logging</h3>
+      <label class="switch">
+        <input id="islogon" type="checkbox">
+          <span class="slider round"></span>
+      </label>
+  </div>
+</div>
 
 {% endblock %}
 
