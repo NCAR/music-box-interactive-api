@@ -17,13 +17,15 @@
      <div class="configbox">
          <div class="configform">
             <div class="optiontitle"><h3>Upload JSON Configuration File<h3></div>
-             <form enctype="multipart/form-data" method="POST" action="config_json">
-                 {% csrf_token %}
-                 {% for field in file_form %}
-                    {{ field }}
-                 {% endfor %}
-                 <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
-             </form>
+              <div class="col-8">
+                <form enctype="multipart/form-data" method="POST" action="config_json">
+                    {% csrf_token %}
+                    {% for field in file_form %}
+                        {{ field }}
+                    {% endfor %}
+                    <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload JSON</button>
+                </form>
+              </div>
              <hr class=solid>
              <form method="post" action="/conditions/options">
                  {% csrf_token %}

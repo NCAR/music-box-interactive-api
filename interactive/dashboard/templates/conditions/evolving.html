@@ -14,12 +14,12 @@
 </p>
 
 <div id="container content_container">
-   <div class="row configbox">
+   <div class="row configbox col-8">
       <h3>Upload Evolving Conditions File (.txt, .csv, .nc):</h3>
             <form method="POST" action="evolving-file" enctype="multipart/form-data">
                {% csrf_token %}
                {{ file_field }}
-               <button id="evolvFileSave" class="btn btn-secondary" type="submit">Upload</button>
+               <button id="evolvFileSave" class="btn btn-secondary m-2" type="submit">Upload</button>
             </form>
    </div>
    {% if filedict %}

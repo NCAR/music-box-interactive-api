@@ -126,11 +126,8 @@ def init_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         uploaded_to_config(handle_uploaded_csv(uploaded))
-    context = {
-        'form': InitialConditionsForm,
-        'csv_field': UploadInitFileForm
-    }
-    return render(request, 'conditions/intial.html', context)
+    
+    return HttpResponseRedirect('/conditions/initial')
 
 
 #============== EVOLVING CONDITIONS PAGE ===============
@@ -230,7 +227,7 @@ def remove(request):
 
 
 def download_file(request):
-    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/conditions/my_config.json')
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/config/my_config.json')
     filename = 'my_config.json'
     fl = open(fl_path, 'r')
     mime_type, _ = mimetypes.guess_type(fl_path)

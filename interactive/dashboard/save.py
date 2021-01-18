@@ -28,7 +28,7 @@ def export():
     if 'evolving conditions' in oldConfig:
         evolves = oldConfig['evolving conditions']
     else:
-        evolves = ''
+        evolves = {}
     
 
     config = {}
@@ -87,9 +87,7 @@ def export():
     config.update({"chemical species": species_section})
     config.update({"environmental conditions": init_section})
     config.update({"photolysis": photo_section})
-
-    if evolves:
-        config.update({'evolving conditions': evolves})
+    config.update({'evolving conditions': evolves})
 
     config.update({
         "model components": [
