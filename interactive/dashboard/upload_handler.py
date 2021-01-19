@@ -1,4 +1,5 @@
 import csv
+from zipfile import ZipFile
 from django.conf import settings
 import os
 from .save import load, save, export
@@ -83,6 +84,58 @@ def handle_uploaded_json(f):
     print(validation)
     if validation['success']:
         dump_json('my_config.json', config)
+
+
+# loads uploaded zip configuration
+def handle_uploaded_zip_config(f):
+    content = f.read()
+    file_name = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip_upload"), 'uploaded.zip')
+    g = open(file_name, 'wb')
+    g.write(content)
+    g.close()
+
+    with ZipFile(file_name, 'r') as zip:
+        zip.printdir()
+        zip.extractall()
+
+
+def copyConfigFile(source, destination):
+    configFile = open(source, 'rb')
+    content = configFile.read()
+    g = open(destination, 'wb')
+    g.write(content)
+    g.close()
+    configFile.close()
+      
+
+#copy all files to the static/zip/config_copy directory to be zipped
+def copy_files_for_zipping():
+    destination_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
+    camp_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy/camp_data")
+
+    filelist = ['my_config.json', 'camp_data/config.json', 'camp_data/mechanism.json', 'camp_data/species.json', 'camp_data/tolerance.json']
+    config = open_json('my_config.json')
+    for key in config['evolving conditions']:
+        if os.path.isfile(os.path.join(config_path, key)):
+            filelist.append(key)
+    
+    for f in filelist:
+        copyConfigFile(os.path.join(config_path, f), os.path.join(destination_path, f))
+    
+    return filelist
+
+# create configuration zip
+def create_config_zip():
+    filelist = copy_files_for_zipping()
+    folder_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
+
+    zip_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/output/config.zip")
+    from_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
+
+
+    with ZipFile(zip_path, 'w') as zip:
+        for i in filelist:
+            zip.write(os.path.join(from_path,i), i)
 
 
 # saves uploaded loss rates file to config folder

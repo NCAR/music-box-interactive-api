@@ -97,7 +97,7 @@ def options(request):
 def config_json(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
-        handle_uploaded_json(uploaded)
+        handle_uploaded_zip_config(uploaded)
         reverse_export()
     context = {
         'form': OptionsForm,
@@ -229,12 +229,11 @@ def remove(request):
 
 
 def download_file(request):
-    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/config/my_config.json')
-    filename = 'my_config.json'
-    fl = open(fl_path, 'r')
-    mime_type, _ = mimetypes.guess_type(fl_path)
-    response = HttpResponse(fl, content_type=mime_type)
-    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    create_config_zip()
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/zip/output/config.zip')
+    zip_file = open(fl_path, 'rb')
+    response = HttpResponse(zip_file, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % 'config.zip'
     return response
 
 
