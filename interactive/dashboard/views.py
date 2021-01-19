@@ -27,6 +27,12 @@ def getting_started_page(request):
     return render(request, 'getting_started.html', context)
 
 
+def load_example(request):
+    example_name = 'example_' + str(request.GET.dict()['example'])
+    load_example_configuration(example_name)
+    return HttpResponseRedirect('/conditions/initial')
+
+
 def new_species(request):
     if request.method == 'POST':
         new()

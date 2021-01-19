@@ -86,19 +86,6 @@ def handle_uploaded_json(f):
         dump_json('my_config.json', config)
 
 
-# loads uploaded zip configuration
-def handle_uploaded_zip_config(f):
-    content = f.read()
-    file_name = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip_upload"), 'uploaded.zip')
-    g = open(file_name, 'wb')
-    g.write(content)
-    g.close()
-
-    with ZipFile(file_name, 'r') as zip:
-        zip.printdir()
-        zip.extractall()
-
-
 def copyConfigFile(source, destination):
     configFile = open(source, 'rb')
     content = configFile.read()
@@ -106,6 +93,44 @@ def copyConfigFile(source, destination):
     g.write(content)
     g.close()
     configFile.close()
+
+
+# loads uploaded zip configuration
+def handle_uploaded_zip_config(f):
+    content = f.read()
+    file_name = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/uploaded"), 'uploaded.zip')
+    g = open(file_name, 'wb')
+    g.write(content)
+    g.close()
+
+    #unzipps into /static/zip/unzipped
+    with ZipFile(file_name, 'r') as zip:
+        zip.extractall(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped"))
+
+    needed_files = ['my_config.json', 'camp_data/config.json', 'camp_data/mechanism.json', 'camp_data/species.json', 'camp_data/tolerance.json']
+    with open(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/my_config.json")) as f:
+        config = json.loads(f.read())
+    
+    #looks for evolving conditions files
+    if 'evolving conditions' in config:
+        for key in config['evolving conditions']:
+            if '.' in key:
+                needed_files.append(key)
+    
+    #checks that all neccesary files are in the zip
+    for f in needed_files:
+        if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped"), f)):
+            return False
+
+    #copy files into config folder
+    config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+    src_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped")
+
+    for f in needed_files:
+        copyConfigFile(os.path.join(src_path, f), os.path.join(config_path, f))
+
+    return True
+
       
 
 #copy all files to the static/zip/config_copy directory to be zipped

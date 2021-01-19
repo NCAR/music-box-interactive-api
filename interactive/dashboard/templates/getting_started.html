@@ -23,7 +23,7 @@
             <div>
               description
             </div>
-            <a class="btn btn-secondary">Select</a>
+            <a href="/conditions/load-example?example=1" class="btn btn-secondary">Select</a>
           </div>
         </div>
         <div class="col">
@@ -34,7 +34,7 @@
             <div>
               description
             </div>
-            <a class="btn btn-secondary">Select</a>
+            <a href="/conditions/load-example?example=2" class="btn btn-secondary">Select</a>
           </div>
         </div>
         <div class="col">
@@ -45,14 +45,14 @@
             <div>
               description
             </div>
-            <a class="btn btn-secondary">Select</a>
+            <a href="/conditions/load-example?example=3" class="btn btn-secondary">Select</a>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="collapse card card-body load-panel m-2">
             <div>
-              <h3>Select configuration file</h3>
+              <h3>Select configuration Zip file</h3>
             </div>
             <form  enctype="multipart/form-data" method="POST" action="/conditions/config_json">
               {% csrf_token %}
