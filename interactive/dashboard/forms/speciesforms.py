@@ -15,9 +15,9 @@ class SpeciesForm(forms.Form):
         values = value_setup()
 
         for key in formulas:
-            self.fields[key + '.Formula'] = forms.CharField(initial=formulas[key], widget= forms.TextInput(attrs={'id': key + '.Formula', 'savebutton': 'speciesSave'}))
-            self.fields[key + '.Initial Value'] = forms.FloatField(initial=values[key], widget=forms.TextInput(attrs={'savebutton': 'speciesSave'}))
-            self.fields[key + '.Units'] = forms.ChoiceField(widget=forms.Select(attrs={'savebutton': 'speciesSave'}), choices=[('mol m-3', 'mol-m-3',), ('mol/L', 'mol/L')])
+            self.fields[key + '.Formula'] = forms.CharField(initial=formulas[key], widget= forms.TextInput(attrs={'id': key + '.Formula', 'savebutton': 'speciesSave', 'class': 'form-control'}))
+            self.fields[key + '.Initial Value'] = forms.FloatField(initial=values[key], widget=forms.TextInput(attrs={'savebutton': 'speciesSave', 'class': 'form-control'}))
+            self.fields[key + '.Units'] = forms.ChoiceField(widget=forms.Select(attrs={'savebutton': 'speciesSave', 'class': 'form-control'}), choices=[('mol m-3', 'mol-m-3',), ('mol/L', 'mol/L')])
         
 
 

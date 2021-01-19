@@ -6,8 +6,8 @@
         "simulation length [hr]": 13.9
     },
     "chemical species": {
-        "Enter Formula": {
-            "initial value [mol m-3]": 0.0
+        "O2": {
+            "initial value [mol m-3]": 3.0
         }
     },
     "environmental conditions": {

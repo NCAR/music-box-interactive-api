@@ -21,8 +21,16 @@ def landing_page(request):
 
 
 def getting_started_page(request):
-    context = {}
+    context = {
+        'configFileForm': UploadJsonConfigForm
+    }
     return render(request, 'getting_started.html', context)
+
+
+def load_example(request):
+    example_name = 'example_' + str(request.GET.dict()['example'])
+    load_example_configuration(example_name)
+    return HttpResponseRedirect('/conditions/initial')
 
 
 def new_species(request):
@@ -95,7 +103,7 @@ def options(request):
 def config_json(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
-        handle_uploaded_json(uploaded)
+        handle_uploaded_zip_config(uploaded)
         reverse_export()
     context = {
         'form': OptionsForm,
@@ -126,11 +134,8 @@ def init_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         uploaded_to_config(handle_uploaded_csv(uploaded))
-    context = {
-        'form': InitialConditionsForm,
-        'csv_field': UploadInitFileForm
-    }
-    return render(request, 'conditions/intial.html', context)
+    
+    return HttpResponseRedirect('/conditions/initial')
 
 
 #============== EVOLVING CONDITIONS PAGE ===============
@@ -230,12 +235,11 @@ def remove(request):
 
 
 def download_file(request):
-    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/conditions/my_config.json')
-    filename = 'my_config.json'
-    fl = open(fl_path, 'r')
-    mime_type, _ = mimetypes.guess_type(fl_path)
-    response = HttpResponse(fl, content_type=mime_type)
-    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    create_config_zip()
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/zip/output/config.zip')
+    zip_file = open(fl_path, 'rb')
+    response = HttpResponse(zip_file, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % 'config.zip'
     return response
 
 
