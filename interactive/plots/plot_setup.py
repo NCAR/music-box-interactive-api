@@ -23,7 +23,6 @@ def sub_props(prop):
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
-    print('titles:', titles)
     spec = list([])
     rate = list([])
     env = list([])
@@ -36,7 +35,6 @@ def sub_props(prop):
             env.append(str(i).split('.')[1])
     if prop == 'species':
         logging.info('getting concentrations')
-        print('species:', spec)
         return spec
     if prop == 'rates':
         logging.info('getting rates')
@@ -89,9 +87,7 @@ def output_plot(prop):
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
-    print('beforetitles',titles)
     csv.columns = csv.columns.str.replace(' ', '') 
-    print('after:', csv.columns.tolist())
     subset = csv[['time', str(prop.replace(' ',''))]]
     cleaned_subset = undo_double(subset)
     cleaned_subset.plot(x="time", ax=axes)
