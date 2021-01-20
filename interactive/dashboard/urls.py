@@ -34,5 +34,6 @@ urlpatterns = [
     path('conditions/logging-toggle', views.toggle_logging),
     path('conditions/logging-toggle-check', views.toggle_logging_check),
     path('conditions/clear-evolv-files', views.clear_evolv_files),
-    path('conditions/load-example', views.load_example)
+    path('conditions/load-example', views.load_example),
+    path('conditions/examplefile', views.example_file)
 ]
