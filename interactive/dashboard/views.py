@@ -20,6 +20,17 @@ def landing_page(request):
     return render(request, 'home.html', context)
 
 
+def example_file(request):
+    filetype = request.GET.dict()['type']
+    name = '/' + filetype + '.zip'
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/example_files/' + filetype + name)
+    zip_file = open(fl_path, 'rb')
+    response = HttpResponse(zip_file, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % 'example_' + filetype + '_file.zip'
+    return response
+
+
+
 def getting_started_page(request):
     context = {
         'configFileForm': UploadJsonConfigForm

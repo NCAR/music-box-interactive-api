@@ -23,7 +23,6 @@ def sub_props(prop):
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
-   # print(titles, type(titles))
     spec = list([])
     rate = list([])
     env = list([])
@@ -36,7 +35,6 @@ def sub_props(prop):
             env.append(str(i).split('.')[1])
     if prop == 'species':
         logging.info('getting concentrations')
-        print(spec)
         return spec
     if prop == 'rates':
         logging.info('getting rates')
@@ -88,7 +86,9 @@ def output_plot(prop):
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
-    subset = csv[['time', ' ' + str(prop)]]
+    titles = csv.columns.tolist()
+    csv.columns = csv.columns.str.replace(' ', '') 
+    subset = csv[['time', str(prop.replace(' ',''))]]
     cleaned_subset = undo_double(subset)
     cleaned_subset.plot(x="time", ax=axes)
 
