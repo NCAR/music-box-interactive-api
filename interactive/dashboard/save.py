@@ -38,9 +38,9 @@ def export():
     options_section = {}
 
     options_section.update({"grid": options["grid"]})
-    options_section.update({"chemistry time step [min]": options["chemistry_time_step"]})
-    options_section.update({"output time step [hr]": options["output_time_step"]})
-    options_section.update({"simulation length [hr]": options["simulation_length"]})
+    options_section.update({"chemistry time step [sec]": options["chemistry_time_step"]})
+    options_section.update({"output time step [sec]": options["output_time_step"]})
+    options_section.update({"simulation length [sec]": options["simulation_length"]})
 
     # write chemical species section
 
