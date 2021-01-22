@@ -2,6 +2,7 @@ import json
 from django.conf import settings
 import logging
 import os
+from .species import species_list
 from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -57,3 +58,243 @@ def reaction_save(reaction_data):
     camp_data['pmc-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
+
+
+# returns the json schema for a particular reaction type
+def reaction_type_schema(reaction_type):
+    logging.info('getting schema for ' + reaction_type)
+    species = ""
+    for idx, entry in enumerate(species_list()):
+        if idx > 0:
+            species += ";"
+        species += entry
+    schema = {}
+    if reaction_type == "ARRHENIUS":
+        schema = {
+            'reactants' : {
+                'type' : 'array',
+                'children' : {
+                    'type' : 'object',
+                    'key' : species,
+                    'children' : {
+                        'qty' : {
+                            'type' : 'integer',
+                            'default' : 1
+                        }
+                    }
+                }
+            },
+            'products' : {
+                'type' : 'array',
+                'children' : {
+                    'type' : 'object',
+                    'key' : species,
+                    'children' : {
+                        'yield' : {
+                            'type' : 'real',
+                            'default' : 1.0,
+                            'units' : 'unitless'
+                        }
+                    }
+                }
+            },
+            'equation' : {
+                'type' : 'math',
+                'value' : 'k = Ae^{(\\frac{-E_a}{k_bT})}(\\frac{T}{D})^B(1.0+E*P)'
+            },
+            'A' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'pre-exponential factor',
+                'units' : '(mol m<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
+            },
+            'Ea' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'activation energy',
+                'units' : 'J'
+            },
+            'B' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'temperature-dependence exponential factor',
+                'units' : 'unitless'
+            },
+            'D' : {
+                'type' : 'real',
+                'default' : 300.0,
+                'description' : 'temperature-dependence denominator',
+                'units' : 'K'
+            },
+            'E' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'pressure-dependence factor',
+                'units' : 'Pa<sup>-1</sup>'
+            }
+        }
+    elif reaction_type == 'EMISSION':
+        schema = {
+            'species' : {
+                'type' : 'string-list',
+                'values' : species
+            },
+            'scaling factor' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'factor by which emissions rates will be scaled',
+                'units' : 'unitless'
+            },
+            'MUSICA name' : {
+                'type' : 'string',
+                'description' : 'choose a name that can be used to set the emission rate from input data'
+            }
+        }
+    elif reaction_type == 'FIRST_ORDER_LOSS':
+        schema = {
+            'species' : {
+                'type' : 'string-list',
+                'values' : species
+            },
+            'scaling factor' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'factor by which first-order loss rates will be scaled',
+                'units' : 'unitless'
+            },
+            'MUSICA name' : {
+                'type' : 'string',
+                'description' : 'choose a name that can be used to set the first-order loss rate constant from input data'
+            }
+        }
+    elif reaction_type == 'PHOTOLYSIS':
+        schema = {
+            'reactants' : {
+                'type' : 'array',
+                'children' : {
+                    'type' : 'object',
+                    'key' : species,
+                    'children' : {
+                        'qty' : {
+                            'type' : 'integer',
+                            'default' : 1
+                        }
+                    }
+                }
+            },
+            'products' : {
+                'type' : 'array',
+                'children' : {
+                    'type' : 'object',
+                    'key' : species,
+                    'children' : {
+                        'yield' : {
+                            'type' : 'real',
+                            'default' : 1.0,
+                            'units' : 'unitless'
+                        }
+                    }
+                }
+            },
+            'scaling factor' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'factor by which first-order loss rates will be scaled',
+                'units' : 'unitless'
+            },
+            'MUSICA name' : {
+                'type' : 'string',
+                'description' : 'choose a name that can be used to set the first-order loss rate constant from input data'
+            }
+        }
+    elif reaction_type == 'TROE':
+        schema = {
+            'reactants' : {
+                'type' : 'array',
+                'children' : {
+                    'type' : 'object',
+                    'key' : species,
+                    'children' : {
+                        'qty' : {
+                            'type' : 'integer',
+                            'default' : 1
+                        }
+                    }
+                }
+            },
+            'products' : {
+                'type' : 'array',
+                'children' : {
+                    'type' : 'object',
+                    'key' : species,
+                    'children' : {
+                        'yield' : {
+                            'type' : 'real',
+                            'default' : 1.0,
+                            'units' : 'unitless'
+                        }
+                    }
+                }
+            },
+            'equation' : {
+                'type' : 'math',
+                'value' : 'k_0 = k_{0A}e^{(\\frac{k_{0C}}{T})}(\\frac{T}{300.0})^k_{0B}'
+            },
+            'equation' : {
+                'type' : 'math',
+                'value' : 'k_{inf} = k_{infA}e^{(\\frac{k_{infC}}{T})}(\\frac{T}{300.0})^k_{infB}'
+            },
+            'equation' : {
+                'type' : 'math',
+                'value' : 'k = \frac{k_0[\mbox{M}]}{1+k_0[\mbox{M}]/k_{\inf}}F_C^{1+(1/N[log_{10}(k_0[\mbox{M}]/k_{\inf})]^2)^{-1}}'
+            },
+            'k0_A' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'low-pressure pre-exponential factor',
+                'units' : '(mol m<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
+            },
+            'k0_B' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'low-pressure temperature-dependence exponential factor',
+                'units' : 'unitless'
+            },
+            'k0_C' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'low-pressure exponential factor',
+                'units' : 'K<sup>-1</sup>'
+            },
+            'kinf_A' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'high-pressure pre-exponential factor',
+                'units' : '(mol m<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
+            },
+            'kinf_B' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'high-pressure temperature-dependence exponential factor',
+                'units' : 'unitless'
+            },
+            'kinf_C' : {
+                'type' : 'real',
+                'default' : 0.0,
+                'description' : 'high-pressure exponential factor',
+                'units' : 'K<sup>-1</sup>'
+            },
+            "Fc" : {
+                'type' : 'real',
+                'default' : 0.6,
+                'description' : 'Troe shape parameter',
+                'units' : 'unitless'
+            },
+            'N' : {
+                'type' : 'real',
+                'default' : 1.0,
+                'description' : 'Troe shape parameter',
+                'units' : 'unitless'
+            }
+        }
+    return schema

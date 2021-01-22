@@ -54,6 +54,14 @@ def reaction_detail_handler(request):
     return JsonResponse(reaction_detail)
 
 
+# returns the schema for a particular reaction type
+def reaction_type_schema_handler(request):
+    if not 'type' in request.GET:
+        return JsonResponse({"error":"missing reaction type"})
+    schema = reaction_type_schema(request.GET['type'])
+    return JsonResponse(schema)
+
+
 # renders the reactions page
 def reactions_home_handler(request):
     context = {
