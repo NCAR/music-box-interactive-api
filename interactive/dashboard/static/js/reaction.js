@@ -1,11 +1,47 @@
 $(document).ready(function(){
 
-  // replace spaces with dashes in a json key
+  /*********************
+   * Utility functions *
+   *********************/
+
+  // replaces spaces with dashes in a json key
   function format_json_key(key) {
     return key.replace('-', '--').replace(' ', '-');
   }
 
-  // remove a reaction from the mechanism
+  // sets a nested object property value
+  function set_property_value(reaction, key, value) {
+    key = key.split('.');
+    var obj = reaction;
+    while(key.length) {
+      obj = reaction[key.shift()];
+    }
+    obj = value;
+  }
+
+  // returns a label for a reaction type
+  function reaction_type_label(reaction_type) {
+    if (reaction_type == "ARRHENIUS") {
+      return "Arrhenius";
+    } else if (reaction_type == "EMISSION") {
+      return "Emission";
+    } else if (reaction_type == "FIRST_ORDER_LOSS") {
+      return "First-order loss";
+    } else if (reaction_type == "PHOTOLYSIS") {
+      return "Photolysis";
+    } else if (reaction_type == "TROE") {
+      return "Troe";
+    } else {
+      return "Unknown reaction type";
+    }
+  }
+
+
+  /**********************
+   * Listener functions *
+   **********************/
+
+  // removes a reaction from the mechanism
   $(".reaction-remove").on('click', function(){
     $.ajax({
       url: 'reaction-remove',
@@ -17,40 +53,18 @@ $(document).ready(function(){
     });
   });
 
-  // add a new reaction to the mechanism
+  // adds a new reaction to the mechanism
   $(".reaction-new").on('click', function(){
     var reaction_data = { };
     $('.reaction-detail').html(reaction_detail_html(reaction_data));
   });
 
-  // return html for a property input box
-  function property_input_html(property_name, data_type, property_value) {
-    return `
-      <div class="input-group mb-3" property="`+property_name+`" data-type="`+data_type+`">
-        <div class="input-group-prepend">
-          <span class="input-group-text">`+property_name+`</span>
-        </div>
-        <input type="text" class="form-control" placeholder="Property value" value="`+property_value+`">
-      </div>
-    `;
-  }
-
-  // cancel any changes and exit reaction detail
+  // cancels any changes and exit reaction detail
   $('.reaction-detail').on('click', '.btn-cancel', function() {
     $('.reaction-detail').empty();
   });
 
-  // set a property value
-  function set_property_value(reaction, key, value) {
-    key = key.split('.');
-    var obj = reaction;
-    while(key.length) {
-      obj = reaction[key.shift()];
-    }
-    obj = value;
-  }
-
-  // save changes and exit reaction detail
+  // saves changes and exit reaction detail
   $('.reaction-detail').on('click', '.btn-save', function() {
     const csrftoken = $('[name=csrfmiddlewaretoken]').val();
     var reaction_data = { };
@@ -80,25 +94,44 @@ $(document).ready(function(){
     });
   });
 
-  // returns a label for a reaction type
-  function reaction_type_label(reaction_type) {
-    if (reaction_type == "ARRHENIUS") {
-      return "Arrhenius";
-    } else if (reaction_type == "EMISSION") {
-      return "Emission";
-    } else if (reaction_type == "FIRST_ORDER_LOSS") {
-      return "First-order loss";
-    } else if (reaction_type == "PHOTOLYSIS") {
-      return "Photolysis";
-    } else if (reaction_type == "TROE") {
-      return "Troe";
-    } else {
-      return "Unknown reaction type";
-    }
+  // changes the reaction type
+  $('.reaction-detail').on('click', '.reaction-type-selector .dropdown-item', function() {
+    load_reaction_type( { 'type' : $(this).attr('element-key') } );
+  });
+
+  // shows an editable reaction detail window
+  $(".reaction-detail-link").on('click', function() {
+    $(".reaction-detail").empty();
+    $.ajax({
+      url: 'reaction-detail',
+      type: 'get',
+      dataType: 'json',
+      data: { 'index': $(this).attr('reaction-id') },
+      success: function(response) {
+        load_reaction_type(response);
+      }
+    });
+  });
+
+
+  /*****************************
+   * HTML generating functions *
+   *****************************/
+
+  // returns html for a property input box
+  function property_input_html(property_name, data_type, property_value) {
+    return `
+      <div class="input-group mb-3" property="`+property_name+`" data-type="`+data_type+`">
+        <div class="input-group-prepend">
+          <span class="input-group-text">`+property_name+`</span>
+        </div>
+        <input type="text" class="form-control" placeholder="Property value" value="`+property_value+`">
+      </div>
+    `;
   }
 
-  // gets the html for a dropdown list
-  function get_dropdown_html(label, list_elements) {
+  // returns html for a dropdown list
+  function dropdown_html(label, list_elements) {
     var html = `
       <div class="col-3 dropdown show">
         <a href="#" class="btn btn-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -116,8 +149,8 @@ $(document).ready(function(){
     return html;
   }
 
-  // gets the html for an input box with optional units
-  function get_input_html(key, label, value, units, default_value, description) {
+  // returns html for an input box with optional units
+  function input_box_html(key, label, value, units, default_value, description) {
     var html = `
       <div class="input-group" property-key="` + key + `">
         <div class="input-group-prepend">
@@ -140,11 +173,6 @@ $(document).ready(function(){
     return html;
   }
 
-  // listener for change of reaction type
-  $('.reaction-detail').on('click', '.reaction-type-selector .dropdown-item', function() {
-    load_reaction_type( { 'type' : $(this).attr('element-key') } );
-  });
-
   // returns html for reaction detail window
   function get_reaction_detail_html(reaction_type) {
     var list_elements = [
@@ -158,7 +186,7 @@ $(document).ready(function(){
           <div class="card mb-4 reaction-card shadow-sm">
             <div class="card-header">
               <div class="reaction-type-selector">` +
-                get_dropdown_html(reaction_type_label(reaction_type), list_elements) + `
+                dropdown_html(reaction_type_label(reaction_type), list_elements) + `
               </div>
             </div>
             <form class="body card-body">
@@ -172,7 +200,12 @@ $(document).ready(function(){
           </div>`;
   }
 
-  // add a property or set of properties to a container
+
+  /******************
+   * Page modifiers *
+   ******************/
+
+  // adds a property or set of properties to a container
   function add_property_to_container(container, schema, property_data) {
     for (var key of Object.keys(schema)) {
       var html_key = format_json_key(key);
@@ -207,7 +240,7 @@ $(document).ready(function(){
     }
   }
 
-  // add an array of properties to a container
+  // adds an array of properties to a container
   function add_array_to_container(container, html_key, key, schema, value) {
     $(container).append(`
       <div class="card shadow-sm">
@@ -240,7 +273,7 @@ $(document).ready(function(){
     }
   }
 
-  // add an array element to an array container
+  // adds an array element to an array container
   function add_array_element(container, index, schema, value) {
     $(container).append(`
             <div class="row array-element-`+index+`">
@@ -253,7 +286,7 @@ $(document).ready(function(){
         for (val of schema['children']['key'].split(';')) {
           list_elements.push( { key: format_json_key(val), label: val } );
         }
-        $(element_container).html(get_dropdown_html((value != null && 'key' in value) ? value['key'] : '', list_elements));
+        $(element_container).html(dropdown_html((value != null && 'key' in value) ? value['key'] : '', list_elements));
         $(element_container).append(`<div class="col-7 element-properties"></div>`);
         add_property_to_container(element_container + ' .element-properties', schema['children']['children'], (value != null && 'value' in value) ? value['value'] : null);
         $(element_container).append(`
@@ -281,7 +314,7 @@ $(document).ready(function(){
     }
   }
 
-  // add a real number property to a container
+  // adds a real number property to a container
   function add_real_to_container(container, key, label, schema, value) {
     var units = "";
     var default_value = "";
@@ -289,10 +322,10 @@ $(document).ready(function(){
     if ('units' in schema) units = schema['units'];
     if ('default' in schema) default_value = schema['default'].toString();
     if ('description' in schema) description = schema['description'].toString();
-    $(container).append(get_input_html(key, label, value, units, default_value, description));
+    $(container).append(input_box_html(key, label, value, units, default_value, description));
   }
 
-  // add an integer property to a container
+  // adds an integer property to a container
   function add_integer_to_container(container, key, label, schema, value) {
     var units = "";
     var default_value = "";
@@ -300,19 +333,19 @@ $(document).ready(function(){
     if ('units' in schema) units = schema['units'];
     if ('default' in schema) default_value = schema['default'].toString();
     if ('description' in schema) description = schema['description'].toString();
-    $(container).append(get_input_html(key, label, value, units, default_value, description));
+    $(container).append(input_box_html(key, label, value, units, default_value, description));
   }
 
-  // add a string property to a container
+  // adds a string property to a container
   function add_string_to_container(container, key, label, schema, value) {
     var default_value = "";
     var description = "";
     if ('default' in schema) default_value = schema['default'];
     if ('description' in schema) description = schema['description'].toString();
-    $(container).append(get_input_html(key, label, value, "", default_value, description));
+    $(container).append(input_box_html(key, label, value, "", default_value, description));
   }
 
-  // add a drop-down string list to a container
+  // adds a drop-down string list to a container
   function add_string_list_to_container(container, key, label, schema, value) {
     var default_value = "";
     var description = "";
@@ -327,7 +360,7 @@ $(document).ready(function(){
         <div class="input-group-prepend">
           <span class="input-group-text">` + label + `</span>
         </div>
-        ` + get_dropdown_html((value === null) ? default_value : value, list_elements) + `
+        ` + dropdown_html((value === null) ? default_value : value, list_elements) + `
       </div>`;
     if (description != '') {
       html += `<p><small>`+description+`</small></p>`;
@@ -335,13 +368,13 @@ $(document).ready(function(){
     $(container).append(html);
   }
 
-  // add a math equation to a container
+  // adds a math equation to a container
   function add_math_to_container(container, math) {
     $(container).append(`<div>$$` + math.value + `$$</div>`);
     MathJax.typeset();
   }
 
-  // load the reaction detail window with properties for a specific reaction type
+  // loads the reaction detail window with properties for a specific reaction type
   function load_reaction_type(reaction_data) {
     var reaction_type = reaction_data['type'];
     $('.reaction-detail').html(get_reaction_detail_html(reaction_type));
@@ -360,19 +393,5 @@ $(document).ready(function(){
       }
     });
   }
-
-  // show editable reaction detail
-  $(".reaction-detail-link").on('click', function() {
-    $(".reaction-detail").empty();
-    $.ajax({
-      url: 'reaction-detail',
-      type: 'get',
-      dataType: 'json',
-      data: { 'index': $(this).attr('reaction-id') },
-      success: function(response) {
-        load_reaction_type(response);
-      }
-    });
-  });
 
 });
