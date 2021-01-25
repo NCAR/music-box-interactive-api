@@ -73,6 +73,8 @@ def reaction_type_schema(reaction_type):
         schema = {
             'reactants' : {
                 'type' : 'array',
+                'as-object' : True,
+                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
                 'children' : {
                     'type' : 'object',
                     'key' : species,
@@ -86,6 +88,7 @@ def reaction_type_schema(reaction_type):
             },
             'products' : {
                 'type' : 'array',
+                'as-object' : True,
                 'children' : {
                     'type' : 'object',
                     'key' : species,
@@ -166,6 +169,8 @@ def reaction_type_schema(reaction_type):
         schema = {
             'reactants' : {
                 'type' : 'array',
+                'as-object' : True,
+                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
                 'children' : {
                     'type' : 'object',
                     'key' : species,
@@ -179,6 +184,7 @@ def reaction_type_schema(reaction_type):
             },
             'products' : {
                 'type' : 'array',
+                'as-object' : True,
                 'children' : {
                     'type' : 'object',
                     'key' : species,
@@ -206,6 +212,8 @@ def reaction_type_schema(reaction_type):
         schema = {
             'reactants' : {
                 'type' : 'array',
+                'as-object' : True,
+                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
                 'children' : {
                     'type' : 'object',
                     'key' : species,
@@ -219,6 +227,7 @@ def reaction_type_schema(reaction_type):
             },
             'products' : {
                 'type' : 'array',
+                'as-object' : True,
                 'children' : {
                     'type' : 'object',
                     'key' : species,
