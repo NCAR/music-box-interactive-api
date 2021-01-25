@@ -105,31 +105,26 @@ def reaction_type_schema(reaction_type):
             'A' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'pre-exponential factor',
                 'units' : '(mol m<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
             },
             'Ea' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'activation energy',
                 'units' : 'J'
             },
             'B' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'temperature-dependence exponential factor',
                 'units' : 'unitless'
             },
             'D' : {
                 'type' : 'real',
                 'default' : 300.0,
-                'description' : 'temperature-dependence denominator',
                 'units' : 'K'
             },
             'E' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'pressure-dependence factor',
                 'units' : 'Pa<sup>-1</sup>'
             }
         }
@@ -142,12 +137,12 @@ def reaction_type_schema(reaction_type):
             'scaling factor' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'factor by which emissions rates will be scaled',
+                'description' : 'Use the scaling factor to adjust emission rates from input data. A scaling factor of 1.0 results in no adjustment.',
                 'units' : 'unitless'
             },
             'MUSICA name' : {
                 'type' : 'string',
-                'description' : 'choose a name that can be used to set the emission rate from input data'
+                'description' : 'Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like.'
             }
         }
     elif reaction_type == 'FIRST_ORDER_LOSS':
@@ -159,12 +154,12 @@ def reaction_type_schema(reaction_type):
             'scaling factor' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'factor by which first-order loss rates will be scaled',
+                'description' : 'Use the scaling factor to adjust emission rates from input data. A scaling factor of 1.0 results in no adjustment.',
                 'units' : 'unitless'
             },
             'MUSICA name' : {
                 'type' : 'string',
-                'description' : 'choose a name that can be used to set the first-order loss rate constant from input data'
+                'description' : 'Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like.'
             }
         }
     elif reaction_type == 'PHOTOLYSIS':
@@ -199,12 +194,12 @@ def reaction_type_schema(reaction_type):
             'scaling factor' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'factor by which first-order loss rates will be scaled',
+                'description' : 'Use the scaling factor to adjust emission rates from input data. A scaling factor of 1.0 results in no adjustment.',
                 'units' : 'unitless'
             },
             'MUSICA name' : {
                 'type' : 'string',
-                'description' : 'choose a name that can be used to set the first-order loss rate constant from input data'
+                'description' : 'Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like.'
             }
         }
     elif reaction_type == 'TROE':
@@ -246,54 +241,46 @@ def reaction_type_schema(reaction_type):
             },
             'equation' : {
                 'type' : 'math',
-                'value' : 'k = \frac{k_0[\mbox{M}]}{1+k_0[\mbox{M}]/k_{\inf}}F_C^{1+(1/N[log_{10}(k_0[\mbox{M}]/k_{\inf})]^2)^{-1}}'
+                'value' : 'k = \\frac{k_0[\\mbox{M}]}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{1+(1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}'
             },
             'k0_A' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'low-pressure pre-exponential factor',
                 'units' : '(mol m<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
             },
             'k0_B' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'low-pressure temperature-dependence exponential factor',
                 'units' : 'unitless'
             },
             'k0_C' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'low-pressure exponential factor',
                 'units' : 'K<sup>-1</sup>'
             },
             'kinf_A' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'high-pressure pre-exponential factor',
                 'units' : '(mol m<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
             },
             'kinf_B' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'high-pressure temperature-dependence exponential factor',
                 'units' : 'unitless'
             },
             'kinf_C' : {
                 'type' : 'real',
                 'default' : 0.0,
-                'description' : 'high-pressure exponential factor',
                 'units' : 'K<sup>-1</sup>'
             },
             "Fc" : {
                 'type' : 'real',
                 'default' : 0.6,
-                'description' : 'Troe shape parameter',
                 'units' : 'unitless'
             },
             'N' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'Troe shape parameter',
                 'units' : 'unitless'
             }
         }

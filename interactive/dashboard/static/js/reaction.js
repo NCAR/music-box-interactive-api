@@ -32,7 +32,7 @@ $(document).ready(function(){
         </div>
         <input type="text" class="form-control" placeholder="Property value" value="`+property_value+`">
       </div>
-    `
+    `;
   }
 
   // cancel any changes and exit reaction detail
@@ -101,7 +101,7 @@ $(document).ready(function(){
   function get_dropdown_html(label, list_elements) {
     var html = `
       <div class="col-3 dropdown show">
-        <a href="#" class="btn btn-primary dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a href="#" class="btn btn-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           `+((label=='') ? '&lt;select&gt;': label)+`
         </a>
         <div class="dropdown-menu" aria-labelledby="reaction-type-dropdown">
@@ -117,7 +117,7 @@ $(document).ready(function(){
   }
 
   // gets the html for an input box with optional units
-  function get_input_html(key, label, units, default_value) {
+  function get_input_html(key, label, units, default_value, description) {
     var html = `
       <div class="input-group" property-key="` + key + `">
         <div class="input-group-prepend">
@@ -132,6 +132,9 @@ $(document).ready(function(){
     }
     html += `
       </div>`;
+    if (description != '') {
+      html += `<p><small>`+description+`</small></p>`;
+    }
     return html;
   }
 
@@ -191,6 +194,9 @@ $(document).ready(function(){
         case 'string':
           add_string_to_container(property_container, html_key, key, property[key]);
           break;
+        case 'string-list':
+          add_string_list_to_container(property_container, html_key, key, property[key])
+          break;
         case 'math':
           add_math_to_container(property_container, property[key]);
           break;
@@ -202,8 +208,11 @@ $(document).ready(function(){
   function add_array_to_container(container, html_key, key, array) {
     $(container).append(`
       <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between">
           <h3 class="my-0 fw-normal">`+key+`</h3>
+          <button class="btn btn-primary `+html_key+`-add-element">
+            <span class="oi oi-plus" toggle="tooltop" aria-hidden="true" title="Add element"></span>
+          </button>
         </div>
         <div class="body card-body">
           <div class="form-group array-elements container-fluid">
@@ -251,25 +260,54 @@ $(document).ready(function(){
   function add_real_to_container(container, key, label, real_schema) {
     var units = "";
     var default_value = "";
+    var description = "";
     if ('units' in real_schema) units = real_schema['units'];
     if ('default' in real_schema) default_value = real_schema['default'].toString();
-    $(container).append(get_input_html(key, label, units, default_value));
+    if ('description' in real_schema) description = real_schema['description'].toString();
+    $(container).append(get_input_html(key, label, units, default_value, description));
   }
 
   // add an integer property to a container
   function add_integer_to_container(container, key, label, integer_schema) {
     var units = "";
     var default_value = "";
+    var description = "";
     if ('units' in integer_schema) units = integer_schema['units'];
     if ('default' in integer_schema) default_value = integer_schema['default'].toString();
-    $(container).append(get_input_html(key, label, units, default_value));
+    if ('description' in integer_schema) description = integer_schema['description'].toString();
+    $(container).append(get_input_html(key, label, units, default_value, description));
   }
 
   // add a string property to a container
   function add_string_to_container(container, key, label, string_schema) {
     var default_value = "";
+    var description = "";
     if ('default' in string_schema) default_value = string_schema['default'];
-    $(container).append(get_input_html(key, label, "", default_value));
+    if ('description' in string_schema) description = string_schema['description'].toString();
+    $(container).append(get_input_html(key, label, "", default_value, description));
+  }
+
+  // add a drop-down string list to a container
+  function add_string_list_to_container(container, key, label, string_list_schema) {
+    var default_value = "";
+    var description = "";
+    if ('default' in string_list_schema) default_value = string_list_schema['default'];
+    if ('description' in string_list_schema) description = string_list_schema['description'].toString();
+    var list_elements = [];
+    for (val of string_list_schema['values'].split(';')) {
+      list_elements.push( { key: format_json_key(val), label: val } );
+    }
+    var html = `
+      <div class="input-group" property-key="` + key + `">
+        <div class="input-group-prepend">
+          <span class="input-group-text">` + label + `</span>
+        </div>
+        ` + get_dropdown_html(default_value, list_elements) + `
+      </div>`;
+    if (description != '') {
+      html += `<p><small>`+description+`</small></p>`;
+    }
+    $(container).append(html);
   }
 
   // add a math equation to a container
