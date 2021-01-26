@@ -23,15 +23,20 @@ def reaction_menu_names():
     names = []
     for reaction in reactions_info():
         name = ''
-        for idx, reactant in enumerate(reaction['reactants']):
-            if idx > 0:
-                name += '+ '
-            name += str(reactant) + ' '
-        name += '->'
-        for idx, product in enumerate(reaction['products']):
-            if idx > 0:
-                name += ' +'
-            name += ' ' + str(product)
+        if 'reactants' in reaction.keys() and 'products' in reaction.keys():
+            for idx, reactant in enumerate(reaction['reactants']):
+                if idx > 0:
+                    name += '+ '
+                name += str(reactant) + ' '
+            name += '->'
+            for idx, product in enumerate(reaction['products']):
+                if idx > 0:
+                    name += ' +'
+                name += ' ' + str(product)
+        else:
+            name += reaction['type']
+            if 'species' in reaction.keys():
+                name += ': ' + reaction['species']
         if len(name) > 20:
             shortname = name[0:20] + '...'
             names.append(shortname)
@@ -45,7 +50,7 @@ def reaction_remove(reaction_index):
     logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
-    camp_data['pmc-data'][0]['reactions'].pop(index)
+    camp_data['pmc-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
 

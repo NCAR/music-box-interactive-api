@@ -36,6 +36,26 @@ $(document).ready(function(){
     }
   }
 
+  // sends a request to remove a reaction
+  function remove_reaction(reaction_index) {
+    if (typeof reaction_index === typeof undefined || reaction_index === false ) return;
+    $.ajax({
+      url: 'reaction-remove',
+      type: 'get',
+      data: { 'index': reaction_index },
+      success: function(response){
+        location.reload();
+      }
+    });
+  }
+
+  // clears the reaction detail window
+  function clear_reaction_detail() {
+    $('.reaction-detail').empty();
+    $('.reaction-detail').removeAttr('reaction-index');
+  }
+
+
 
   /**********************
    * Listener functions *
@@ -43,14 +63,7 @@ $(document).ready(function(){
 
   // removes a reaction from the mechanism
   $(".reaction-remove").on('click', function(){
-    $.ajax({
-      url: 'reaction-remove',
-      type: 'get',
-      data: { 'index': $(this).attr('reaction-id') },
-      success: function(response){
-        location.reload();
-      }
-    });
+    remove_reaction(parseInt($(this).attr('reaction-index'), 10));
   });
 
   // adds a new reaction to the mechanism
@@ -59,34 +72,38 @@ $(document).ready(function(){
     $('.reaction-detail').html(reaction_detail_html(reaction_data));
   });
 
-  // cancels any changes and exit reaction detail
+  // cancels any changes and exits the reaction detail window
   $('.reaction-detail').on('click', '.btn-cancel', function() {
-    $('.reaction-detail').empty();
+    clear_reaction_detail();
   });
 
-  // saves changes and exit reaction detail
+  // saves changes and exits the reaction detail window
   $('.reaction-detail').on('click', '.btn-save', function() {
     const csrftoken = $('[name=csrfmiddlewaretoken]').val();
-    var reaction_data = { };
-    reaction_data['type'] = $('.reaction-detail .reaction-card').attr('reaction-type');
-    $('.reaction-detail .properties .input-group').each(function(index) {
-      if ($(this).attr('data-type') == "object") {
-        set_property_value(reaction_data, $(this).attr('property'), { });
-      } else if ($(this).attr('data-type') == "string") {
-        set_property_value(reaction_data, $(this).attr('property'), $(this).children('input:first').val());
-      } else {
-        set_property_value(reaction_data, $(this).attr('property'), +$(this).children('input:first').val());
-      }
-    });
+    var old_index = $('.reaction-detail').attr('reaction-index');
+    var reaction_type = $('.reaction-detail .reaction-type-selector').attr('selected-element');
     $.ajax({
-      url: 'reaction-save',
-      type: 'post',
-      headers: {'X-CSRFToken': csrftoken},
-      contentType: 'application/json; charset=utf-8',
+      url: 'reaction-type-schema',
+      type: 'get',
       dataType: 'json',
-      data: JSON.stringify(reaction_data),
+      data: { 'type': reaction_type },
       success: function(response) {
-        location.reload();
+        var reaction_data = extract_reaction_data(reaction_type, response);
+        $.ajax({
+          url: 'reaction-save',
+          type: 'post',
+          headers: {'X-CSRFToken': csrftoken},
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          data: JSON.stringify(reaction_data),
+          success: function(response) {
+            remove_reaction(old_index);
+            location.reload();
+          },
+          error: function(response) {
+            alert(response['error']);
+          }
+        });
       },
       error: function(response) {
         alert(response['error']);
@@ -96,6 +113,8 @@ $(document).ready(function(){
 
   // changes the reaction type
   $('.reaction-detail').on('click', '.reaction-type-selector .dropdown-item', function() {
+    if ($(this).closest('.reaction-type-selector').attr('selected-element') == $(this).attr('element-key')) return;
+    $(this).closest('.reaction-type-selector').attr('selected-element', $(this).attr('element-key'));
     load_reaction_type( { 'type' : $(this).attr('element-key') } );
   });
 
@@ -106,7 +125,7 @@ $(document).ready(function(){
       url: 'reaction-detail',
       type: 'get',
       dataType: 'json',
-      data: { 'index': $(this).attr('reaction-id') },
+      data: { 'index': $(this).attr('reaction-index') },
       success: function(response) {
         load_reaction_type(response);
       }
@@ -131,13 +150,17 @@ $(document).ready(function(){
   }
 
   // returns html for a dropdown list
-  function dropdown_html(label, list_elements) {
+  function dropdown_html(name, label, list_elements) {
+    var key = '';
+    for (element of list_elements) {
+      if (element.label == label) key = element.key;
+    }
     var html = `
-      <div class="col-3 dropdown show">
-        <a href="#" class="btn btn-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <div class="col-3 dropdown show `+name+`-selector" selected-element="`+key+`"->
+        <a href="#" class="btn btn-light dropdown-toggle" id="`+name+`-dropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           `+((label=='') ? '&lt;select&gt;': label)+`
         </a>
-        <div class="dropdown-menu" aria-labelledby="reaction-type-dropdown">
+        <div class="dropdown-menu" aria-labelledby="`+name+`-dropdown">
         <a class="dropdown-item" href="#" element-key="">&lt;select&gt;</a>`;
     for (element of list_elements) {
       html += `
@@ -184,10 +207,8 @@ $(document).ready(function(){
     ];
     return `
           <div class="card mb-4 reaction-card shadow-sm">
-            <div class="card-header">
-              <div class="reaction-type-selector">` +
-                dropdown_html(reaction_type_label(reaction_type), list_elements) + `
-              </div>
+            <div class="card-header">` +
+              dropdown_html('reaction-type', reaction_type_label(reaction_type), list_elements) + `
             </div>
             <form class="body card-body">
               <div class="form-group properties">
@@ -286,7 +307,7 @@ $(document).ready(function(){
         for (val of schema['children']['key'].split(';')) {
           list_elements.push( { key: format_json_key(val), label: val } );
         }
-        $(element_container).html(dropdown_html((value != null && 'key' in value) ? value['key'] : '', list_elements));
+        $(element_container).html(dropdown_html('array-element-'+index, (value != null && 'key' in value) ? value['key'] : '', list_elements));
         $(element_container).append(`<div class="col-7 element-properties"></div>`);
         add_property_to_container(element_container + ' .element-properties', schema['children']['children'], (value != null && 'value' in value) ? value['value'] : null);
         $(element_container).append(`
@@ -360,7 +381,7 @@ $(document).ready(function(){
         <div class="input-group-prepend">
           <span class="input-group-text">` + label + `</span>
         </div>
-        ` + dropdown_html((value === null) ? default_value : value, list_elements) + `
+        ` + dropdown_html('property-'+key, (value === null) ? default_value : value, list_elements) + `
       </div>`;
     if (description != '') {
       html += `<p><small>`+description+`</small></p>`;
@@ -380,7 +401,7 @@ $(document).ready(function(){
     $('.reaction-detail').html(get_reaction_detail_html(reaction_type));
     delete reaction_data['type'];
     if ('index' in reaction_data) {
-      $('.reaction-detail .reaction-card').attr('reaction-index', reaction_data['index']);
+      $('.reaction-detail').attr('reaction-index', reaction_data['index']);
       delete reaction_data['index'];
     }
     $.ajax({
@@ -393,5 +414,16 @@ $(document).ready(function(){
       }
     });
   }
+
+  /****************************
+   * Reaction data extractors *
+   ****************************/
+
+  // extracts reaction data from the reaction detail window
+  function extract_reaction_data(reaction_type, schema) {
+    var reaction_data = { 'type' : reaction_type };
+    return reaction_data;
+  }
+
 
 });

@@ -74,7 +74,7 @@ def reactions_home_handler(request):
 def reaction_remove_handler(request):
     if not 'index' in request.GET:
         return HttpResponseBadRequest("missing reaction index")
-    reaction_remove(request.GET['index'])
+    reaction_remove(int(request.GET['index']))
     return HttpResponse('')
 
 
