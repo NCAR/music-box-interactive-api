@@ -118,6 +118,12 @@ $(document).ready(function(){
     load_reaction_type( { 'type' : $(this).attr('element-key') } );
   });
 
+  // updates the value of a string list
+  $('.reaction-detail').on('click', '.string-list .dropdown-item', function() {
+    $(this).closest('.dropdown').attr('selected-element', $(this).attr('element-key'));
+    $(this).closest('.dropdown').children('a .dropdown-toggle').val($(this).val());
+  });
+
   // shows an editable reaction detail window
   $(".reaction-detail-link").on('click', function() {
     $(".reaction-detail").empty();
@@ -297,7 +303,7 @@ $(document).ready(function(){
   // adds an array element to an array container
   function add_array_element(container, index, schema, value) {
     $(container).append(`
-            <div class="row array-element-`+index+`">
+            <div class="row array-element array-element-`+index+`">
             </div>
     `);
     var element_container = container + " .array-element-" + index;
@@ -377,7 +383,7 @@ $(document).ready(function(){
       list_elements.push( { key: format_json_key(val), label: val } );
     }
     var html = `
-      <div class="input-group" property-key="` + key + `">
+      <div class="input-group string-list" property-key="` + key + `">
         <div class="input-group-prepend">
           <span class="input-group-text">` + label + `</span>
         </div>
@@ -422,8 +428,128 @@ $(document).ready(function(){
   // extracts reaction data from the reaction detail window
   function extract_reaction_data(reaction_type, schema) {
     var reaction_data = { 'type' : reaction_type };
+    for (const [key, value] of Object.entries(extract_property_from_container($('.reaction-detail .properties'), schema))) {
+      reaction_data[key] = value;
+    }
     return reaction_data;
   }
 
+  // extracts a property or set of properties from a container
+  function extract_property_from_container(this_object, schema) {
+    var object_data = {};
+    for (var key of Object.keys(schema)) {
+      var html_key = format_json_key(key);
+      var property_object = this_object.children(' .property-' + html_key);
+      switch (schema[key]['type']) {
+        case 'object':
+          if ('children' in schema[key]) {
+            for (const [sub_key, value] of Object.entries(extract_property_from_container(property_object, schema[key]['children']))) {
+              object_data[sub_key] = value;
+            }
+          }
+          break;
+        case 'array':
+          var value = extract_array_from_container(property_object, schema[key]);
+          if (value !== null) object_data[key] = value;
+          break;
+        case 'real':
+          var value = extract_real_from_container(property_object, schema[key]);
+          if (value !== null) object_data[key] = value;
+          break;
+        case 'integer':
+          var value = extract_integer_from_container(property_object, schema[key]);
+          if (value !== null) object_data[key] = value;
+          break;
+        case 'string':
+          var value = extract_string_from_container(property_object, schema[key]);
+          if (value !== null) object_data[key] = value;
+          break;
+        case 'string-list':
+          var value = extract_string_from_container(property_object, schema[key]);
+          if (value !== null) object_data[key] = value;
+          break;
+      }
+    }
+    return object_data;
+  }
+
+  // extracts an array of properties from a container
+  function extract_array_from_container(this_object, schema) {
+    if ('as-object' in schema && schema['as-object'] == true) {
+      var object_data = {};
+      this_object.children().children().children('.array-elements').children('.array-element').each(function(index) {
+        var key = $(this).children('.dropdown').attr('selected-element');
+        if (typeof key === typeof undefined || key === false) return;
+        var sub_data = {};
+        for (const [sub_key, value] of Object.entries(extract_property_from_container($(this).children('.element-properties'), schema['children']['children']))) {
+          sub_data[sub_key] = value;
+        }
+        object_data[key] = sub_data;
+      });
+      return object_data;
+    } else {
+      var object_data = [];
+      this_object.children().children().children('.body').children('.array-element').each(function(index) {
+        switch (schema['children']['type']) {
+          case 'object':
+            var sub_object = {};
+            for (const [sub_key, value] of Object.entries(extract_property_from_container($(this).children('.element-properties'), schema['children']['children']))) {
+              sub_object[sub_key] = value;
+            }
+            object_data.push(sub_object);
+            break;
+          case 'array':
+            var value = extract_array_from_container($(this), schema['children']);
+            if (value !== null) object_data.push(value);
+            break;
+          case 'real':
+            var value = extract_real_from_container($(this), schema['children']);
+            if (value !== null) object_data.push(value);
+            break;
+          case 'integer':
+            var value = extract_integer_from_container($(this), schema['children']);
+            if (value !== null) object_data.push(value);
+            break;
+          case 'string':
+            var value = extract_string_from_container($(this), schema['children']);
+            if (value !== null) object_data.push(value);
+            break;
+          case 'string-list':
+            var value = extract_string_list_from_container($(this), schema['children']);
+            if (value !== null) object_data.push(value);
+            break;
+        }
+      });
+      return object_data;
+    }
+  }
+
+  // extracts a real number from a container
+  function extract_real_from_container(this_object, schema) {
+    var str_val = this_object.children().children('input:text').val();
+    if (str_val === '') return null;
+    return parseFloat(str_val);
+  }
+
+  // extracts an integer from a container
+  function extract_integer_from_container(this_object, schema) {
+    var str_val = this_object.children().children('input:text').val();
+    if (str_val === '') return null;
+    return parseInteger(str_val);
+  }
+
+  // extracts a string from a container
+  function extract_string_from_container(this_object, schema) {
+    var str_val = this_object.children().children('input:text').val();
+    if (str_val === '') return null;
+    return str_val;
+  }
+
+  // extracts a string list value from a container
+  function extract_string_list_from_container(this_object, schema) {
+    var str_val = this_object.children().children().attr('selected-element');
+    if (typeof str_val === typeof undefined || str_val === false) return null;
+    return str_val;
+  }
 
 });

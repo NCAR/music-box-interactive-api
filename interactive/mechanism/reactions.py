@@ -55,9 +55,9 @@ def reaction_remove(reaction_index):
         json.dump(camp_data, f, indent=2)
 
 
-# saves a chemical species to the mechanism
+# saves a reaction to the mechanism
 def reaction_save(reaction_data):
-    logging.info('adding reaction')
+    logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     camp_data['pmc-data'][0]['reactions'].append(reaction_data)
@@ -162,7 +162,7 @@ def reaction_type_schema(reaction_type):
             'scaling factor' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'Use the scaling factor to adjust emission rates from input data. A scaling factor of 1.0 results in no adjustment.',
+                'description' : 'Use the scaling factor to adjust first order loss rate constants from input data. A scaling factor of 1.0 results in no adjustment.',
                 'units' : 'unitless'
             },
             'MUSICA name' : {
@@ -205,7 +205,7 @@ def reaction_type_schema(reaction_type):
             'scaling factor' : {
                 'type' : 'real',
                 'default' : 1.0,
-                'description' : 'Use the scaling factor to adjust emission rates from input data. A scaling factor of 1.0 results in no adjustment.',
+                'description' : 'Use the scaling factor to adjust photolysis rate constants from input data. A scaling factor of 1.0 results in no adjustment.',
                 'units' : 'unitless'
             },
             'MUSICA name' : {
