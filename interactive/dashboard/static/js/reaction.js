@@ -118,10 +118,10 @@ $(document).ready(function(){
     load_reaction_type( { 'type' : $(this).attr('element-key') } );
   });
 
-  // updates the value of a string list
-  $('.reaction-detail').on('click', '.string-list .dropdown-item', function() {
+  // updates the value of a dropdown list
+  $('.reaction-detail').on('click', '.dropdown .dropdown-item', function() {
     $(this).closest('.dropdown').attr('selected-element', $(this).attr('element-key'));
-    $(this).closest('.dropdown').children('a .dropdown-toggle').val($(this).val());
+    $(this).closest('.dropdown').children('a.dropdown-toggle').html($(this).html());
   });
 
   // shows an editable reaction detail window
@@ -399,6 +399,9 @@ $(document).ready(function(){
   function add_math_to_container(container, math) {
     $(container).append(`<div>$$` + math.value + `$$</div>`);
     MathJax.typeset();
+    if ('description' in math) {
+      $(container).append(`<p><small>`+math.description+`</small></p>`);
+    }
   }
 
   // loads the reaction detail window with properties for a specific reaction type
@@ -535,7 +538,7 @@ $(document).ready(function(){
   function extract_integer_from_container(this_object, schema) {
     var str_val = this_object.children().children('input:text').val();
     if (str_val === '') return null;
-    return parseInteger(str_val);
+    return parseInt(str_val);
   }
 
   // extracts a string from a container

@@ -2,6 +2,7 @@ import json
 from django.conf import settings
 import logging
 import os
+import time
 from .species import species_list
 from interactive.tools import *
 
@@ -14,6 +15,7 @@ def reactions_info():
     logging.info('getting reaction data from file')
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
+        f.close()
     return camp_data['pmc-data'][0]['reactions']
 
 
@@ -53,7 +55,7 @@ def reaction_remove(reaction_index):
     camp_data['pmc-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
-
+        f.close()
 
 # saves a reaction to the mechanism
 def reaction_save(reaction_data):
@@ -63,6 +65,7 @@ def reaction_save(reaction_data):
     camp_data['pmc-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
+        f.close()
 
 
 # returns the json schema for a particular reaction type
@@ -108,7 +111,8 @@ def reaction_type_schema(reaction_type):
             },
             'equation' : {
                 'type' : 'math',
-                'value' : 'k = Ae^{(\\frac{-E_a}{k_bT})}(\\frac{T}{D})^B(1.0+E*P)'
+                'value' : 'k = Ae^{(\\frac{-E_a}{k_bT})}(\\frac{T}{D})^B(1.0+E*P)',
+                'description' : 'k<sub>B</sub>: Boltzmann constant (J K<sup>-1</sup>); T: temperature (K); P: pressure (Pa)'
             },
             'A' : {
                 'type' : 'real',
@@ -245,17 +249,18 @@ def reaction_type_schema(reaction_type):
                     }
                 }
             },
-            'equation' : {
+            'equation k_0' : {
                 'type' : 'math',
-                'value' : 'k_0 = k_{0A}e^{(\\frac{k_{0C}}{T})}(\\frac{T}{300.0})^k_{0B}'
+                'value' : 'k_0 = k_{0A}e^{(\\frac{k_{0C}}{T})}(\\frac{T}{300.0})^{k_{0B}}'
             },
-            'equation' : {
+            'equation k_inf' : {
                 'type' : 'math',
-                'value' : 'k_{inf} = k_{infA}e^{(\\frac{k_{infC}}{T})}(\\frac{T}{300.0})^k_{infB}'
+                'value' : 'k_{inf} = k_{infA}e^{(\\frac{k_{infC}}{T})}(\\frac{T}{300.0})^{k_{infB}}'
             },
-            'equation' : {
+            'equation k' : {
                 'type' : 'math',
-                'value' : 'k = \\frac{k_0[\\mbox{M}]}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{1+(1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}'
+                'value' : 'k = \\frac{k_0[\\mbox{M}]}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{1+(1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
+                'description' : 'T: temperature (K); M: number density of air (mol m<sup>-3</sup>)'
             },
             'k0_A' : {
                 'type' : 'real',

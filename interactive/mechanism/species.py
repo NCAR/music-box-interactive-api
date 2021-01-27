@@ -2,6 +2,7 @@ import json
 from django.conf import settings
 import logging
 import os
+import time
 from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -13,6 +14,7 @@ def species_info():
     logging.info('getting chemical species data from file')
     with open(species_path) as f:
         camp_data = json.loads(f.read())
+        f.close()
     return camp_data['pmc-data']
 
 
@@ -54,6 +56,7 @@ def species_remove(species_name):
     json_data['pmc-data'] = species
     with open(species_path, 'w') as f:
         json.dump(json_data, f, indent=2)
+        f.close()
 
 
 # saves a chemical species to the mechanism
@@ -64,3 +67,4 @@ def species_save(species_data):
     json_data['pmc-data'].append(species_data)
     with open(species_path, 'w') as f:
         json.dump(json_data, f, indent=2)
+        f.close()
