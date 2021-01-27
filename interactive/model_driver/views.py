@@ -10,6 +10,8 @@ import time
 from shutil import copy
 from .run_setup import setup_run, check_if_config_changed
 from .run_logging import *
+from datetime import datetime
+
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
@@ -78,7 +80,8 @@ def check_load(request):
 
 def download(request):
     fl_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    filename = 'output.csv'
+    now = datetime.now()
+    filename = str(now) + '_model_output.csv'
 
     fl = open(fl_path, 'r')
     mime_type, _ = mimetypes.guess_type(fl_path)
