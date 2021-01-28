@@ -1,9 +1,11 @@
 import csv
 from zipfile import ZipFile
+from distutils.dir_util import copy_tree
 from django.conf import settings
 import os
 from .save import load, save, export
 import json
+import glob
 from django.conf import settings
 from interactive.tools import *
 import logging
@@ -107,60 +109,40 @@ def handle_uploaded_zip_config(f):
     with ZipFile(file_name, 'r') as zip:
         zip.extractall(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped"))
 
-    needed_files = ['my_config.json', 'camp_data/config.json', 'camp_data/mechanism.json', 'camp_data/species.json', 'camp_data/tolerance.json']
-    with open(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/my_config.json")) as f:
+    needed_files = ['my_config.json', 'camp_data/config.json', 'camp_data/reactions.json', 'camp_data/species.json', 'camp_data/tolerance.json']
+    with open(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config/my_config.json")) as f:
         config = json.loads(f.read())
-    
+
     #looks for evolving conditions files
     if 'evolving conditions' in config:
         for key in config['evolving conditions']:
             if '.' in key:
                 needed_files.append(key)
-    
+
     #checks that all neccesary files are in the zip
     for f in needed_files:
-        if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped"), f)):
+        if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config"), f)):
+            logging.info('missing needed file from upload: ' + f)
             return False
 
     #copy files into config folder
     config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-    src_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped")
-
-    for f in needed_files:
-        copyConfigFile(os.path.join(src_path, f), os.path.join(config_path, f))
+    src_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config")
+    copy_tree(src_path, config_path)
 
     return True
 
-      
-
-#copy all files to the static/zip/config_copy directory to be zipped
-def copy_files_for_zipping():
-    destination_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
-    camp_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy/camp_data")
-
-    filelist = ['my_config.json', 'camp_data/config.json', 'camp_data/mechanism.json', 'camp_data/species.json', 'camp_data/tolerance.json']
-    config = open_json('my_config.json')
-    for key in config['evolving conditions']:
-        if os.path.isfile(os.path.join(config_path, key)):
-            filelist.append(key)
-    
-    for f in filelist:
-        copyConfigFile(os.path.join(config_path, f), os.path.join(destination_path, f))
-    
-    return filelist
 
 # create configuration zip
 def create_config_zip():
-    filelist = copy_files_for_zipping()
-    folder_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
-
+    destination_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
+    copy_tree(config_path, destination_path)
     zip_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/output/config.zip")
-    from_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
-
-
     with ZipFile(zip_path, 'w') as zip:
-        for i in filelist:
-            zip.write(os.path.join(from_path,i), i)
+        for filepath in glob.iglob(destination_path + '/**', recursive=True):
+            relative_path = os.path.relpath(filepath, destination_path)
+            if str(relative_path) == 'my_config.json' or str(relative_path).startswith('camp_data'):
+                zip.write(filepath, os.path.join('config/', os.path.relpath(filepath, destination_path)))
 
 
 # saves uploaded loss rates file to config folder

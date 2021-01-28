@@ -1,6 +1,14 @@
 **/__pycache__/
 **/*.pyc
 **/*.DS_Store
+interactive/dashboard/static/zip/config_copy/*
+interactive/dashboard/static/zip/output/*
+interactive/dashboard/static/zip/unzipped/*
+interactive/dashboard/static/zip/uploaded/*
+!interactive/dashboard/static/zip/config_copy/README
+!interactive/dashboard/static/zip/output/README
+!interactive/dashboard/static/zip/unzipped/README
+!interactive/dashboard/static/zip/uploaded/README
 venv/bin/activate
 venv/bin/activate.csh
 venv/bin/activate.fish
