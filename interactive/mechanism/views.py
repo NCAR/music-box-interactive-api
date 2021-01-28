@@ -83,8 +83,5 @@ def reaction_save_handler(request):
     if request.method != 'POST':
         return JsonResponse({"error":"saving a reaction should be a POST request"})
     reaction_data = json.loads(request.body)
-    if 'index' in reaction_data:
-        reaction_remove(reaction_data['index'])
-        del reaction_data['index']
     reaction_save(reaction_data)
     return JsonResponse({})

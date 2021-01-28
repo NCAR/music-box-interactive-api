@@ -89,6 +89,9 @@ $(document).ready(function(){
       data: { 'type': reaction_type },
       success: function(response) {
         var reaction_data = extract_reaction_data(reaction_type, response);
+        if (typeof old_index !== typeof undefined && old_index !== false && old_index !== '') {
+          reaction_data['index'] = parseInt(old_index);
+        }
         $.ajax({
           url: 'reaction-save',
           type: 'post',
@@ -97,7 +100,6 @@ $(document).ready(function(){
           dataType: 'json',
           data: JSON.stringify(reaction_data),
           success: function(response) {
-            remove_reaction(old_index);
             location.reload();
           },
           error: function(response) {
@@ -220,7 +222,7 @@ $(document).ready(function(){
   }
 
   // returns html for reaction detail window
-  function get_reaction_detail_html(reaction_type) {
+  function reaction_detail_html(reaction_type) {
     var list_elements = [
       { key: "ARRHENIUS", label: reaction_type_label("ARRHENIUS") },
       { key: "EMISSION", label: reaction_type_label("EMISSION") },
@@ -425,7 +427,7 @@ $(document).ready(function(){
   // loads the reaction detail window with properties for a specific reaction type
   function load_reaction_type(reaction_data) {
     var reaction_type = reaction_data['type'];
-    $('.reaction-detail').html(get_reaction_detail_html(reaction_type));
+    $('.reaction-detail').html(reaction_detail_html(reaction_type));
     delete reaction_data['type'];
     if ('index' in reaction_data) {
       $('.reaction-detail').attr('reaction-index', reaction_data['index']);
