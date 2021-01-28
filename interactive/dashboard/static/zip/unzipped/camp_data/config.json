@@ -1,7 +1,0 @@
-{
-  "pmc-files" : [
-    "camp_data/tolerance.json",
-    "camp_data/species.json",
-    "camp_data/mechanism.json"
-  ]
-}
