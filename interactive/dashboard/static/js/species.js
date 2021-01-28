@@ -77,6 +77,7 @@ $(document).ready(function(){
   $('.species-detail').on('click', '.btn-cancel', function() {
     $('.species-detail').empty();
   });
+
   // save changes and exit species detail
   $('.species-detail').on('click', '.btn-save', function() {
     if( $('.species-detail .species-card').attr('species') == '' ) return;
@@ -146,7 +147,7 @@ $(document).ready(function(){
         for (var key of Object.keys(response).sort()) {
           if (key == "name" || key == "type") continue;
           $('.new-property .dropdown-item[property="'+key+'"]').hide();
-          if (response[key] instanceof String) {
+          if (typeof response[key] == "string") {
             $('.species-detail .properties').append(property_input_html(key, "string", response[key]));
           } else {
             $('.species-detail .properties').append(property_input_html(key, "number", response[key]));
