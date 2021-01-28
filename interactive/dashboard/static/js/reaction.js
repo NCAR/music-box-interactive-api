@@ -124,8 +124,25 @@ $(document).ready(function(){
     $(this).closest('.dropdown').children('a.dropdown-toggle').html($(this).html());
   });
 
+  // adds an element to an array
+  $('.reaction-detail').on('click', 'button.add-element', function() {
+    var schema = JSON.parse(localStorage.getItem("schema-" + $(this).attr("data-schema")));
+    var element_container = $(this).closest('.card').children('.body').children('.array-elements');
+    var index = 0;
+    element_container.children('.array-element').each(function() {
+      var this_index = parseInt($(this).attr('array-element-index'));
+      if (this_index >= index) index = this_index + 1;
+    });
+    add_array_element('.reaction-detail .' + element_container.attr('class').replaceAll(' ', '.'), index, schema, null);
+  });
+
+  // removes an element from an array
+  $('.reaction-detail').on('click', 'button.remove-element', function() {
+    $(this).closest('.array-element').remove();
+  });
+
   // shows an editable reaction detail window
-  $(".reaction-detail-link").on('click', function() {
+  $('.reaction-detail-link').on('click', function() {
     $(".reaction-detail").empty();
     $.ajax({
       url: 'reaction-detail',
@@ -273,15 +290,16 @@ $(document).ready(function(){
       <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between">
           <h3 class="my-0 fw-normal">`+key+`</h3>
-          <button class="btn btn-primary `+html_key+`-add-element">
+          <button class="btn btn-primary add-element" data-schema="`+html_key+`">
             <span class="oi oi-plus" toggle="tooltop" aria-hidden="true" title="Add element"></span>
           </button>
         </div>
         <div class="body card-body">
-          <div class="form-group array-elements container-fluid">
+          <div class="form-group array-elements array-elements-`+html_key+` container-fluid">
           </div>
         </div>
       </div>`);
+      localStorage.setItem("schema-" + html_key, JSON.stringify(schema));
     if ('description' in schema) {
       $(container).append(`<p><small>` + schema['description'] + `</small><p>`);
     }
@@ -303,7 +321,7 @@ $(document).ready(function(){
   // adds an array element to an array container
   function add_array_element(container, index, schema, value) {
     $(container).append(`
-            <div class="row array-element array-element-`+index+`">
+            <div class="row array-element array-element-`+index+`" array-element-index="`+index+`">
             </div>
     `);
     var element_container = container + " .array-element-" + index;
@@ -482,7 +500,7 @@ $(document).ready(function(){
       var object_data = {};
       this_object.children().children().children('.array-elements').children('.array-element').each(function(index) {
         var key = $(this).children('.dropdown').attr('selected-element');
-        if (typeof key === typeof undefined || key === false) return;
+        if (typeof key === typeof undefined || key === false || key === '') return;
         var sub_data = {};
         for (const [sub_key, value] of Object.entries(extract_property_from_container($(this).children('.element-properties'), schema['children']['children']))) {
           sub_data[sub_key] = value;
@@ -551,7 +569,7 @@ $(document).ready(function(){
   // extracts a string list value from a container
   function extract_string_list_from_container(this_object, schema) {
     var str_val = this_object.children().children().attr('selected-element');
-    if (typeof str_val === typeof undefined || str_val === false) return null;
+    if (typeof str_val === typeof undefined || str_val === false || str_val === '') return null;
     return str_val;
   }
 

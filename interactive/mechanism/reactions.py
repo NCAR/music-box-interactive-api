@@ -52,6 +52,7 @@ def reaction_remove(reaction_index):
     logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
+        f.close()
     camp_data['pmc-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
@@ -62,6 +63,7 @@ def reaction_save(reaction_data):
     logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
+        f.close()
     camp_data['pmc-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
