@@ -2,21 +2,14 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.species),
-    path('species-remove', views.species_remove_handler),
+    path('', views.species_home_handler),
+    path('reactions', views.reactions_home_handler),
+    path('reaction-detail', views.reaction_detail_handler),
+    path('reaction-type-schema', views.reaction_type_schema_handler),
+    path('reaction-remove', views.reaction_remove_handler),
+    path('reaction-save', views.reaction_save_handler),
+    path('species', views.species_home_handler),
     path('species-detail', views.species_detail_handler),
+    path('species-remove', views.species_remove_handler),
     path('species-save', views.species_save_handler),
-    path('species', views.species),
-    path('reactions', views.reactions),
-    path('load', views.load),
-    path('equation', views.equation),
-    path('save', views.save),
-    path('newspecies', views.new_species),
-    path('newM', views.new_species_save),
-    path('searchM', views.species_search),
-    path('load_reaction', views.load_r),
-    path('save_r', views.save_r),
-    path('r_to_m', views.r_to_m),
-    path("load_reaction_equation", views.reaction_equations),
-    path('searchR', views.search_reactions)
     ]
