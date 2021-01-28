@@ -1,0 +1,44 @@
+{
+    "box model options": {
+        "grid": "box",
+        "chemistry time step [min]": 1.0,
+        "output time step [hr]": 0.1,
+        "simulation length [hr]": 13.9
+    },
+    "chemical species": {
+        "O": {
+            "initial value [mol m-3]": 1.0
+        }
+    },
+    "environmental conditions": {
+        "temperature": {
+            "initial value [K]": 290.0
+        },
+        "pressure": {
+            "initial value [atm]": 0.9
+        }
+    },
+    "photolysis": {
+        "O3_1": {
+            "initial value [s-1]": 0.0032
+        },
+        "O3_2": {
+            "initial value [s-1]": 0.0012
+        }
+    },
+    "evolving conditions": {},
+    "model components": [
+        {
+            "type": "CAMP",
+            "configuration file": "camp_data/config.json",
+            "override species": {
+                "M": {
+                    "mixing ratio mol mol-1": 1.0
+                }
+            },
+            "suppress output": {
+                "M": {}
+            }
+        }
+    ]
+}

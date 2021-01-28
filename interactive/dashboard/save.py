@@ -28,7 +28,7 @@ def export():
     if 'evolving conditions' in oldConfig:
         evolves = oldConfig['evolving conditions']
     else:
-        evolves = ''
+        evolves = {}
     
 
     config = {}
@@ -38,9 +38,9 @@ def export():
     options_section = {}
 
     options_section.update({"grid": options["grid"]})
-    options_section.update({"chemistry time step [min]": options["chemistry_time_step"]})
-    options_section.update({"output time step [hr]": options["output_time_step"]})
-    options_section.update({"simulation length [hr]": options["simulation_length"]})
+    options_section.update({"chemistry time step [sec]": options["chemistry_time_step"]})
+    options_section.update({"output time step [sec]": options["output_time_step"]})
+    options_section.update({"simulation length [sec]": options["simulation_length"]})
 
     # write chemical species section
 
@@ -87,9 +87,7 @@ def export():
     config.update({"chemical species": species_section})
     config.update({"environmental conditions": init_section})
     config.update({"photolysis": photo_section})
-
-    if evolves:
-        config.update({'evolving conditions': evolves})
+    config.update({'evolving conditions': evolves})
 
     config.update({
         "model components": [
@@ -537,3 +535,35 @@ def clear_e_files():
 
     print('ev_conditions files cleared')
     return
+
+
+def copyConfigFile(source, destination):
+    configFile = open(source, 'rb')
+    content = configFile.read()
+    g = open(destination, 'wb')
+    g.write(content)
+    g.close()
+    configFile.close()
+
+
+def load_example_configuration(name):
+    examples_path = os.path.join(settings.BASE_DIR, 'dashboard/static/examples')
+    example_folder_path = os.path.join(examples_path, name)
+        
+    needed_files = ['my_config.json', 'camp_data/config.json', 'camp_data/mechanism.json', 'camp_data/species.json', 'camp_data/tolerance.json']
+    with open(os.path.join(example_folder_path, "my_config.json")) as f:
+        config = json.loads(f.read())
+    
+    #looks for evolving conditions files
+    if 'evolving conditions' in config:
+        for key in config['evolving conditions']:
+            if '.' in key:
+                needed_files.append(key)
+
+    #copy files into config folder
+    config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+
+    for f in needed_files:
+        copyConfigFile(os.path.join(example_folder_path, f), os.path.join(config_path, f))
+
+    reverse_export()

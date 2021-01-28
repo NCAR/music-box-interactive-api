@@ -381,20 +381,27 @@ $(document).ready(function(){
   // check if forms have been changed
   $('form :input').on('change input', function() {
       var name = $(this).attr('savebutton')
-      $("#" + name).addClass('btn-ncar-active')
+      $("#" + name).removeClass('btn-secondary')
+      $("#" + name).addClass('btn-primary')
   });
 
   
 
   $("#exampleToggle").on('click', function(){
+    $(".load-panel").collapse('hide')
     $(".example-panel").collapse('show')
+  });
+
+  $("#loadToggle").on('click', function(){
+    $(".example-panel").collapse('hide')
+    $(".load-panel").collapse('show')
   });
 
   
   $(".linear-combo-check").on('change input', function(){
     var name = $(this).attr('addButton');
     $("#" + name).removeClass('disabled')
-    $("#" + name).addClass('btn-ncar-active')
+    $("#" + name).addClass('btn-primary-active')
   });
 
 

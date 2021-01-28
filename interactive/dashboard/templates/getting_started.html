@@ -12,7 +12,7 @@
       <p>
         <a href="/mechanism" class="btn btn-primary btn-ncar-active my-2">Start from scratch</a>
         <button  data-toggle="collapse" id="exampleToggle" data-target="#box1" class="btn btn-primary btn-ncar-active my-2">Select example</button>
-        <a href="#" class="btn btn-primary btn-ncar-active my-2">Load configuration file</a>
+        <a id="loadToggle" href="#" class="btn btn-primary btn-ncar-active my-2">Load configuration file</a>
       </p>
       <div class="row">
         <div class="col">
@@ -23,7 +23,7 @@
             <div>
               description
             </div>
-            <a class="btn btn-secondary">Select</a>
+            <a href="/conditions/load-example?example=1" class="btn btn-secondary">Select</a>
           </div>
         </div>
         <div class="col">
@@ -34,7 +34,7 @@
             <div>
               description
             </div>
-            <a class="btn btn-secondary">Select</a>
+            <a href="/conditions/load-example?example=2" class="btn btn-secondary">Select</a>
           </div>
         </div>
         <div class="col">
@@ -45,9 +45,21 @@
             <div>
               description
             </div>
-            <a class="btn btn-secondary">Select</a>
+            <a href="/conditions/load-example?example=3" class="btn btn-secondary">Select</a>
           </div>
         </div>
+      </div>
+      <div class="row">
+        <div class="collapse card card-body load-panel m-2">
+            <div>
+              <h3>Select configuration Zip file</h3>
+            </div>
+            <form  enctype="multipart/form-data" method="POST" action="/conditions/config_json">
+              {% csrf_token %}
+              {{ configFileForm }}
+              <button type="submit" class="btn btn-primary m-2">Upload</button>
+            </form>
+          </div>
       </div>
     </div>
   </section>
