@@ -14,23 +14,25 @@ Select a chemical species from the list to view/edit its properties, or add a ne
 </p>
 <div id="species_content" class="container-fluid p-2">
   <div class="row row-full-width">
-    <nav class="col-md-3 col-lg-2 bg-ncar-menu-secondary p-2">
-      <button class="btn btn-primary species-new mb-2">
-        <span class="oi oi-plus" toggle="tooltip" aria-hidden="true" title="Add a new species"></span>&nbsp;New
-      </button>
-      <ul class="list-group species-list">
-        {% for species in species_menu_names %}
-          <li class="list-group-item list-group-item-action d-flex justify-content-between">
-            <a href="#" class="species-detail-link" species="{{species.0}}">
-              {{ species.1 }}
-            </a>
-            <a href="#" class="navlink species-remove m-0 p-0" species="{{species.0}}">
-              <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove {{species.0}}"></span>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </nav>
+    <div class="col-md-3 col-lg-2">
+      <nav class="bg-ncar-menu-secondary p-2">
+        <button class="btn btn-primary species-new mb-2">
+          <span class="oi oi-plus" toggle="tooltip" aria-hidden="true" title="Add a new species"></span>&nbsp;New
+        </button>
+        <ul class="list-group species-list">
+          {% for species in species_menu_names %}
+            <li class="list-group-item list-group-item-action d-flex justify-content-between">
+              <a href="#" class="species-detail-link" species="{{species.0}}">
+                {{ species.1 }}
+              </a>
+              <a href="#" class="navlink species-remove m-0 p-0" species="{{species.0}}">
+                <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove {{species.0}}"></span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </div>
     <div class="col-md-9 col-lg-7 my-3 species-detail">
     </div>
   </div>

@@ -69,6 +69,7 @@ $(document).ready(function(){
   // adds a new reaction to the mechanism
   $(".reaction-new").on('click', function(){
     var reaction_data = { };
+    $('.reaction-detail').removeAttr('reaction-index');
     $('.reaction-detail').html(reaction_detail_html(reaction_data));
   });
 
@@ -115,9 +116,21 @@ $(document).ready(function(){
 
   // changes the reaction type
   $('.reaction-detail').on('click', '.reaction-type-selector .dropdown-item', function() {
-    if ($(this).closest('.reaction-type-selector').attr('selected-element') == $(this).attr('element-key')) return;
-    $(this).closest('.reaction-type-selector').attr('selected-element', $(this).attr('element-key'));
-    load_reaction_type( { 'type' : $(this).attr('element-key') } );
+    var old_type = $(this).closest('.reaction-type-selector').attr('selected-element');
+    var new_type = $(this).attr('element-key');
+    if ($(this).closest('.reaction-type-selector').attr('selected-element') == new_type) return;
+    $(this).closest('.reaction-type-selector').attr('selected-element', new_type);
+    $.ajax({
+      url: 'reaction-type-schema',
+      type: 'get',
+      dataType: 'json',
+      data: { 'type': old_type },
+      success: function(response) {
+        var reaction_data = extract_reaction_data( old_type, response );
+        reaction_data['type'] = new_type;
+        load_reaction_type( reaction_data );
+      }
+    });
   });
 
   // updates the value of a dropdown list
@@ -488,7 +501,7 @@ $(document).ready(function(){
           if (value !== null) object_data[key] = value;
           break;
         case 'string-list':
-          var value = extract_string_from_container(property_object, schema[key]);
+          var value = extract_string_list_from_container(property_object, schema[key]);
           if (value !== null) object_data[key] = value;
           break;
       }
@@ -570,7 +583,7 @@ $(document).ready(function(){
 
   // extracts a string list value from a container
   function extract_string_list_from_container(this_object, schema) {
-    var str_val = this_object.children().children().attr('selected-element');
+    var str_val = this_object.children().children('.dropdown').attr('selected-element');
     if (typeof str_val === typeof undefined || str_val === false || str_val === '') return null;
     return str_val;
   }
