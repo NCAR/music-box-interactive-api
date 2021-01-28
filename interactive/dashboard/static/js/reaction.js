@@ -252,8 +252,8 @@ $(document).ready(function(){
               <div class="form-group properties">
               </div>
               <div class="container text-center mt-3">
-                <button class="btn btn-primary btn-save">Save</button>
-                <button class="btn btn-secondary btn-cancel">Cancel</button>
+                <button type="button" class="btn btn-primary btn-save">Save</button>
+                <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
               </div>
             </form>
           </div>`;
@@ -305,7 +305,7 @@ $(document).ready(function(){
       <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between">
           <h3 class="my-0 fw-normal">`+key+`</h3>
-          <button class="btn btn-primary add-element" data-schema="`+html_key+`">
+          <button type="button" class="btn btn-primary add-element" data-schema="`+html_key+`">
             <span class="oi oi-plus" toggle="tooltop" aria-hidden="true" title="Add element"></span>
           </button>
         </div>
@@ -353,7 +353,7 @@ $(document).ready(function(){
               <div class="col-2 d-flex justify-content-between">
                 <div></div>
                 <div>
-                  <button class="btn btn-primary remove-element">
+                  <button type="button" class="btn btn-primary remove-element">
                     <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="Remove element"></span>
                   </button>
                 </div>

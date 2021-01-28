@@ -41,7 +41,7 @@ $(document).ready(function(){
         </div>
         <input type="text" class="form-control" placeholder="Property value" value="`+property_value+`">
         <div class="input-group-append">
-          <button class="btn btn-primary remove-property" property="`+property_name+`">
+          <button type="button" class="btn btn-primary remove-property" property="`+property_name+`">
             <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove '+property+_name+'"></span>
           </button>
         </div>
@@ -128,8 +128,8 @@ $(document).ready(function(){
                 </div>
               </div>
               <div class="container text-center mt-3">
-                <button class="btn btn-primary btn-save">Save</button>
-                <button class="btn btn-secondary btn-cancel">Cancel</button>
+                <button type="button" class="btn btn-primary btn-save">Save</button>
+                <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>
               </div>
             </form>
           </div>`
