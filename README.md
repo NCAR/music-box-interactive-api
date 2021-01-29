@@ -9,23 +9,28 @@
 * Scipy
 * Pandas
 
+
 **To run interface without model:**
 
        cd music-box-interactive
        cd interactive
        python3 manage.py runserver
 
-**configuration JSON file is located at:**
-
-        interactive/dashboard/static/config/my_config.json
 
 
-**To save configuration file after editing:**
+**To save configuration ZIP file after editing:**
 
-  From the configure tab, select *Review* at the top right. Click *Download Configuration File*
+  From the Conditions tab, select *Review* at the top right. Click *Download Configuration File*
 
 
-**mechanism JSON file is located at:**
 
-       interactive/dashboard/static/mechanism/datamolec_info.json
+**To use a configuration ZIP file in the model:**
 
+  From the Getting Started page, click *Load Configuration File*. Select your ZIP file and click *Upload*
+
+
+
+**Inside the ZIP configuration file:**
+
+* my_config.json contains model conditions.
+* camp_data contains the chemical mechanism files.
