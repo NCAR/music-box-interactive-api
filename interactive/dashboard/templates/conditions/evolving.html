@@ -3,50 +3,61 @@
 
 <div class="container text-center">
   <div class="navbox pt-2">
-    <a class="btn btn-secondary" href="/conditions/options">Model options</a>
+    <a class="btn btn-secondary" href="/conditions/options">General</a>
     <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
     <a class="btn btn-primary btn-ncar-active" href="/conditions/evolving">Evolving</a>
     <a class="btn btn-secondary" href="/conditions/review">Review</a>
   </div>
 </div>
 <p class="lead-muted p-2">
-  Add paragraph describing this section.
+  Load files containing model conditions that change during the simulation. These can be environmental conditions, chemical species concentrations, or rates/rate constants for reactions with a 'MUSICA name'.
 </p>
-
-<div id="container content_container">
-   <div class="row configbox col-8">
-      <h3>Upload Evolving Conditions File (.txt, .csv, .nc):</h3>
-            <form method="POST" action="evolving-file" enctype="multipart/form-data">
-               {% csrf_token %}
-               {{ file_field }}
-               <button id="evolvFileSave" class="btn btn-secondary m-2" type="submit">Upload</button>
-            </form>
-      <a href="/conditions/examplefile?type=evolving" class="text-muted">View example evolving conditions files</a>
-   </div>
-   {% if filedict %}
-      {% for key, value in filedict %}
-         <div class="row m-2">
-            <div class="col">
-               <div class="card card-body m-2">
-                     <h3>{{ key }}</h3>
-                     <form method="get" action="/conditions/evolving-linear-combination">
-                        <input type="hidden" name="filename" value="{{ key }}">
-                        <ul class="list-group">
-                           {% for i in value %}
-                              <li class="list-group-item"><input name="{{ i }}" addButton="{{ key }}" class="form-check-input linear-combo-check mx-2" type="checkbox" value="" id="{{i}}"><label for="{{ i }}">{{ i }}</label></li>
-                           {% endfor %}
-                        </ul>
-                        <button type="submit" id="{{key}}" class="btn btn-secondary submit-linear-combination disabled">Add linear combination</button>
-                     </form>
-               </div>
+<div id="container-fluid">
+  <div class="row m-2">
+    <div class="col-8 p-0">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+          <h4 class="my-0">Upload File</h4>
+        </div>
+        <form class="body body-card" method="POST" action="evolving-file" enctype="multipart/form-data">
+          <div class="bg-ncar-body p-3">
+            {% csrf_token %}
+            {{ file_field }}
+            <div class="container text-center my-3">
+              <button id="evolvFileSave" class="btn btn-primary m-2" type="submit">Upload</button>
             </div>
-            <div class="col">
-               
-            </div>
-         </div>
-      {% endfor %}
-   {% endif %}
-   
+            <p class="lead-muted p-2">
+              <a href="/conditions/examplefile?type=evolving" class="text-muted">View example evolving conditions files</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% if filedict %}
+{% for key, value in filedict %}
+  <div class="row m-2">
+    <div class="col">
+      <div class="card-header">
+        <h4 class="my-0">{{ key }}</h4>
+      </div>
+      <div class="card card-body m-2">
+        <form method="get" action="/conditions/evolving-linear-combination">
+          <input type="hidden" name="filename" value="{{ key }}">
+          <ul class="list-group">
+          {% for i in value %}
+            <li class="list-group-item"><input name="{{ i }}" addButton="{{ key }}" class="form-check-input linear-combo-check mx-2" type="checkbox" value="" id="{{i}}"><label for="{{ i }}">{{ i }}</label></li>
+          {% endfor %}
+          </ul>
+          <button type="submit" id="{{key}}" class="btn btn-secondary my-2 submit-linear-combination disabled">Add linear combination</button>
+        </form>
+      </div>
+    </div>
+    <div class="col">
+    </div>
+  </div>
+{% endfor %}
+{% endif %}
    <button class="row btn btn-secondary m-2" id="clearEvolvFiles">Clear configuration files</button>
 </div>
 
