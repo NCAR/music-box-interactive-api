@@ -74,3 +74,15 @@ def display_evolves():
         elif '.nc' in i:
             file_header_dict.update({i:['NETCDF FILE']})
     return file_header_dict
+
+
+def get_species_options():
+    with open(os.path.join(config_path, 'camp_data/species.json')) as f:
+        species = json.loads(f.read())
+        
+    species_list = [i['name'] for i in species['pmc-data']]
+    species_list.insert(0, 'Select species')
+    choices_list = [(j, j) for j in species_list]
+
+    return choices_list
+        

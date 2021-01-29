@@ -404,5 +404,9 @@ $(document).ready(function(){
     $("#" + name).addClass('btn-primary-active')
   });
 
+  $('.species-dropdown').filter(function() { 
+    var spec = $(this).attr('species');
+    $(this).val(spec);
+  });
 
 });
