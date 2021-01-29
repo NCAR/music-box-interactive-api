@@ -4,42 +4,41 @@
 
 <div class="container text-center">
   <div class="navbox pt-2">
-    <a class="btn btn-primary btn-ncar-active" href="/conditions/options">Model options</a>
+    <a class="btn btn-primary btn-ncar-active" href="/conditions/options">General</a>
     <a class="btn btn-secondary" href="/conditions/initial">Initial</a>
     <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
     <a class="btn btn-secondary" href="/conditions/review">Review</a>
   </div>
 </div>
 <p class="lead-muted p-2">
-  Add paragraph describing this section.
+  Set general conditions for your simulation here, including how long a time you would like to simulate and how often output data are written. The chemistry time step determines the time step of the ODE solver. We recommend an output time step of 1/100 of the simulation time and a chemistry time step equal to the output time step as a first start.
 </p>
 <div class="container">
   <div class="row">
-    <div class="col-8">
-      <form enctype="multipart/form-data" method="POST" action="/conditions/config_json">
-        {% csrf_token %}
-        {% for field in file_form %}
-          {{ field }}
-        {% endfor %}
-        <button id="jsonConfigSave" class="btn btn-secondary" type="submit">Upload Zip File</button>
-      </form>
-    </div>
-  </div>
-  <div class="row">
     <div class="col-4">
-      <form method="post" action="/conditions/options">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <button id="optionsSave" class="btn btn-secondary" type="submit">Save</button>
-      </form>
+      <div class="card mb-4 model-options-card shadow-sm">
+        <div class="card-header">
+          <h4 class="my-0 fw-normal">Model options</h4>
+        </div>
+        <form class="body body-card" method="post" action="/conditions/options">
+          <div class="bg-ncar-body p-3">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="container text-center mt-3">
+              <button id="optionsSave" class="btn btn-primary" type="submit">Save</button>
+              <button class="btn btn-secondary" type="reset">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
   <div class="row">
-    <h3 id="logtogtitle">Model Run Logging</h3>
-      <label class="switch">
-        <input id="islogon" type="checkbox">
-          <span class="slider round"></span>
-      </label>
+    <h5 id="logtogtitle">Model Run Logging</h5>
+    <label class="switch">
+      <input id="islogon" type="checkbox">
+        <span class="slider round"></span>
+    </label>
   </div>
 </div>
 

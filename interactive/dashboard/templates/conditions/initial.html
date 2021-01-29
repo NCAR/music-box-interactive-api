@@ -4,142 +4,180 @@
 
 <div class="container text-center">
   <div class="navbox pt-2">
-    <a class="btn btn-secondary" href="/conditions/options">Model options</a>
+    <a class="btn btn-secondary" href="/conditions/options">General</a>
     <a class="btn btn-primary btn-ncar-active" href="/conditions/initial">Initial</a>
     <a class="btn btn-secondary" href="/conditions/evolving">Evolving</a>
     <a class="btn btn-secondary" href="/conditions/review">Review</a>
   </div>
 </div>
 <p class="lead-muted p-2">
-  Add paragraph describing this section.
+  Initial environmental conditions, concentrations for chemical species, and reaction rates/rate constants that have a 'MUSICA name' can be set here.
 </p>
-
-     <div class="configbox container">
-        <div class="row m-2">
-            <div class="col-8">
-                <h3>Upload File (.txt, .csv):</h3>
-                <form method="POST" action="cond-csv" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ csv_field }}
-                    <button id="initFileSave" class="btn btn-secondary" type="submit">Upload</button>
-                </form>
-            </div>
-            <a href="/conditions/examplefile?type=initial" class="text-muted">View example initial conditions file</a>
+<div class="configbox container-fluid">
+  <div class="row m-2">
+    <div class="col-8 p-0">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+          <h4 class="my-0">Upload File</h4>
         </div>
-        <div class="row m-2">
-                <div class="specform">
-            <h3 class="columnhead">Species Concentrations:</h3>
-            <form class="col1" method='POST' action='species' >
-                    <table>
-                        <tr>
-                            <th><h4>Formula</h4></th>
-                            <th><h4>Intial Value</h4></th>
-                            <th><h4>Units</h4></th>
-                        </tr>
-                        {% for field in speciesform %}
-                            {% if 'Formula' in field.name %}
-                                <tr>
-                                    <td>
-                                        {% csrf_token %}
-                                        {{ field }}
-                                    </td>
-                            {% endif %}
-
-                            {% if 'Initial Value' in field.name %}
-                                <td>
-                                    {% csrf_token %}
-                                    {{ field }}
-                                </td>
-                            {% endif %}
-
-                            {% if 'Units' in field.name %}
-                                <td>
-                                    {% csrf_token %}
-                                    {{ field }}
-                                </td>
-                                <td>
-                                    <button class="btn btn-secondary r_button" id="{{ field.name }}">
-                                        Remove
-                                    </button>
-                                </td>
-                                </tr>
-                            {% endif %}
-
-                        {% endfor %}
-                    </table>
-                <button id="speciesSave" class="btn btn-secondary m-2 formsave" type="submit" >Save</button>
-                </form>
-                </div>
-                <form method="post" action="new-species">
-                    {% csrf_token %}
-                    <button class="btn btn-secondary mx-2" type="submit">Add New Species</button>
-                </form>
-        </div>
-
-        <div class="row m-2">
-            <div class="configform">
-                <h3 class="columnhead">Enviornmental Conditions:</h3>
-                <form method="post" class="col1">
-                    <table>
-                        {% for field in icform %}
-                            {% if 'init' in field.name %}
-                                <tr>
-                                    <td>
-                                        {% csrf_token %}
-                                        {{ field }}
-                                    </td>
-                            {% endif %}
-                            {% if 'units' in field.name %}
-                                <td>
-                                    {% csrf_token %}
-                                    {{ field }}
-                                </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </table>
-                    <button id="initialsSave" class="btn btn-secondary m-2" type="submit">Save</button>
-                </form>
+        <form class="body body-card" method="POST" action="cond-csv" enctype="multipart/form-data">
+          <div class="bg-ncar-body p-3">
+            <p class="lead-muted p-2">
+              If your initial conditions are in a text file, load them here. Otherwise, use the forms below to set the initial conditions.
+            </p>
+            {% csrf_token %}
+            {{ csv_field }}
+            <div class="conatiner text-center my-3">
+              <button id="initFileSave" class="btn btn-primary" type="submit">Upload</button>
             </div>
-        </div>  
-        <div class="row m-2">
-            <div class="specform">
-                <h3 class="columnhead">Configure Photolysis Reactions:</h3>
-                <form formid="photo" class="col1" method='POST'>
-                        <table>
-                        <tr>
-                            <th><h4>Reaction</h4></th>
-                            <th><h4>Initial Value</h4></th>
-                        </tr>
-                        {% for field in photoform %}
-                        {% if 'r_form' in field.name %}
-                            <tr>
-                                <td>
-                                    {% csrf_token %}
-                                    {{ field }}
-                                </td>
-                        {% endif %}
+            <p class="lead-muted p-2">
+              <a href="/conditions/examplefile?type=initial" class="text-muted">View example initial conditions file</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-                        {% if 'init' in field.name %}
-                                <td>
-                                    {% csrf_token %}
-                                    {{ field }}
-                                </td>
-                            </tr>
-                        {% endif %}
-                        {% endfor %}
-                        </table>
-                        <button id="photoSave" class="btn btn-secondary m-2" type="submit">Save</button>
-                    </form>
-                    <button class="btn btn-secondary mx-2" id="newPhoto" type="submit">Add New Reaction</button>
-
-                </div>
-
+  <div class="row m-2">
+    <div class="card mb-4 p-0 shadow-sm">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="my-0">Species Concentrations</h4>
+        <form method="post" action="new-species">
+          {% csrf_token %}
+          <button class="btn btn-primary" type="submit">
+            Add
+          </button>
+        </form>
+      </div>
+      <form class="body body-card" method='POST' action='species'>
+        <div class="bg-ncar-body p-3">
+          <div class="conatiner-fluid">
+            <div class="row">
+              <div class="col-4">Formula</div>
+              <div class="col-3">Intial value</div>
+              <div class="col-3">Units</div>
             </div>
+        {% for field in speciesform %}
+          {% if 'Formula' in field.name %}
+            <div class="row my-1">
+              <div class="col-4">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+          {% endif %}
+          {% if 'Initial Value' in field.name %}
+              <div class="col-3">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+          {% endif %}
+          {% if 'Units' in field.name %}
+              <div class="col-3">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+              <div class="col-2">
+                <button class="btn btn-secondary r_button" id="{{ field.name }}">
+                  Remove
+                </button>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+          </div>
+          <div class="container-fluid text-center mt-3">
+            <button id="speciesSave" class="btn btn-primary formsave" type="submit" >Save</button>
+            <button class="btn btn-secondary" type="reset">Cancel</button>
+          </div>
         </div>
-     </div>
+      </form>
+    </div>
+  </div>
 
+  <div class="row m-2">
+    <div class="card mb-4 p-0 shadow-sm">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="my-0">Enviornmental Conditions</h4>
+      </div>
+      <form method="post" class="body body-card">
+        <div class="bg-ncar-body p-3">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-4">Property</div>
+              <div class="col-3">Initial value</div>
+              <div class="col-3">Units</div>
+            </div>
+        {% for field in icform %}
+          {% if 'init' in field.name %}
+            <div class="row my-1">
+              <div class="col-4">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+          {% endif %}
+          {% if 'units' in field.name %}
+              <div class="col-3">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+          </div>
+          <div class="container text-center mt-3">
+            <button id="initialsSave" class="btn btn-primary" type="submit">Save</button>
+            <button class="btn btn-secondary" type="reset">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row m-2">
+    <div class="card mb-4 p-0 shadow-sm">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="my-0">Reaction Rates and Rate Constants</h4>
+        <button class="btn btn-primary" id="newPhoto" type="button">Add</button>
+      </div>
+      <form formid="photo" class="body body-card" method='POST'>
+        <div class="bg-ncar-body p-3">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-4">Reaction label</div>
+              <div class="col-3">Initial value</div>
+              <div class="col-3">Units</div>
+            </div>
+        {% for field in photoform %}
+          {% if 'r_form' in field.name %}
+            <div class="row my-1">
+              <div class="col-4">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+          {% endif %}
+          {% if 'init' in field.name %}
+              <div class="col-3">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+          {% endif %}
+          {% if 'units' in field.name %}
+              <div class="col-3">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+          </div>
+          <div class="conatiner text-center mt-3">
+            <button id="photoSave" class="btn btn-primary" type="submit">Save</button>
+            <button class="btn btn-secondary" type="reset">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
-
-
-

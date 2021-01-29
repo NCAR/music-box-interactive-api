@@ -3,6 +3,10 @@ html,body {
     font-family: 'Poppins';
 }
 
+.bg-ncar-body {
+  background: #CED9E5;
+}
+
 .navbar .navbar-toggler {
     top: .25rem;
     right: 1rem;
@@ -100,32 +104,6 @@ a {
 /* pre-bootstrap styles */
 
 
-.configbox .configform {
-    display: inline-block;
-    width: 20%;
-    z-index: 100;
-    color: black;
-    font-family: 'Poppins';
-    font-size: 18px;
-    padding: 0px 0px;
-}
-
-.configbox .specform {
-    display: inline-block;
-    color: black;
-    font-family: 'Poppins';
-}
-
-h3 {
-    color: #212529;
-    font-size: 18px;
-    font-family: 'Poppins'
-}
-
-.configbox .configform control-group{
-    padding: 20px;
-}
-
 .confighead {
     font-family: 'Poppins';
     color: white;
@@ -136,17 +114,6 @@ h3 {
     top:75;
     left:50%;
 }
-
-/* 
-select {
-    font-family: 'Poppins';
-    font-size: 16px;
-    background: white;
-    padding: 12px 20px;
-    border: 1px solid white;
-    border-radius: 4px;
-    box-shadow: 0px 1px 3px 0px #303030;
-} */
 
 .footer {
     font-family: 'Poppins';
@@ -298,13 +265,6 @@ hr.solid {
     height: fit-content;
     border-radius: 4px;
     box-shadow: 0px 1px 5px 0px #303030;
-}
-
-h4 {
-    font-family: 'Poppins';
-    font-size: 16px;
-    color: #212529;
-    margin: 10px;
 }
 
 #lrUpload {
