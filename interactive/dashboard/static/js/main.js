@@ -386,7 +386,7 @@ $(document).ready(function(){
   });
 
   
-
+  //collapse panels on getting started page
   $("#exampleToggle").on('click', function(){
     $(".load-panel").collapse('hide')
     $(".example-panel").collapse('show')

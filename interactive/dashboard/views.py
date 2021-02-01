@@ -41,7 +41,7 @@ def getting_started_page(request):
 def load_example(request):
     example_name = 'example_' + str(request.GET.dict()['example'])
     load_example_configuration(example_name)
-    return HttpResponseRedirect('/conditions/initial')
+    return HttpResponseRedirect('/mechanism')
 
 
 def new_species(request):
