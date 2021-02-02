@@ -145,9 +145,9 @@ $(document).ready(function(){
  
 
   //new photolysis reaction
-  $("#newPhoto").on('click', function(){
+  $("#new-initial-reaction-rate").on('click', function(){
     $.ajax({
-      url: "/configure/new-photo",
+      url: "/conditions/new-initial-reaction-rate",
       type: 'get',
       success: function(response){
         location.reload()
@@ -408,5 +408,38 @@ $(document).ready(function(){
     var spec = $(this).attr('species');
     $(this).val(spec);
   });
+
+  $('.musica-named-reaction-dropdown').filter(function() {
+    var reaction = $(this).attr('reaction');
+    $(this).val(reaction);
+    update_reaction_units($(this).parent(), reaction);
+  });
+
+  $('.musica-named-reaction-dropdown').ready(function() {
+    var reaction = $(this).attr('reaction');
+    $(this).val(reaction);
+    update_reaction_units($(this).parent(), reaction);
+  });
+
+  // update units for reaction in initial conditions
+  function update_reaction_units(container, reaction_name) {
+    units = '';
+    if (typeof reaction_name !== typeof undefined) {
+      switch(reaction_name.substring(0,3)) {
+        case 'EMIS':
+          units = 'ppm s-1';
+          break;
+        case 'LOSS':
+          units = 's-1';
+          break;
+        case 'PHOTOLYSIS':
+          units = 's-1';
+          break;
+      }
+    }
+    container.children('.musica-named-reaction-units-dropdown').val(units);
+    container.children('.musica-named-reaction-units-dropdown').html(`
+      <option value="`+units+`">`+units+`</option>`);
+  }
 
 });

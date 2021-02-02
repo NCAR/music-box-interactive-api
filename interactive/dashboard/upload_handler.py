@@ -36,29 +36,6 @@ def manage_uploaded_evolving_conditions_files(f, filename):
     dump_json('my_config.json', config)
 
 
-
-
-
-# converts uploaded csv input file to dictionary of values
-def handle_uploaded_csv(f):
-    content = f.read()
-    new = str(content.decode('utf-8'))
-    if ',' in new:
-        listed = new.split(',')
-    for i in listed:
-        if '\r\n' in i:
-            listed[listed.index(i)] = i.replace('\r\n', '')
-    while '' in listed:
-        listed.remove('')
-    dictFromFile = {}
-    fileitems = int(len(listed) / 2)
-    for j in listed:
-        dictFromFile.update({j: listed[listed.index(j) + fileitems]})
-        if len(dictFromFile) == fileitems:
-            break
-    
-    return(dictFromFile)
-        
 #checks uploaded configuration against current config file
 def validate_config(testDict):
     config = open_json('my_config.json')

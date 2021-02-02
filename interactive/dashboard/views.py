@@ -3,7 +3,7 @@ from .forms.speciesforms import *
 from .forms.optionsforms import *
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .forms.photolysisforms import *
+from .forms.initial_reaction_rates_forms import *
 from .upload_handler import *
 from .save import *
 from .models import Document
@@ -134,10 +134,26 @@ def initial_conditions(request):
     context = {
         'icform': InitialConditionsForm,
         'speciesform': SpeciesForm,
-        'photoform': PhotoForm,
+        'initial_reaction_rates_form': InitialReactionRatesForm,
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'conditions/initial.html', context)
+
+
+# add a new initial reaction rate or rate constant
+def new_initial_reaction_rate(request):
+    if request.method == 'GET':
+        add_initial_reaction_rate()
+    return HttpResponseRedirect('/conditions/initial')
+
+
+# save a set of initial reaction rates/rate constants
+def initial_reaction_rates(request):
+    if request.method == 'POST':
+        new_rates = InitialReactionRatesForm(request.POST)
+        if new_rates.is_valid():
+            save_initial_reaction_rates(new_rates.cleaned_data)
+    return HttpResponseRedirect('/conditions/initial')
 
 
 # input file upload

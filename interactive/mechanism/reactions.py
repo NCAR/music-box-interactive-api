@@ -80,7 +80,7 @@ def reaction_save(reaction_data):
 def reaction_musica_names():
     logging.info('getting reactions with MUSICA names')
     reactions = []
-    for reaction in reaction_info():
+    for reaction in reactions_info():
         if 'MUSICA name' in reaction:
             if reaction['MUSICA name'] == '':
                 continue
