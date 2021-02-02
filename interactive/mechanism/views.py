@@ -45,6 +45,14 @@ def species_save_handler(request):
     return JsonResponse({})
 
 
+# renders the reactions page
+def reactions_home_handler(request):
+    context = {
+        'reaction_menu_names': reaction_menu_names()
+    }
+    return render(request, 'mechanism/reactions.html', context)
+
+
 # returns a json object for a reaction from the mechanism
 def reaction_detail_handler(request):
     if not 'index' in request.GET:
@@ -54,20 +62,18 @@ def reaction_detail_handler(request):
     return JsonResponse(reaction_detail)
 
 
+# returns a json array of reactions with MUSICA names and units for setting rates/rate constants
+def reaction_musica_names_handler(request):
+    musica_names = reaction_musica_names()
+    return JsonResponse(musica_names)
+
+
 # returns the schema for a particular reaction type
 def reaction_type_schema_handler(request):
     if not 'type' in request.GET:
         return JsonResponse({"error":"missing reaction type"})
     schema = reaction_type_schema(request.GET['type'])
     return JsonResponse(schema)
-
-
-# renders the reactions page
-def reactions_home_handler(request):
-    context = {
-        'reaction_menu_names': reaction_menu_names()
-    }
-    return render(request, 'mechanism/reactions.html', context)
 
 
 # removes a reaction from the mechanism

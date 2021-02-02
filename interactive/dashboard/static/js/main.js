@@ -145,12 +145,13 @@ $(document).ready(function(){
  
 
   //new photolysis reaction
-  $("#newPhoto").on('click', function(){
+  $("#new-initial-reaction-rate").on('click', function(){
     $.ajax({
-      url: "/configure/new-photo",
+      url: "/conditions/new-initial-reaction-rate",
       type: 'get',
       success: function(response){
-        location.reload()
+        window.location.href = "/conditions/initial#reaction-rates";
+        location.reload();
       }
     });
   });
@@ -410,6 +411,50 @@ $(document).ready(function(){
     var spec = $(this).attr('species');
     $(this).val(spec);
   });
+
+  $('.musica-named-reaction-dropdown').filter(function() {
+    var reaction = $(this).val();
+    update_reaction_units($(this).parent().parent(), reaction);
+  });
+
+  $('.musica-named-reaction-dropdown').change(function() {
+    var reaction = $(this).val();
+    update_reaction_units($(this).parent().parent(), reaction);
+  });
+
+  // update units for reaction in initial conditions
+  function update_reaction_units(container, reaction_name) {
+    units = '';
+    if (typeof reaction_name !== typeof undefined) {
+      switch(reaction_name.substring(0,4)) {
+        case 'EMIS':
+          units = 'mol m-3 s-1';
+          break;
+        case 'LOSS':
+          units = 's-1';
+          break;
+        case 'PHOT':
+          units = 's-1';
+          break;
+      }
+    }
+    container.children().children('.musica-named-reaction-units-dropdown').html(`
+      <option value="`+units+`">`+units+`</option>`);
+    container.children().children('.musica-named-reaction-units-dropdown').val(units);
+  }
+
+  // remove an initial reaction rate/rate constant
+  $('.remove-reaction-rate-button').on('click', function(){
+    var reaction_name = $(this).parent().parent().children().children('.musica-named-reaction-dropdown').attr('reaction');
+    $.ajax({
+      url: 'remove-initial-reaction-rate',
+      type: 'get',
+      data: {"reaction": reaction_name},
+      success: function(response){
+      }
+    });
+  });
+
 
   //autofill species drowdown selections
   $('.options-dropdown').filter(function() { 

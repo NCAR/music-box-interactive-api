@@ -8,6 +8,7 @@ from csv import reader
 import random
 
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+initial_reaction_rates_file_path = os.path.join(config_path, 'initial_reaction_rates.csv')
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -17,12 +18,68 @@ def load(dicti):
     dump_json('post.json', dicti)
 
 
+# adds/updates entries in an initial conditions file
+def add_to_initial_conditions_file(file_path, delimiter, dictionary):
+    initial_conditions = {}
+    if os.path.isfile(file_path):
+        with open(file_path) as f:
+            initial_conditions = initial_conditions_file_to_dictionary(f, delimiter)
+            f.close()
+    for key, value in dictionary.items():
+        initial_conditions[key] = value
+    with open(file_path, 'w') as f:
+        dictionary_to_initial_conditions_file(initial_conditions, f, delimiter)
+        f.close()
+
+
+# converts initial conditions file to dictionary
+def initial_conditions_file_to_dictionary(input_file, delimiter):
+    content = input_file.read()
+    lines = content.split('\n')
+    keys = [lines[0]]
+    values = [lines[1]]
+    if delimiter in content:
+        keys = lines[0].split(delimiter)
+        values = lines[1].split(delimiter)
+    dictionary = {}
+    for key in keys:
+         key_label = '' if key == '__blank__' else key
+         dictionary[key_label] = values[keys.index(key)]
+    return(dictionary)
+
+# converts a dictionary to an initial conditions file
+def dictionary_to_initial_conditions_file(dictionary, output_file, delimiter):
+    column_names = ''
+    column_values = ''
+    for key, value in dictionary.items():
+        key_label = '__blank__' if key == '' else key
+        column_names += key_label + delimiter
+        column_values += str(value) + delimiter
+    output_file.write(column_names[:-1] + '\n' + column_values[:-1])
+
+
+# save data from the initial reaction rates form
+def save_initial_reaction_rates(form):
+    initial_rate_data = {}
+    current_MUSICA_name = ''
+    for key in form:
+        if key.split('.')[0] == 'reaction-MUSICA-name':
+            current_MUSICA_name = form[key]
+        if key.split('.')[0] == 'initial-value':
+            initial_rate_data[current_MUSICA_name] = form[key]
+    if initial_rate_data:
+        with open(initial_reaction_rates_file_path, 'w') as f:
+            dictionary_to_initial_conditions_file(initial_rate_data, f, ',')
+    else:
+        if os.path.exists(initial_reaction_rates_file_path):
+            os.remove(initial_reaction_rates_file_path)
+
+
 # Combines all individual configuration json files and writes to the config file readable by the mode
 def export():
     species = open_json('species.json')
     options = open_json('options.json')
     initials = open_json('initials.json')
-    photo = open_json('photo.json')
 
     #gets evolving conditions section if it exists
     oldConfig = open_json('my_config.json')
@@ -30,7 +87,6 @@ def export():
         evolves = oldConfig['evolving conditions']
     else:
         evolves = {}
-    
 
     config = {}
 
@@ -70,25 +126,18 @@ def export():
 
         init_section.update({name: {string: value}})
 
-    # write photolysis section
-    photo_section = {}
-
-    for i in photo['reactions']:
-        reaction = photo['reactions'][i]
-        value = photo['initial value'][i]
-
-        string = "initial value [s-1]"
-
-        photo_section.update({reaction: {string: value}})
-
 
     # write sections to main dict
 
     config.update({"box model options": options_section})
     config.update({"chemical species": species_section})
     config.update({"environmental conditions": init_section})
-    config.update({"photolysis": photo_section})
     config.update({'evolving conditions': evolves})
+
+    # write initial reaction rates section
+
+    if os.path.isfile(initial_reaction_rates_file_path):
+        config.update({ "initial conditions" : { "initial_reaction_rates.csv" : { } } })
 
     config.update({
         "model components": [
@@ -117,9 +166,7 @@ def save(type):
     species = open_json('species.json')
     options = open_json('options.json')
     initials = open_json('initials.json')
-    
-    photo = open_json('photo.json')
-   
+
 
  # Saves the formulas for chemical species
 
@@ -169,21 +216,6 @@ def save(type):
         dump_json('initials.json', initials)
         logging.info('initial conditions updated')
 
- # Saves units for the initial conditions
-
-    if type == 'photo-reactions':
-        for key in dictionary:
-            photo['reactions'].update({key: dictionary[key]})
-        dump_json('photo.json', photo)
-        logging.info('photolysis updated')
-
- # Saves units for the initial conditions
-
-    if type == 'photo-values':
-        for key in dictionary:
-            photo['initial value'].update({key: dictionary[key]})
-        dump_json('photo.json', photo)
-        logging.info('photolysis updated')
     export()
 
 
@@ -249,23 +281,25 @@ def save_init(form):
     save('cond_units')
 
 
-def save_photo(form):
-    reactions = {}
-    values = {}
+# add an entry to the list of initial reaction rates/rate constants
+def add_initial_reaction_rate():
+    add_to_initial_conditions_file(initial_reaction_rates_file_path, ',', { "": 0.0 })
 
-    for key in form:
-        section = key.split('.')[1]
-        name = key.split('.')[0]
-        if section == 'r_form':
-            reactions.update({name: form[key]})
-        if section == 'init':
-            values.update({name: form[key]})
-    
-    load(reactions)
-    save('photo-reactions')
 
-    load(values)
-    save('photo-values')
+# remove an entry from the list of initial reaction rates/rate constants
+def delete_initial_reaction_rate(reaction_name):
+    if not os.path.exists(initial_reaction_rates_file_path): return
+    with open(initial_reaction_rates_file_path) as f:
+        initial_rates = initial_conditions_file_to_dictionary(f, ',')
+        f.close()
+    initial_rates.pop(reaction_name)
+    if not initial_rates:
+        if os.path.exists(initial_reaction_rates_file_path):
+            os.remove(initial_reaction_rates_file_path)
+    else:
+        with open(initial_reaction_rates_file_path, 'w') as f:
+            dictionary_to_initial_conditions_file(initial_rates, f, ',')
+            f.close()
 
 
 #remove a species from the species json
@@ -364,21 +398,7 @@ def reverse_export():
             unit = entry.split('[')[1]
             unit = unit.split(']')[0]
             initial_dict['units'].update({condition: unit})
-    
-    photo_dict = {
-        "reactions": {},
-        "initial value": {}
-    }
-    i = 1
-    for reaction in config['photolysis']:
-        name = "reaction " + str(i)
-        photo_dict['reactions'].update({name: reaction})
-        for entry in config['photolysis'][reaction]:
-            photo_dict['initial value'].update({name: config['photolysis'][reaction][entry]})
-        
-        i = i+1
-    
-    dump_json('photo.json', photo_dict)
+
     dump_json('initials.json', initial_dict)
     dump_json('options.json', option_dict)
     dump_json('species.json', species_dict)
@@ -392,8 +412,10 @@ def uploaded_to_config(uploaded_dict):
     for key in uploaded_dict:
         if 'CONC.' in key:
             conc.update({key.replace('CONC.', ''): uploaded_dict[key]})
+            uploaded_dict.pop(key)
         elif 'ENV.' in key:
             env.update({key.replace('ENV.', ''): uploaded_dict[key]})
+            uploaded_dict.pop(key)
 
     species_dict = {
         'formula': {},
@@ -425,7 +447,9 @@ def uploaded_to_config(uploaded_dict):
 
     if len(species_dict['formula']) > 0:
         dump_json('species.json', species_dict)
-        
+
+    add_to_initial_conditions_file(os.path.join(config_path, 'initial_reaction_rates.csv'), ',', uploaded_dict)
+
     export()
 
 

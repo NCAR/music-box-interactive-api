@@ -58,6 +58,7 @@ def reaction_remove(reaction_index):
         json.dump(camp_data, f, indent=2)
         f.close()
 
+
 # saves a reaction to the mechanism
 def reaction_save(reaction_data):
     logging.info('adding reaction: ', reaction_data)
@@ -73,6 +74,32 @@ def reaction_save(reaction_data):
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
         f.close()
+
+# returns a json array of reactions with MUSICA names including the
+# units for their rates or rate constants
+def reaction_musica_names():
+    logging.info('getting reactions with MUSICA names')
+    reactions = []
+    for reaction in reactions_info():
+        if 'MUSICA name' in reaction:
+            if reaction['MUSICA name'] == '':
+                continue
+            if reaction['type'] == "EMISSION":
+                reactions.append({
+                    'MUSICA name' : 'EMIS.' + reaction['MUSICA name'],
+                    'units' : 'ppm s-1'
+                    });
+            elif reaction['type'] == "FIRST_ORDER_LOSS":
+                reactions.append({
+                    'MUSICA name' : 'LOSS.' + reaction['MUSICA name'],
+                    'units' : 's-1'
+                    });
+            elif reaction['type'] == "PHOTOLYSIS":
+                reactions.append({
+                    'MUSICA name' : 'PHOT.' + reaction['MUSICA name'],
+                    'units' : 's-1'
+                    });
+    return reactions
 
 
 # returns the json schema for a particular reaction type
