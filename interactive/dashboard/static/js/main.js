@@ -387,7 +387,7 @@ $(document).ready(function(){
   });
 
   
-
+  //collapse panels on getting started page
   $("#exampleToggle").on('click', function(){
     $(".load-panel").collapse('hide')
     $(".example-panel").collapse('show')
@@ -405,6 +405,8 @@ $(document).ready(function(){
     $("#" + name).addClass('btn-primary-active')
   });
 
+
+  //autofill species drowdown selections
   $('.species-dropdown').filter(function() { 
     var spec = $(this).attr('species');
     $(this).val(spec);
@@ -453,5 +455,11 @@ $(document).ready(function(){
     });
   });
 
+
+  //autofill species drowdown selections
+  $('.options-dropdown').filter(function() { 
+    var spec = $(this).attr('unit');
+    $(this).val(spec);
+  });
 
 });

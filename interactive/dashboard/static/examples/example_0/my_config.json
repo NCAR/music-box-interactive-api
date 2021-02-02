@@ -2,30 +2,19 @@
     "box model options": {
         "grid": "box",
         "chemistry time step [min]": 1.0,
-        "output time step [min]": 1.0,
-        "simulation length [min]": 100.0
+        "output time step [hr]": 0.1,
+        "simulation length [hr]": 13.9
     },
-    "chemical species": {
-        "Enter Formula": {
-            "initial value [mol m-3]": 0.0
-        }
-    },
+    "chemical species": {},
     "environmental conditions": {
         "temperature": {
-            "initial value [K]": 290.0
+            "initial value [K]": 273.0
         },
         "pressure": {
-            "initial value [atm]": 0.9
+            "initial value [atm]": 1
         }
     },
-    "photolysis": {
-        "O3_1": {
-            "initial value [s-1]": 0.0032
-        },
-        "O3_2": {
-            "initial value [s-1]": 0.0012
-        }
-    },
+    "photolysis": {},
     "evolving conditions": {},
     "model components": [
         {
