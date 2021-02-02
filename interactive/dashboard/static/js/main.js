@@ -440,4 +440,17 @@ $(document).ready(function(){
     container.children().children('.musica-named-reaction-units-dropdown').val(units);
   }
 
+  // remove an initial reaction rate/rate constant
+  $('.remove-reaction-rate-button').on('click', function(){
+    var reaction_name = $(this).parent().parent().children().children('.musica-named-reaction-dropdown').attr('reaction');
+    $.ajax({
+      url: 'remove-initial-reaction-rate',
+      type: 'get',
+      data: {"reaction": reaction_name},
+      success: function(response){
+      }
+    });
+  });
+
+
 });

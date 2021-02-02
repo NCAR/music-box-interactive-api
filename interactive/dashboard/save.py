@@ -43,7 +43,8 @@ def initial_conditions_file_to_dictionary(input_file, delimiter):
         values = lines[1].split(delimiter)
     dictionary = {}
     for key in keys:
-        dictionary.update({key: values[keys.index(key)]})
+         key_label = '' if key == '__blank__' else key
+         dictionary[key_label] = values[keys.index(key)]
     return(dictionary)
 
 # converts a dictionary to an initial conditions file
@@ -51,7 +52,8 @@ def dictionary_to_initial_conditions_file(dictionary, output_file, delimiter):
     column_names = ''
     column_values = ''
     for key, value in dictionary.items():
-        column_names += key + delimiter
+        key_label = '__blank__' if key == '' else key
+        column_names += key_label + delimiter
         column_values += str(value) + delimiter
     output_file.write(column_names[:-1] + '\n' + column_values[:-1])
 
@@ -65,8 +67,12 @@ def save_initial_reaction_rates(form):
             current_MUSICA_name = form[key]
         if key.split('.')[0] == 'initial-value':
             initial_rate_data[current_MUSICA_name] = form[key]
-    with open(initial_reaction_rates_file_path, 'w') as f:
-        dictionary_to_initial_conditions_file(initial_rate_data, f, ',')
+    if initial_rate_data:
+        with open(initial_reaction_rates_file_path, 'w') as f:
+            dictionary_to_initial_conditions_file(initial_rate_data, f, ',')
+    else:
+        if os.path.exists(initial_reaction_rates_file_path):
+            os.remove(initial_reaction_rates_file_path)
 
 
 # Combines all individual configuration json files and writes to the config file readable by the mode
@@ -275,9 +281,25 @@ def save_init(form):
     save('cond_units')
 
 
-# add an entry to the list of initial reaction rates
+# add an entry to the list of initial reaction rates/rate constants
 def add_initial_reaction_rate():
-    add_to_initial_conditions_file(initial_reaction_rates_file_path, ',', { "<Select reaction>": 0.0 })
+    add_to_initial_conditions_file(initial_reaction_rates_file_path, ',', { "": 0.0 })
+
+
+# remove an entry from the list of initial reaction rates/rate constants
+def delete_initial_reaction_rate(reaction_name):
+    if not os.path.exists(initial_reaction_rates_file_path): return
+    with open(initial_reaction_rates_file_path) as f:
+        initial_rates = initial_conditions_file_to_dictionary(f, ',')
+        f.close()
+    initial_rates.pop(reaction_name)
+    if not initial_rates:
+        if os.path.exists(initial_reaction_rates_file_path):
+            os.remove(initial_reaction_rates_file_path)
+    else:
+        with open(initial_reaction_rates_file_path, 'w') as f:
+            dictionary_to_initial_conditions_file(initial_rates, f, ',')
+            f.close()
 
 
 #remove a species from the species json

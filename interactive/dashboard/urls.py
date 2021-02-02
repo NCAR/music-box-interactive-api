@@ -23,6 +23,7 @@ urlpatterns = [
     path('conditions/photo-ncf', views.photo_ncf),
     path('conditions/new-initial-reaction-rate', views.new_initial_reaction_rate),
     path('conditions/initial-reaction-rates', views.initial_reaction_rates),
+    path('conditions/remove-initial-reaction-rate', views.remove_initial_reaction_rate),
     path('conditions/run', views.conditions),
     path('conditions/species/remove', views.remove),
     path('conditions/download_config', views.download_file),

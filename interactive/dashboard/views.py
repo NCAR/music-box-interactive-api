@@ -155,6 +155,12 @@ def initial_reaction_rates(request):
             save_initial_reaction_rates(new_rates.cleaned_data)
     return HttpResponseRedirect('/conditions/initial')
 
+# remove a reaction from the list of initial reaction rates/rate constants
+def remove_initial_reaction_rate(request):
+    if request.method == 'GET':
+        delete_initial_reaction_rate(request.GET['reaction'])
+    return HttpResponseRedirect('/conditions/initial')
+
 
 # input file upload
 def init_csv(request):

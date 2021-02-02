@@ -167,6 +167,11 @@
                 {% csrf_token %}
                 {{ field }}
               </div>
+              <div class="col-2">
+                <button class="btn btn-secondary remove-reaction-rate-button">
+                  Remove
+                </button>
+              </div>
             </div>
           {% endif %}
         {% endfor %}
