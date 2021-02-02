@@ -150,7 +150,8 @@ $(document).ready(function(){
       url: "/conditions/new-initial-reaction-rate",
       type: 'get',
       success: function(response){
-        location.reload()
+        window.location.href = "/conditions/initial#reaction-rates";
+        location.reload();
       }
     });
   });

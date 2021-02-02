@@ -144,7 +144,7 @@ def initial_conditions(request):
 def new_initial_reaction_rate(request):
     if request.method == 'GET':
         add_initial_reaction_rate()
-    return HttpResponseRedirect('/conditions/initial')
+    return HttpResponseRedirect('/conditions/initial#reaction-rates')
 
 
 # save a set of initial reaction rates/rate constants
@@ -153,13 +153,13 @@ def initial_reaction_rates(request):
         new_rates = InitialReactionRatesForm(request.POST)
         if new_rates.is_valid():
             save_initial_reaction_rates(new_rates.cleaned_data)
-    return HttpResponseRedirect('/conditions/initial')
+    return HttpResponseRedirect('/conditions/initial#reaction-rates')
 
 # remove a reaction from the list of initial reaction rates/rate constants
 def remove_initial_reaction_rate(request):
     if request.method == 'GET':
         delete_initial_reaction_rate(request.GET['reaction'])
-    return HttpResponseRedirect('/conditions/initial')
+    return HttpResponseRedirect('/conditions/initial#reaction-rates')
 
 
 # input file upload
