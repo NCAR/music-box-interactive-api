@@ -2,5 +2,9 @@
     "grid": "box",
     "chemistry_time_step": 1.0,
     "output_time_step": 0.1,
-    "simulation_length": 13.9
+    "simulation_length": 13.9,
+    "chem_step.units": "sec",
+    "output_step.units": "sec",
+    "simulation_length.units": "sec"
+
 }
