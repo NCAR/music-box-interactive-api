@@ -1,9 +1,9 @@
 {
     "box model options": {
         "grid": "box",
-        "chemistry time step [sec]": 1.0,
-        "output time step [sec]": 0.1,
-        "simulation length [sec]": 13.9
+        "chemistry time step [min]": 1.0,
+        "output time step [min]": 1.0,
+        "simulation length [min]": 100.0
     },
     "chemical species": {
         "Enter Formula": {

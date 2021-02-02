@@ -404,8 +404,16 @@ $(document).ready(function(){
     $("#" + name).addClass('btn-primary-active')
   });
 
+
+  //autofill species drowdown selections
   $('.species-dropdown').filter(function() { 
     var spec = $(this).attr('species');
+    $(this).val(spec);
+  });
+
+  //autofill species drowdown selections
+  $('.options-dropdown').filter(function() { 
+    var spec = $(this).attr('unit');
     $(this).val(spec);
   });
 

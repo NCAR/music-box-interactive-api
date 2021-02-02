@@ -23,7 +23,27 @@
         <form class="body body-card" method="post" action="/conditions/options">
           <div class="bg-ncar-body p-3">
             {% csrf_token %}
-            {{ form|crispy }}
+            {% for field in form %}
+              {% if 'grid' in field.name %}
+                <label> {{field.label}} </label>
+                <div class="input-group">
+                  {{ field }}
+                </div>
+              {% endif %}
+              {% if 'time' in field.label %}
+                <label> {{field.label}} </label>
+                <div class="input-group">
+                  <div>
+                    {{ field }}
+                  </div>
+              {% endif %}
+              {% if 'unit' in field.name %}
+                  <div>
+                    {{ field }}
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
             <div class="container text-center mt-3">
               <button id="optionsSave" class="btn btn-primary" type="submit">Save</button>
               <button class="btn btn-secondary" type="reset">Cancel</button>
