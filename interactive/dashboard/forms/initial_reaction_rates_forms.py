@@ -11,9 +11,9 @@ class InitialReactionRatesForm(forms.Form):
         initial_rates = initial_reaction_rates_setup()
         reaction_options = get_musica_named_reaction_options()
         for key, value in initial_rates.items():
-            self.fields['reaction-MUSICA-name.' + key] = forms.ChoiceField(choices=reaction_options, widget=forms.Select(attrs={'savebutton': 'photoSave', 'class': 'form-control musica-named-reaction-dropdown', 'reaction': key}))
+            self.fields['reaction-MUSICA-name.' + key] = forms.ChoiceField(choices=reaction_options, initial=key, widget=forms.Select(attrs={'savebutton': 'photoSave', 'class': 'form-control musica-named-reaction-dropdown', 'reaction': key}))
             self.fields['initial-value.' + key] = forms.FloatField(initial=value, widget=forms.TextInput(attrs={'savebutton': 'photoSave', 'class': 'form-control'}))
-            self.fields['units.' + key] = forms.ChoiceField(choices=[('s-1', 's-1')], widget=forms.Select(attrs={'savebutton': 'photoSave', 'class': 'form-control musica-named-reaction-units-dropdown', 'units': ''}))
+            self.fields['units.' + key] = forms.ChoiceField(choices=[("s-1", "s-1"), ("mol m-3 s-1", "mol m-3 s-1")], widget=forms.Select(attrs={'savebutton': 'photoSave', 'class': 'form-control musica-named-reaction-units-dropdown', 'units': ''}))
 
 
 class PhotoDatetimeForm(forms.Form):
