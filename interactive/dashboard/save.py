@@ -382,6 +382,14 @@ def reverse_export():
             fixedname = key.split(' [')[0]
             fixedname = fixedname.replace(' ', "_")
             option_dict.update({fixedname: config['box model options'][key]})
+            unit = key.split(' [')[1]
+            unit = unit.replace(']', "")
+            if 'chemistry' in key:
+                option_dict.update({"chem_step.units": unit})
+            if 'output' in key:
+                option_dict.update({"output_step.units": unit})
+            if 'simulation' in key:
+                option_dict.update({"simulation_length.units": unit})
         else:
             fixedname = key.replace(' ', "_")
             option_dict.update({fixedname: config['box model options'][key]})
