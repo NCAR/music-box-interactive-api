@@ -18,13 +18,8 @@
             "initial value [atm]": 0.9
         }
     },
-    "photolysis": {
-        "O3_1": {
-            "initial value [s-1]": 0.0032
-        },
-        "O3_2": {
-            "initial value [s-1]": 0.0012
-        }
+    "initial conditions": {
+        "initial_reaction_rates.csv" : {}
     },
     "evolving conditions": {},
     "model components": [

@@ -14,7 +14,6 @@
             "initial value [atm]": 1
         }
     },
-    "photolysis": {},
     "evolving conditions": {},
     "model components": [
         {
