@@ -34,6 +34,7 @@ def run(request):
     run = setup_run()
     print(run)
     save_run()
+    dump_json('run_button.json', {'buttonstatus': True})
     return JsonResponse(run)
 
 

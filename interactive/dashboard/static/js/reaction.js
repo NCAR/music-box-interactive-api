@@ -587,5 +587,18 @@ $(document).ready(function(){
     if (typeof str_val === typeof undefined || str_val === false || str_val === '') return null;
     return str_val;
   }
-
+  //enable and disable run model button
+  $.ajax({
+    url: "/mechanism/run-status",
+    type: 'get',
+    success: function(response){
+      if (response["buttonstatus"]){
+        $('#run-model').addClass('enabled')
+        $('#run-model').removeClass('disabled')
+      } else {
+        $('#run-model').removeClass('enabled')
+        $('#run-model').addClass('disabled')
+      }
+    }
+  });
 });
