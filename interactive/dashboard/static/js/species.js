@@ -157,4 +157,18 @@ $(document).ready(function(){
     });
   });
 
+  //enable and disable run model button
+  $.ajax({
+    url: "/mechanism/run-status",
+    type: 'get',
+    success: function(response){
+      if (response["buttonstatus"]){
+        $('#run-model').addClass('enabled')
+        $('#run-model').removeClass('disabled')
+      } else {
+        $('#run-model').removeClass('enabled')
+        $('#run-model').addClass('disabled')
+      }
+    }
+  });
 });

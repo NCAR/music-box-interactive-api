@@ -21,7 +21,8 @@ def file_path(filename):
         'mol_name.json': 'mechanism',
         'linear_combinations.json': 'config',
         'log_config.json': 'log',
-        'old_config.json': 'config'
+        'old_config.json': 'config',
+        'run_button.json': 'config'
     }
     file_loc = locations[filename]
     if file_loc == "config":

@@ -13,4 +13,5 @@ urlpatterns = [
     path('species-detail', views.species_detail_handler),
     path('species-remove', views.species_remove_handler),
     path('species-save', views.species_save_handler),
+    path('run-status', views.run_status_handler)
     ]
