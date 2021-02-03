@@ -14,6 +14,7 @@ def species_detail_handler(request):
         return JsonResponse({"error":"missing species name"})
     for entry in species_info():
         if entry['type'] == 'CHEM_SPEC' and entry['name'] == request.GET['name']:
+            species_convert_to_SI(entry)
             return JsonResponse(entry)
     return JsonResponse({})
 

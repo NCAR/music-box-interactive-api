@@ -123,7 +123,7 @@ $(document).ready(function(){
                 </a>
                 <div class="dropdown-menu new-property" aria-labelledby="new-property-dropdown">
                   <a class="dropdown-item" href="#" property="descrition" data-type="string" default-value="">description</a>
-                  <a class="dropdown-item" href="#" property="absolute tolerance" data-type="number" default-value="1e-12">absolute tolerance</a>
+                  <a class="dropdown-item" href="#" property="absolute tolerance [mol mol-1]" data-type="number" default-value="1e-12">absolute tolerance</a>
                   <a class="dropdown-item" href="#" property="molecular weight [kg mol-1]" data-type="number" default-value="0">molecular weight</a>
                 </div>
               </div>
