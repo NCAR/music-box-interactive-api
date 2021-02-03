@@ -109,8 +109,14 @@
               <div class="col-3">Units</div>
             </div>
         {% for field in icform %}
-          {% if 'init' in field.name %}
+          {% if 'label' in field.name %}
             <div class="row my-1">
+              <div class="col-4">
+                {% csrf_token %}
+                {{ field }}
+              </div>
+          {% endif %}
+          {% if 'init' in field.name %}
               <div class="col-4">
                 {% csrf_token %}
                 {{ field }}
