@@ -63,8 +63,21 @@ def species_remove(species_name):
 def species_save(species_data):
     logging.info("saving species '" + species_data['name'] + "'")
     json_data = {}
+    species_convert_from_SI(species_data)
     json_data['pmc-data'] = species_info()
     json_data['pmc-data'].append(species_data)
     with open(species_path, 'w') as f:
         json.dump(json_data, f, indent=2)
         f.close()
+
+# patch to allow interface to use SI units until CAMP is updated to use all SI units
+def species_convert_from_SI(species_data):
+    if 'absolute tolerance [mol mol-1]' in species_data:
+        species_data['absolute tolerance'] = species_data['absolute tolerance [mol mol-1]'] * 1.0e6 # mol mol-1 -> ppm
+        species_data.pop('absolute tolerance [mol mol-1]')
+
+# patch to allow interface to use SI units until CAMP is updated to use all SI units
+def species_convert_to_SI(species_data):
+    if 'absolute tolerance' in species_data:
+        species_data['absolute tolerance [mol mol-1]'] = species_data['absolute tolerance'] * 1.0e-6 # ppm -> mol mol-1
+        species_data.pop('absolute tolerance')
