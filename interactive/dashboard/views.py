@@ -120,7 +120,7 @@ def config_json(request):
         'form': OptionsForm,
         'file_form': UploadJsonConfigForm
     }
-    return render(request, 'conditions/options.html', context)
+    return HttpResponseRedirect('/mechanism/species')
 
 # ========== INITAL CONDITIONS PAGE =================
 
