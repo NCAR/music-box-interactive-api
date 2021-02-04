@@ -45,9 +45,9 @@
               <a class="nav-link {% if '/getting_started' in request.path %}active{% endif %}" aria-current="{% if '/getting_started' in request.path %}page{% endif %}" href="/getting_started">Getting Started</a>
               <a class="nav-link {% if '/mechanism' in request.path %}active{% endif %}" aria-current="{% if '/mechanism' in request.path %}page{% endif %}" href="/mechanism">Mechanism</a>
               <a class="nav-link {% if '/conditions' in request.path %}active{% endif %}" aria-current="{% if '/conditions' in request.path %}page{% endif %}" href="/conditions">Conditions</a>
-              <a sidebarButton='true' id="runM" align="center" class="py-2 {% if '/model' in request.path %} current {% endif %}" >
-                <button id="run-model" class="btn btn-primary btn-ncar-active">Run Model</button>
-              </a>
+              <div style="text-align:center">
+                <button id="run-model" style="margin:auto" class="btn btn-primary btn-ncar-active">Run Model</button>
+              </div>
             </div>
           </div>
           <div class="mt-auto mb-4" style="position: absolute; bottom: 0; width: 100%;">
