@@ -1,10 +1,27 @@
+:root {
+  --jumbotron-padding-y: 3rem;
+  --ncar-color-bg-dark: #C3D7EE;
+  --ncar-color-bg-mid: #CED9E5;
+  --ncar-color-bg-light: #DBE2E9;
+  --ncar-color-primary-dark-green: #00797C;
+  --ncar-color-primary-mid-green: #28939D;
+  --ncar-color-primary-light-green: #40C1AC;
+  --ncar-color-primary-dark-blue: #1A658F;
+  --ncar-color-primary-mid-blue: #007FA3;
+  --ncar-color-primary-light-blue: #00C1D5;
+  --ncar-color-text-dark: #53565A;
+  --ncar-color-text-mid-dark: #97999B;
+  --ncar-color-text-mid-light: #BBBCBC;
+  --ncar-color-text-light: #D9D9D6;
+}
+
 html,body {
-    background-image: linear-gradient(#C3D7EE, #CED9E5);
+    background: var(--ncar-color-bg-dark);
     font-family: 'Poppins';
 }
 
 .bg-ncar-body {
-  background: #CED9E5;
+  background: var(--ncar-color-bg-light);
 }
 
 .navbar .navbar-toggler {
@@ -20,10 +37,6 @@ html,body {
     z-index: 100;
     padding: 48px 0 0;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-}
-
-:root {
-  --jumbotron-padding-y: 3rem;
 }
 
 .jumbotron {
@@ -50,8 +63,21 @@ html,body {
 .btn-check:checked+.btn-primary,
 .btn-primary.active,
 .show>.btn-primary.dropdown-toggle {
-    background-color: #00797C;
-    border-color: #00797C;
+    background-color: var(--ncar-color-primary-dark-green);
+    border-color: var(--ncar-color-primary-dark-green);
+    color: white;
+}
+
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:active,
+.btn-secondary:focus,
+.btn-check:active+.btn-secondary,
+.btn-check:checked+.btn-secondary,
+.btn-secondary.active,
+.show>.btn-secondary.dropdown-toggle {
+    background-color: var(--ncar-color-text-mid-dark);
+    border-color: var(--ncar-color-text-mid-dark);
     color: white;
 }
 
@@ -59,21 +85,16 @@ html,body {
     font-size: 10px;
 }
 
-.btn-form {
-    background-color: #212529;
-    color: white;
-}
-
 a {
-    color: #00797C;
+    color: var(--ncar-color-primary-dark-green);
 }
 
 .bg-ncar-menu {
-    background-color: #BBBCBC;
+    background-color: var(--ncar-color-text-mid-light);
 }
 
 .bg-ncar-menu-secondary {
-    background-color: #D9D9D6;
+    background-color: var(--ncar-color-text-light);
 }
 
 .navbar-brand {
@@ -82,11 +103,11 @@ a {
 }
 
 .nav-link {
-    color: #333;
+    color: var(--ncar-color-text-dark);
 }
 
 .nav-link.active {
-    color: #00797C;
+    color: var(--ncar-color-primary-dark-green);
 }
 
 #logo {
@@ -101,294 +122,6 @@ a {
     size: default;
 }
 
-/* pre-bootstrap styles */
-
-
-.confighead {
-    font-family: 'Poppins';
-    color: white;
-    font-size: 24px;
-    position: fixed;
-    text-decoration: underline;
-    z-index:1;
-    top:75;
-    left:50%;
-}
-
-.footer {
-    font-family: 'Poppins';
-    font-size:12px;
-    position: relative;
-    z-index:1;
-    bottom: 10;
-    left:30%;
-
-}
-
-.footer a {
-    padding:6px 8px 6px;
-    text-decoration: none;
-    color: white;
-
-}
-
-.plothead {
-    margin-left: 50%;
-    z-index: 20;
-    font-size: 30px;
-    color: white;
-    font-family: 'Poppins';
-    text-decoration: underline;
-}
-
-#reviewbox{
-    font-size: 16px;
-    font-family: 'Poppins';
-}
-
-#plot{
-    display: block;
-    margin-left: 50px;
-    margin-top: 100px;
-}
-
-#plot img{
-    margin-top:5;
-    margin-bottom: 5;
-}
-
-#molec_detail {
-    display: inline-block;
-    margin-left: 60;
-    margin-top: 80;
-    width: fit-content;
-    height: fit-content;
-    padding-left: 25;
-    padding-right: 25;
-    padding-bottom: 25;
-    background-color: #267871;
-    border-radius: 4px;
-    box-shadow: 0px 1px 5px 0px #303030;
-}
-
-#molecule_content {
-    display: flex;
-}
-
-#equation_box {
-    display: inline-block;
-    margin-top: 120;
-    margin-left: 80;
-    list-style: none;
-}
-
-#reaction_content {
-    display: flex;
-}
-
-
-#react_detail {
-    display: inline-block;
-    margin-left: 60;
-    margin-top: 80;
-    width: fit-content;
-    height: fit-content;
-    padding-left: 25;
-    padding-right: 25;
-    padding-bottom: 25;
-    background-color: #267871;
-    border-radius: 4px;
-    box-shadow: 0px 1px 5px 0px #303030;
-}
-
-#plots_content{
-    display: flex;
-}
-
-#plotbar button[clickStatus='true']{
-    background-color: #272727;
-    border-color: #272727;
-    width: 188;
-}
-
-#newmolecule {
-    margin-bottom: 10;
-}
-
-input[name="query"]{
-    width: 125;
-    margin-bottom: 3;
-}
-
-#r_search{
-    width: 200;
-}
-
-.r_to_m{
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-hr.solid {
-    border-top: 3px solid white;
-    width: 400px;
-}
-
-.optiontitle {
-    width: 400px;
-}
-
-#evolvcontent{
-    margin-left: 295;
-    width: fit-content;
-    border-radius: 4px;
-    background-color: #267871;
-    box-shadow: 0px 1px 5px 0px #303030;
-    padding: 5px 15px;
-    list-style-type: none;
-}
-
-
-#evolvtable td{
-    padding-left: 10;
-}
-
-#display-linear-combos table tr td{
-    border: 2px solid black;
-}
-
-
-#photo_file_panel {
-    background: #267871;
-    width: fit-content;        
-    padding: 5px;
-    height: fit-content;
-    border-radius: 4px;
-    box-shadow: 0px 1px 5px 0px #303030;
-}
-
-#lrUpload {
-    margin-top: 30px;
-}
-
-#is_lr_uploaded_panel {
-    margin-left: 300;
-    background: #267871;
-    width: fit-content;
-    padding: 10;
-    border-radius: 4px;
-    box-shadow: 0px 1px 5px 0px #303030;
-}
-
-
-/* The switch - the box around the slider */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-  }
-  
-  /* Hide default HTML checkbox */
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  /* The slider */
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  input:checked + .slider {
-    background-color: #267871;
-  }
-  
-  input:focus + .slider {
-    box-shadow: 0 0 1px #267871;
-  }
-  
-  input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
-  }
-  
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: 34px;
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
-
-#updatelogtog{
-    display: block;
-    margin-top: 5;
-}
-
-#clearEvolvFiles {
-    margin-left: 300;
-    margin-top: 20;
-}
-
-
-#ghublink{
-    margin-top: 40;
-}
-#ghublink a{
-    color: white;
-    display: block;
-    padding-bottom: 15;
-}
-
-a[sidebarButton]{
-    width: 150;
-    padding-top: 20;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-
-a[sidebarButton]:hover{
-    margin-left: auto;
-    margin-right: auto;
-}
-
-a[sidebarButton] button{
-    background-color: #2d6290;
-    border: none;
-    font-size: 18;
-    box-shadow: 0px 1px 3px 0px black;
-}
-
-a[sidebarButton] button:hover{
-    box-shadow: none;
-    background-color:#1a5385;
-    color: white;
-}
 
 #runMB[emphasis="false"]{
     background-color: #738390;
