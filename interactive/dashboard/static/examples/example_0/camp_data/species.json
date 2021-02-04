@@ -1,3 +1,10 @@
 {
-  "pmc-data" : []
+  "pmc-data" : [
+    {
+      "name" : "M",
+      "type" : "CHEM_SPEC",
+      "tracer type" : "CONSTANT",
+      "description" : "Third-body molecule. This is any molecule present in the system."
+    }
+  ]
 }

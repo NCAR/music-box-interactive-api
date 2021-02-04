@@ -41,10 +41,22 @@ $(document).ready(function(){
         </div>
         <input type="text" class="form-control" placeholder="Property value" value="`+property_value+`">
         <div class="input-group-append">
-          <button type="button" class="btn btn-primary remove-property" property="`+property_name+`">
+          <button type="button" class="btn btn-primary remove-property" property="`+property_name+`" style="border: 1px solid transparent;">
             <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove '+property+_name+'"></span>
           </button>
         </div>
+      </div>
+    `
+  }
+
+  // return html for a fixed property box
+  function property_fixed_html(property_name, data_type, property_value) {
+    return `
+      <div class="input-group mb-3" property="`+property_name+`" data-type="`+data_type+`">
+        <div class="input-group-prepend">
+          <span class="input-group-text">`+property_name+`</span>
+        </div>
+        <input type="text" class="form-control" placeholder="Property value" disabled value="`+property_value+`">
       </div>
     `
   }
@@ -135,6 +147,23 @@ $(document).ready(function(){
           </div>`
   }
 
+  // returns html for a non-editable detail window
+  function species_fixed_detail_html(species_name) {
+    return `
+          <div class="card mb-4 species-card shadow-sm" species="`+species_name+`">
+            <div class="card-header">
+              <h4 class="my-0 fw-normal">`+species_name+`</h4>
+            </div>
+            <form class="body card-body">
+              <div class="form-group properties">
+              </div>
+              <div class="container text-center mt-3">
+                <button type="button" class="btn btn-secondary btn-cancel">Close</button>
+              </div>
+            </form>
+          </div>`
+  }
+
   // show editable chemical species detail
   $(".species-detail-link").on('click', function(){
     $.ajax({
@@ -143,14 +172,26 @@ $(document).ready(function(){
       dataType: 'json',
       data: { 'name': $(this).attr('species') },
       success: function(response){
-        $('.species-detail').html(species_detail_html(response.name));
-        for (var key of Object.keys(response).sort()) {
-          if (key == "name" || key == "type") continue;
-          $('.new-property .dropdown-item[property="'+key+'"]').hide();
-          if (typeof response[key] == "string") {
-            $('.species-detail .properties').append(property_input_html(key, "string", response[key]));
-          } else {
-            $('.species-detail .properties').append(property_input_html(key, "number", response[key]));
+        if (response["name"] == 'M') {
+          $('.species-detail').html(species_fixed_detail_html(response.name));
+          for (var key of Object.keys(response).sort()) {
+            if (key == "name" || key == "type") continue;
+            if (typeof response[key] == "string") {
+              $('.species-detail .properties').append(property_fixed_html(key, "string", response[key]));
+            } else {
+              $('.species-detail .properties').append(property_fixed_html(key, "number", response[key]));
+            }
+          }
+        } else {
+          $('.species-detail').html(species_detail_html(response.name));
+          for (var key of Object.keys(response).sort()) {
+            if (key == "name" || key == "type") continue;
+            $('.new-property .dropdown-item[property="'+key+'"]').hide();
+            if (typeof response[key] == "string") {
+              $('.species-detail .properties').append(property_input_html(key, "string", response[key]));
+            } else {
+              $('.species-detail .properties').append(property_input_html(key, "number", response[key]));
+            }
           }
         }
       }
