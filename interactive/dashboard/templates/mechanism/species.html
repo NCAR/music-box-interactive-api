@@ -25,9 +25,11 @@ Select a chemical species from the list to view/edit its properties, or add a ne
               <a href="#" class="species-detail-link" species="{{species.0}}">
                 {{ species.1 }}
               </a>
+              {% if species.0 != 'M' %}
               <a href="#" class="navlink species-remove m-0 p-0" species="{{species.0}}">
                 <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove {{species.0}}"></span>
               </a>
+              {% endif %}
             </li>
           {% endfor %}
         </ul>

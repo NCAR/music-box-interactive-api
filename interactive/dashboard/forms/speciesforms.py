@@ -15,6 +15,8 @@ class SpeciesForm(forms.Form):
         units = unit_setup()
         values = value_setup()
 
+        species_options.remove(('M', 'M'))
+
         for key in formulas:
             self.fields[key + '.Formula'] = forms.ChoiceField(choices=species_options, widget= forms.Select(attrs={'id': key + '.Formula', 'savebutton': 'speciesSave', 'class': 'form-control species-dropdown', 'species': formulas[key]}))
             self.fields[key + '.Initial Value'] = forms.FloatField(initial=values[key], widget=forms.TextInput(attrs={'savebutton': 'speciesSave', 'class': 'form-control'}))
