@@ -32,7 +32,6 @@ def species_remove_handler(request):
     if not 'name' in request.GET:
         return HttpResponseBadRequest("missing species name")
     species_remove(request.GET['name'])
-    enable_run_model()
     return HttpResponse('')
 
 
@@ -46,7 +45,6 @@ def species_save_handler(request):
     species_data['type'] = "CHEM_SPEC"
     species_remove(species_data['name'])
     species_save(species_data)
-    enable_run_model()
     return JsonResponse({})
 
 
@@ -86,7 +84,6 @@ def reaction_remove_handler(request):
     if not 'index' in request.GET:
         return HttpResponseBadRequest("missing reaction index")
     reaction_remove(int(request.GET['index']))
-    enable_run_model()
     return HttpResponse('')
 
 
@@ -96,16 +93,4 @@ def reaction_save_handler(request):
         return JsonResponse({"error":"saving a reaction should be a POST request"})
     reaction_data = json.loads(request.body)
     reaction_save(reaction_data)
-    enable_run_model()
     return JsonResponse({})
-
-
-#checks if run button is enabled
-def run_status_handler(request):
-    run_button = open_json('run_button.json')
-    return JsonResponse(run_button)
-
-
-# enables run model button
-def enable_run_model():
-    dump_json('run_button.json', {'buttonstatus': True})
