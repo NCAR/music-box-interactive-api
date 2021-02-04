@@ -104,13 +104,6 @@ $(document).ready(function(){
           $('#plot_results').attr('aria-current', 'page');
         }
       }
-      if (response["buttonstatus"]){
-        $('#run-model').addClass('enabled')
-        $('#run-model').removeClass('disabled')
-      } else {
-        $('#run-model').removeClass('enabled')
-        $('#run-model').addClass('disabled')
-      }
     }
   });
 
