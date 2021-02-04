@@ -4,6 +4,6 @@
     "chem_step.units": "min",
     "output_time_step": 1.0,
     "output_step.units": "min",
-    "simulation_length": 100.0,
-    "simulation_length.units": "min"
+    "simulation_length": 24.0,
+    "simulation_length.units": "hr"
 }

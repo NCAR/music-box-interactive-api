@@ -1,11 +1,8 @@
 {
     "formula": {
-        "Species 1": "Enter Formula"
     },
     "value": {
-        "Species 1": 0.0
     },
     "unit": {
-        "Species 1": "mol m-3"
     }
 }
