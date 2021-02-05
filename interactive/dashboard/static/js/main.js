@@ -13,6 +13,20 @@ $(document).ready(function(){
    }); 
   });
 
+  // default plot sub-page
+  var linkId = $('.propfam:first-child').attr('id');
+  $('.propfam:first-child').attr('class','propfam btn btn-primary btn-ncar-active');
+  if (typeof linkId !== typeof undefined && linkId !== '') {
+    $.ajax({
+      url: 'plots/get_contents',
+      type: 'get',
+      data: {"type": linkId},
+      success: function(response){
+        $("#plotbar").html(response);
+      }
+    });
+  }
+
   // plot species and plot rates buttons
   $(".propfam").on('click', function(){
     var linkId = $(this).attr('id');
