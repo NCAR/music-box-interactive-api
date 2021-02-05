@@ -14,10 +14,10 @@ Select a chemical species from the list to view/edit its properties, or add a ne
 </p>
 <div id="species_content" class="container-fluid p-2">
   <div class="row row-full-width">
-    <div class="col-md-3 col-lg-2">
+    <div class="col-md-4 col-lg-4">
       <nav class="bg-ncar-menu-secondary p-2">
         <button class="btn btn-primary species-new mb-2">
-          <span class="oi oi-plus" toggle="tooltip" aria-hidden="true" title="Add a new species"></span>&nbsp;New
+          Add species
         </button>
         <ul class="list-group species-list">
           {% for species in species_menu_names %}
@@ -35,7 +35,7 @@ Select a chemical species from the list to view/edit its properties, or add a ne
         </ul>
       </nav>
     </div>
-    <div class="col-md-9 col-lg-7 my-3 species-detail">
+    <div class="col-md-8 col-lg-7 my-3 species-detail">
     </div>
   </div>
 </div>
