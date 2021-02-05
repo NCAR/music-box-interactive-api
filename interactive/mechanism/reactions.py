@@ -23,18 +23,27 @@ def reactions_info():
 def reaction_menu_names():
     logging.info('getting list of reaction names')
     names = []
+
     for reaction in reactions_info():
         name = ''
         if 'reactants' in reaction.keys() and 'products' in reaction.keys():
-            for idx, reactant in enumerate(reaction['reactants']):
-                if idx > 0:
-                    name += '+ '
-                name += str(reactant) + ' '
+            first_item_printed = False
+            for reactant,count_dict in reaction['reactants'].items():
+                if count_dict and count_dict['qty'] != 1:
+                    name += (' + ' if first_item_printed else '') + str(count_dict['qty']) + ' ' + reactant
+                    first_item_printed = True
+                else: 
+                    name += (' + ' if first_item_printed else '') + reactant
+                    first_item_printed = True
             name += '->'
-            for idx, product in enumerate(reaction['products']):
-                if idx > 0:
-                    name += ' +'
-                name += ' ' + str(product)
+            first_item_printed = False
+            for product, yield_dict in reaction['products'].items():
+                if yield_dict and yield_dict['yield'] != 1.0:
+                    name += (' + ' if first_item_printed else ' ') + str(yield_dict['yield']) + ' ' + product
+                    first_item_printed = True
+                else: 
+                    name += (' + ' if first_item_printed else ' ') + product
+                    first_item_printed = True
         else:
             name += reaction['type']
             if 'species' in reaction.keys():
