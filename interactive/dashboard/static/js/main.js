@@ -13,6 +13,17 @@ $(document).ready(function(){
    }); 
   });
 
+  // show/hide input file instructions
+  $(".show-hide-input-file-instructions").on('click', function(){
+    if ($(this).html() == "Show input file instructions") {
+      $(".input-file-instructions").css("display", "block");
+      $(this).html("Hide input file instructions");
+    } else {
+      $(".input-file-instructions").css("display", "none");
+      $(this).html("Show input file instructions");
+    }
+  });
+
   // default plot sub-page
   var linkId = $('.propfam:first-child').attr('id');
   $('.propfam:first-child').attr('class','propfam btn btn-primary btn-ncar-active');

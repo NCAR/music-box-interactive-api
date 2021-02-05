@@ -131,3 +131,7 @@ a {
     box-shadow:none;
     size: default;
 }
+
+code {
+    color: var(--ncar-color-primary-dark-blue);
+}
