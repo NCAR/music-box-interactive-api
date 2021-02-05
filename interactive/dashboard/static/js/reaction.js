@@ -514,7 +514,7 @@ $(document).ready(function(){
     if ('as-object' in schema && schema['as-object'] == true) {
       var object_data = {};
       this_object.children().children().children('.array-elements').children('.array-element').each(function(index) {
-        var key = $(this).children('.dropdown').attr('selected-element');
+        var key = $(this).children('.dropdown').children('a').text();
         if (typeof key === typeof undefined || key === false || key === '') return;
         var sub_data = {};
         for (const [sub_key, value] of Object.entries(extract_property_from_container($(this).children('.element-properties'), schema['children']['children']))) {
@@ -583,8 +583,8 @@ $(document).ready(function(){
 
   // extracts a string list value from a container
   function extract_string_list_from_container(this_object, schema) {
-    var str_val = this_object.children().children('.dropdown').attr('selected-element');
+    var str_val = this_object.children().children('.dropdown').children('a').text();
     if (typeof str_val === typeof undefined || str_val === false || str_val === '') return null;
     return str_val;
-  }  
+  }
 });

@@ -15,7 +15,7 @@
 </p>
 <div class="configbox container-fluid">
   <div class="row m-2">
-    <div class="col-8 p-0">
+    <div class="col-12 p-0">
       <div class="card mb-4 shadow-sm">
         <div class="card-header">
           <h4 class="my-0">Upload File</h4>
@@ -25,14 +25,87 @@
             <p class="lead-muted p-2">
               If your initial conditions are in a text file, load them here. Otherwise, use the forms below to set the initial conditions.
             </p>
-            {% csrf_token %}
-            {{ csv_field }}
-            <div class="conatiner text-center my-3">
-              <button id="initFileSave" class="btn btn-primary" type="submit">Upload</button>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-6">
+                  {% csrf_token %}
+                  {{ csv_field }}
+                  <div class="conatiner text-center my-3">
+                    <button id="initFileSave" class="btn btn-primary" type="submit">Upload</button>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <a href="#" class="show-hide-input-file-instructions">Show input file instructions</a>
+                  <div class="card">
+                    <div class="card-body input-file-instructions" style="display: none">
+                      <h5 class="card-title">Input file format</h5>
+                      <p class="card-text">Initial conditions input files should be comma-separated text files with variable names on the first line, followed by a single line of data describing the initial value for each variable. Variable names that are not recognized by MusicBox will be ignored. Variable names should be structured as follows:</p>
+                      <p class="card-text text-center"><code>PREFIX.Property Name</code></p>
+                      <p class="card-text">The <code>PREFIX</code> indicates what type of property is being set. The property types corresponding to each recognized prefix are described below. The <code>Property Name</code> is the name of the property in the <a href="/mechanism">mechanism</a>.</p>
+                      <p class="card-text">
+                        An example initial conditions file can be downloaded <a href="/conditions/examplefile?type=initial">here</a>.
+                      </p>
+                      <div class="accordion" id="accordion-formats">
+
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="concentration-format">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-concentration-format" aria-expanded="true" aria-controls="collapse-concentration-format">
+                              <code>CONC</code>: Chemical species concentrations [mol m-3]
+                            </button>
+                          </h2>
+                          <div id="collapse-concentration-format" class="accordion-collapse collapse" aria-labelledby="concentration-format" data-bs-parent="#accordion-formats">
+                            <div class="accordion-body">
+                              <p>The <code>Property Name</code> for a chemical species concentration should correspond to the name of a <a href="/mechanism/species">chemical species</a> present in the mechanism. The units are assumed to be mol m-3. The initial concentration of a species named "terminal alkenes" should be labelled:</p>
+                              <p class="text-center"><code>CONC.terminal alkenes</code></p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="emission-format">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-emission-format" aria-expanded="true" aria-controls="collapse-emission-format">
+                              <code>EMIS</code>: Emission of a chemical species [mol m-3 s-1]
+                            </button>
+                          </h2>
+                          <div id="collapse-emission-format" class="accordion-collapse collapse" aria-labelledby="emission-format" data-bs-parent="#accordion-formats">
+                            <div class="accordion-body">
+                              <p>The <code>Property Name</code> for a emission rate should correspond to the <code>MUSICA name</code> property of an <a href="/mechanism/reactions">emission reaction</a> present in the mechanism. The units are assumed to be mol m-3 s-1. The rate for an emissions reaction with <code>MUSICA name</code> "C>5 alkenes" should be labelled:</p>
+                              <p class="text-center"><code>EMIS.C>5 alkenes</code></p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="loss-format">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-loss-format" aria-expanded="true" aria-controls="collapse-loss-format">
+                              <code>LOSS</code>: First-order loss of a chemical species [s-1]
+                            </button>
+                          </h2>
+                          <div id="collapse-loss-format" class="accordion-collapse collapse" aria-labelledby="loss-format" data-bs-parent="#accordion-formats">
+                            <div class="accordion-body">
+                              <p>The <code>Property Name</code> for a first-order-loss rate constant for a chemical species should correspond to the <code>MUSICA name</code> property of a <a href="/mechanism/reactions">loss reaction</a> present in the mechanism. The units are assumed to be s-1. The rate constant for a first-order loss reaction with <code>MUSICA name</code> "total monoterpenes" should be labelled:</p>
+                              <p class="text-center"><code>LOSS.total monoterpenes</code></p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="photolysis-format">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-photolysis-format" aria-expanded="true" aria-controls="collapse-photolysis-format">
+                              <code>PHOT</code>: Photolysis of a chemical species [s-1]
+                            </button>
+                          </h2>
+                          <div id="collapse-photolysis-format" class="accordion-collapse collapse" aria-labelledby="photolysis-format" data-bs-parent="#accordion-formats">
+                            <div class="accordion-body">
+                              <p>The <code>Property Name</code> for a photolysis rate constant for a chemical species should correspond to the <code>MUSICA name</code> property of a <a href="/mechanism/reactions">photolysis reaction</a> present in the mechanism. The units are assumed to be s-1. The rate constant for a photolysis reaction with <code>MUSICA name</code> "C>3 aldehydes" should be labelled:</p>
+                              <p class="text-center"><code>PHOT.C>3 aldehydes</code></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p class="lead-muted p-2">
-              <a href="/conditions/examplefile?type=initial" class="text-muted">View example initial conditions file</a>
-            </p>
           </div>
         </form>
       </div>
