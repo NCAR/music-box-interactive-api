@@ -344,7 +344,7 @@ $(document).ready(function(){
       case 'object':
         var list_elements = [];
         for (val of schema['children']['key'].split(';')) {
-          list_elements.push( { key: format_json_key(val), label: val } );
+          list_elements.push( { key: val, label: val } );
         }
         $(element_container).html(dropdown_html('array-element-'+index, (value != null && 'key' in value) ? value['key'] : '', list_elements));
         $(element_container).append(`<div class="col-7 element-properties"></div>`);
@@ -413,7 +413,7 @@ $(document).ready(function(){
     if ('description' in schema) description = schema['description'].toString();
     var list_elements = [];
     for (val of schema['values'].split(';')) {
-      list_elements.push( { key: format_json_key(val), label: val } );
+      list_elements.push( { key: val, label: val } );
     }
     var html = `
       <div class="input-group string-list" property-key="` + key + `">
@@ -514,7 +514,7 @@ $(document).ready(function(){
     if ('as-object' in schema && schema['as-object'] == true) {
       var object_data = {};
       this_object.children().children().children('.array-elements').children('.array-element').each(function(index) {
-        var key = $(this).children('.dropdown').children('a').text();
+        var key = $(this).children('.dropdown').attr('selected-element');
         if (typeof key === typeof undefined || key === false || key === '') return;
         var sub_data = {};
         for (const [sub_key, value] of Object.entries(extract_property_from_container($(this).children('.element-properties'), schema['children']['children']))) {
@@ -583,7 +583,7 @@ $(document).ready(function(){
 
   // extracts a string list value from a container
   function extract_string_list_from_container(this_object, schema) {
-    var str_val = this_object.children().children('.dropdown').children('a').text();
+    var str_val = this_object.children().children('.dropdown').attr('selected-element');
     if (typeof str_val === typeof undefined || str_val === false || str_val === '') return null;
     return str_val;
   }
