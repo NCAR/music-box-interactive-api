@@ -13,10 +13,10 @@ def get_contents(request):
     subs = sub_props(prop)
     if prop != 'compare':
         for i in subs:
-            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id=' + i + ">" + sub_props_names(i) + "</a>")
+            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' + i + '">' + sub_props_names(i) + "</a>")
     elif prop == 'compare':
         for i in subs:
-            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id=' + i + ">" + sub_props_names(i) + "</a>")
+            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' + i + '">' + sub_props_names(i) + "</a>")
     return response
 
 

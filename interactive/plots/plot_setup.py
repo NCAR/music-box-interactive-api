@@ -87,8 +87,8 @@ def output_plot(prop):
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
-    csv.columns = csv.columns.str.replace(' ', '') 
-    subset = csv[['time', str(prop.replace(' ',''))]]
+    csv.columns = csv.columns.str.strip()
+    subset = csv[['time', str(prop.strip())]]
     cleaned_subset = undo_double(subset)
     cleaned_subset.plot(x="time", ax=axes)
 
