@@ -19,6 +19,13 @@ def reactions_info():
     return camp_data['pmc-data'][0]['reactions']
 
 
+# checks if the set of reactions is valid (ie if there is at least one reaction)
+def reactions_are_valid():
+    if len(reactions_info()) > 0:
+        return True
+    return False
+
+
 # creates a list of reaction names based on data from the reactions file for use in a menu
 def reaction_menu_names():
     logging.info('getting list of reaction names')
