@@ -1,92 +1,34 @@
 {
-  "pmc-data" : [
+  "pmc-data": [
     {
-      "name" : "Chapman",
-      "type" : "MECHANISM",
-      "reactions" : [
+      "name": "Chapman",
+      "type": "MECHANISM",
+      "reactions": [
         {
-          "type" : "PHOTOLYSIS",
-          "reactants" : {
-            "O2" : { }
+          "type": "ARRHENIUS",
+          "reactants": {
+            "O3": {},
+            "a-pinene": {}
           },
-          "products" : {
-            "O" : { "yield" : 2.0 }
+          "products": {
+            "SOA1": {
+              "yield": 0.18
+            },
+            "SOA2": {
+              "yield": 0.09
+            }
           },
-          "MUSICA name" : "O2_1"
+          "A": 8.8e-17
         },
         {
-          "type" : "PHOTOLYSIS",
-          "reactants" : {
-            "O3" : { }
-          },
-          "products" : {
-            "O1D" : { },
-            "O2" : { }
-          },
-          "MUSICA name" : "O3_1"
+          "type": "FIRST_ORDER_LOSS",
+          "species": "SOA1",
+          "MUSICA name": "SOA1 wall loss"
         },
         {
-          "type" : "PHOTOLYSIS",
-          "reactants" : {
-            "O3" : { }
-          },
-          "products" : {
-            "O" : { },
-            "O2" : { }
-          },
-          "MUSICA name" : "O3_2"
-        },
-        {
-          "type" : "ARRHENIUS",
-          "reactants" : {
-            "O1D" : { },
-            "N2" : { }
-          },
-          "products" : {
-            "O" : { },
-            "N2" : { }
-          },
-          "A" : 2.15e-11,
-          "C" : 110.0
-        },
-        {
-          "type" : "ARRHENIUS",
-          "reactants" : {
-            "O1D" : { },
-            "O2" : { }
-          },
-          "products" : {
-            "O" : { },
-            "O2" : { }
-          },
-          "A" : 3.3e-11,
-          "C" : 55.0
-        },
-        {
-          "type" : "ARRHENIUS",
-          "reactants" : {
-            "O" : { },
-            "O3" : { }
-          },
-          "products" : {
-            "O2" : { "yield" : 2.0 }
-          },
-          "A" : 8.0e-12,
-          "C" : -2060.00
-        },
-        {
-          "type" : "ARRHENIUS",
-          "reactants" : {
-            "O" : { },
-            "O2" : { },
-            "M" : { }
-          },
-          "products" : {
-            "O3" : { },
-            "M" : { }
-          },
-          "A" : 6.0e-34,
-          "B" : 2.4
+          "type": "FIRST_ORDER_LOSS",
+          "species": "SOA2",
+          "MUSICA name": "SOA2 wall loss"
         }
       ]
     }

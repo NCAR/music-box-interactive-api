@@ -1,27 +1,30 @@
 {
     "box model options": {
         "grid": "box",
-        "chemistry time step [min]": 1.0,
-        "output time step [hr]": 0.1,
-        "simulation length [hr]": 13.9
+        "chemistry time step [sec]": 1.0,
+        "output time step [sec]": 1.0,
+        "simulation length [hr]": 1.0
     },
     "chemical species": {
-        "O2": {
-            "initial value [mol m-3]": 3.0
+        "a-pinene": {
+            "initial value [mol m-3]": 8e-08
+        },
+        "O3": {
+            "initial value [mol m-3]": 2e-05
         }
     },
     "environmental conditions": {
         "temperature": {
-            "initial value [K]": 290.0
+            "initial value [K]": 298.15
         },
         "pressure": {
-            "initial value [atm]": 0.9
+            "initial value [Pa]": 101325.0
         }
     },
-    "initial conditions": {
-        "initial_reaction_rates.csv" : {}
-    },
     "evolving conditions": {},
+    "initial conditions": {
+        "initial_reaction_rates.csv": {}
+    },
     "model components": [
         {
             "type": "CAMP",

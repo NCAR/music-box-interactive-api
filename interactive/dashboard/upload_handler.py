@@ -118,7 +118,9 @@ def create_config_zip():
     with ZipFile(zip_path, 'w') as zip:
         for filepath in glob.iglob(destination_path + '/**', recursive=True):
             relative_path = os.path.relpath(filepath, destination_path)
-            if str(relative_path) == 'my_config.json' or str(relative_path).startswith('camp_data'):
+            if str(relative_path) == 'my_config.json'\
+                or str(relative_path) == 'initial_reaction_rates.csv'\
+                or str(relative_path).startswith('camp_data'):
                 zip.write(filepath, os.path.join('config/', os.path.relpath(filepath, destination_path)))
 
 
