@@ -3,6 +3,7 @@ import time
 import subprocess
 from django.conf import settings
 from interactive.tools import *
+from mechanism.reactions import reactions_are_valid
 from shutil import rmtree
 
 
@@ -52,7 +53,9 @@ def create_file_list():
 
 def setup_run():
     if interface_solo:
-        return {'model_connected': False}
+        return {'model_running': False, 'error_message': 'Model not connected to interface.'}
+    if not reactions_are_valid():
+        return {'model_running': False, 'error_message': 'At least one reaction must be present for the model to run.'}
 
     if os.path.isfile(out_path):
         os.remove(out_path)
@@ -87,7 +90,7 @@ def setup_run():
         copyConfigFile(os.path.join('/build/mb_configuration', f), os.path.join('/build', f))
     process = subprocess.Popen([r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
 
-    return {'model_connected': True}
+    return {'model_running': True}
 
 # copy inital config file on first model run
 def setup_config_check():

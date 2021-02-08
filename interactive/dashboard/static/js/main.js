@@ -87,7 +87,7 @@ $(document).ready(function(){
       url: "/model/run",
       type: 'get',
       success: function(response){
-        if (response["model_connected"]){
+        if (response["model_running"]){
           $.ajax({
             url: "/model/check",
             type: 'get',
@@ -109,7 +109,7 @@ $(document).ready(function(){
             }
           });
         } else {
-          alert('model is not connected')
+          alert(response["error_message"])
         }
       }
     });
