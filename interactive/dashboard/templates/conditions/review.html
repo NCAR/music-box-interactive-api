@@ -10,7 +10,7 @@
   </div>
 </div>
 <p class="lead-muted p-2">
-  Add paragraph describing this section.
+  Here you can review the raw configuration data for your simulation, and download the configuration to use again in the future.
 </p>
 
 
@@ -19,7 +19,7 @@
       {% for key,value in config.items %}
       <tr>
          <td>
-            <h3>{{ key }}:</h3>
+            <h4>{{ key }}:</h4>
          </td>
          <td>
             {% for key1, value1 in value.items %}
