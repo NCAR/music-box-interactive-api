@@ -2,8 +2,8 @@
     "box model options": {
         "grid": "box",
         "chemistry time step [min]": 1.0,
-        "output time step [hr]": 0.1,
-        "simulation length [hr]": 13.9
+        "output time step [min]": 1.0,
+        "simulation length [hr]": 24.0
     },
     "chemical species": {
         "O": {
@@ -18,10 +18,10 @@
             "initial value [atm]": 0.9
         }
     },
-    "initial conditions": {
-        "initial_reaction_rates.csv" : {}
-    },
     "evolving conditions": {},
+    "initial conditions": {
+        "initial_reaction_rates.csv": {}
+    },
     "model components": [
         {
             "type": "CAMP",
