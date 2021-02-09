@@ -12,28 +12,36 @@
 <p class="lead-muted p-2">
 Select a reaction from the list to view/edit its properties, or add a new reaction to the mechansim. The chemical species available to participate in reactions can be modified <a href="/mechanism/species">here</a>.
 </p>
-<div id="reaction_content" class="container-fluid p-2">
-  <div class="row row-full-width">
-    <div class="col-md-4 col-lg-4">
-      <nav class="bg-ncar-menu-secondary p-2">
-        <button class="btn btn-primary reaction-new mb-2">
-          Add reaction
-        </button>
-        <ul class="list-group reaction-list">
-          {% for reaction in reaction_menu_names %}
-            <li class="list-group-item list-group-item-action d-flex justify-content-between">
-              <a href="#" class="reaction-detail-link" reaction-index="{{ forloop.counter0 }}">
-                    {{ reaction }}
-              </a>
-              <a href="#" class="navlink reaction-remove m-0 p-0" reaction-index="{{ forloop.counter0 }}">
-                <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove reaction"></span>
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </nav>
+<div id="reaction_content" class="container-fluid p-2 d-flex flex-column vh-100 overflow-hidden">
+  <div class="row flex-grow-1 overflow-hidden">
+    <div class="col-md-4 col-lg-4 mh-100 overflow-auto">
+      <div class="row flex-shrink-0">
+        <div class="col">
+          <nav class="bg-ncar-menu-secondary p-2">
+            <button class="btn btn-primary reaction-new mb-2">
+              Add reaction
+            </button>
+            <ul class="list-group reaction-list">
+              {% for reaction in reaction_menu_names %}
+                <li class="list-group-item list-group-item-action d-flex justify-content-between">
+                  <a href="#" class="reaction-detail-link" reaction-index="{{ forloop.counter0 }}">
+                        {{ reaction }}
+                  </a>
+                  <a href="#" class="navlink reaction-remove m-0 p-0" reaction-index="{{ forloop.counter0 }}">
+                    <span class="oi oi-x" toggle="tooltip" aria-hidden="true" title="remove reaction"></span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        </div>
+      </div>
     </div>
-    <div class="col-md-8 col-lg-7 my-3 reaction-detail">
+    <div class="col mh-100 overflow-auto">
+      <div class="row flex-shrink-0">
+        <div class="col reaction-detail">
+        </div>
+      </div>
     </div>
   </div>
 </div>

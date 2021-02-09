@@ -33,8 +33,8 @@ def species_menu_names():
     m_list = species_list()
     newlist = []
     for name in m_list:
-        if len(name) > 8:
-            shortname = name[0:8] + '..'
+        if len(name) > 25:
+            shortname = name[0:25] + '..'
             newlist.append(shortname)
         else:
             newlist.append(name)

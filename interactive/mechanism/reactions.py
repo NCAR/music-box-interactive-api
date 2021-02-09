@@ -39,7 +39,7 @@ def reaction_menu_names():
                 if count_dict and count_dict['qty'] != 1:
                     name += (' + ' if first_item_printed else '') + str(count_dict['qty']) + ' ' + reactant
                     first_item_printed = True
-                else: 
+                else:
                     name += (' + ' if first_item_printed else '') + reactant
                     first_item_printed = True
             name += '->'
@@ -48,15 +48,15 @@ def reaction_menu_names():
                 if yield_dict and yield_dict['yield'] != 1.0:
                     name += (' + ' if first_item_printed else ' ') + str(yield_dict['yield']) + ' ' + product
                     first_item_printed = True
-                else: 
+                else:
                     name += (' + ' if first_item_printed else ' ') + product
                     first_item_printed = True
         else:
             name += reaction['type']
             if 'species' in reaction.keys():
                 name += ': ' + reaction['species']
-        if len(name) > 20:
-            shortname = name[0:20] + '...'
+        if len(name) > 40:
+            shortname = name[0:40] + '...'
             names.append(shortname)
         else:
             names.append(name)
