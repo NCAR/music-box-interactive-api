@@ -17,13 +17,23 @@
 <p class="lead-muted p-2">
 Select a category from the top and then choose specific elements to plot from the left.
 </p>
-<div id=plots_content class="container-fluid p-2">
-  <div class="row row-full-width">
-    <nav class="col-md-4 col-lg-3">
-      <ul class="list-group bg-ncar-menu-secondary p-2" id="plotbar">
-      </ul>
-    </nav>
-    <div id="plot" class="col">
+<div id=plots_content class="container-fluid p-2 d-flex flex-column vh-100 overflow-hidden">
+  <div class="row flex-grow-1 overflow-hidden">
+    <div class="col-md-4 col-lg-3 mh-100 overflow-auto">
+      <div class="row flex-shrink-0">
+        <div class="col">
+          <nav>
+            <ul class="list-group bg-ncar-menu-secondary p-2" id="plotbar">
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div class="col mh-100 overflow-auto">
+      <div class="row flex-shrink-0">
+        <div id="plot" class="col">
+        </div>
+      </div>
     </div>
   </div>
 </div>

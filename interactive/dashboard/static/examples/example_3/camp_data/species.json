@@ -101,6 +101,16 @@
       "description": "formaldehyde"
     },
     {
+      "name": "H2",
+      "type": "CHEM_SPEC",
+      "description": "molecular hydrogen"
+    },
+    {
+      "type": "CHEM_SPEC",
+      "name": "H2O",
+      "description": "water"
+    },
+    {
       "name": "H2O2",
       "type": "CHEM_SPEC",
       "description": "hydrogen peroxide"
@@ -109,6 +119,11 @@
       "name": "HCL",
       "type": "CHEM_SPEC",
       "description": "hydrochlric acid"
+    },
+    {
+      "type": "CHEM_SPEC",
+      "name": "HCO3",
+      "description": "formyl peroxy radical"
     },
     {
       "name": "HNO3",
@@ -144,6 +159,11 @@
       "name": "ISPD",
       "type": "CHEM_SPEC",
       "description": "isoprene products (lumped methacrolein, methyl vinyl ketone, etc.)"
+    },
+    {
+      "name": "M",
+      "type": "CHEM_SPEC",
+      "description": "third body"
     },
     {
       "name": "MEO2",
@@ -186,6 +206,21 @@
       "description": "nitrate radical"
     },
     {
+      "type": "CHEM_SPEC",
+      "name": "NTR",
+      "description": "organic nitrates (RNO3)"
+    },
+    {
+      "type": "CHEM_SPEC",
+      "name": "O",
+      "description": "oxygen atom in the O3P electronic state"
+    },
+    {
+      "type": "CHEM_SPEC",
+      "name": "O1D",
+      "description": "oxygen atom in the O1D electronic state"
+    },
+    {
       "name": "O3",
       "type": "CHEM_SPEC",
       "description": "ozone"
@@ -194,6 +229,11 @@
       "name": "OH",
       "type": "CHEM_SPEC",
       "description": "hydroxyl radical"
+    }, 
+    {
+      "name": "O2",
+      "type": "CHEM_SPEC",
+      "description": "molecular oxygen"
     },
     {
       "name": "OLE",
@@ -256,6 +296,11 @@
       "description": "sulfuric acid (gaseous)"
     },
     {
+      "type": "CHEM_SPEC",
+      "name": "TERP",
+      "description": "terpenes"
+    },
+    {
       "name": "TO2",
       "type": "CHEM_SPEC",
       "description": "toluene-hydroxyl radical aduct"
@@ -264,6 +309,11 @@
       "name": "TOL",
       "type": "CHEM_SPEC",
       "description": "toluene"
+    },
+    {
+      "type": "CHEM_SPEC",
+      "name": "TOLRO2",
+      "description": "first generation product from TOL oxidation"
     },
     {
       "name": "XO2",
@@ -279,56 +329,6 @@
       "name": "XYL",
       "type": "CHEM_SPEC",
       "description": "xylene and other polyalkyl aromatics"
-    },
-    {
-      "name": "O2",
-      "type": "CHEM_SPEC",
-      "description": "molecular oxygen"
-    },
-    {
-      "name": "H2",
-      "type": "CHEM_SPEC",
-      "description": "molecular hydrogen"
-    },
-    {
-      "name": "M",
-      "type": "CHEM_SPEC",
-      "description": "third body"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "H2O",
-      "description": "water"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "HCO3",
-      "description": "formyl peroxy radical"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "NTR",
-      "description": "organic nitrates (RNO3)"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "O",
-      "description": "oxygen atom in the O3P electronic state"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "O1D",
-      "description": "oxygen atom in the O1D electronic state"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "TERP",
-      "description": "terpenes"
-    },
-    {
-      "type": "CHEM_SPEC",
-      "name": "TOLRO2",
-      "description": "first generation product from TOL oxidation"
     },
     {
       "type": "CHEM_SPEC",
