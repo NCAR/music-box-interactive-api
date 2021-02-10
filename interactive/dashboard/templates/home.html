@@ -1,24 +1,50 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 
 <main role="main">
-  <div class="jumbotron text-center">
+  <div id="about" class="jumbotron text-center hero-img" style='background-image: url("{% static 'img/image_calvin.jpg' %}")'>
     <div class="container">
       <h1 class="display-2">MusicBox</h1>
       <h1 class="display-6">an atmospheric box model</h1>
-      <p class="lead text-muted">
+      <p class="lead hero-text">
         Simulate chamber or flow-tube experiments, recreate field observations, or
         evalute the effects of new chemistry on an existing system. MusicBox is designed to
         let you build the chemical system you want. You can simulate that system for the
         conditions you're interested in, and evalute the results.
       </p>
-      <p class="lead text-muted">
+      <p class="lead hero-text">
         When you're ready,
         communicate your new chemical system to the community, so it can run in any
-        partner model.
+        <a href="#partners">partner model</a>.
       <p>
         <a href="/getting_started" class="btn btn-primary btn-lg btn-ncar-active">Get started »</a>
       </p>
+    </div>
+  </div>
+  <div id="behind-the-music">
+    <div class="container">
+      <h1>Behind the Music</h1>
+    </div>
+  </div>
+  <div id="partners">
+    <div class="container">
+      <h1>MusicBox Partners</h1>
+    </div>
+  </div>
+  <div id="sponsors">
+    <div class="container">
+      <h1>MusicBox Sponsors</h1>
+    </div>
+  </div>
+  <div id="bug-report">
+    <div class="container">
+      <h1>Report a bug</h1>
+    </div>
+  </div>
+  <div id="contact">
+    <div class="container">
+      <h1>Contact the MusicBox team</h1>
     </div>
   </div>
 </main>

@@ -135,3 +135,14 @@ a {
 code {
     color: var(--ncar-color-primary-dark-blue);
 }
+
+.hero-img {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.hero-text {
+    color: var(--ncar-color-text-dark);
+}
