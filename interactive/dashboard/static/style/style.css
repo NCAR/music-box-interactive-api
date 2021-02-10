@@ -135,3 +135,8 @@ a {
 code {
     color: var(--ncar-color-primary-dark-blue);
 }
+
+.footer-link{
+    text-decoration:none;
+    color: #212529;
+}
