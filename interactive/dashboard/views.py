@@ -176,7 +176,8 @@ def init_csv(request):
 def evolving_conditions(request):
     context = {
         'file_field': UploadEvolvFileForm(),
-        'filedict': sorted(display_evolves().items())
+        'filedict': sorted(display_evolves().items()),
+        'linearcombinations': display_linear_combinations()
         }
     return render(request, 'conditions/evolving.html', context)
 
@@ -186,6 +187,18 @@ def evolv_file(request):
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
         manage_uploaded_evolving_conditions_files(uploaded, filename)
+    return HttpResponseRedirect('/conditions/evolving')
+
+
+#removes linear combination from config
+def remove_linear(request):
+    if request.method == 'GET':
+        filename = request.GET.dict()['name'].replace('-','.')
+        config = open_json('my_config.json')
+        evolving = config['evolving conditions']
+        evolving.update({filename: {"linear combinations": {}}})
+        config.update({'evolving conditions': evolving})
+        dump_json('my_config.json', config)
     return HttpResponseRedirect('/conditions/evolving')
 
 
@@ -294,7 +307,7 @@ def evolv_linear_combo(request):
         comboDict = request.GET.dict()
         save_linear_combo(comboDict)
     return HttpResponseRedirect('/conditions/evolving')
-
+    
 
 def toggle_logging(request):
     if request.method == 'GET':
