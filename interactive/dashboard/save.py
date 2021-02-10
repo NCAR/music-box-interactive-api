@@ -516,21 +516,19 @@ def display_linear_combinations():
     config = open_json('my_config.json')
     if 'evolving conditions' not in config:
         return []
-    elif 'evolving_conditions.csv' in config['evolving conditions']:
-        lcs = config['evolving conditions']['evolving_conditions.csv']['linear combinations']
     else:
-        return []
-    
-    lc_list = []
+        filelist = config['evolving conditions'].keys()
 
-    for combo in lcs:
-        props = []
-        for key in lcs[combo]['properties']:
-            props.append(key.split('.')[1])
-        scale = lcs[combo]['scale factor']
-        lc_list.append([props, scale])
+    linear_combo_dict = {}
+
+    for f in filelist:
+        if config['evolving conditions'][f]['linear combinations']:
+            for key in config['evolving conditions'][f]['linear combinations']:
+                combo = config['evolving conditions'][f]['linear combinations'][key]['properties']
+                c = [key for key in combo]
+                linear_combo_dict.update({f.replace('.','-'): c})
     
-    return lc_list
+    return linear_combo_dict
 
 
 def save_photo_start_time(mydict):
