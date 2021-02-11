@@ -23,16 +23,6 @@
   </div>
 </main>
 
-<div class="row">
-  <div class="card">
-    <h4 class="card-title my-3">Report a bug</h4>
-    <form method="POST" action='/conditions/report'>
-      {% csrf_token %}
-      {{ bugform }}
-      <button type="submit" class="btn btn-primary my-2">Submit</button>
-    </form>
-  </div>
-</div>
 
 
 {% endblock %}
