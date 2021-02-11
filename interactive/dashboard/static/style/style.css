@@ -163,3 +163,8 @@ code {
 .logo-small {
     max-height: 100px;
 }
+
+.footer-link{
+    text-decoration:none;
+    color: #212529;
+}

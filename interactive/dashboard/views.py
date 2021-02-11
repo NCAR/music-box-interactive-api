@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.core.mail import send_mail
 from .forms.speciesforms import *
 from .forms.optionsforms import *
+from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .forms.initial_reaction_rates_forms import *
@@ -14,11 +16,31 @@ import mimetypes
 from django.core.files import File
 from interactive.tools import *
 import pandas
+import platform
 
 def landing_page(request):
-    context = {}
+    context = {
+        'bugform': BugForm()
+    }
     return render(request, 'home.html', context)
 
+
+def report_bug(request):
+    form_data = request.POST.dict()
+    form_data.pop('csrfmiddlewaretoken')
+        
+    info = 'Operating system information: '+ str(os.name) + ' ' + str(platform.system()) + ' ' + str(platform.release())
+    report = form_data['report']
+    message = info + '   Report: ' + report + '    Contact email: ' + form_data['your_email']
+    send_mail(
+        'MusicBox Bug Report',
+        message,
+        'musicboxmusica@gmail.com',
+        ['musicboxmusica@gmail.com'],
+        fail_silently=False,
+    )
+
+    return HttpResponseRedirect('/')
 
 def example_file(request):
     filetype = request.GET.dict()['type']
@@ -176,7 +198,8 @@ def init_csv(request):
 def evolving_conditions(request):
     context = {
         'file_field': UploadEvolvFileForm(),
-        'filedict': sorted(display_evolves().items())
+        'filedict': sorted(display_evolves().items()),
+        'linearcombinations': display_linear_combinations()
         }
     return render(request, 'conditions/evolving.html', context)
 
@@ -186,6 +209,18 @@ def evolv_file(request):
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
         manage_uploaded_evolving_conditions_files(uploaded, filename)
+    return HttpResponseRedirect('/conditions/evolving')
+
+
+#removes linear combination from config
+def remove_linear(request):
+    if request.method == 'GET':
+        filename = request.GET.dict()['name'].replace('-','.')
+        config = open_json('my_config.json')
+        evolving = config['evolving conditions']
+        evolving.update({filename: {"linear combinations": {}}})
+        config.update({'evolving conditions': evolving})
+        dump_json('my_config.json', config)
     return HttpResponseRedirect('/conditions/evolving')
 
 
@@ -294,7 +329,7 @@ def evolv_linear_combo(request):
         comboDict = request.GET.dict()
         save_linear_combo(comboDict)
     return HttpResponseRedirect('/conditions/evolving')
-
+    
 
 def toggle_logging(request):
     if request.method == 'GET':
