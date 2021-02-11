@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.core.mail import send_mail
 from .forms.speciesforms import *
 from .forms.optionsforms import *
+from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .forms.initial_reaction_rates_forms import *
@@ -14,11 +16,31 @@ import mimetypes
 from django.core.files import File
 from interactive.tools import *
 import pandas
+import platform
 
 def landing_page(request):
-    context = {}
+    context = {
+        'bugform': BugForm()
+    }
     return render(request, 'home.html', context)
 
+
+def report_bug(request):
+    form_data = request.POST.dict()
+    form_data.pop('csrfmiddlewaretoken')
+        
+    info = 'Operating system information: '+ str(os.name) + ' ' + str(platform.system()) + ' ' + str(platform.release())
+    report = form_data['report']
+    message = info + '   Report: ' + report + '    Contact email: ' + form_data['your_email']
+    send_mail(
+        'MusicBox Bug Report',
+        message,
+        'musicboxmusica@gmail.com',
+        ['musicboxmusica@gmail.com'],
+        fail_silently=False,
+    )
+
+    return HttpResponseRedirect('/')
 
 def example_file(request):
     filetype = request.GET.dict()['type']
