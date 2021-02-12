@@ -188,4 +188,9 @@ def check_photo_uploaded():
         return False
 
 
-
+# create configuration zip
+def create_report_zip(report_dict):
+    config = open_json('my_config.json')
+    config.update({'bug report': report_dict})
+    dump_json('my_config.json', config)
+    create_config_zip()

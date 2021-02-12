@@ -158,7 +158,14 @@
     <div class="container">
       <h1 class="about-heading" style="color:white;">Report a bug</h1>
       <div class="pt-4">
-        <p style="color:white;">fill in form here</p>
+        <p style="color:white;">
+          <h5>Fill in your report here, and hit submit. This will download a zip file, which you can send to <a href="mailto: music-box-support@ucar.edu">music-box-support@ucar.edu</a></h5>
+          <form method="POST" action='/conditions/report'>
+            {% csrf_token %}
+            {{ bugform }}
+            <button type="submit" class="btn btn-primary my-2">Submit</button>
+          </form>
+        </p>
       </div>
     </div>
   </div>

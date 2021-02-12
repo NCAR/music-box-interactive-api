@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.core.mail import send_mail
 from .forms.speciesforms import *
 from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
@@ -30,17 +29,16 @@ def report_bug(request):
     form_data.pop('csrfmiddlewaretoken')
         
     info = 'Operating system information: '+ str(os.name) + ' ' + str(platform.system()) + ' ' + str(platform.release())
-    report = form_data['report']
-    message = info + '   Report: ' + report + '    Contact email: ' + form_data['your_email']
-    send_mail(
-        'MusicBox Bug Report',
-        message,
-        'musicboxmusica@gmail.com',
-        ['musicboxmusica@gmail.com'],
-        fail_silently=False,
-    )
+    report = form_data['report']  
+    report_dict = {'system info': info, 'report': report}
 
-    return HttpResponseRedirect('/')
+    create_report_zip(report_dict)
+    fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/zip/output/config.zip')
+    zip_file = open(fl_path, 'rb')
+    response = HttpResponse(zip_file, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % 'bug_report.zip'
+    return response
+
 
 def example_file(request):
     filetype = request.GET.dict()['type']
