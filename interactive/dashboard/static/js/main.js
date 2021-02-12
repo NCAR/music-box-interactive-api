@@ -1,5 +1,21 @@
 $(document).ready(function(){
-//remove species button
+
+  // disable enter button, unless a button or link has focus
+  $('body').on('keypress', ':not(button, a)', function(event) {
+    if (event.keyCode == '13') {
+      event.preventDefault();
+    }
+  });
+
+  // have enter key or space bar trigger click when button or link has focus
+  $('body').on('keypress', 'button, a', function(event) {
+    if (event.keyCode == '13' || event.keyCode == '32') {
+      event.preventDefault();
+      $(this).click();
+    }
+  });
+
+  //remove species button
   $('.r_button').on('click', function(){
     var buttonId = $(this).attr('id');
 
