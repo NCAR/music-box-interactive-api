@@ -3,25 +3,41 @@
         "grid": "box",
         "chemistry time step [min]": 1.0,
         "output time step [hr]": 0.1,
-        "simulation length [hr]": 13.9
+        "simulation length [day]": 5.0
     },
     "chemical species": {
+        "Ar": {
+            "initial value [molecule cm-3]": 2.86e+16
+        },
+        "CO2": {
+            "initial value [molecule cm-3]": 1250000000000000.0
+        },
+        "H2O": {
+            "initial value [molecule cm-3]": 9950000000000.0
+        },
+        "N2": {
+            "initial value [molecule cm-3]": 2.39e+18
+        },
+        "O2": {
+            "initial value [molecule cm-3]": 6.41e+17
+        },
         "O3": {
-            "initial value [mol m-3]": 3.0
+            "initial value [molecule cm-3]": 1960000000000.0
         }
     },
     "environmental conditions": {
         "temperature": {
-            "initial value [K]": 290.0
+            "initial value [K]": 207.55158996582
         },
         "pressure": {
-            "initial value [atm]": 0.9
+            "initial value [Pa]": 8782.123046875
         }
     },
-    "initial conditions": {
-        "initial_reaction_rates.csv" : {}
+    "evolving conditions": {
+        "MusicBox_1_80hPa.csv": {
+            "linear combinations": {}
+        }
     },
-    "evolving conditions": {},
     "model components": [
         {
             "type": "CAMP",

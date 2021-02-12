@@ -11,6 +11,17 @@ from interactive.tools import *
 import logging
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
+config_files_to_ignore = [
+        'initials.json',
+        'linear_combinations.json',
+        'old_config.json',
+        'options.json',
+        'photo.json',
+        'post.json',
+        'reactions.json',
+        'species.json',
+        'README'
+        ]
 
 # handles all uploaded evolving conditions files
 def manage_uploaded_evolving_conditions_files(f, filename):
@@ -118,9 +129,7 @@ def create_config_zip():
     with ZipFile(zip_path, 'w') as zip:
         for filepath in glob.iglob(destination_path + '/**', recursive=True):
             relative_path = os.path.relpath(filepath, destination_path)
-            if str(relative_path) == 'my_config.json'\
-                or str(relative_path) == 'initial_reaction_rates.csv'\
-                or str(relative_path).startswith('camp_data'):
+            if not str(relative_path) in config_files_to_ignore:
                 zip.write(filepath, os.path.join('config/', os.path.relpath(filepath, destination_path)))
 
 
