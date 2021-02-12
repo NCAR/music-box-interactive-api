@@ -48,25 +48,6 @@ def sub_props(prop):
         return runs
 
 
-def undo_double(dataframe):
-    dflist = dataframe.to_dict(orient='list')
-    for key in dflist:
-        for val in dflist[key]:
-            i = dflist[key].index(val)
-            old = val
-            if 'D+' in old:
-                delim = 'D+'
-                multiple = 1
-            elif 'D-' in old:
-                delim = 'D-'
-                multiple = -1
-            exp = float(old.split(delim)[1]) * multiple
-            number = float(old.split(delim)[0])
-            new = number * (10 ** exp)
-            dflist[key][i] = new
-    return pandas.DataFrame(dflist)
-
-
 def sub_props_names(subprop):
     namedict = {
         'temperature': "Temperature",
@@ -89,10 +70,9 @@ def output_plot(prop):
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
-    cleaned_subset = undo_double(subset)
-    cleaned_subset.plot(x="time", ax=axes)
+    subset.plot(x="time", ax=axes)
 
-    # time = cleaned_subset[['time']].values.tolist()
+    # time = subset[['time']].values.tolist()
     # length = time[-1][0]
     # grad = length / 6
     # if grad < 700000:
