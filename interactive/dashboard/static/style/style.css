@@ -55,6 +55,10 @@ html,body {
     width: 100%;
 }
 
+a:hover {
+    color: var(--ncar-color-primary-dark-green);
+}
+
 .btn-primary,
 .btn-primary:hover,
 .btn-primary:active,
@@ -164,7 +168,11 @@ code {
     max-height: 100px;
 }
 
+footer {
+    background-color: var(--ncar-color-text-light);
+}
+
 .footer-link{
     text-decoration:none;
-    color: #212529;
+    color: var(--ncar-color-text-dark);
 }
