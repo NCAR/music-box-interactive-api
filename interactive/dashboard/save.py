@@ -73,6 +73,7 @@ def save_initial_reaction_rates(form):
     else:
         if os.path.exists(initial_reaction_rates_file_path):
             os.remove(initial_reaction_rates_file_path)
+    export()
 
 
 # Combines all individual configuration json files and writes to the config file readable by the mode
@@ -138,6 +139,8 @@ def export():
 
     if os.path.isfile(initial_reaction_rates_file_path):
         config.update({ "initial conditions" : { "initial_reaction_rates.csv" : { } } })
+    else:
+        config.pop("initial conditions", None)
 
     config.update({
         "model components": [
@@ -284,6 +287,7 @@ def save_init(form):
 # add an entry to the list of initial reaction rates/rate constants
 def add_initial_reaction_rate():
     add_to_initial_conditions_file(initial_reaction_rates_file_path, ',', { "": 0.0 })
+    export()
 
 
 # remove an entry from the list of initial reaction rates/rate constants
@@ -300,6 +304,7 @@ def delete_initial_reaction_rate(reaction_name):
         with open(initial_reaction_rates_file_path, 'w') as f:
             dictionary_to_initial_conditions_file(initial_rates, f, ',')
             f.close()
+    export()
 
 
 #remove a species from the species json
