@@ -85,12 +85,12 @@ def output_plot(prop):
     name = prop.split('.')[1]
     if prop.split('.')[0] == 'CONC':
         axes.set_ylabel(r"(mol/m^3)")
-        axes.set_title(name + ' Concentration vs. Time')
+        axes.set_title(name)
     elif prop.split('.')[0] == 'RATE':
         axes.set_ylabel(r"(mol/m^3 s^-1)")
-        axes.set_title(name + ' Rate vs. Time')
+        axes.set_title(name)
     elif prop.split('.')[0] == 'ENV':
-        axes.set_title(sub_props_names(name) + ' vs. Time')
+        axes.set_title(sub_props_names(name))
         if name == 'temperature':
             axes.set_ylabel(r"K")
         elif name == 'pressure':
