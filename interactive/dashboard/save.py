@@ -6,6 +6,8 @@ import logging
 from interactive.tools import *
 from csv import reader
 import random
+from scipy.io import netcdf
+
 
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 initial_reaction_rates_file_path = os.path.join(config_path, 'initial_reaction_rates.csv')
@@ -466,6 +468,13 @@ def uploaded_to_config(uploaded_dict):
     export()
 
 
+# reads variables from netcdf file
+def netcdf_header(filename):
+    filepath = os.path.join(config_path, filename)
+    ncf = netcdf.netcdf_file(filepath, 'r')
+    return list(dict(ncf.variables).keys())
+
+
 # load evolving_conditions data into an array
 
 def display_evolves():
@@ -488,7 +497,8 @@ def display_evolves():
             except IndexError:
                 file_header_dict.update({i:['EMPTY FILE']})
         elif '.nc' in i:
-            file_header_dict.update({i:['NETCDF FILE']})
+            netcdf_dims = netcdf_header(i)
+            file_header_dict.update({i: netcdf_dims})
         new = {}
         for key in file_header_dict:
             val = file_header_dict[key]
@@ -498,9 +508,9 @@ def display_evolves():
     return file_header_dict
 
 
-def save_linear_combo(filename, combo):
-    combo = [x.replace('EMIS-', 'CONC.') for x in combo]
-    combodict = {'properties': {}}
+def save_linear_combo(filename, combo, scale_factor):
+    combo = [x.replace('CONC-', 'CONC.') for x in combo]
+    combodict = {'properties': {}, 'scale factor': scale_factor}
     for i in combo:
         combodict['properties'].update({i:{}})
     config = open_json('my_config.json')
