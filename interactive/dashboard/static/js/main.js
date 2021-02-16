@@ -496,4 +496,9 @@ $(document).ready(function(){
     $(this).val(spec);
   });
 
+  // show scale factor form on click of conc. <li> form
+  $('.linear-combo-conc').on('click', function(){
+    $("#" + $(this).attr('fileName')).collapse();
+  });
+
 });

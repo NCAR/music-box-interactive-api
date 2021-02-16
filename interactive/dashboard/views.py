@@ -227,7 +227,8 @@ def evolving_linear_combination(request):
     filename = data['filename'].replace('-', '.')
     data.pop('filename')
     combo = data.keys()
-    save_linear_combo(filename, combo)
+    scale_factor = data.pop('scale_factor')
+    save_linear_combo(filename, combo, scale_factor)
 
     return HttpResponseRedirect('/conditions/evolving')
 

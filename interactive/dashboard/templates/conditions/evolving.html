@@ -115,14 +115,25 @@
         <h4 class="my-0">{{ key }}</h4>
       </div>
       <div class="card card-body m-2">
-        <form method="get" action="/conditions/evolving-linear-combination">
+        <form class="linear-combination-form" method="get" action="/conditions/evolving-linear-combination">
           <input type="hidden" name="filename" value="{{ key }}">
           <ul class="list-group">
-          {% for i in value %}
-            <li class="list-group-item"><input name="{{ i }}" addButton="{{ key }}" class="form-check-input linear-combo-check mx-2" type="checkbox" value="" id="{{i}}"><label for="{{ i }}">{{ i }}</label></li>
-          {% endfor %}
+            {% for i in value %}
+              {% if "CONC" in i %}
+                <li fileName="{{ key }}_collapse" class="list-group-item linear-combo-conc"><input name="{{ i }}" addButton="{{ key }}" class="form-check-input linear-combo-check mx-2" type="checkbox" value="" id="{{i}}"><label for="{{ i }}">{{ i }}</label></li>
+              {% endif %}
+              {% if "CONC" not in i %}
+                <li class="list-group-item">{{i}}</li>
+              {% endif %}
+            {% endfor %}
           </ul>
-          <button type="submit" id="{{key}}" class="btn btn-secondary my-2 submit-linear-combination disabled">Add linear combination</button>
+          <div class="collapse" id="{{key}}_collapse">
+            <div class="input-group my-2">
+              <span class="input-group-text">Scale factor:</span>
+              <input id="scaleFactorForm" value="1" class="form-control" type="text" name="scale_factor">
+            </div>
+          </div>  
+          <button type="submit" id="{{key}}" class="btn btn-secondary my-2 submit-linear-combination">Add linear combination</button>
         </form>
         <div class="linear-combination-display">
           {% if linearcombinations %}
