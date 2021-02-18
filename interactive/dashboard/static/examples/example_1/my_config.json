@@ -22,7 +22,7 @@
             "initial value [mol m-3]": 0.75
         },
         "O3": {
-            "initial value [mol m-3]": 7.41e-06
+            "initial value [mol m-3]": 8.1e-06
         }
     },
     "environmental conditions": {
