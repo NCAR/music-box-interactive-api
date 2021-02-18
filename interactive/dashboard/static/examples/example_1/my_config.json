@@ -7,34 +7,34 @@
     },
     "chemical species": {
         "Ar": {
-            "initial value [molecule cm-3]": 2.86e+16
+            "initial value [mol m-3]": 0.0334
         },
         "CO2": {
-            "initial value [molecule cm-3]": 1250000000000000.0
+            "initial value [mol m-3]": 0.00146
         },
         "H2O": {
-            "initial value [molecule cm-3]": 9950000000000.0
+            "initial value [mol m-3]": 1.19e-05
         },
         "N2": {
-            "initial value [mol m-3]": 3.982284
+            "initial value [mol m-3]": 2.8
         },
         "O2": {
-            "initial value [mol m-3]": 1.068246
+            "initial value [mol m-3]": 0.75
         },
         "O3": {
-            "initial value [mol m-3]": 2.1e-06
+            "initial value [mol m-3]": 7.41e-06
         }
     },
     "environmental conditions": {
         "temperature": {
-            "initial value [K]": 207.55158996582
+            "initial value [K]": 206.6374207
         },
         "pressure": {
-            "initial value [Pa]": 8782.123046875
+            "initial value [Pa]": 6152.049805
         }
     },
     "evolving conditions": {
-        "MusicBox_1_80hPa.csv": {
+        "MusicBox_1_60hPa.csv": {
             "linear combinations": {}
         }
     },
