@@ -28,11 +28,11 @@ def sub_props(prop):
     env = list([])
     for i in titles:
         if 'CONC' in i:
-            spec.append(str(i).split('.')[1])
+            spec.append(str(i).split('.')[1].rstrip())
         elif 'RATE' in i:
-            rate.append(str(i).split('.')[1])
+            rate.append(str(i).split('.')[1].rstrip())
         elif 'ENV' in i:
-            env.append(str(i).split('.')[1])
+            env.append(str(i).split('.')[1].rstrip())
     if prop == 'species':
         logging.info('getting concentrations')
         return spec
