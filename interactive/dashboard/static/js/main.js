@@ -439,13 +439,6 @@ $(document).ready(function(){
     $("#" + name).addClass('btn-primary-active')
   });
 
-
-  //autofill species drowdown selections
-  $('.species-dropdown').filter(function() { 
-    var spec = $(this).attr('species');
-    $(this).val(spec);
-  });
-
   $('.musica-named-reaction-dropdown').filter(function() {
     var reaction = $(this).val();
     update_reaction_units($(this).parent().parent(), reaction);
