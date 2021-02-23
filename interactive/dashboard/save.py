@@ -592,9 +592,23 @@ def copyConfigFile(source, destination):
     configFile.close()
 
 
+# empty the contents of a directory
+def empty_folder(path_to_folder):
+    for filename in os.listdir(path_to_folder):
+        file_path = os.path.join(path_to_folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print("Error deleting %s: %s" % (file_path, e))
+
+
 def load_example_configuration(name):
     examples_path = os.path.join(settings.BASE_DIR, 'dashboard/static/examples')
     example_folder_path = os.path.join(examples_path, name)
     config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+    empty_folder(config_path)
     copy_tree(example_folder_path, config_path)
     reverse_export()
