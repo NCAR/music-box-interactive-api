@@ -60,6 +60,20 @@ Initial environmental conditions, concentrations for chemical species, and react
                           </div>
                         </div>
                         <div class="accordion-item">
+                          <h2 class="accordion-header" id="environment-format">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-environment-format" aria-expanded="true" aria-controls="collapse-environment-format">
+                              <code>ENV</code>: Environmental conditions
+                            </button>
+                          </h2>
+                          <div id="collapse-environment-format" class="accordion-collapse collapse" aria-labelledby="environment-format" data-bs-parent="#accordion-formats">
+                            <div class="accordion-body">
+                              <p>The <code>Property Name</code> can be either <code>temperature</code> with values in K, or <code>pressure</code> with values in Pa:</p>
+                              <p class="text-center"><code>ENV.temperature</code></p>
+                              <p class="text-center"><code>ENV.pressure</code></p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="accordion-item">
                           <h2 class="accordion-header" id="emission-format">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-emission-format" aria-expanded="true" aria-controls="collapse-emission-format">
                               <code>EMIS</code>: Emission of a chemical species [mol m-3 s-1]
