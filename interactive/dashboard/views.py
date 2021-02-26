@@ -81,14 +81,6 @@ def species(request):
     
     return HttpResponseRedirect('/conditions/initial')
 
-def csv(request):
-    if request.method == 'POST':
-        uploaded = request.FILES['file']
-        uploaded_to_config(handle_uploaded_csv(uploaded))
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'conditions/species.html', context)
 
 ###########
 
@@ -233,50 +225,10 @@ def evolving_linear_combination(request):
     return HttpResponseRedirect('/conditions/evolving')
 
 
-def evolv_lr(request):
-    if request.method == 'POST':
-        uploaded = request.FILES['file']
-        handle_uploaded_loss_rates(uploaded)
-    return HttpResponseRedirect('/conditions/evolving')
-
-
 def clear_evolv_files(request):
     if request.method == 'GET':
         clear_e_files()
     return HttpResponseRedirect('/conditions/evolving')
-
-
-
-def photo_ncf(request):
-    if request.method == 'POST':
-        uploaded = request.FILES['file']
-        print(str(request.FILES))
-        handle_uploaded_p_rates(uploaded)
-    return HttpResponseRedirect('/conditions/photolysis')
-
-
-def photo_dt_form(request):
-    if request.method == 'GET':
-        response = HttpResponse()
-        form = PhotoDatetimeForm()
-        response.write('<form action="photo_start_results"><table>')
-        for field in form:
-            response.write('<tr><td>')
-            response.write(field.name)
-            response.write('</td><td>')
-            response.write(field)
-            response.write('</td></tr>')
-        response.write('</table><button type="submit">Save</button></form>')
-        return response
-    else:
-        return HttpResponse()
-
-
-def save_photo_dt(request):
-    if request.method == 'GET':
-        dt = request.GET.dict()
-        save_photo_start_time(dt)
-    return HttpResponseRedirect('/conditions/photolysis')
 
 
 def new_photo(request):
