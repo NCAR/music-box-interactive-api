@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from .forms.speciesforms import *
 from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
@@ -62,15 +61,6 @@ def load_example(request):
     example_name = 'example_' + str(request.GET.dict()['example'])
     load_example_configuration(example_name)
     return HttpResponseRedirect('/mechanism')
-
-
-def species(request):
-    if request.method == 'POST':
-        new_spec = SpeciesForm(request.POST)
-        if new_spec.is_valid():
-            save_species(new_spec.cleaned_data)
-    
-    return HttpResponseRedirect('/conditions/initial')
 
 
 ###########
@@ -136,7 +126,6 @@ def initial_conditions(request):
             save_init(newConditions)
     context = {
         'icform': InitialConditionsForm,
-        'speciesform': SpeciesForm,
         'initial_reaction_rates_form': InitialReactionRatesForm,
         'csv_field' : UploadInitFileForm
     }

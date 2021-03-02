@@ -10,7 +10,6 @@ urlpatterns = [
     path('visualize', views.visualize, name='visualize'),
     path('conditions', views.options),
     path('conditions/options', views.options, name='options'),
-    path('conditions/species', views.species, name='species'),
     path('conditions/initial', views.initial_conditions, name='inital conditions'),
     path('conditions/evolving', views.evolving_conditions, name='evolving conditions'),
     path('conditions/review', views.review, name='visualize'),

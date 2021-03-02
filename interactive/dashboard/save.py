@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from distutils.dir_util import copy_tree
 from django.conf import settings
 import logging
