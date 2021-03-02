@@ -1,0 +1,42 @@
+{
+	"home":{
+		"get started": "/html/body/div/div/div/main/div[1]/div/p[3]/a",
+		"run model": "/html/body/div/div/nav/div[1]/div/div/button"
+			},
+	"getting started": {
+		"start from scratch": "/html/body/div/div/div/main/section[1]/div/p[2]/a[1]",
+		"select example": "/html/body/div/div/div/main/section[1]/div/p[2]/button",
+		"example 1": "/html/body/div/div/div/main/section[1]/div/div[1]/div[1]/div/a"
+			},
+	"mechanism": {
+		"species": {},
+		"reactions": {}
+			},
+	"conditions": {
+		"general": {
+			"chemistry time step": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[2]/div[1]/input",
+			"chemistry time step units": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[2]/div[2]/select",
+			"output time step": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[3]/div[1]/input",
+			"output time step units": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[3]/div[2]/select",
+			"simulation time": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[4]/div[1]/input",
+			"simulation time units": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[4]/div[2]/select",
+			"save": "/html/body/div/div/div/div[2]/div[1]/div/div/form/div/div[5]/button[1]"
+		},
+		"initial": {
+			"add species": "/html/body/div/div/div/div[2]/div[2]/div/div/form/button",
+			"remove species 6": "/html/body/div/div/div/div[2]/div[2]/div/form/div/div[1]/div[7]/div[4]/button",
+			"species 6 name": "/html/body/div/div/div/div[2]/div[2]/div/form/div/div[1]/div[7]/div[1]/select",
+			"species 6 initial value": "/html/body/div/div/div/div[2]/div[2]/div/form/div/div[1]/div[7]/div[2]/input[2]",
+			"species 6 units": "/html/body/div/div/div/div[2]/div[2]/div/form/div/div[1]/div[7]/div[3]/select",
+			"temperature": "/html/body/div/div/div/div[2]/div[3]/div/form/div/div[1]/div[2]/div[2]/input[2]",
+			"pressure": "/html/body/div/div/div/div[2]/div[3]/div/form/div/div[1]/div[3]/div[2]/input[2]",
+			"temperature units": "/html/body/div/div/div/div[2]/div[3]/div/form/div/div[1]/div[2]/div[3]/select",
+			"pressure units": "/html/body/div/div/div/div[2]/div[3]/div/form/div/div[1]/div[3]/div[3]/select"
+
+		},
+		"evolving": {},
+		"review": {}
+			},
+	"plot results": {
+		}
+}
