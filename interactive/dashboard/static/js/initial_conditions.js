@@ -19,16 +19,127 @@ $(document).ready(function(){
    * Initial species concentrations
    */
 
-  //remove species button
-  $('.r_button').on('click', function(){
-    var buttonId = $(this).attr('id');
+  // loads the initial species concentrations
+  load_initial_concentrations();
+  function load_initial_concentrations() {
     $.ajax({
-    url: 'species/remove',
-    type: 'get',
-    data: {"species": buttonId},
-    success: function(response){
+      url: 'initial-species-concentrations',
+      type: 'get',
+      dataType: 'json',
+      data: {},
+      success: function(initial_concentrations) {
+        $.ajax({
+          url: '/mechanism/conditions-species-list',
+          type: 'get',
+          dataType: 'json',
+          data: {},
+          success: function(result) {
+            $("#initial-concentration-container").empty();
+            $("#initial-concentration-container").append(`
+              <div class="row">
+                <div class="col-4">Species name</div>
+                <div class="col-3">Intial value</div>
+                <div class="col-3">Units</div>
+              </div>`);
+            for (key in initial_concentrations) {
+              $('#initial-concentration-container').append(initial_concentration_row_html(result["species"]));
+              $('#initial-concentration-container div:last-child .species-dropdown').val(key);
+              $('#initial-concentration-container div:last-child .initial-value').val(initial_concentrations[key]["value"]);
+              $('#initial-concentration-container div:last-child .units-dropdown').val(initial_concentrations[key]["units"]);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // adds a row to the initial concentration list
+  $(".initial-concentration-add").on('click', function(){
+    $.ajax({
+      url: '/mechanism/conditions-species-list',
+      type: 'get',
+      dataType: 'json',
+      data: {},
+      success: function(result) {
+        $("#initial-concentration-container").append(initial_concentration_row_html(result["species"]));
+      }
+    });
+  });
+
+  // removes a row from the initial concentration list
+  $('#initial-concentration-container').on('click', '.btn-remove-row', function() {
+    $(this).closest('.row').remove();
+  });
+
+  // returns the html for a initial concentration row
+  function initial_concentration_row_html(species_list) {
+    var html = `
+          <div class="row my-1 row-data">
+            <div class="col-4">
+              <select class="form-control species-dropdown">
+                <option value="Select species" selected>Select species</option>`;
+    for (id in species_list) {
+      html += `
+                <option value="`+species_list[id]+`">`+species_list[id]+`</option>`;
     }
-   });
+    html += `
+              </select>
+            </div>
+            <div class="col-3">
+              <input type="text" class="form-control initial-value">
+              </input>
+            </div>
+            <div class="col-3">
+              <select class="form-control units-dropdown">
+                <option value="mol m-3" selected>mol m-3</option>
+                <option value="molecule m-3">molecule m-3</option>
+                <option value="mol cm-3">mol cm-3</option>
+                <option value="molecule cm-3">molecule cm-3</option>
+              </select>
+            <div class="col-2">
+              <button class="btn btn-secondary btn-remove-row">
+                Remove
+              </button>
+            </div>
+          </div>`;
+    return html;
+  }
+
+  // removes a row from the initial concentration list
+  $("#initial-concentration-container").on('click', '.btn-remove', function() {
+    $(this).closest('.row').remove();
+  });
+
+  // saves the initial species concentrations
+  $(".btn-save-initial-concentrations").click(function() {
+    const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+    initial_concentrations = {};
+    $("#initial-concentration-container .row-data").each(function() {
+      initial_concentrations[$(this).find(".species-dropdown").val()] =
+        {
+          "value" : $(this).find(".initial-value").val(),
+          "units" : $(this).find(".units-dropdown").val()
+        };
+    });
+    $.ajax({
+      url:'initial-species-concentrations-save',
+      type: 'post',
+      headers: {'X-CSRFToken': csrftoken},
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify(initial_concentrations),
+      success: function(response) {
+        location.reload();
+      },
+      error: function(response) {
+        alert(response['error']);
+      }
+    });
+  });
+
+  // cancels changes to the initial species concentrations
+  $(".btn-cancel-initial-concentrations").click(function() {
+    load_initial_concentrations();
   });
 
   /*

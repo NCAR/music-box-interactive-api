@@ -64,15 +64,6 @@ def load_example(request):
     return HttpResponseRedirect('/mechanism')
 
 
-def new_species(request):
-    if request.method == 'POST':
-        new()
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return HttpResponseRedirect('/conditions/initial')
-
-
 def species(request):
     if request.method == 'POST':
         new_spec = SpeciesForm(request.POST)
@@ -150,6 +141,21 @@ def initial_conditions(request):
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'conditions/initial.html', context)
+
+
+# returns the initial species concentrations
+def initial_species_concentrations_handler(request):
+    values = initial_species_concentrations()
+    return JsonResponse(values)
+
+
+# saves a set of initial species concentrations
+def initial_species_concentrations_save_handler(request):
+    if request.method != 'POST':
+        return JsonResponse({"error":"saving initial concentrations should be a POST request"})
+    initial_values = json.loads(request.body)
+    initial_species_concentrations_save(initial_values)
+    return JsonResponse({})
 
 
 # add a new initial reaction rate or rate constant
@@ -243,14 +249,6 @@ def review(request):
         "config": json
     }
     return render(request, 'conditions/review.html', context)
-
-
-def remove(request):
-    if request.method == 'GET':
-        id = request.GET["species"]
-        print(id)
-        remove_species(id.split('.')[0])
-    return HttpResponseRedirect('/configure/initial')
 
 
 def download_file(request):

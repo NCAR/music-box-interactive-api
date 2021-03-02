@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.species_home_handler),
+    path('conditions-species-list', views.conditions_species_list_handler),
     path('reactions', views.reactions_home_handler),
     path('reaction-detail', views.reaction_detail_handler),
     path('reaction-musica-names', views.reaction_musica_names_handler),

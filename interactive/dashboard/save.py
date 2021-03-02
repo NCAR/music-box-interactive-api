@@ -20,6 +20,37 @@ def load(dicti):
     dump_json('post.json', dicti)
 
 
+# returns the initial species concentrations
+def initial_species_concentrations():
+    initial_values = {}
+    species = open_json('species.json')
+    for key in species["formula"]:
+        formula = species["formula"][key]
+        units = species["unit"][key]
+        value = species["value"][key]
+        initial_values[formula] = { "value": value, "units": units }
+    return initial_values
+
+
+# saves a set of initial species concentrations
+def initial_species_concentrations_save(initial_values):
+    formulas = {}
+    units = {}
+    values = {}
+    i = 0
+    for key, value in initial_values.items():
+        name = "Species " + str(i)
+        formulas[name] = key
+        units[name] = value["units"]
+        values[name] = value["value"]
+        i += 1
+    file_data = {}
+    file_data["formula"] = formulas
+    file_data["unit"] = units
+    file_data["value"] = values
+    dump_json('species.json', file_data)
+
+
 # adds/updates entries in an initial conditions file
 def add_to_initial_conditions_file(file_path, delimiter, dictionary):
     initial_conditions = {}

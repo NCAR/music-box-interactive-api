@@ -7,6 +7,11 @@ from .species import *
 import mimetypes
 from interactive.tools import *
 
+# returns a list of species whose concentrations can be specified
+def conditions_species_list_handler(request):
+    species_list = { "species" : conditions_species_list() }
+    return JsonResponse(species_list)
+
 
 # returns a json object for a chemical species from the mechanism
 def species_detail_handler(request):

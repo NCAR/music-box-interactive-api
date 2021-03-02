@@ -18,6 +18,6 @@ class SpeciesForm(forms.Form):
         species_options.remove(('M', 'M'))
 
         for key in formulas:
-            self.fields[key + '.Formula'] = forms.ChoiceField(choices=species_options, initial=formulas[key], widget=forms.Select(attrs={'id': key + '.Formula', 'savebutton': 'speciesSave', 'class': 'form-control species-dropdown', 'species': formulas[key]}))
-            self.fields[key + '.Initial Value'] = forms.FloatField(initial=values[key], widget=forms.TextInput(attrs={'savebutton': 'speciesSave', 'class': 'form-control'}))
-            self.fields[key + '.Units'] = forms.ChoiceField(initial=units[key], widget=forms.Select(attrs={'savebutton': 'speciesSave', 'class': 'form-control'}), choices=[('mol m-3', 'mol m-3',), ('molecule m-3', 'molecule m-3'), ('mol cm-3', 'mol cm-3'), ('molecule cm-3', 'molecule cm-3')])
+            self.fields[key + '.Formula'] = forms.ChoiceField(choices=species_options, initial=formulas[key], widget=forms.Select(attrs={'class': 'form-control species-dropdown'}))
+            self.fields[key + '.Initial Value'] = forms.FloatField(initial=values[key], widget=forms.TextInput(attrs={'class': 'form-control initial-value'}))
+            self.fields[key + '.Units'] = forms.ChoiceField(initial=units[key], widget=forms.Select(attrs={'class': 'form-control units-dropdown'}), choices=[('mol m-3', 'mol m-3',), ('molecule m-3', 'molecule m-3'), ('mol cm-3', 'mol cm-3'), ('molecule cm-3', 'molecule cm-3')])
