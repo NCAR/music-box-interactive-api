@@ -12,7 +12,6 @@ urlpatterns = [
     path('conditions/species', views.species, name='species'),
     path('conditions/initial', views.initial_conditions, name='inital conditions'),
     path('conditions/evolving', views.evolving_conditions, name='evolving conditions'),
-    path('conditions/review', views.review, name='visualize'),
     path('conditions', views.options),
     path('conditions/new-species', views.new_species),
     path('conditions/save-formula', views.species),
@@ -26,7 +25,7 @@ urlpatterns = [
     path('conditions/remove-initial-reaction-rate', views.remove_initial_reaction_rate),
     path('conditions/run', views.conditions),
     path('conditions/species/remove', views.remove),
-    path('conditions/download_config', views.download_file),
+    path('download_config', views.download_file),
     path('conditions/config_json', views.config_json),
     path('conditions/linear_combination_form', views.linear_combination_form),
     path('conditions/evolv-linear-combo', views.evolv_linear_combo),
@@ -39,5 +38,6 @@ urlpatterns = [
     path('conditions/load-example', views.load_example),
     path('conditions/examplefile', views.example_file),
     path('conditions/remove-linear-combination', views.remove_linear),
-    path('conditions/report', views.report_bug)
+    path('conditions/report', views.report_bug),
+    path('download', views.download_handler, name='download')
 ]

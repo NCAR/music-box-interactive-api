@@ -285,14 +285,6 @@ def new_photo(request):
     return HttpResponseRedirect('/conditions/photolysis')
 
 
-def review(request):
-    json = review_json()
-    context = {
-        "config": json
-    }
-    return render(request, 'conditions/review.html', context)
-
-
 def remove(request):
     if request.method == 'GET':
         id = request.GET["species"]
@@ -347,3 +339,8 @@ def toggle_logging_check(request):
     lcfig = open_json('log_config.json')
     isOn = lcfig['logging_enabled']
     return JsonResponse({"isOn": isOn})
+
+
+def download_handler(request):
+    context = {}
+    return render(request, 'download.html', context)
