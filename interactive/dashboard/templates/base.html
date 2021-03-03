@@ -42,11 +42,22 @@
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-ncar-menu sidebar collapse" style>
           <div class="position-sticky pt-3">
             <div id="main-nav" class="nav flex-column pt-2">
-              <a class="nav-link {% if '/getting_started' in request.path %}active{% endif %}" aria-current="{% if '/getting_started' in request.path %}page{% endif %}" href="/getting_started">Getting Started</a>
-              <a class="nav-link {% if '/mechanism' in request.path %}active{% endif %}" aria-current="{% if '/mechanism' in request.path %}page{% endif %}" href="/mechanism">Mechanism</a>
-              <a class="nav-link {% if '/conditions' in request.path %}active{% endif %}" aria-current="{% if '/conditions' in request.path %}page{% endif %}" href="/conditions">Conditions</a>
-              <div style="text-align:center">
-                <button id="run-model" style="margin:auto" class="btn btn-primary btn-ncar-active">Run Model</button>
+              <small class="nav-section">SETUP</small>
+              <a class="nav-link {% if '/getting_started' in request.path %}active{% endif %}" aria-current="{% if '/getting_started' in request.path %}page{% endif %}" href="/getting_started">
+                <span class="oi oi-signpost"></span>Start Here
+              </a>
+              <a class="nav-link {% if '/mechanism' in request.path %}active{% endif %}" aria-current="{% if '/mechanism' in request.path %}page{% endif %}" href="/mechanism">
+                <span class="oi oi-random"></span>Mechanism
+              </a>
+              <a class="nav-link {% if '/conditions' in request.path %}active{% endif %}" aria-current="{% if '/conditions' in request.path %}page{% endif %}" href="/conditions">
+                <span class="oi oi-dashboard"></span>Conditions</a>
+              <div class="pt-1 pb-3 mx-0 my-2" style="border-top: 1px solid gray; border-bottom: 1px solid gray">
+                <small class="nav-section">RUN</small>
+                <div style="text-align:center">
+                  <button id="run-model" style="margin:auto" class="btn btn-primary btn-ncar-active">Run Model</button>
+                </div>
+              </div>
+              <div id="post-run-links">
               </div>
             </div>
           </div>

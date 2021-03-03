@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+{% load format_html_tag %}
+
+<p class="lead-muted p-2">
+  Here you can download the full model configuration to use again in the future, and/or download the results from the last run. You can also use the downloaded configuration with the command-line version of MusicBox.
+</p>
+
+<main role="main">
+  <section class="jumbotron text-center">
+    <div class="container">
+      <p>
+        <a class="btn btn-secondary m-2" href='download_config'>Download Configuration File</a>
+        <a class="btn btn-secondary m-2" href='/model/download'>Download Results</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+{% endblock %}
+
+
+
