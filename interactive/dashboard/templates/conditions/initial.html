@@ -191,51 +191,19 @@ Initial environmental conditions, concentrations for chemical species, and react
     <div id="reaction-rates" class="card mb-4 p-0 shadow-sm">
       <div class="card-header d-flex justify-content-between">
         <h4 class="my-0">Reaction Rates and Rate Constants</h4>
-        <button class="btn btn-primary" id="new-initial-reaction-rate" type="button">Add</button>
+        <button class="btn btn-primary initial-rate-add" type="button">Add</button>
       </div>
-      <form action="initial-reaction-rates" class="body body-card" method='POST'>
-        {% csrf_token %}
-        <div class="bg-ncar-body p-3">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-4">Reaction label</div>
-              <div class="col-3">Initial value</div>
-              <div class="col-3">Units</div>
-            </div>
-        {% for field in initial_reaction_rates_form %}
-          {% if 'reaction-MUSICA-name' in field.name %}
-            <div class="row my-1">
-              <div class="col-4">
-                {{ field }}
-              </div>
-          {% endif %}
-          {% if 'initial-value' in field.name %}
-              <div class="col-3">
-                {{ field }}
-              </div>
-          {% endif %}
-          {% if 'units' in field.name %}
-              <div class="col-3">
-                {{ field }}
-              </div>
-              <div class="col-2">
-                <button class="btn btn-secondary remove-reaction-rate-button">
-                  Remove
-                </button>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-          </div>
-          <div class="conatiner text-center mt-3">
-            <button class="btn btn-primary" type="submit">Save</button>
-            <button class="btn btn-secondary" type="reset">Cancel</button>
-          </div>
-          <p class="lead-muted p-2">
-          Don't see the reaction you're looking for? Check the <a href="/mechanism/reactions">reactions</a> and make sure the reaction you're interested in has the <code>MUSICA name</code> property set. If the reaction doesn't allow you to set a <code>MUSICA name</code>, its rate/rate constant cannot be set here - it will be calculated during the simulation.
-          </p>
+      <div class="bg-ncar-body p-3">
+        <div class="conatiner-fluid" id="initial-rates-container">
         </div>
-      </form>
+        <div class="container-fluid text-center mt-3">
+          <button class="btn btn-primary btn-save-initial-rates" type="button" >Save</button>
+          <button class="btn btn-secondary btn-cancel-initial-rates" type="button">Cancel</button>
+        </div>
+        <p class="lead-muted p-2">
+          Don't see the reaction you're looking for? Check the <a href="/mechanism/reactions">reactions</a> and make sure the reaction you're interested in has the <code>MUSICA name</code> property set. If the reaction doesn't allow you to set a <code>MUSICA name</code>, its rate/rate constant cannot be set here - it will be calculated during the simulation.
+        </p>
+      </div>
     </div>
   </div>
 </div>

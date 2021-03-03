@@ -70,10 +70,10 @@ def reaction_detail_handler(request):
     return JsonResponse(reaction_detail)
 
 
-# returns a json array of reactions with MUSICA names and units for setting rates/rate constants
-def reaction_musica_names_handler(request):
+# returns the set of reactions with MUSICA names and units for setting rates/rate constants
+def reaction_musica_names_list_handler(request):
     musica_names = reaction_musica_names()
-    return JsonResponse(musica_names)
+    return JsonResponse({ 'reactions': musica_names })
 
 
 # returns the schema for a particular reaction type

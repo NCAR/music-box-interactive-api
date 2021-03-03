@@ -147,26 +147,19 @@ def initial_species_concentrations_save_handler(request):
     return JsonResponse({})
 
 
-# add a new initial reaction rate or rate constant
-def new_initial_reaction_rate(request):
-    if request.method == 'GET':
-        add_initial_reaction_rate()
-    return HttpResponseRedirect('/conditions/initial#reaction-rates')
+# returns the initial reaction rates/rate constants
+def initial_reaction_rates_handler(request):
+    values = initial_reaction_rates()
+    return JsonResponse(values)
 
 
-# save a set of initial reaction rates/rate constants
-def initial_reaction_rates(request):
-    if request.method == 'POST':
-        new_rates = InitialReactionRatesForm(request.POST)
-        if new_rates.is_valid():
-            save_initial_reaction_rates(new_rates.cleaned_data)
-    return HttpResponseRedirect('/conditions/initial#reaction-rates')
-
-# remove a reaction from the list of initial reaction rates/rate constants
-def remove_initial_reaction_rate(request):
-    if request.method == 'GET':
-        delete_initial_reaction_rate(request.GET['reaction'])
-    return HttpResponseRedirect('/conditions/initial#reaction-rates')
+# saves a set of initial reaction rates
+def initial_reaction_rates_save_handler(request):
+    if request.method != 'POST':
+        return JsonResponse({"error":"saving initial reaction rates should be a POST request"})
+    initial_values = json.loads(request.body)
+    initial_reaction_rates_save(initial_values)
+    return JsonResponse({})
 
 
 # input file upload
@@ -174,7 +167,6 @@ def init_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         uploaded_to_config(handle_uploaded_csv(uploaded))
-    
     return HttpResponseRedirect('/conditions/initial')
 
 
@@ -224,12 +216,6 @@ def clear_evolv_files(request):
     if request.method == 'GET':
         clear_e_files()
     return HttpResponseRedirect('/conditions/evolving')
-
-
-def new_photo(request):
-    if request.method == 'GET':
-        new_photolysis()
-    return HttpResponseRedirect('/conditions/photolysis')
 
 
 def review(request):

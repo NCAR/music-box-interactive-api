@@ -96,6 +96,7 @@ $(document).ready(function(){
                 <option value="mol cm-3">mol cm-3</option>
                 <option value="molecule cm-3">molecule cm-3</option>
               </select>
+            </div>
             <div class="col-2">
               <button class="btn btn-secondary btn-remove-row">
                 Remove
@@ -104,11 +105,6 @@ $(document).ready(function(){
           </div>`;
     return html;
   }
-
-  // removes a row from the initial concentration list
-  $("#initial-concentration-container").on('click', '.btn-remove', function() {
-    $(this).closest('.row').remove();
-  });
 
   // saves the initial species concentrations
   $(".btn-save-initial-concentrations").click(function() {
@@ -150,24 +146,128 @@ $(document).ready(function(){
    * Reaction rates
    */
 
-  // new initial reaction rate/rate constant
-  $("#new-initial-reaction-rate").on('click', function(){
+  // loads the initial reaction rates and rate constants
+  load_initial_rates();
+  function load_initial_rates() {
     $.ajax({
-      url: "/conditions/new-initial-reaction-rate",
+      url: 'initial-reaction-rates',
       type: 'get',
-      success: function(response){
-        window.location.href = "/conditions/initial#reaction-rates";
-        location.reload();
+      dataType: 'json',
+      data: {},
+      success: function(initial_rates) {
+        $.ajax({
+          url: '/mechanism/reaction-musica-names-list',
+          type: 'get',
+          dataType: 'json',
+          data: {},
+          success: function(result) {
+            $('#initial-rates-container').empty();
+            $('#initial-rates-container').append(`
+              <div class="row">
+                <div class="col-4">Reaction label</div>
+                <div class="col-3">Intial value</div>
+                <div class="col-3">Units</div>
+              </div>`);
+            for (key in initial_rates) {
+              $('#initial-rates-container').append(initial_rates_row_html(result['reactions'],[initial_rates[key]["units"]]));
+              $('#initial-rates-container div:last-child .reaction-dropdown').val(key);
+              $('#initial-rates-container div:last-child .initial-value').val(initial_rates[key]["value"]);
+              $('#initial-rates-container div:last-child .units-dropdown').val(initial_rates[key]["units"]);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // adds a row to the initial reaction rates/rate constants list
+  $('.initial-rate-add').on('click', function() {
+    $.ajax({
+      url: '/mechanism/reaction-musica-names-list',
+      type: 'get',
+      dataType: 'json',
+      data: {},
+      success: function(result) {
+        $('#initial-rates-container').append(initial_rates_row_html(result['reactions'],[]));
       }
     });
   });
 
-  // matches units to selected reaction type
-  $('.musica-named-reaction-dropdown').filter(function() {
-    var reaction = $(this).val();
-    update_reaction_units($(this).parent().parent(), reaction);
+  // removes a row from the initial reaction rates/rate constants list
+  $('#initial-rates-container').on('click', '.btn-remove-row', function() {
+    $(this).closest('.row').remove();
   });
-  $('.musica-named-reaction-dropdown').change(function() {
+
+  // returns html for an initial reaction rate/rate constant row
+  function initial_rates_row_html(reactions, units) {
+    var html = `
+          <div class="row my-1 row-data">
+            <div class="col-4">
+              <select class="form-control reaction-dropdown">
+                <option value="Select reaction" selected>Select reaction</option>`;
+    for (const [key, value] of Object.entries(reactions)) {
+      html += `
+                <option value="`+key+`">`+key+`</option>`;
+    }
+    html += `
+              </select>
+            </div>
+            <div class="col-3">
+              <input type="text" class="form-control initial-value">
+              </input>
+            </div>
+            <div class="col-3">
+              <select class="form-control units-dropdown">`;
+    for (const key in units) {
+      html += `
+                <option value="`+units[key]+`">`+units[key]+`</option>`;
+    }
+    html += `
+              </select>
+            </div>
+            <div class="col-2">
+              <button class="btn btn-secondary btn-remove-row">
+                Remove
+              </button>
+            </div>
+          </div>`;
+    return html;
+  }
+
+  // saves the initial reaction rates/rate constants
+  $('.btn-save-initial-rates').click(function() {
+    const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+    initial_rates = {};
+    $('#initial-rates-container .row-data').each(function() {
+      initial_rates[$(this).find('.reaction-dropdown').val()] =
+        {
+          'value': $(this).find('.initial-value').val(),
+          'units': $(this).find('.units-dropdown').val()
+        };
+    });
+    $.ajax({
+      url: 'initial-reaction-rates-save',
+      type: 'post',
+      headers: {'X-CSRFToken': csrftoken},
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify(initial_rates),
+      success: function(response) {
+        location.reload();
+      },
+      error: function(response) {
+        alert(response['error']);
+      }
+    });
+  });
+
+  // cancels changes to the initial reaction rates/rate constants
+  $('.btn-cancel-initial-rates').click(function() {
+    load_initial_rates();
+  });
+
+  // matches units to selected reaction type
+  $('#initial-rates-container').on('change', '.reaction-dropdown', function() {
     var reaction = $(this).val();
     update_reaction_units($(this).parent().parent(), reaction);
   });
@@ -188,22 +288,9 @@ $(document).ready(function(){
           break;
       }
     }
-    container.children().children('.musica-named-reaction-units-dropdown').html(`
+    container.children().children('.units-dropdown').html(`
       <option value="`+units+`">`+units+`</option>`);
-    container.children().children('.musica-named-reaction-units-dropdown').val(units);
+    container.children().children('.units-dropdown').val(units);
   }
-
-  // removes an initial reaction rate/rate constant
-  $('.remove-reaction-rate-button').on('click', function(){
-    var reaction_name = $(this).parent().parent().children().children('.musica-named-reaction-dropdown').attr('reaction');
-    $.ajax({
-      url: 'remove-initial-reaction-rate',
-      type: 'get',
-      data: {"reaction": reaction_name},
-      success: function(response){
-      }
-    });
-  });
-
 
 });
