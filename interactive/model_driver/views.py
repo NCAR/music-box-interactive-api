@@ -40,12 +40,13 @@ def run(request):
 def check_load(request):
     response_message = {}
     out_path = os.path.join(mb_dir, 'output.csv')
+    complete_path = os.path.join(mb_dir, 'MODEL_RUN_COMPLETE')
     error_path = os.path.join(mb_dir, 'error.json')
     
     status = 'checking'
 
     # check if output file exists
-    if os.path.isfile(out_path):
+    if os.path.isfile(complete_path):
         if os.path.getsize(out_path) == 0:  # check if output file has content
             if os.path.getsize(error_path) > 0: #check if error file has content
                 status = 'error'
@@ -92,6 +93,7 @@ def download(request):
 def check(request):
     response_message = {}
     out_path = os.path.join(mb_dir, 'output.csv')
+    complete_path = os.path.join(mb_dir, 'MODEL_RUN_COMPLETE')
     error_path = os.path.join(mb_dir, 'error.json')
     status = 'checking'
 
@@ -101,16 +103,14 @@ def check(request):
         print(status)
         time.sleep(.1)
         t += 0.1
-        if os.path.isfile(out_path):
-            if os.path.getsize(out_path) == 0:  # check if output file has content
+        if os.path.isfile(complete_path):
+            if os.path.getsize(out_path) == 0:  # check if model has finished
                 if os.path.isfile(error_path): #check if error file exists
                     if os.path.getsize(error_path) > 0: #check if error file has content
                         status = 'error'
             else:
                 status = 'done'
-        if t > 10:
-            status = 'timeout'
-            break
+
         
     update_with_result(status)
     response_message.update({'status': status})

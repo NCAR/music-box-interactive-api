@@ -15,6 +15,15 @@ $(document).ready(function(){
     }
   });
 
+  // add links for plotting and downloading configuration/results
+  function display_post_run_menu_options() {
+    $('#post-run-links').html(`
+      <small class='nav-section'>ANALYSIS</small>
+      <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph'></span>Plot Results</a>
+      <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download'></span>Download</a>
+      `);
+  }
+
   // runs the model
   $("#run-model").on('click', function(){
     $.ajax({
@@ -27,10 +36,7 @@ $(document).ready(function(){
             type: 'get',
             success: function(response){
               if (response["status"] == 'done') {
-                $('#download_results').remove();
-                $('#plot_results').remove();
-                $('#main-nav').append("<a class='nav-link' id='plot_results' href='/visualize'>Plot Results</a>");
-                $('#main-nav').append("<a class='nav-link' href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+                display_post_run_menu_options();
               } else if (response["status"] == 'error'){
                   alert("ERROR " + response["e_code"] + "   " + response["e_message"]);
                   if (response["e_type"] == 'species'){
@@ -55,13 +61,14 @@ $(document).ready(function(){
     type: 'get',
     success: function(response){
       if (response["status"] == 'done') {
-        $('#download_results').remove();
-        $('#plot_results').remove();
-        $('#main-nav').append("<a class='nav-link' id='plot_results' href='/visualize'>Plot Results</a>");
-        $('#main-nav').append("<a class='nav-link' href='/model/download' id='download_results' class='download_results'>Download Results</a>");
+          display_post_run_menu_options();
         if (window.location.href.indexOf("visualize") > -1) {
-          $('#plot_results').addClass('active');
-          $('#plot_results').attr('aria-current', 'page');
+          $('#plot-results-link').addClass('active');
+          $('#plot-results-link').attr('aria-current', 'page');
+        }
+        if (window.location.href.indexOf("download") > -1) {
+          $('#download-link').addClass('active');
+          $('#download-link').attr('aria-current', 'page');
         }
       }
     }

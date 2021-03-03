@@ -97,6 +97,7 @@ a:hover {
 
 .oi {
     font-size: 10px;
+    margin-right: 10px;
 }
 
 a {
@@ -114,6 +115,11 @@ a {
 .navbar-brand {
     color: white;
     font-size: 28px;
+}
+
+.nav-section {
+    color: var(--ncar-color-text-dark);
+    padding-left: 10px;
 }
 
 .nav-link {

@@ -216,14 +216,6 @@ def clear_evolv_files(request):
     return HttpResponseRedirect('/conditions/evolving')
 
 
-def review(request):
-    json = review_json()
-    context = {
-        "config": json
-    }
-    return render(request, 'conditions/review.html', context)
-
-
 def download_file(request):
     create_config_zip()
     fl_path = os.path.join(settings.BASE_DIR, 'dashboard/static/zip/output/config.zip')
@@ -270,3 +262,8 @@ def toggle_logging_check(request):
     lcfig = open_json('log_config.json')
     isOn = lcfig['logging_enabled']
     return JsonResponse({"isOn": isOn})
+
+
+def download_handler(request):
+    context = {}
+    return render(request, 'download.html', context)
