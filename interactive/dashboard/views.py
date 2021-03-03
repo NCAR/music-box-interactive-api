@@ -3,7 +3,6 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .forms.initial_reaction_rates_forms import *
 from .upload_handler import *
 from .save import *
 from .models import Document
@@ -126,7 +125,6 @@ def initial_conditions(request):
             save_init(newConditions)
     context = {
         'icform': InitialConditionsForm,
-        'initial_reaction_rates_form': InitialReactionRatesForm,
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'conditions/initial.html', context)

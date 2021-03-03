@@ -8,7 +8,7 @@ import mimetypes
 import pandas as pd
 import time
 from shutil import copy
-from .run_setup import setup_run, check_if_config_changed
+from .run_setup import setup_run
 from .run_logging import *
 from datetime import datetime
 
@@ -72,8 +72,6 @@ def check_load(request):
                     response_message.update({'spec_ID': key + '.Formula'})
         response_message.update({'e_code': errorfile['code']})
         response_message.update({'e_message': errorfile['message']})
-    
-    response_message.update({'buttonstatus': check_if_config_changed()})
 
     return JsonResponse(response_message)
 
