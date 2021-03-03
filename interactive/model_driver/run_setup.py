@@ -97,20 +97,3 @@ def setup_config_check():
     copyConfigFile(config_path, old_path)
 
 
-# check if config has changed since last model run
-# returns true if config has changed or has not been run yet
-def check_if_config_changed():
-    isChanged = True
-    if not os.path.isfile(out_path):
-        ischanged = True
-    else:
-        config = open_json('my_config.json')
-        old = open_json('old_config.json')
-        if config == old:
-            isChanged = False
-        else:
-            isChanged = True
-    
-    setup_config_check()
-
-    return isChanged

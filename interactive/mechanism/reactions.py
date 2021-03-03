@@ -26,6 +26,23 @@ def reactions_are_valid():
     return False
 
 
+# returns whether a reaction with the specified MUSICA name exists
+def is_musica_named_reaction(name):
+    reactions = reactions_info()
+    name_parts = name.split('.')
+    if len(name_parts) != 2: return False
+    prefix = name_parts[0]
+    MUSICA_name = name_parts[1]
+    if not MUSICA_name: return False
+    for reaction in reactions:
+        if not "MUSICA name" in reaction: continue
+        if MUSICA_name == reaction["MUSICA name"]:
+            if prefix == "EMIS" and reaction["type"] == "EMISSION": return True
+            if prefix == "LOSS" and reaction["type"] == "FIRST_ORDER_LOSS": return True
+            if prefix == "PHOT" and reaction["type"] == "PHOTOLYSIS": return True
+    return False
+
+
 # creates a list of reaction names based on data from the reactions file for use in a menu
 def reaction_menu_names():
     logging.info('getting list of reaction names')
@@ -91,30 +108,24 @@ def reaction_save(reaction_data):
         json.dump(camp_data, f, indent=2)
         f.close()
 
-# returns a json array of reactions with MUSICA names including the
+# returns the set of reactions with MUSICA names including the
 # units for their rates or rate constants
 def reaction_musica_names():
     logging.info('getting reactions with MUSICA names')
-    reactions = []
+    reactions = {}
     for reaction in reactions_info():
         if 'MUSICA name' in reaction:
             if reaction['MUSICA name'] == '':
                 continue
             if reaction['type'] == "EMISSION":
-                reactions.append({
-                    'MUSICA name' : 'EMIS.' + reaction['MUSICA name'],
-                    'units' : 'ppm s-1'
-                    });
+                reactions['EMIS.' + reaction['MUSICA name']] = \
+                    { 'units': 'ppm s-1' }
             elif reaction['type'] == "FIRST_ORDER_LOSS":
-                reactions.append({
-                    'MUSICA name' : 'LOSS.' + reaction['MUSICA name'],
-                    'units' : 's-1'
-                    });
+                reactions['LOSS.' + reaction['MUSICA name']] = \
+                    { 'units': 's-1' }
             elif reaction['type'] == "PHOTOLYSIS":
-                reactions.append({
-                    'MUSICA name' : 'PHOT.' + reaction['MUSICA name'],
-                    'units' : 's-1'
-                    });
+                reactions['PHOT.' + reaction['MUSICA name']] = \
+                    { 'units' : 's-1' }
     return reactions
 
 

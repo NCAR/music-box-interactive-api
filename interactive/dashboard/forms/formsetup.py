@@ -6,31 +6,6 @@ from mechanism.reactions import reaction_musica_names
 from dashboard.save import initial_conditions_file_to_dictionary
 
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-initial_reaction_rates_file_path = os.path.join(config_path, 'initial_reaction_rates.csv')
-
-def formula_setup():
-    with open(os.path.join(config_path, 'species.json')) as f:
-        data = json.loads(f.read())
-
-    formulas = data["formula"]
-    return formulas
-
-
-def value_setup():
-    with open(os.path.join(config_path, 'species.json')) as f:
-        data = json.loads(f.read())
-
-    values = data["value"]
-    return values
-
-
-def unit_setup():
-    with open(os.path.join(config_path, 'species.json')) as f:
-        data = json.loads(f.read())
-
-    units = data["unit"]
-    return units
-
 
 def option_setup():
     with open(os.path.join(config_path, 'options.json')) as f:
@@ -45,14 +20,6 @@ def ini_cond_setup():
 
     return data
 
-
-def initial_reaction_rates_setup():
-    if not os.path.isfile(initial_reaction_rates_file_path):
-        return {}
-    with open(initial_reaction_rates_file_path) as f:
-        data = initial_conditions_file_to_dictionary(f, ',')
-        f.close()
-    return data
 
 def display_evolves():
     with open(os.path.join(config_path, 'my_config.json')) as f:
@@ -76,21 +43,3 @@ def display_evolves():
         elif '.nc' in i:
             file_header_dict.update({i:['NETCDF FILE']})
     return file_header_dict
-
-
-def get_species_options():
-    with open(os.path.join(config_path, 'camp_data/species.json')) as f:
-        species = json.loads(f.read())
-        
-    species_list = [i['name'] for i in species['pmc-data']]
-    species_list.insert(0, 'Select species')
-    choices_list = [(j, j) for j in species_list]
-
-    return choices_list
-
-def get_musica_named_reaction_options():
-    reactions_list = [i['MUSICA name'] for i in reaction_musica_names()]
-    reactions_list.insert(0, 'Select reaction')
-    choices_list = [(j, j) for j in reactions_list]
-
-    return choices_list

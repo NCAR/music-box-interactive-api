@@ -1,10 +1,8 @@
 from django.shortcuts import render
-from .forms.speciesforms import *
 from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .forms.initial_reaction_rates_forms import *
 from .upload_handler import *
 from .save import *
 from .models import Document
@@ -63,32 +61,6 @@ def load_example(request):
     load_example_configuration(example_name)
     return HttpResponseRedirect('/mechanism')
 
-
-def new_species(request):
-    if request.method == 'POST':
-        new()
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return HttpResponseRedirect('/conditions/initial')
-
-
-def species(request):
-    if request.method == 'POST':
-        new_spec = SpeciesForm(request.POST)
-        if new_spec.is_valid():
-            save_species(new_spec.cleaned_data)
-    
-    return HttpResponseRedirect('/conditions/initial')
-
-def csv(request):
-    if request.method == 'POST':
-        uploaded = request.FILES['file']
-        uploaded_to_config(handle_uploaded_csv(uploaded))
-    context = {'form1': SpeciesForm,
-               'csv_field': UploadFileForm
-               }
-    return render(request, 'conditions/species.html', context)
 
 ###########
 
@@ -153,33 +125,39 @@ def initial_conditions(request):
             save_init(newConditions)
     context = {
         'icform': InitialConditionsForm,
-        'speciesform': SpeciesForm,
-        'initial_reaction_rates_form': InitialReactionRatesForm,
         'csv_field' : UploadInitFileForm
     }
     return render(request, 'conditions/initial.html', context)
 
 
-# add a new initial reaction rate or rate constant
-def new_initial_reaction_rate(request):
-    if request.method == 'GET':
-        add_initial_reaction_rate()
-    return HttpResponseRedirect('/conditions/initial#reaction-rates')
+# returns the initial species concentrations
+def initial_species_concentrations_handler(request):
+    values = initial_species_concentrations()
+    return JsonResponse(values)
 
 
-# save a set of initial reaction rates/rate constants
-def initial_reaction_rates(request):
-    if request.method == 'POST':
-        new_rates = InitialReactionRatesForm(request.POST)
-        if new_rates.is_valid():
-            save_initial_reaction_rates(new_rates.cleaned_data)
-    return HttpResponseRedirect('/conditions/initial#reaction-rates')
+# saves a set of initial species concentrations
+def initial_species_concentrations_save_handler(request):
+    if request.method != 'POST':
+        return JsonResponse({"error":"saving initial concentrations should be a POST request"})
+    initial_values = json.loads(request.body)
+    initial_species_concentrations_save(initial_values)
+    return JsonResponse({})
 
-# remove a reaction from the list of initial reaction rates/rate constants
-def remove_initial_reaction_rate(request):
-    if request.method == 'GET':
-        delete_initial_reaction_rate(request.GET['reaction'])
-    return HttpResponseRedirect('/conditions/initial#reaction-rates')
+
+# returns the initial reaction rates/rate constants
+def initial_reaction_rates_handler(request):
+    values = initial_reaction_rates()
+    return JsonResponse(values)
+
+
+# saves a set of initial reaction rates
+def initial_reaction_rates_save_handler(request):
+    if request.method != 'POST':
+        return JsonResponse({"error":"saving initial reaction rates should be a POST request"})
+    initial_values = json.loads(request.body)
+    initial_reaction_rates_save(initial_values)
+    return JsonResponse({})
 
 
 # input file upload
@@ -187,7 +165,6 @@ def init_csv(request):
     if request.method == 'POST':
         uploaded = request.FILES['file']
         uploaded_to_config(handle_uploaded_csv(uploaded))
-    
     return HttpResponseRedirect('/conditions/initial')
 
 
@@ -233,64 +210,10 @@ def evolving_linear_combination(request):
     return HttpResponseRedirect('/conditions/evolving')
 
 
-def evolv_lr(request):
-    if request.method == 'POST':
-        uploaded = request.FILES['file']
-        handle_uploaded_loss_rates(uploaded)
-    return HttpResponseRedirect('/conditions/evolving')
-
-
 def clear_evolv_files(request):
     if request.method == 'GET':
         clear_e_files()
     return HttpResponseRedirect('/conditions/evolving')
-
-
-
-def photo_ncf(request):
-    if request.method == 'POST':
-        uploaded = request.FILES['file']
-        print(str(request.FILES))
-        handle_uploaded_p_rates(uploaded)
-    return HttpResponseRedirect('/conditions/photolysis')
-
-
-def photo_dt_form(request):
-    if request.method == 'GET':
-        response = HttpResponse()
-        form = PhotoDatetimeForm()
-        response.write('<form action="photo_start_results"><table>')
-        for field in form:
-            response.write('<tr><td>')
-            response.write(field.name)
-            response.write('</td><td>')
-            response.write(field)
-            response.write('</td></tr>')
-        response.write('</table><button type="submit">Save</button></form>')
-        return response
-    else:
-        return HttpResponse()
-
-
-def save_photo_dt(request):
-    if request.method == 'GET':
-        dt = request.GET.dict()
-        save_photo_start_time(dt)
-    return HttpResponseRedirect('/conditions/photolysis')
-
-
-def new_photo(request):
-    if request.method == 'GET':
-        new_photolysis()
-    return HttpResponseRedirect('/conditions/photolysis')
-
-
-def remove(request):
-    if request.method == 'GET':
-        id = request.GET["species"]
-        print(id)
-        remove_species(id.split('.')[0])
-    return HttpResponseRedirect('/configure/initial')
 
 
 def download_file(request):
