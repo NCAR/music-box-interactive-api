@@ -97,6 +97,9 @@ a:hover {
 
 .oi {
     font-size: 10px;
+}
+
+.oi-prefix {
     margin-right: 10px;
 }
 
@@ -155,6 +158,13 @@ code {
 
 .hero-text {
     color: var(--ncar-color-text-dark);
+}
+
+.warning-box {
+    margin: 50px;
+    padding: 30px;
+    border: solid 3px #ff1500;
+    background-color: #ff6524;
 }
 
 .about-section {

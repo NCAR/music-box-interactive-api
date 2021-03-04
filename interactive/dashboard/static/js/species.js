@@ -139,6 +139,9 @@ $(document).ready(function(){
                   <a class="dropdown-item" href="#" property="molecular weight [kg mol-1]" data-type="number" default-value="0">molecular weight</a>
                 </div>
               </div>
+              <p>
+                You may specify any property you like, but this is only <em>necessary</em> under certain circumstances (i.e., when the species participates in a reaction that requires the property be set). You will be prompted to set the property when it is required.
+              </p>
               <div class="container text-center mt-3">
                 <button type="button" class="btn btn-primary btn-save">Save</button>
                 <button type="button" class="btn btn-secondary btn-cancel">Cancel</button>

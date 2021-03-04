@@ -19,8 +19,8 @@ $(document).ready(function(){
   function display_post_run_menu_options() {
     $('#post-run-links').html(`
       <small class='nav-section'>ANALYSIS</small>
-      <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph'></span>Plot Results</a>
-      <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download'></span>Download</a>
+      <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph oi-prefix'></span>Plot Results</a>
+      <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download oi-prefix'></span>Download</a>
       `);
   }
 
