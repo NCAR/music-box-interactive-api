@@ -81,8 +81,8 @@ a:hover {
 .btn-check:checked+.btn-secondary,
 .btn-secondary.active,
 .show>.btn-secondary.dropdown-toggle {
-    background-color: var(--ncar-color-text-mid-dark);
-    border-color: var(--ncar-color-text-mid-dark);
+    background-color: var(--ncar-color-primary-mid-green);
+    border-color: var(--ncar-color-primary-mid-green);
     border-width: medium;
     color: white;
 }
