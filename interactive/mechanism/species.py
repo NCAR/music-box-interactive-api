@@ -80,13 +80,13 @@ def species_save(species_data):
 
 # patch to allow interface to use SI units until CAMP is updated to use all SI units
 def species_convert_from_SI(species_data):
-    if 'absolute tolerance [mol mol-1]' in species_data:
-        species_data['absolute tolerance'] = species_data['absolute tolerance [mol mol-1]'] * 1.0e6 # mol mol-1 -> ppm
-        species_data.pop('absolute tolerance [mol mol-1]')
+    if 'absolute convergence tolerance [mol mol-1]' in species_data:
+        species_data['absolute tolerance'] = species_data['absolute convergence tolerance [mol mol-1]'] * 1.0e6 # mol mol-1 -> ppm
+        species_data.pop('absolute convergence tolerance [mol mol-1]')
 
 
 # patch to allow interface to use SI units until CAMP is updated to use all SI units
 def species_convert_to_SI(species_data):
     if 'absolute tolerance' in species_data:
-        species_data['absolute tolerance [mol mol-1]'] = species_data['absolute tolerance'] * 1.0e-6 # ppm -> mol mol-1
+        species_data['absolute convergence tolerance [mol mol-1]'] = species_data['absolute tolerance'] * 1.0e-6 # ppm -> mol mol-1
         species_data.pop('absolute tolerance')
