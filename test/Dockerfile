@@ -28,4 +28,4 @@ COPY . /music-box-testing
 
 WORKDIR /music-box-testing
 
-CMD ["python", "./test.py"]
+CMD ["python", "./run_tests.py"]

@@ -1,4 +1,4 @@
-from setup_tests import *
+from test_conditions import *
 #creates browser and runs tests
 
 browser = create_browser()
