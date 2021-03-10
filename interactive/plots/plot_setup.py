@@ -1,6 +1,8 @@
 import sys
 import os.path
 from . import mpl_helper
+from mechanism.species import tolerance_dictionary
+from interactive.tools import *
 import scipy.io
 import json
 from django.shortcuts import render
@@ -60,20 +62,7 @@ def sub_props_names(subprop):
         return subprop
 
 
-#creates a dictionary of species tolerances for plot minimum scales
-def tolerance_dictionary():
-    species_file_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
-    with open(species_file_path) as f:
-        species_file = json.loads(f.read())
-    default_tolerance = 1e-14
-    species_list = species_file['pmc-data']
-    for spec in species_list:
-        if 'absolute tolerance' not in spec:
-            spec.update({'absolute tolerance': default_tolerance})
-
-    species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
-    return species_dict
-
+ppm_to_mol_m3 = create_unit_converter('ppm', 'mol/m-3')
 
 def output_plot(prop):
     
@@ -113,12 +102,14 @@ def output_plot(prop):
         elif name == 'number_density_air':
             axes.set_ylabel(r"moles/m^3")
         
-    tolerance = tolerance_dictionary()[name]
-    
+    ppm_to_mol_m3 = create_unit_converter('ppm','mol/m-3')
+    tolerance = ppm_to_mol_m3(float(tolerance_dictionary()[name]), number_density=float(csv['ENV.number_density_air'].iloc[[-1]]), nd_units='mol/m-3')
+
     #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
     tolerance_yrange_factor = 5
     ymax_minimum = tolerance_yrange_factor * tolerance
-    if ymax_minimum > csv[str(prop.strip())].max():
+    property_maximum = csv[prop.strip()].max()
+    if ymax_minimum > property_maximum:
         axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
 
     axes.legend()
