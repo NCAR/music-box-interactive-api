@@ -11,6 +11,7 @@ def get_contents(request):
 
     response = HttpResponse()
     subs = sub_props(prop)
+    subs.sort()
     if prop != 'compare':
         for i in subs:
             response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' + i + '">' + sub_props_names(i) + "</a>")

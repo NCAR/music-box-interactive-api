@@ -14,6 +14,8 @@ import pandas
 from django.conf import settings
 import logging
 from .compare import *
+from mechanism.species import tolerance_dictionary
+from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -98,6 +100,17 @@ def output_plot(prop):
         elif name == 'number_density_air':
             axes.set_ylabel(r"moles/m^3")
         
+    ppm_to_mol_m3 = create_unit_converter('ppm', 'mol/m-3')
+    tolerance = ppm_to_mol_m3(float(tolerance_dictionary()[name]), number_density=float(csv['ENV.number_density_air'].iloc[[-1]]), nd_units='mol/m-3')
+
+    #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
+    tolerance_yrange_factor = 5
+    ymax_minimum = tolerance_yrange_factor * tolerance
+    property_maximum = csv[prop.strip()].max()
+    if ymax_minimum > property_maximum:
+        axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
+
+
     axes.legend()
     axes.grid(True)
     

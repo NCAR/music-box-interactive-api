@@ -90,3 +90,18 @@ def species_convert_to_SI(species_data):
     if 'absolute tolerance' in species_data:
         species_data['absolute convergence tolerance [mol mol-1]'] = species_data['absolute tolerance'] * 1.0e-6 # ppm -> mol mol-1
         species_data.pop('absolute tolerance')
+
+
+#creates a dictionary of species tolerances for plot minimum scales
+def tolerance_dictionary():
+    species_file_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+    with open(species_file_path) as f:
+        species_file = json.loads(f.read())
+    default_tolerance = 1e-14
+    species_list = species_file['pmc-data']
+    for spec in species_list:
+        if 'absolute tolerance' not in spec:
+            spec.update({'absolute tolerance': default_tolerance})
+
+    species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
+    return species_dict

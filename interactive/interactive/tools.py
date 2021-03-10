@@ -87,3 +87,66 @@ def copyAFile(source, destination):
     g.write(content)
     g.close()
     configFile.close()
+
+
+# creates a unit contersion function which converts from initial_unit to final_unit
+# if units used are both mixing ratios or number densities:
+# converter = create_unit_converter(initial_unit, final_unit)
+# final = converter(initial)
+
+# if units used are not both mixing ratios or number densities:
+# converter = create_unit_converter(initial_unit, final_unit)
+# final = converter(initial=i, density=density)
+
+def create_unit_converter(initial_unit, final_unit):
+    units = {
+        'ppm':{
+            'type': 'mixing ratio',
+            'factor': 1e6
+        },
+        'ppb':{
+            'type': 'mixing ratio',
+            'factor': 1e9
+        },
+        'mol/mol':{
+            'type': 'mixing ratio',
+            'factor': 1
+        },
+        'mol/m-3':{
+            'type': 'number density',
+            'factor': 1
+        },
+        'molecule/m-3':{
+            'type': 'number density',
+            'factor': 6.0221415e23
+        },
+        'mol/cm-3':{
+            'type': 'number density',
+            'factor': 1e6
+        },
+        'molecule/cm-3':{
+            'type': 'number density',
+            'factor': 6.0221415e29
+        }
+    }
+
+    if initial_unit not in units:
+        return 'initial not in unit contverter'
+    if final_unit not in units:
+        return 'final not in unit contverter'
+    unit_types = (units[initial_unit]['type'], units[final_unit]['type'])
+    if unit_types[0] == unit_types[1]:
+        def converter(initial_value):
+            new = (initial_value / units[initial_unit]['factor']) * units[final_unit]['factor']
+            return new  
+        return converter  
+    else:
+        def converter(initial_value, number_density, nd_units):
+            base = initial_value / units[initial_unit]['factor']
+            adjusted_density = number_density / units[nd_units]['factor']
+            if unit_types[0] == 'number density':
+                new = (base / adjusted_density) * units[final_unit]['factor']
+            else:
+                new = (base * adjusted_density) * units[final_unit]['factor']
+            return new
+        return converter
