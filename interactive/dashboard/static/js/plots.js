@@ -74,7 +74,7 @@ $(document).ready(function(){
       var propType = 'ENV.'
     }
     var prop = propType + linkId;
-    $('#plot').append('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '">');
+    $('#plot').prepend('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '">');
     }
   });
 
