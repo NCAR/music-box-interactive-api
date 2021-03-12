@@ -63,7 +63,8 @@ def sub_props_names(subprop):
 
 
 def output_plot(prop):
-    
+    plots_config = open_json('plots_configuration.json')
+
     matplotlib.use('agg')
 
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
@@ -123,3 +124,24 @@ def output_plot(prop):
     return buffer
 
 
+# generates html for unit selection in plots sidebar
+def plots_unit_select(prop):
+    unit_choices = {
+        'species': [
+            'mol/m-3',
+            'ppm',
+            'ppb',
+            'mol/mol',
+            'mol/cm-3',
+            'molecule/cm-3',
+            'molecule/m-3'
+        ]
+    }
+    response = ''
+    if prop == 'species':
+        choices = unit_choices[prop]
+        response = '<div class="my-2"><div class="select-group"><label for="plotsUnitSelect">Select plot units</label><select class="form-control" id="plotsUnitSelect">'
+        for choice in choices:
+            response = response + '<option>' + choice + '</option>'
+        response = response + '</select></div></div>'
+    return response

@@ -78,5 +78,15 @@ $(document).ready(function(){
     }
   });
 
-
+  //update plot units from select
+  $(document).on('change', "#plotsUnitSelect", function() {
+    var unitName = $(this).val();
+    $.ajax({
+      url: 'plots/select-units',
+      type: 'get',
+      data: {"unit": unitName},
+      success: function(response){
+      }
+    });
+  });
 });
