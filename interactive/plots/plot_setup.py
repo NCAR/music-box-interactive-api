@@ -16,10 +16,12 @@ import logging
 from .compare import *
 from mechanism.species import tolerance_dictionary
 from interactive.tools import *
+from numpy import vectorize
+
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-
+model_output_units = 'mol/m-3'
 
 def sub_props(prop):
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
@@ -62,17 +64,24 @@ def sub_props_names(subprop):
         return subprop
 
 
-def output_plot(prop):
-    plots_config = open_json('plots_configuration.json')
-
+def output_plot(prop, plot_units):
     matplotlib.use('agg')
-
+        
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
+
+    #make unit conversion if needed
+    if plot_units:
+        converter = vectorize(create_unit_converter(model_output_units, plot_units))
+        if is_density_needed(model_output_units, plot_units):
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], number_density=csv['ENV.number_density_air'], nd_units=model_output_units)
+        else:
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())])
+
     subset.plot(x="time", ax=axes)
 
     # time = subset[['time']].values.tolist()
@@ -87,8 +96,25 @@ def output_plot(prop):
     axes.set_xlabel(r"time / s")
     name = prop.split('.')[1]
     if prop.split('.')[0] == 'CONC':
-        axes.set_ylabel(r"(mol/m^3)")
+        axes.set_ylabel("("+plot_units+")")
         axes.set_title(name)
+        #unit converter for tolerance      
+        if plot_units:
+            ppm_to_plot_units = create_unit_converter('ppm', plot_units)
+        else:
+            ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
+            
+        if is_density_needed('ppm', plot_units):
+            tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), number_density=float(csv['ENV.number_density_air'].iloc[[-1]]), nd_units='mol/m-3')
+        else:
+            tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
+        #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
+        tolerance_yrange_factor = 5
+        ymax_minimum = tolerance_yrange_factor * tolerance
+        property_maximum = csv[prop.strip()].max()
+        if ymax_minimum > property_maximum:
+            axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
+
     elif prop.split('.')[0] == 'RATE':
         axes.set_ylabel(r"(mol/m^3 s^-1)")
         axes.set_title(name)
@@ -100,17 +126,6 @@ def output_plot(prop):
             axes.set_ylabel(r"Pa")
         elif name == 'number_density_air':
             axes.set_ylabel(r"moles/m^3")
-        
-    ppm_to_mol_m3 = create_unit_converter('ppm', 'mol/m-3')
-    tolerance = ppm_to_mol_m3(float(tolerance_dictionary()[name]), number_density=float(csv['ENV.number_density_air'].iloc[[-1]]), nd_units='mol/m-3')
-
-    #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
-    tolerance_yrange_factor = 5
-    ymax_minimum = tolerance_yrange_factor * tolerance
-    property_maximum = csv[prop.strip()].max()
-    if ymax_minimum > property_maximum:
-        axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
-
 
     axes.legend()
     axes.grid(True)

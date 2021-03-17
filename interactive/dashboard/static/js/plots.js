@@ -74,19 +74,29 @@ $(document).ready(function(){
       var propType = 'ENV.'
     }
     var prop = propType + linkId;
-    $('#plot').prepend('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '">');
+    if ($("#plotsUnitSelect").length) {
+      var plotUnit = $("#plotsUnitSelect").val();
+    } else {
+      var plotUnit = 'n/a'
+    }
+
+    $('#plot').prepend('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '&unit=' + plotUnit + '">');
     }
   });
 
   //update plot units from select
   $(document).on('change', "#plotsUnitSelect", function() {
     var unitName = $(this).val();
-    $.ajax({
-      url: 'plots/select-units',
-      type: 'get',
-      data: {"unit": unitName},
-      success: function(response){
-      }
+    var plotsList = $('#plot').children();
+    var plotsNameList = []
+    $.each(plotsList, function(i, plot){
+      var name = plot.id;
+      var speciesName = name.replace("plot", "");
+      plotsNameList.push(speciesName);
+    });
+    $('#plot').empty();
+    $.each(plotsNameList, function(i, name){
+      $('#plot').append('<img id="'+ name + 'plot"src="plots/get?type=CONC.' + name + '&unit=' + unitName + '">');
     });
   });
 });

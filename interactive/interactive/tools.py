@@ -100,8 +100,8 @@ def copyAFile(source, destination):
 # final = converter(initial=i, density=density)
 
 #factor is relative to the 'base unit' for each unit type (mol/mol and mol/m-3)
-def create_unit_converter(initial_unit, final_unit):
-    units = {
+def get_units():
+    unitDict = {
         'ppm':{
             'type': 'mixing ratio',
             'factor': 1e6
@@ -131,6 +131,11 @@ def create_unit_converter(initial_unit, final_unit):
             'factor': 6.0221415e29
         }
     }
+    return unitDict
+
+
+def create_unit_converter(initial_unit, final_unit):
+    units = get_units()
 
     if initial_unit not in units:
         print('initial not in unit contverter')
@@ -154,3 +159,13 @@ def create_unit_converter(initial_unit, final_unit):
                 new = (base * adjusted_density) * units[final_unit]['factor']
             return new
         return converter
+
+
+def is_density_needed(a, b):
+    units = get_units()
+    type_a = units[a]['type']
+    type_b = units[b]['type']
+    if type_a == type_b:
+        return False
+    else:
+        return True
