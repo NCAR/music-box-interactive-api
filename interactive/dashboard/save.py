@@ -558,3 +558,20 @@ def load_example_configuration(name):
     shutil.rmtree(config_path)
     shutil.copytree(example_folder_path, config_path)
     reverse_export()
+
+
+# returns new value and updates species.json with new unit and value
+def convert_initial_conditions(unit_type, new_unit, initial_value):
+    initials = open_json('initials.json')
+    unit_type = unit_type.replace('id_', '')
+    unit_type = unit_type.replace('.units', '')
+    old_unit = initials['units'][unit_type]
+
+    converter = create_unit_converter(old_unit, new_unit)
+    new_value = converter(initial_value)
+
+    initials['units'][unit_type] = new_unit
+    initials['values'][unit_type] = new_value
+    dump_json('initials.json', initials)
+    export()
+    return {'new value': new_value}

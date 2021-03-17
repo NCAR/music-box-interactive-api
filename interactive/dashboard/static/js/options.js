@@ -38,5 +38,4 @@ $(document).ready(function(){
     var units = $(this).attr('unit');
     $(this).val(units);
   });
-
 });

@@ -31,5 +31,6 @@ urlpatterns = [
     path('conditions/remove-linear-combination', views.remove_linear),
     path('conditions/report', views.report_bug),
     path('download_config', views.download_file),
-    path('download', views.download_handler, name='download')
+    path('download', views.download_handler, name='download'),
+    path('conditions/convert', views.convert_values)
 ]

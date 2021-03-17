@@ -10,9 +10,9 @@ class InitialConditionsForm(forms.Form):
         super(InitialConditionsForm, self).__init__(*args, **kwargs)
         inits = ini_cond_setup()
         self.fields['temperature.label'] = forms.ChoiceField(choices=[('temperature', 'temperature')], widget=forms.Select(attrs={'savebutton': 'initialsSave', 'class': 'form-control'}))
-        self.fields['temperature.init'] = forms.FloatField(initial=inits["values"]["temperature"], widget=forms.TextInput(attrs={'savebutton': 'initialsSave', 'class': 'form-control'}))
-        self.fields['temperature.units'] = forms.ChoiceField(initial=inits["units"]["temperature"], choices=[('K', 'K'), ('C', 'C'), ('F', 'F')], widget=forms.Select(attrs={'savebutton': 'initialsSave', 'class': 'form-control'}))
+        self.fields['temperature.init'] = forms.FloatField(initial=inits["values"]["temperature"], widget=forms.TextInput(attrs={'savebutton': 'initialsSave', 'class': 'form-control', 'id': "temperature.init"}))
+        self.fields['temperature.units'] = forms.ChoiceField(initial=inits["units"]["temperature"], choices=[('K', 'K'), ('C', 'C'), ('F', 'F')], widget=forms.Select(attrs={'savebutton': 'initialsSave', 'class': 'form-control condition-select-convert'}))
         self.fields['pressure.label'] = forms.ChoiceField(choices=[('pressure', 'pressure')], widget=forms.Select(attrs={'savebutton': 'initialsSave', 'class': 'form-control'}))
-        self.fields['pressure.init'] = forms.FloatField(initial=inits["values"]["pressure"], widget=forms.TextInput(attrs={'savebutton': 'initialsSave', 'class': 'form-control'}))
-        self.fields['pressure.units'] = forms.ChoiceField(initial=inits["units"]["pressure"], choices=[('Pa', 'Pa'), ('atm', 'atm'), ('bar', 'bar'), ('kPa', 'kPa'), ('hPa', 'hPa'), ('mbar', 'mbar')], widget=forms.Select(attrs={'savebutton': 'initialsSave', 'class': 'form-control'}))
+        self.fields['pressure.init'] = forms.FloatField(initial=inits["values"]["pressure"], widget=forms.TextInput(attrs={'savebutton': 'initialsSave', 'class': 'form-control', 'id': "pressure.init"}))
+        self.fields['pressure.units'] = forms.ChoiceField(initial=inits["units"]["pressure"], choices=[('Pa', 'Pa'), ('atm', 'atm'), ('bar', 'bar'), ('kPa', 'kPa'), ('hPa', 'hPa'), ('mbar', 'mbar')], widget=forms.Select(attrs={'savebutton': 'initialsSave', 'class': 'form-control condition-select-convert'}))
 

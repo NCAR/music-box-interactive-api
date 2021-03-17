@@ -129,6 +129,45 @@ def get_units():
         'molecule/cm-3':{
             'type': 'number density',
             'factor': 6.0221415e29
+        },
+        'K':{
+            'type': 'temperature',
+            'factor': 1,
+            'offset': 273.15
+        },
+        'C':{
+            'type': 'temperature',
+            'factor': 1,
+            'offset': 0
+        },
+        'F':{
+            'type': 'temperature',
+            'factor': 1.8,
+            'offset': 32
+        },
+        'Pa':{
+            'type': 'pressure',
+            'factor': 1,
+        },
+        'atm':{
+            'type': 'pressure',
+            'factor': 9.86923e-6,
+        },
+        'bar':{
+            'type': 'pressure',
+            'factor': 1e-5,
+        },
+        'kPa':{
+            'type': 'pressure',
+            'factor': 0.001,
+        },
+        'hPa':{
+            'type': 'pressure',
+            'factor': 0.01,
+        },
+        'mbar':{
+            'type': 'pressure',
+            'factor': 0.01,
         }
     }
     return unitDict
@@ -145,10 +184,16 @@ def create_unit_converter(initial_unit, final_unit):
         return False
     unit_types = (units[initial_unit]['type'], units[final_unit]['type'])
     if unit_types[0] == unit_types[1]:
-        def converter(initial_value):
-            new = (initial_value / units[initial_unit]['factor']) * units[final_unit]['factor']
-            return new  
-        return converter  
+        if 'offset' not in units[initial_unit]:
+            def converter(initial_value):
+                new = (initial_value / units[initial_unit]['factor']) * units[final_unit]['factor']
+                return new  
+            return converter 
+        else:
+            def converter(initial_value):
+                new = (((initial_value - units[initial_unit]['offset']) / units[initial_unit]['factor']) * units[final_unit]['factor']) + units[final_unit]['offset']
+                return new  
+            return converter
     else:
         def converter(initial_value, number_density, nd_units):
             base = initial_value / units[initial_unit]['factor']
