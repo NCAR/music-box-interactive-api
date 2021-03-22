@@ -293,4 +293,26 @@ $(document).ready(function(){
     container.children().children('.units-dropdown').val(units);
   }
 
+  // auto converts value after unit change
+  $(document).on('change', ".condition-select-convert", function() {
+    var selectId = this.id
+    var newUnit = $(this).val();
+    var initId = selectId.replace(".units", "\\.init");
+    var initId = initId.replace('id_', '')
+    var initValue = $("#" + initId).val();
+
+    $.ajax({
+      url: "/conditions/convert",
+      type: 'get',
+      data: {
+        "value": initValue,
+        "new unit": newUnit,
+        "type": selectId
+      },
+      success: function(response){
+        var newValue = response['new value'];
+        $("#" + initId).val(newValue)
+      }
+    });
+  });
 });

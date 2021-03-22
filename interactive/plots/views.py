@@ -1,7 +1,7 @@
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .plot_setup import *
 from django.shortcuts import render
-
+from interactive.tools import *
 
 # returns response with sub properties as buttons (species, rates, etc)
 def get_contents(request):
@@ -10,6 +10,7 @@ def get_contents(request):
         prop = get['type']
 
     response = HttpResponse()
+    response.write(plots_unit_select(prop))
     subs = sub_props(prop)
     subs.sort()
     if prop != 'compare':
@@ -25,7 +26,10 @@ def get_contents(request):
 def get(request):
     if request.method == 'GET':
         props = request.GET['type']
-        buffer = output_plot(str(props))
+        if request.GET['unit'] == 'n/a':
+            buffer = output_plot(str(props), False)
+        else:
+            buffer = output_plot(str(props), request.GET['unit'])
 
         return HttpResponse(buffer.getvalue(), content_type="image/png")
     return HttpResponseBadRequest('Bad format for plot request', status=405)
@@ -44,3 +48,11 @@ def compare(request):
         'runs': get_valid_runs()
     }
     return render(request, 'pcompare.html', context)
+
+
+def select_units(request):
+    if request.method == 'GET':
+        unit = request.GET['unit']
+        dump_json('plots_configuration.json', {'unit': unit})
+
+    return HttpResponse()

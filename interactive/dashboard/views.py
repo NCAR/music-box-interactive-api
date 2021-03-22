@@ -267,3 +267,14 @@ def toggle_logging_check(request):
 def download_handler(request):
     context = {}
     return render(request, 'download.html', context)
+
+
+def convert_values(request):
+    unit_type = request.GET['type']
+    new_unit = request.GET['new unit']
+    initial_value = float(request.GET['value'])
+    if any(c in unit_type for c in ('temperature', 'pressure')):
+        response = convert_initial_conditions(unit_type, new_unit, initial_value)
+    else:
+        response = {}
+    return JsonResponse(response)
