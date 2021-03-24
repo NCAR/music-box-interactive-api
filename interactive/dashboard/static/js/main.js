@@ -26,6 +26,7 @@ $(document).ready(function(){
 
   // runs the model
   $("#run-model").on('click', function(){
+    $("#post-run-links").html('<div class="mx-2"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     $.ajax({
       url: "/model/run",
       type: 'get',
@@ -36,6 +37,7 @@ $(document).ready(function(){
             type: 'get',
             success: function(response){
               if (response["status"] == 'done') {
+                $("#post-run-links").html('')
                 display_post_run_menu_options();
               } else if (response["status"] == 'error'){
                   alert("ERROR " + response["e_code"] + "   " + response["e_message"]);
