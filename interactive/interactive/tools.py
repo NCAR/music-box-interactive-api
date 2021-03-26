@@ -257,6 +257,6 @@ def make_unit_convert_form(unit_type):
             response.write(unit)
             response.write('</option>')
         response.write('</select></div>')
-    response.write('<button class="btn btn-primary">Convert</button>')
+    response.write('<button id="convertSubmit" class="btn btn-primary">Convert</button>')
     return response
 

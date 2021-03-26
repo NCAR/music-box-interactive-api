@@ -331,7 +331,7 @@ $(document).ready(function(){
     }
     
   });
-  //update plot units from select
+  //require density if needed
   $(document).on('change', ".concentration-select", function() {
     var initialUnit = $("#initialValueUnit").val();
     var finalUnit = $("#finalValueUnit").val();
@@ -354,7 +354,7 @@ $(document).ready(function(){
     }
   });
 
-  //require density if needed in conversion
+  //get unit options
   $(document).on('change', "#selectUnitType", function() {
     var unitType = $(this).val();
     $.ajax({
@@ -368,5 +368,29 @@ $(document).ready(function(){
       }
     });
   });
+
+  //get unit options
+  $(document).on('click', "#convertSubmit", function() {
+    var initialUnit = $("#initialValueUnit").val();
+    var finalUnit = $("#finalValueUnit").val();
+    var densityValue = $("#densityValue").val();
+    var densityUnit = $("#densityUnit").val();
+    var initialValue = $("#initialValue").val();
+      $.ajax({
+      url: "/conditions/conversion-calculator",
+      type: 'get',
+      data: {
+        "initialUnit": initialUnit,
+        "finalUnit": finalUnit,
+        "densityValue": densityValue,
+        "densityUnit": densityUnit,
+        "initialValue": initialValue
+      },
+      success: function(response){
+        $("#convertedValue").html(response)
+      }
+    });
+  });
+  
 
 });

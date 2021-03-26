@@ -284,3 +284,20 @@ def unit_options(request):
     unit_type = request.GET['unitType']
     response = make_unit_convert_form(unit_type)
     return response
+
+
+# returns converted units
+def convert_calculator(request):
+    initialUnit = request.GET['initialUnit']
+    finalUnit = request.GET['finalUnit']
+    initialValue = float(request.GET['initialValue'])
+    converter = create_unit_converter(initialUnit, finalUnit)
+    
+    if is_density_needed(initialUnit, finalUnit):
+        densityValue = float(request.GET['densityValue'])
+        densityUnit = request.GET['densityUnit']
+        new_value = converter(initialValue, number_density=densityValue, nd_units=densityUnit)
+    else:
+        new_value = converter(initialValue)
+
+    return HttpResponse(new_value)
