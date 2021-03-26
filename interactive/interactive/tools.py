@@ -231,7 +231,7 @@ def make_unit_convert_form(unit_type):
             response.write('</option>')
         response.write('<input type="text" id="initialValue" class="form-control" placeholder="Enter value"></div>')
         response.write('<div id="densityFormHolder" class="input-group mb-3 d-none"><select class="btn btn-primary dropdown-toggle" id="densityUnit"><option value="mol/m-3">mol/m-3</option><option value="mol/cm-3">mol/cm-3</option><option value="molecule/m-3">molecule/m-3</option><option value="molecule/cm-3">molecule/cm-3</option></select><input type="text" id="densityValue" class="form-control" placeholder="Enter density"></div>')
-        response.write('<div class="input-group mb-3"><select class="btn btn-primary dropdown-toggle concentration-select" id="finalValueUnit">')
+        response.write('<div class="input-group mb-3"><span class="input-group-text">Convert to:</span><select class="btn btn-primary dropdown-toggle concentration-select" id="finalValueUnit">')
         for unit in unit_options:
             response.write('<option value="')
             response.write(unit)
@@ -249,7 +249,7 @@ def make_unit_convert_form(unit_type):
             response.write(unit)
             response.write('</option>')
         response.write('<input type="text" id="initialValue" class="form-control" placeholder="Enter value"></div>')
-        response.write('<div class="input-group mb-3"><select class="btn btn-primary dropdown-toggle" id="finalValueUnit">')
+        response.write('<div class="input-group mb-3"><span class="input-group-text">Convert to:</span><select class="btn btn-primary dropdown-toggle" id="finalValueUnit">')
         for unit in unit_options:
             response.write('<option value="')
             response.write(unit)

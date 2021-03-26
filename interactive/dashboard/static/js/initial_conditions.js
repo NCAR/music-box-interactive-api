@@ -331,6 +331,15 @@ $(document).ready(function(){
     }
     
   });
+
+  $("#hideConversionCalculator").click(function(){
+    $('#unit-conversion-calculator').addClass('col-hidden');
+    $('#unit-conversion-calculator').removeClass('col-5');
+    $('.view-calculator').html('Unit conversion calculator')
+    $('#unit-conversion-calculator').attr('isHidden', 'true')
+  });
+  
+
   //require density if needed
   $(document).on('change', ".concentration-select", function() {
     var initialUnit = $("#initialValueUnit").val();
