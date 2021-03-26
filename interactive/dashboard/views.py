@@ -278,3 +278,9 @@ def convert_values(request):
     else:
         response = {}
     return JsonResponse(response)
+
+
+def unit_options(request):
+    unit_type = request.GET['unitType']
+    response = make_unit_convert_form(unit_type)
+    return response

@@ -1,6 +1,7 @@
 import os
 import json
 from django.conf import settings
+from django.http import HttpResponse
 
 # get path for filename
 def file_path(filename):
@@ -214,3 +215,48 @@ def is_density_needed(a, b):
         return False
     else:
         return True
+
+
+def make_unit_convert_form(unit_type):
+    response = HttpResponse()
+    units = get_units()
+    if unit_type == "concentration":
+        unit_options = [key for key in units if units[key]['type'] in ('number density', 'mixing ratio')]
+        response.write('<div class="input-group mb-3"><select class="btn btn-primary dropdown-toggle concentration-select" id="initialValueUnit">')
+        for unit in unit_options:
+            response.write('<option value="')
+            response.write(unit)
+            response.write('">')
+            response.write(unit)
+            response.write('</option>')
+        response.write('<input type="text" id="initialValue" class="form-control" placeholder="Enter value"></div>')
+        response.write('<div id="densityFormHolder" class="input-group mb-3 d-none"><select class="btn btn-primary dropdown-toggle" id="densityUnit"><option value="mol/m-3">mol/m-3</option><option value="mol/cm-3">mol/cm-3</option><option value="molecule/m-3">molecule/m-3</option><option value="molecule/cm-3">molecule/cm-3</option></select><input type="text" id="densityValue" class="form-control" placeholder="Enter density"></div>')
+        response.write('<div class="input-group mb-3"><select class="btn btn-primary dropdown-toggle concentration-select" id="finalValueUnit">')
+        for unit in unit_options:
+            response.write('<option value="')
+            response.write(unit)
+            response.write('">')
+            response.write(unit)
+            response.write('</option>')
+        response.write('</select></div>')
+    else:
+        unit_options = [key for key in units if units[key]['type'] == unit_type]
+        response.write('<div class="input-group mb-3"><select class="btn btn-primary dropdown-toggle" id="initialValueUnit">')
+        for unit in unit_options:
+            response.write('<option value="')
+            response.write(unit)
+            response.write('">')
+            response.write(unit)
+            response.write('</option>')
+        response.write('<input type="text" id="initialValue" class="form-control" placeholder="Enter value"></div>')
+        response.write('<div class="input-group mb-3"><select class="btn btn-primary dropdown-toggle" id="finalValueUnit">')
+        for unit in unit_options:
+            response.write('<option value="')
+            response.write(unit)
+            response.write('">')
+            response.write(unit)
+            response.write('</option>')
+        response.write('</select></div>')
+    response.write('<button class="btn btn-primary">Convert</button>')
+    return response
+

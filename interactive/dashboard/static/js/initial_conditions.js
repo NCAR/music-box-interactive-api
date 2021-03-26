@@ -315,4 +315,58 @@ $(document).ready(function(){
       }
     });
   });
+
+  // collapsable unit conversion tool
+  $('.view-calculator').click(function() {
+    if ($('#unit-conversion-calculator').attr('isHidden') == 'true') {
+    $('#unit-conversion-calculator').removeClass('col-hidden');
+    $('#unit-conversion-calculator').addClass('col-5');
+    $('.view-calculator').html('Hide calculator')
+    $('#unit-conversion-calculator').attr('isHidden', 'false')
+    } else {
+    $('#unit-conversion-calculator').addClass('col-hidden');
+    $('#unit-conversion-calculator').removeClass('col-5');
+    $('.view-calculator').html('Unit conversion calculator')
+    $('#unit-conversion-calculator').attr('isHidden', 'true')
+    }
+    
+  });
+  //update plot units from select
+  $(document).on('change', ".concentration-select", function() {
+    var initialUnit = $("#initialValueUnit").val();
+    var finalUnit = $("#finalValueUnit").val();
+    var mixingRatios = ['ppm', 'ppb', 'mol/mol'];
+    var numberDensities = ['mol/m-3', 'molecule/m-3', 'mol/cm-3', 'molecule/cm-3'];
+    if (mixingRatios.indexOf(initialUnit) > -1) {
+      var initialType = 'mixing ratio'
+    } else {
+      var initialType = 'number density'
+    }
+    if (mixingRatios.indexOf(finalUnit) > -1) {
+      var finalType = 'mixing ratio'
+    } else {
+      var finalType = 'number density'
+    }
+    if (initialType == finalType){
+      $("#densityFormHolder").addClass('d-none')
+    } else {
+      $("#densityFormHolder").removeClass('d-none')
+    }
+  });
+
+  //require density if needed in conversion
+  $(document).on('change', "#selectUnitType", function() {
+    var unitType = $(this).val();
+    $.ajax({
+      url: "/conditions/unit-options",
+      type: 'get',
+      data: {
+        "unitType": unitType
+      },
+      success: function(response){
+        $("#conversionForm").html(response)
+      }
+    });
+  });
+
 });
