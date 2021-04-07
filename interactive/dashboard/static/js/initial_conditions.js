@@ -340,27 +340,21 @@ $(document).ready(function(){
   });
   
 
-  //require density if needed
-  $(document).on('change', ".concentration-select", function() {
+  //add additional argument if needed
+  $(document).on('change', ".unit-select", function() {
     var initialUnit = $("#initialValueUnit").val();
     var finalUnit = $("#finalValueUnit").val();
-    var mixingRatios = ['ppm', 'ppb', 'mol/mol'];
-    var numberDensities = ['mol/m-3', 'molecule/m-3', 'mol/cm-3', 'molecule/cm-3'];
-    if (mixingRatios.indexOf(initialUnit) > -1) {
-      var initialType = 'mixing ratio'
-    } else {
-      var initialType = 'number density'
-    }
-    if (mixingRatios.indexOf(finalUnit) > -1) {
-      var finalType = 'mixing ratio'
-    } else {
-      var finalType = 'number density'
-    }
-    if (initialType == finalType){
-      $("#densityFormHolder").addClass('d-none')
-    } else {
-      $("#densityFormHolder").removeClass('d-none')
-    }
+    $.ajax({
+      url: "/conditions/unit-conversion-arguments",
+      type: 'get',
+      data: {
+        "initialUnit": initialUnit,
+        'finalUnit': finalUnit
+      },
+      success: function(response){
+        $("#additionalArgumentsHolder").html(response);
+      }
+    });
   });
 
   //get unit options
@@ -378,22 +372,31 @@ $(document).ready(function(){
     });
   });
 
-  //get unit options
+  //submit calculator
   $(document).on('click', "#convertSubmit", function() {
-    var initialUnit = $("#initialValueUnit").val();
-    var finalUnit = $("#finalValueUnit").val();
-    var densityValue = $("#densityValue").val();
-    var densityUnit = $("#densityUnit").val();
-    var initialValue = $("#initialValue").val();
-      $.ajax({
+    initialValue = $("#initialValue").val();
+    initialUnit = $("#initialValueUnit").val();
+    finalUnit = $("#finalValueUnit").val();
+    additionalInputs = $("#additionalArgumentsHolder").children();
+    var argData = []
+    $.each(additionalInputs, function(i, inputGroup){
+      var title = $(inputGroup).find('span').html();
+      var unit = $(inputGroup).find('select').val();
+      var value = $(inputGroup).find('input').val();
+      var argDict = {"title": title, "unit": unit, "value": value}
+      argData.push();
+    });
+    alert(argData)
+
+
+    $.ajax({
       url: "/conditions/conversion-calculator",
       type: 'get',
       data: {
         "initialUnit": initialUnit,
-        "finalUnit": finalUnit,
-        "densityValue": densityValue,
-        "densityUnit": densityUnit,
-        "initialValue": initialValue
+        "initialValue": initialValue,
+        'finalUnit': finalUnit,
+        'args': argData
       },
       success: function(response){
         $("#convertedValue").html(response)

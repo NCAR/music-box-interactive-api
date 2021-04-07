@@ -4,6 +4,7 @@ from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .upload_handler import *
+from .build_unit_converter import *
 from .save import *
 from .models import Document
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
@@ -125,7 +126,8 @@ def initial_conditions(request):
             save_init(newConditions)
     context = {
         'icform': InitialConditionsForm,
-        'csv_field' : UploadInitFileForm
+        'csv_field' : UploadInitFileForm,
+        'unitTypes': getUnitTypes()
     }
     return render(request, 'conditions/initial.html', context)
 
@@ -288,16 +290,26 @@ def unit_options(request):
 
 # returns converted units
 def convert_calculator(request):
-    initialUnit = request.GET['initialUnit']
-    finalUnit = request.GET['finalUnit']
-    initialValue = float(request.GET['initialValue'])
-    converter = create_unit_converter(initialUnit, finalUnit)
+    print(request.GET)
+    # initialUnit = request.GET['initialUnit']
+    # finalUnit = request.GET['finalUnit']
+    # initialValue = float(request.GET['initialValue'])
+    # converter = create_unit_converter(initialUnit, finalUnit)
     
-    if is_density_needed(initialUnit, finalUnit):
-        densityValue = float(request.GET['densityValue'])
-        densityUnit = request.GET['densityUnit']
-        new_value = converter(initialValue, number_density=densityValue, nd_units=densityUnit)
-    else:
-        new_value = converter(initialValue)
+    # if is_density_needed(initialUnit, finalUnit):
+    #     densityValue = float(request.GET['densityValue'])
+    #     densityUnit = request.GET['densityUnit']
+    #     new_value = converter(initialValue, number_density=densityValue, nd_units=densityUnit)
+    # else:
+    #     new_value = converter(initialValue)
 
-    return HttpResponse(new_value)
+    return HttpResponse('new_value')
+
+
+# returns form fields for additional arguments in conversion
+def unit_conversion_arguments(request):
+    initial = request.GET['initialUnit']
+    final = request.GET['finalUnit']
+    arguments = get_required_arguments(initial, final)
+    f = make_additional_argument_form(arguments)
+    return f

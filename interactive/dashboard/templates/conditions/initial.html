@@ -223,9 +223,9 @@
               <div class="input-group mb-3">
                 <select class="btn btn-primary dropdown-toggle" id="selectUnitType">
                   <option selected>Select unit type...</option>
-                  <option value="temperature">Temperature</option>
-                  <option value="pressure">Pressure</option>
-                  <option value="concentration">Concentration</option>
+                  {% for type in unitTypes %}
+                    <option value="{{type}}">{{type}}</option>
+                  {% endfor %}
                 </select>
               </div>
             </li>
