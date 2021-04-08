@@ -89,6 +89,7 @@ def download(request):
 
 
 def check(request):
+    time.sleep(1)
     response_message = {}
     out_path = os.path.join(mb_dir, 'output.csv')
     complete_path = os.path.join(mb_dir, 'MODEL_RUN_COMPLETE')
@@ -99,16 +100,16 @@ def check(request):
     t = 0
     while status == 'checking':
         print(status)
-        time.sleep(.1)
-        t += 0.1
+        time.sleep(.2)
         if os.path.isfile(error_path): # check if error file exists
             if os.path.getsize(error_path) != 0:  # check if error has been output
                 status = 'error'
         elif os.path.isfile(complete_path):
+            time.sleep(0.2)
             if os.path.getsize(out_path) != 0:  # check if model has finished
                 status = 'done'
 
-    update_with_result(status)
+    # update_with_result(status)
     response_message.update({'status': status})
 
     if status == 'error':
