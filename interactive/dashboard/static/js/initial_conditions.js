@@ -384,9 +384,8 @@ $(document).ready(function(){
       var unit = $(inputGroup).find('select').val();
       var value = $(inputGroup).find('input').val();
       var argDict = {"title": title, "unit": unit, "value": value}
-      argData.push();
+      argData.push(argDict);
     });
-    alert(argData)
 
 
     $.ajax({

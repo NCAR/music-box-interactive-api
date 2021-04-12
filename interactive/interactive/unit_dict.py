@@ -111,7 +111,7 @@ unitDict = {
             'subtype': 'standard height',
             'factor': 0.001,
         },
-        'mol/m-3':{
+        'mol/m-3 ':{
             'type': 'density',
             'subtype': 'standard density',
             'factor': 1

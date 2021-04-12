@@ -290,20 +290,20 @@ def unit_options(request):
 
 # returns converted units
 def convert_calculator(request):
-    print(request.GET)
-    # initialUnit = request.GET['initialUnit']
-    # finalUnit = request.GET['finalUnit']
-    # initialValue = float(request.GET['initialValue'])
-    # converter = create_unit_converter(initialUnit, finalUnit)
-    
-    # if is_density_needed(initialUnit, finalUnit):
-    #     densityValue = float(request.GET['densityValue'])
-    #     densityUnit = request.GET['densityUnit']
-    #     new_value = converter(initialValue, number_density=densityValue, nd_units=densityUnit)
-    # else:
-    #     new_value = converter(initialValue)
+    conversion_request = request.GET.dict()
+    args = [x for x in conversion_request if 'args' in x]
+    arg_dict = {}
+    for key in conversion_request:
+        if 'title' in key:
+            arg_dict.update({conversion_request[key]: float(conversion_request[key.replace('title', 'value')])})
+            arg_dict.update({conversion_request[key] + ' units': conversion_request[key.replace('title', 'unit')]})
+    converter = create_unit_converter(conversion_request['initialUnit'], conversion_request['finalUnit'])
+    if arg_dict:
+        new_value = converter(float(conversion_request['initialValue']), arg_dict)
+    else:
+        new_value = converter(float(conversion_request['initialValue']))
 
-    return HttpResponse('new_value')
+    return HttpResponse(new_value)
 
 
 # returns form fields for additional arguments in conversion

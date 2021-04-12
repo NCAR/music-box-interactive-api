@@ -30,7 +30,7 @@ class Unit:
                 return unitScaler
             else:
                 #if subtype changes
-                def unitChange(value, **kwargs):
+                def unitChange(value, kwargs={}):
                     initial_subtype = self.unitDict[initial_unit]['subtype']
                     initial_type = self.unitDict[initial_unit]['type']
                     final_subtype = self.unitDict[final_unit]['subtype']

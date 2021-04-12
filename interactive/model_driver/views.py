@@ -21,7 +21,6 @@ else:
     interface_solo = True
 
 print("interface_solo:", interface_solo)
-clear_log()
 
 out_path = os.path.join(mb_dir, 'output.csv')
 error_path = os.path.join(mb_dir, 'error.json')
