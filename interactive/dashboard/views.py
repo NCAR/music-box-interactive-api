@@ -4,6 +4,7 @@ from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .upload_handler import *
+from .build_unit_converter import *
 from .save import *
 from .models import Document
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
@@ -125,7 +126,8 @@ def initial_conditions(request):
             save_init(newConditions)
     context = {
         'icform': InitialConditionsForm,
-        'csv_field' : UploadInitFileForm
+        'csv_field' : UploadInitFileForm,
+        'unitTypes': getUnitTypes()
     }
     return render(request, 'conditions/initial.html', context)
 
@@ -278,3 +280,36 @@ def convert_values(request):
     else:
         response = {}
     return JsonResponse(response)
+
+
+def unit_options(request):
+    unit_type = request.GET['unitType']
+    response = make_unit_convert_form(unit_type)
+    return response
+
+
+# returns converted units
+def convert_calculator(request):
+    conversion_request = request.GET.dict()
+    args = [x for x in conversion_request if 'args' in x]
+    arg_dict = {}
+    for key in conversion_request:
+        if 'title' in key:
+            arg_dict.update({conversion_request[key]: float(conversion_request[key.replace('title', 'value')])})
+            arg_dict.update({conversion_request[key] + ' units': conversion_request[key.replace('title', 'unit')]})
+    converter = create_unit_converter(conversion_request['initialUnit'], conversion_request['finalUnit'])
+    if arg_dict:
+        new_value = converter(float(conversion_request['initialValue']), arg_dict)
+    else:
+        new_value = converter(float(conversion_request['initialValue']))
+
+    return HttpResponse(new_value)
+
+
+# returns form fields for additional arguments in conversion
+def unit_conversion_arguments(request):
+    initial = request.GET['initialUnit']
+    final = request.GET['finalUnit']
+    arguments = get_required_arguments(initial, final)
+    f = make_additional_argument_form(arguments)
+    return f

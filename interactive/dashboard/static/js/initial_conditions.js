@@ -315,4 +315,93 @@ $(document).ready(function(){
       }
     });
   });
+
+  // collapsable unit conversion tool
+  $('.view-calculator').click(function() {
+    if ($('#unit-conversion-calculator').attr('isHidden') == 'true') {
+    $('#unit-conversion-calculator').removeClass('col-hidden');
+    $('#unit-conversion-calculator').addClass('col-5');
+    $('.view-calculator').html('Hide calculator')
+    $('#unit-conversion-calculator').attr('isHidden', 'false')
+    } else {
+    $('#unit-conversion-calculator').addClass('col-hidden');
+    $('#unit-conversion-calculator').removeClass('col-5');
+    $('.view-calculator').html('Unit conversion calculator')
+    $('#unit-conversion-calculator').attr('isHidden', 'true')
+    }
+    
+  });
+
+  $("#hideConversionCalculator").click(function(){
+    $('#unit-conversion-calculator').addClass('col-hidden');
+    $('#unit-conversion-calculator').removeClass('col-5');
+    $('.view-calculator').html('Unit conversion calculator')
+    $('#unit-conversion-calculator').attr('isHidden', 'true')
+  });
+  
+
+  //add additional argument if needed
+  $(document).on('change', ".unit-select", function() {
+    var initialUnit = $("#initialValueUnit").val();
+    var finalUnit = $("#finalValueUnit").val();
+    $.ajax({
+      url: "/conditions/unit-conversion-arguments",
+      type: 'get',
+      data: {
+        "initialUnit": initialUnit,
+        'finalUnit': finalUnit
+      },
+      success: function(response){
+        $("#additionalArgumentsHolder").html(response);
+      }
+    });
+  });
+
+  //get unit options
+  $(document).on('change', "#selectUnitType", function() {
+    var unitType = $(this).val();
+    $.ajax({
+      url: "/conditions/unit-options",
+      type: 'get',
+      data: {
+        "unitType": unitType
+      },
+      success: function(response){
+        $("#conversionForm").html(response)
+      }
+    });
+  });
+
+  //submit calculator
+  $(document).on('click', "#convertSubmit", function() {
+    initialValue = $("#initialValue").val();
+    initialUnit = $("#initialValueUnit").val();
+    finalUnit = $("#finalValueUnit").val();
+    additionalInputs = $("#additionalArgumentsHolder").children();
+    var argData = []
+    $.each(additionalInputs, function(i, inputGroup){
+      var title = $(inputGroup).find('span').html();
+      var unit = $(inputGroup).find('select').val();
+      var value = $(inputGroup).find('input').val();
+      var argDict = {"title": title, "unit": unit, "value": value}
+      argData.push(argDict);
+    });
+
+
+    $.ajax({
+      url: "/conditions/conversion-calculator",
+      type: 'get',
+      data: {
+        "initialUnit": initialUnit,
+        "initialValue": initialValue,
+        'finalUnit': finalUnit,
+        'args': argData
+      },
+      success: function(response){
+        $("#convertedValue").html(response)
+      }
+    });
+  });
+  
+
 });

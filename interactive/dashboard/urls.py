@@ -39,6 +39,9 @@ urlpatterns = [
     path('conditions/report', views.report_bug),
         #unit conversion paths
     path('conditions/convert', views.convert_values),
+    path('conditions/unit-options', views.unit_options), # returns unit options for unit type in unit conversion tool
+    path('conditions/conversion-calculator', views.convert_calculator),
+    path('conditions/unit-conversion-arguments', views.unit_conversion_arguments),
     # -----------------------------------
     #file download paths:
     path('download_config', views.download_file),
