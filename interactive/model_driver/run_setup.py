@@ -20,6 +20,8 @@ error_path = os.path.join(mb_dir, 'error.json')
 copy_path = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/past.csv')
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")
 old_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/old_config.json")
+complete_path = os.path.join(mb_dir, 'MODEL_RUN_COMPLETE')
+
 
 config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.json')
 
@@ -57,6 +59,8 @@ def setup_run():
     if not reactions_are_valid():
         return {'model_running': False, 'error_message': 'At least one reaction must be present for the model to run.'}
 
+    if os.path.isfile(complete_path):
+        os.remove(complete_path)
     if os.path.isfile(out_path):
         os.remove(out_path)
     if os.path.isfile(error_path):
