@@ -29,6 +29,8 @@ $(document).ready(function(){
       return "First-order loss";
     } else if (reaction_type == "PHOTOLYSIS") {
       return "Photolysis";
+    } else if (reaction_type == "TERNARY_CHEMICAL_ACTIVATION") {
+      return "Ternary chemical activation";
     } else if (reaction_type == "TROE") {
       return "Troe";
     } else {
@@ -241,6 +243,7 @@ $(document).ready(function(){
       { key: "EMISSION", label: reaction_type_label("EMISSION") },
       { key: "FIRST_ORDER_LOSS", label: reaction_type_label("FIRST_ORDER_LOSS") },
       { key: "PHOTOLYSIS", label: reaction_type_label("PHOTOLYSIS") },
+      { key: "TERNARY_CHEMICAL_ACTIVATION", label: reaction_type_label("TERNARY_CHEMICAL_ACTIVATION") },
       { key: "TROE", label: reaction_type_label("TROE") }
     ];
     return `
