@@ -70,5 +70,8 @@ conversionTree = {
 
     },
     'height': {},
-    'molar mass': {}
+    'molar mass': {},
+    'density': {
+        'base unit type': "standard density"
+    }
 }
