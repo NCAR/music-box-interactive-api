@@ -78,7 +78,7 @@ def output_plot(prop, plot_units):
     if plot_units:
         converter = vectorize(create_unit_converter(model_output_units, plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], number_density=csv['ENV.number_density_air'], nd_units=model_output_units)
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol/m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -103,11 +103,12 @@ def output_plot(prop, plot_units):
             ppm_to_plot_units = create_unit_converter('ppm', plot_units)
         else:
             ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
-            
+
         if is_density_needed('ppm', plot_units):
-            tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), number_density=float(csv['ENV.number_density_air'].iloc[[-1]]), nd_units='mol/m-3')
+            tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), {'density': float(csv['ENV.number_density_air'].iloc[[-1]]), 'density units': 'mol/m-3 '})
         else:
             tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
+
         #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
         tolerance_yrange_factor = 5
         ymax_minimum = tolerance_yrange_factor * tolerance

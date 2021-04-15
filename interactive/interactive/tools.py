@@ -103,8 +103,8 @@ def create_unit_converter(initial_unit, final_unit):
 
 def is_density_needed(a, b):
     units = unitDict
-    type_a = units[a]['type']
-    type_b = units[b]['type']
+    type_a = units[a]['subtype']
+    type_b = units[b]['subtype']
     if type_a == type_b:
         return False
     else:
