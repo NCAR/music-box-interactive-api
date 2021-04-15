@@ -42,7 +42,6 @@ class Unit:
                     convert_to_base_type = self.tree[initial_type][base_subtype][initial_subtype]['function']
                     convert_to_base_type_args = self.tree[initial_type][base_subtype][initial_subtype]['arguments']
                     convert_to_base_type_args = [x for x in convert_to_base_type_args if 'units' not in x]
-                    
                     convert_to_final_type = self.tree[initial_type][final_subtype][base_subtype]['function']
                     convert_to_final_type_args = self.tree[initial_type][final_subtype][base_subtype]['arguments']
                     convert_to_final_type_args = [i for i in convert_to_final_type_args if 'units' not in i]

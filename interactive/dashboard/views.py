@@ -78,7 +78,13 @@ def visualize(request):
     context = {
         'plots_list': plot_property_list
     }
-    return render(request, 'plots.html', context)
+    if os.path.isfile(csv_results_path):
+        if os.path.getsize(csv_results_path) != 0:
+            return render(request, 'plots.html', context)
+        else:
+            return HttpResponseRedirect('/')
+    else:
+        return HttpResponseRedirect('/')
 
 
 def conditions(request):
