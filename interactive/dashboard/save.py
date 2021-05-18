@@ -69,6 +69,7 @@ def initial_species_concentrations_save(initial_values):
     file_data["unit"] = units
     file_data["value"] = values
     dump_json('species.json', file_data)
+    export()
 
 
 #########################################
