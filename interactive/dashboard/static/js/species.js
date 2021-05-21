@@ -169,6 +169,7 @@ $(document).ready(function(){
 
   // show editable chemical species detail
   $(".species-detail-link").on('click', function(){
+    var speciesName =  $(this).attr('species');
     $.ajax({
       url: 'species-detail',
       type: 'get',
@@ -196,6 +197,8 @@ $(document).ready(function(){
               $('.species-detail .properties').append(property_input_html(key, "number", response[key]));
             }
           }
+          var url = 
+          $('#species-network-plot').html('<iframe title="Network plot" src="/mechanism/species-detail-network?name=' + speciesName + '"></iframe>')
         }
       }
     });
