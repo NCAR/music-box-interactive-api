@@ -198,7 +198,7 @@ $(document).ready(function(){
             }
           }
           var url = 
-          $('#species-network-plot').html('<iframe title="Network plot" src="/mechanism/species-detail-network?name=' + speciesName + '"></iframe>')
+          $('#species-network-plot').html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="/mechanism/species-detail-network?name=' + speciesName + '"></iframe>')
         }
       }
     });

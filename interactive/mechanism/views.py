@@ -105,5 +105,5 @@ def reaction_save_handler(request):
 # creates network plot
 def species_network_plotter(request):
     species = request.GET['name']
-    generate_network_plot()
+    generate_network_plot(species)
     return render(request, 'network_plot/plot.html')
