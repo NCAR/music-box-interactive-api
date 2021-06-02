@@ -6,6 +6,7 @@ from .reactions import *
 from .species import *
 import mimetypes
 from interactive.tools import *
+from .network_plot import *
 
 # returns a list of species whose concentrations can be specified
 def conditions_species_list_handler(request):
@@ -99,3 +100,10 @@ def reaction_save_handler(request):
     reaction_data = json.loads(request.body)
     reaction_save(reaction_data)
     return JsonResponse({})
+
+
+# creates network plot
+def species_network_plotter(request):
+    species = request.GET['name']
+    generate_network_plot(species)
+    return render(request, 'network_plot/plot.html')
