@@ -320,7 +320,7 @@ def reaction_type_schema(reaction_type):
             },
             'equation k' : {
                 'type' : 'math',
-                'value' : 'k = \\frac{k_0}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{1+(1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
+                'value' : 'k = \\frac{k_0}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{(1+1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
                 'description' : 'T: temperature (K); M: number density of air (# cm<sup>-3</sup>)'
             },
             'k0_A' : {
@@ -406,7 +406,7 @@ def reaction_type_schema(reaction_type):
             },
             'equation k' : {
                 'type' : 'math',
-                'value' : 'k = \\frac{k_0[\\mbox{M}]}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{1+(1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
+                'value' : 'k = \\frac{k_0[\\mbox{M}]}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{(1+1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
                 'description' : 'T: temperature (K); M: number density of air (# cm<sup>-3</sup>)'
             },
             'k0_A' : {
