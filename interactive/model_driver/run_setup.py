@@ -5,7 +5,7 @@ from django.conf import settings
 from interactive.tools import *
 from mechanism.reactions import reactions_are_valid
 from shutil import rmtree
-
+import json
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
@@ -35,7 +35,37 @@ def copyConfigFile(source, destination):
     g.write(content)
     g.close()
     configFile.close()
+
+reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
+species_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+
+
+def add_integrated_rates():
+    with open(reactions_path) as f:
+            r_data = json.loads(f.read())
+
+    with open(species_path) as h:
+            s_data = json.loads(h.read())
+
+    names_list = []
+    reactions = r_data['pmc-data'][0]['reactions']
+    for r in reactions:
+        reactants = [j for j in r['reactants']]
+        products = [m for m in r['products']]
+        name = "myrate__" + '_'.join(reactants) + "->" + '_'.join(products)
+        r['products'].update({name: {}})
+        names_list.append(name)
     
+    for name in names_list:
+        s_data['pmc-data'].append({"name": name, "type": "CHEM_SPEC"})
+
+    r_data['pmc-data'][0].update({'reactions': reactions})
+    with open(reactions_path, 'w') as g:
+        json.dump(r_data, g)
+    
+    with open(species_path, 'w') as i:
+        json.dump(s_data, i)
+
 
 def create_file_list():
     config = open_json('my_config.json')
@@ -53,6 +83,7 @@ def create_file_list():
             filelist.remove(name)
     return filelist
 
+
 def setup_run():
     if interface_solo:
         return {'model_running': False, 'error_message': 'Model not connected to interface.'}
@@ -65,6 +96,14 @@ def setup_run():
         os.remove(out_path)
     if os.path.isfile(error_path):
         os.remove(error_path)
+
+    with open(reactions_path) as h:
+        reactions_data = json.load(h)
+
+    with open(species_path) as j:
+        species_data = json.load(j)
+
+    add_integrated_rates()
 
     config = open_json('my_config.json')
 
@@ -93,6 +132,12 @@ def setup_run():
     for f in filelist:
         copyConfigFile(os.path.join('/build/mb_configuration', f), os.path.join('/build', f))
     process = subprocess.Popen([r'./music_box', r'./mb_configuration/my_config.json'], cwd=mb_dir)
+
+    with open(reactions_path, 'w') as k:
+        json.dump(reactions_data, k)
+
+    with open(species_path, 'w') as l:
+        json.dump(species_data, l)
 
     return {'model_running': True}
 

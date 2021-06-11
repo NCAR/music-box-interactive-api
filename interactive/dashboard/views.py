@@ -75,6 +75,9 @@ def visualize(request):
     csv = pandas.read_csv(csv_results_path)
     plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
     plot_property_list = [x.strip() for x in plot_property_list]
+    for x in csv.columns.tolist():
+        if "myrate" in x:
+            plot_property_list.append('RATE')
     context = {
         'plots_list': plot_property_list
     }

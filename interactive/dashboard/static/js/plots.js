@@ -69,7 +69,7 @@ $(document).ready(function(){
     if ($('#species').hasClass('btn-ncar-active')){
       var propType = 'CONC.'
     } else if ($('#rates').hasClass('btn-ncar-active')){
-      var propType = 'RATE.'
+      var propType = 'CONC.myrate__'
     } else if ($('#env').hasClass('btn-ncar-active')){
       var propType = 'ENV.'
     }
