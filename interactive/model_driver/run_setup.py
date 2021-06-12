@@ -50,10 +50,21 @@ def add_integrated_rates():
     names_list = []
     reactions = r_data['pmc-data'][0]['reactions']
     for r in reactions:
-        reactants = [j for j in r['reactants']]
-        products = [m for m in r['products']]
+        if 'reactants' in r:
+            reactants = [j for j in r['reactants']]
+        else:
+            reactants = ['null']
+        if 'products' in r:
+            products = [m for m in r['products']]
+        else:
+            products = ['null']    
         name = "myrate__" + '_'.join(reactants) + "->" + '_'.join(products)
-        r['products'].update({name: {}})
+        if 'type' in r:
+            name = name + "__" + r['type']
+        if 'products' not in r:
+            r.update({'products': {name: {}}})
+        else:
+            r['products'].update({name: {}})
         names_list.append(name)
     
     for name in names_list:
