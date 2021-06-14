@@ -118,6 +118,7 @@ def output_plot(prop, plot_units):
             if ymax_minimum > property_maximum:
                 axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
         else:
+            name = name.split('__')[1]
             axes.set_ylabel(r"(mol/m^3 s^-1)")
             axes.set_title(name)
     elif prop.split('.')[0] == 'ENV':

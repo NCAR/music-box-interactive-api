@@ -60,7 +60,7 @@ def add_integrated_rates():
             products = ['null']    
         name = "myrate__" + '_'.join(reactants) + "->" + '_'.join(products)
         if 'type' in r:
-            name = name + "__" + r['type']
+            name = name + "_" + r['type']
         if 'products' not in r:
             r.update({'products': {name: {}}})
         else:
