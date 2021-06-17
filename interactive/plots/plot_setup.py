@@ -32,9 +32,10 @@ def sub_props(prop):
     env = list([])
     for i in titles:
         if 'CONC' in i:
-            spec.append(str(i).split('.')[1].rstrip())
-        elif 'RATE' in i:
-            rate.append(str(i).split('.')[1].rstrip())
+            if 'myrate__' not in i:
+                spec.append(str(i).split('.')[1].rstrip())
+            else:
+                rate.append(str(i).split('myrate__')[1].rstrip())
         elif 'ENV' in i:
             env.append(str(i).split('.')[1].rstrip())
     if prop == 'species':
@@ -96,29 +97,30 @@ def output_plot(prop, plot_units):
     axes.set_xlabel(r"time / s")
     name = prop.split('.')[1]
     if prop.split('.')[0] == 'CONC':
-        axes.set_ylabel("("+plot_units+")")
-        axes.set_title(name)
-        #unit converter for tolerance      
-        if plot_units:
-            ppm_to_plot_units = create_unit_converter('ppm', plot_units)
+        if 'myrate__' not in prop.split('.')[1]:
+            axes.set_ylabel("("+plot_units+")")
+            axes.set_title(name)
+            #unit converter for tolerance      
+            if plot_units:
+                ppm_to_plot_units = create_unit_converter('ppm', plot_units)
+            else:
+                ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
+
+            if is_density_needed('ppm', plot_units):
+                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), {'density': float(csv['ENV.number_density_air'].iloc[[-1]]), 'density units': 'mol/m-3 '})
+            else:
+                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
+
+            #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
+            tolerance_yrange_factor = 5
+            ymax_minimum = tolerance_yrange_factor * tolerance
+            property_maximum = csv[prop.strip()].max()
+            if ymax_minimum > property_maximum:
+                axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
         else:
-            ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
-
-        if is_density_needed('ppm', plot_units):
-            tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), {'density': float(csv['ENV.number_density_air'].iloc[[-1]]), 'density units': 'mol/m-3 '})
-        else:
-            tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
-
-        #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
-        tolerance_yrange_factor = 5
-        ymax_minimum = tolerance_yrange_factor * tolerance
-        property_maximum = csv[prop.strip()].max()
-        if ymax_minimum > property_maximum:
-            axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
-
-    elif prop.split('.')[0] == 'RATE':
-        axes.set_ylabel(r"(mol/m^3 s^-1)")
-        axes.set_title(name)
+            name = name.split('__')[1]
+            axes.set_ylabel(r"(mol/m^3 s^-1)")
+            axes.set_title(name)
     elif prop.split('.')[0] == 'ENV':
         axes.set_title(sub_props_names(name))
         if name == 'temperature':
