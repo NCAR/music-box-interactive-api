@@ -89,6 +89,15 @@ def visualize(request):
     else:
         return HttpResponseRedirect('/')
 
+###############
+
+#Flow diagram page
+
+def flow(request):
+    context = {
+        "species": ['O2', 'O3', "NO3"]
+    }
+    return render(request, 'flow.html', context)
 
 def conditions(request):
     export()

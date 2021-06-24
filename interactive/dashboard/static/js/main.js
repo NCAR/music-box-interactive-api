@@ -21,6 +21,7 @@ $(document).ready(function(){
       <small class='nav-section'>ANALYSIS</small>
       <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph oi-prefix'></span>Plot Results</a>
       <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download oi-prefix'></span>Download</a>
+      <a class='nav-link' id='flow-diagram-link' href='/flow'><span class='oi oi-graph oi-prefix'></span>Flow Diagram</a>
       `);
   }
 
