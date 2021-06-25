@@ -21,7 +21,7 @@ $(document).ready(function(){
       <small class='nav-section'>ANALYSIS</small>
       <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph oi-prefix'></span>Plot Results</a>
       <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download oi-prefix'></span>Download</a>
-      <a class='nav-link' id='flow-diagram-link' href='/flow'><span class='oi oi-graph oi-prefix'></span>Flow Diagram</a>
+      <a class='nav-link' id='flow-diagram-link' href='/flow'><span class='oi oi-fork oi-prefix'></span>Flow Diagram</a>
       `);
   }
 
@@ -81,5 +81,37 @@ $(document).ready(function(){
   $("#runMB").on('click', function(){
     $('#runMB').attr('emphasis', 'false')
   });
+
+  // flow diagram menu items on click
+  $(".flow-species-item").on('click', function(){
+    var id = $(this).attr('id');
+    if ($("#" + id).hasClass('active')) {
+      $("#" + id).removeClass('active')
+    } else {
+      $("#" + id).addClass('active')
+    }
+    
+    var includedSpecies = []
+
+    $.each($("#flow-species-menu-list").children(), function(i, value){
+      if ($(value).hasClass('active')) {
+        includedSpecies.push($(value).html())
+      }
+    });
+
+    $.ajax({
+      url:'get_flow',
+      type: 'get',
+      data: {
+        "includedSpecies": includedSpecies,
+        "startStep": $("#flow-start-range").val(),
+        "endStep": $("#flow-end-range").val(),
+        "maxArrowWidth": $("#flow-arrow-width-range").val(),
+        "arrowScalingType": $("#flow-scale-select").val(),
+      }
+    })
+
+  });
+
 
 });

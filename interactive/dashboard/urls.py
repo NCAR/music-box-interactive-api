@@ -10,6 +10,7 @@ urlpatterns = [
     path('getting_started', views.getting_started_page),
     path('visualize', views.visualize),
     path('flow', views.flow),
+    path('get_flow', views.get_flow),
     # -----------------------------------
     #conditions pages rendering paths:
     path('conditions', views.options),

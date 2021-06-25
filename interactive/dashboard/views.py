@@ -95,9 +95,16 @@ def visualize(request):
 
 def flow(request):
     context = {
-        "species": ['O2', 'O3', "NO3"]
+        "species": ['O2', 'O3', "NO3"],
+        "simulation_length": 1000
     }
     return render(request, 'flow.html', context)
+
+def get_flow(request):
+    return HttpResponse()
+
+
+############
 
 def conditions(request):
     export()
