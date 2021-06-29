@@ -3,6 +3,7 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
+from .flow_diagram import generate_flow_diagram
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
@@ -91,17 +92,22 @@ def visualize(request):
 
 ###############
 
-#Flow diagram page
+###   Flow diagram page
 
+#Base page render
 def flow(request):
+
     context = {
         "species": ['O2', 'O3', "NO3"],
         "simulation_length": 1000
     }
     return render(request, 'flow.html', context)
 
+#Flow diagram render
 def get_flow(request):
-    return HttpResponse()
+
+    generate_flow_diagram(request.GET.dict())
+    return render(request, 'network_plot/flow_plot.html')
 
 
 ############
