@@ -13,25 +13,33 @@ path_to_species = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_
 path_to_template = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
 
 
+#returns length of csv
+def get_simulation_length():
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv = pd.read_csv(csv_results_path)
+    return csv.shape[0]
+
 #scales values linearly- smallest becomses 1 and largest becomes maxwidth
 def relative_linear_scaler(maxWidth, di):
-  li = di.items()
-  vals = [i[1] for i in li]
-  min_val = abs(min(vals))
-  range = max(vals) - min(vals)
-  scaled = [(x[0], (((x[1] + min_val)/range)* maxWidth) + 1) for x in vals]
-  return dict(scaled)
+    print(di)
+    li = di.items()
+    vals = [i[1] for i in li]
+    min_val = abs(min(vals))
+    range = max(vals) - min(vals)
+    scaled = [(x[0], (((x[1] + min_val)/range)* maxWidth) + 1) for x in li]
+    return dict(scaled)
 
 
 #scales values on log- smallest becomes 1 and largest becomes maxwidth
 def relative_log_scaler(maxWidth, di):
-  li = di.items()
-  logged = [(i[0], math.log(i[1])) for i in li]
-  vals = [i[1] for i in logged]
-  min_val = abs(min(vals))
-  range = max(vals) - min(vals)
-  scaled = [(x[0], (((x[1] + min_val)/range)* maxWidth) + 1) for x in logged]
-  return dict(scaled)
+    print(di)
+    li = di.items()
+    logged = [(i[0], math.log(i[1])) for i in li]
+    vals = [i[1] for i in logged]
+    min_val = abs(min(vals))
+    range = max(vals) - min(vals)
+    scaled = [(x[0], (((x[1] + min_val)/range)* maxWidth) + 1) for x in logged]
+    return dict(scaled)
 
 
 # returns raw widths from dataframe
@@ -39,14 +47,15 @@ def trim_dataframe(df, start, end):
     for col in df.columns:
         col.strip()
 
-    rates_cols = [x for x in df.columns if 'RATE' in x]
+    rates_cols = [x for x in df.columns if 'myrate' in x]
     rates = df[rates_cols]
-    first_and_last = rates.iloc[[start], [end]]
+    first_and_last = rates.iloc[[start, end]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
     widths = {}
     for key in values:
         widths.update({key.split('.')[1]: values[key]})
+    widths = {key.split('__')[1]: widths[key] for key in widths}
     return widths
 
 

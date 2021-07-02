@@ -113,5 +113,29 @@ $(document).ready(function(){
 
   });
 
+  // sync range sliders and inputs
+  $("#flow-start-range").on('change', function(){
+    var newValue = $("#flow-start-range").val()
+    $("#flow-start-input").val(newValue)
+  });
+  $("#flow-end-range").on('change', function(){
+    var newValue = $("#flow-end-range").val()
+    $("#flow-end-input").val(newValue)
 
+  });
+  $("#flow-start-input").on('change', function(){
+    var newValue = $("#flow-start-input").val()
+    $("#flow-start-range").val(newValue)
+
+  });
+  $("#flow-end-input").on('change', function(){
+    var newValue = $("#flow-end-input").val()
+    $("#flow-end-range").val(newValue)
+// slider value display for arrow slider
+  });
+  $("#flow-arrow-width-range").on('change', function(){
+    var newValue = $("#flow-arrow-width-range").val()
+    $("#arrow-range-val-display").html(newValue)
+  });
+  
 });

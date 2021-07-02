@@ -3,7 +3,7 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .flow_diagram import generate_flow_diagram
+from .flow_diagram import generate_flow_diagram, get_simulation_length
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
@@ -99,7 +99,7 @@ def flow(request):
 
     context = {
         "species": ['O2', 'O3', "NO3"],
-        "simulation_length": 1000
+        "simulation_length": get_simulation_length()
     }
     return render(request, 'flow.html', context)
 
