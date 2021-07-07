@@ -3,7 +3,7 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .flow_diagram import generate_flow_diagram, get_simulation_length
+from .flow_diagram import generate_flow_diagram, get_simulation_length, get_species
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
@@ -16,6 +16,8 @@ from django.core.files import File
 from interactive.tools import *
 import pandas
 import platform
+import codecs
+
 
 def landing_page(request):
     context = {
@@ -98,16 +100,18 @@ def visualize(request):
 def flow(request):
 
     context = {
-        "species": ['O2', 'O3', "NO3"],
+        "species": get_species(),
         "simulation_length": get_simulation_length()
     }
     return render(request, 'flow.html', context)
 
 #Flow diagram render
 def get_flow(request):
+    path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
 
     generate_flow_diagram(request.GET.dict())
-    return render(request, 'network_plot/flow_plot.html')
+    file = codecs.open(path_to_diagram, 'r', 'utf-8')
+    return HttpResponse(file.read())
 
 
 ############

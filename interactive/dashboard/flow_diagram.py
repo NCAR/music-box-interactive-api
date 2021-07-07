@@ -13,11 +13,21 @@ path_to_species = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_
 path_to_template = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
 
 
+# returns species in csv
+def get_species():
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv = pd.read_csv(csv_results_path)
+    concs = [x for x in csv.columns if 'CONC' in x]
+    clean_concs = [x.split('.')[1] for x in concs if 'myrate' not in x]
+    return clean_concs
+
+
 #returns length of csv
 def get_simulation_length():
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pd.read_csv(csv_results_path)
-    return csv.shape[0]
+    return csv.shape[0] -1
+
 
 #scales values linearly- smallest becomses 1 and largest becomes maxwidth
 def relative_linear_scaler(maxWidth, di):
@@ -32,18 +42,19 @@ def relative_linear_scaler(maxWidth, di):
 
 #scales values on log- smallest becomes 1 and largest becomes maxwidth
 def relative_log_scaler(maxWidth, di):
-    print(di)
+    print(maxWidth)
     li = di.items()
     logged = [(i[0], math.log(i[1])) for i in li]
     vals = [i[1] for i in logged]
     min_val = abs(min(vals))
     range = max(vals) - min(vals)
-    scaled = [(x[0], (((x[1] + min_val)/range)* maxWidth) + 1) for x in logged]
+    scaled = [(x[0], (float(((x[1] + min_val)/range))* float(maxWidth)) + 1) for x in logged]
     return dict(scaled)
 
 
 # returns raw widths from dataframe
 def trim_dataframe(df, start, end):
+    print('trim function', start, end)
     for col in df.columns:
         col.strip()
 
@@ -74,7 +85,7 @@ def find_reactions(list_of_species, reactions_json):
 
         for species in list_of_species:
             if (species in products) or (species in reactants):
-                included.update({reaction: {}})
+                included.update({r_list.index(reaction): {}})
     return list(included)
 
 
@@ -92,7 +103,7 @@ def name_included_reactions(included_reactions, reactions_json):
             products = reaction['products']
         else:
             products = ['null']
-        name = '_'.join(reactants) + '-->' + '_'.join(products)
+        name = '_'.join(reactants) + '->' + '_'.join(products)
         names_dict.update({reaction_index: name})
     return names_dict
 
@@ -161,14 +172,17 @@ def generate_flow_diagram(request_dict):
         species_data = json.load(f)
 
     # make list of contained reactions for included species
-
-    selected_species = request_dict('includedSpecies')
+    selected_species = request_dict['includedSpecies[]']
     contained_reactions = find_reactions(selected_species, reactions_data)
     contained_reaction_names = name_included_reactions(contained_reactions, reactions_data)
     # make lists of edges and nodes
     network_content = find_edges_and_nodes(contained_reactions, contained_reaction_names, reactions_data, widths)
 
+    #add edges and nodes
     net = Network(directed=True)
-    net.add_edges(network_content['edges'])
     net.add_nodes(network_content['species_nodes'])
     net.add_nodes(network_content['reaction_nodes'])
+    net.add_edges(network_content['edges'])
+
+    #save as html
+    net.show(path_to_template)

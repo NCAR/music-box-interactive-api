@@ -108,6 +108,9 @@ $(document).ready(function(){
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
         "arrowScalingType": $("#flow-scale-select").val(),
+      },
+      success: function(response){
+        $("#flow-diagram-container").html()
       }
     })
 
