@@ -40,4 +40,16 @@ $(document).ready(function(){
     $("#" + $(this).attr('fileName')).collapse();
   });
 
+  // show/hide input file instructions
+  $(".show-hide-input-file-instructions").on('click', function(){
+    if ($(this).html() == "Show input file instructions") {
+      $(".input-file-instructions").css("display", "block");
+      $(this).html("Hide input file instructions");
+    } else {
+      $(".input-file-instructions").css("display", "none");
+      $(this).html("Show input file instructions");
+    }
+  });
+
+
 });
