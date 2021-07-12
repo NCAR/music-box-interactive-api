@@ -29,12 +29,12 @@ unitDict = {
         'mol/cm-3':{
             'type': 'concentration',
             'subtype': 'number density',
-            'factor': 1e6
+            'factor': 1e-6
         },
         'molecule/cm-3':{
             'type': 'concentration',
             'subtype': 'number density',
-            'factor': 6.0221415e29
+            'factor': 6.0221415e17
         },
         'kg/m-2':{
             'type': 'concentration',
