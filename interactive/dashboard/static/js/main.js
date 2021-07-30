@@ -98,19 +98,20 @@ $(document).ready(function(){
         includedSpecies.push($(value).html())
       }
     });
+    let stringed = includedSpecies.toString();
 
     $.ajax({
       url:'get_flow',
       type: 'get',
       data: {
-        "includedSpecies": includedSpecies,
+        "includedSpecies": stringed,
         "startStep": $("#flow-start-range").val(),
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
         "arrowScalingType": $("#flow-scale-select").val(),
       },
       success: function(response){
-        $("#flow-diagram-container").html()
+        $("#flow-diagram-container").html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
       }
     })
 

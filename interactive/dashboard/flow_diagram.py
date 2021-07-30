@@ -86,6 +86,8 @@ def find_reactions(list_of_species, reactions_json):
         for species in list_of_species:
             if (species in products) or (species in reactants):
                 included.update({r_list.index(reaction): {}})
+                print('prod,react', products, reactants, species)
+    print('included', list(included))
     return list(included)
 
 
@@ -136,6 +138,7 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
 
 # parent function for generating flow diagram
 def generate_flow_diagram(request_dict):
+
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -172,7 +175,7 @@ def generate_flow_diagram(request_dict):
         species_data = json.load(f)
 
     # make list of contained reactions for included species
-    selected_species = request_dict['includedSpecies[]']
+    selected_species = request_dict['includedSpecies'].split(',')
     contained_reactions = find_reactions(selected_species, reactions_data)
     contained_reaction_names = name_included_reactions(contained_reactions, reactions_data)
     # make lists of edges and nodes
@@ -180,9 +183,13 @@ def generate_flow_diagram(request_dict):
 
     #add edges and nodes
     net = Network(directed=True)
-    net.add_nodes(network_content['species_nodes'])
-    net.add_nodes(network_content['reaction_nodes'])
+    for s_node in network_content['species_nodes']:
+        net.add_node(s_node, color='blue', size='50')
+    for r_node in network_content['reaction_nodes']:
+        net.add_node(r_node, color='green')
+
     net.add_edges(network_content['edges'])
 
     #save as html
+    net.force_atlas_2based(gravity=-100, overlap=1)
     net.show(path_to_template)

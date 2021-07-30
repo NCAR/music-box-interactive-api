@@ -17,6 +17,7 @@ from interactive.tools import *
 import pandas
 import platform
 import codecs
+import time
 
 
 def landing_page(request):
@@ -110,9 +111,13 @@ def get_flow(request):
     path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
 
     generate_flow_diagram(request.GET.dict())
-    file = codecs.open(path_to_diagram, 'r', 'utf-8')
-    return HttpResponse(file.read())
+    return HttpResponse()
 
+
+def render_flow(request):
+    time.sleep(0.1)
+    path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+    return render(request, 'network_plot/flow_plot.html')
 
 ############
 
