@@ -15,6 +15,7 @@ from django.core.files import File
 from interactive.tools import *
 import pandas
 import platform
+from io import TextIOWrapper
 
 def landing_page(request):
     context = {
@@ -174,8 +175,9 @@ def initial_reaction_rates_save_handler(request):
 # input file upload
 def init_csv(request):
     if request.method == 'POST':
+        filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
-        uploaded_to_config(handle_uploaded_csv(uploaded))
+        manage_initial_conditions_files(uploaded, filename)
     return HttpResponseRedirect('/conditions/initial')
 
 

@@ -161,6 +161,12 @@ def export():
     else:
         evolves = {}
 
+    # gets initial conditions section if it exists
+    if 'initial conditions' in oldConfig:
+        initial_files = oldConfig['initial conditions']
+    else:
+        initial_files = {}
+
     config = {}
 
     # write model options section
@@ -206,13 +212,7 @@ def export():
     config.update({"chemical species": species_section})
     config.update({"environmental conditions": init_section})
     config.update({'evolving conditions': evolves})
-
-    # write initial reaction rates section
-
-    if os.path.isfile(initial_reaction_rates_file_path):
-        config.update({ "initial conditions" : { "initial_reaction_rates.csv" : { } } })
-    else:
-        config.pop("initial conditions", None)
+    config.update({'initial conditions': initial_files})
 
     config.update({
         "model components": [
