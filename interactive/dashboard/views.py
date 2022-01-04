@@ -141,6 +141,11 @@ def initial_conditions(request):
     }
     return render(request, 'conditions/initial.html', context)
 
+# returns the list of initial conditions files
+def initial_conditions_files_handler(request):
+    values = initial_conditions_files()
+    return JsonResponse(values)
+
 
 # returns the initial species concentrations
 def initial_species_concentrations_handler(request):

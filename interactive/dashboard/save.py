@@ -39,6 +39,14 @@ def default_units(prefix, name):
 # Initial species concentrations #
 ##################################
 
+# returns the initial conditions files
+def initial_conditions_files():
+    files = {}
+    config = open_json('my_config.json')
+    if 'initial conditions' in config:
+        files = config['initial conditions']
+    return files
+
 
 # returns the initial species concentrations
 def initial_species_concentrations():

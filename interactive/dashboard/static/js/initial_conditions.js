@@ -15,6 +15,48 @@ $(document).ready(function(){
     }
   });
 
+  // loads the list of initial conditions files
+  load_initial_conditions_files();
+  function load_initial_conditions_files() {
+    $.ajax({
+      url: 'initial-conditions-files',
+      type: 'get',
+      dataType: 'json',
+      data: {},
+      success: function(files) {
+        $("#initial-conditions-files-container").empty();
+        if (Object.keys(files).length < 1) return;
+        $("#initial-conditions-files-container").append(`
+          <div class="row">
+            <div class="col-8">File name</div>
+          </div>`);
+        for (key in files) {
+          $("#initial-conditions-files-container").append(initial_conditions_file_row_html());
+          $("#initial-conditions-files-container div:last-child .file-name").val(key);
+        }
+        $("#initial-conditions-files-container").append(`
+          <div class="row">
+            <div class="col-12">NOTE: Initial conditions set on this page will override those specified in input files</div>
+          </div>`);
+      }
+    });
+  }
+
+  // returns html for a row in the initial conditions files list
+  function initial_conditions_file_row_html() {
+    html = `
+      <div class="row my-1 row-data">
+        <div class="col-8">
+          <input type="text" class="form-control file-name" disabled>
+        </div>
+        <div class="col-2">
+          <button class="btn btn-secondary btn-remove-row">
+            Remove
+          </button>
+        </div>`;
+    return html;
+  }
+
   /*
    * Initial species concentrations
    */
