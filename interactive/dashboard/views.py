@@ -141,10 +141,20 @@ def initial_conditions(request):
     }
     return render(request, 'conditions/initial.html', context)
 
+
 # returns the list of initial conditions files
 def initial_conditions_files_handler(request):
     values = initial_conditions_files()
     return JsonResponse(values)
+
+
+# removes an initial conditions file
+def initial_conditions_file_remove_handler(request):
+    if request.method != "POST":
+        return JsonResponse({"error":"removing initial conditions files should be a POST request"})
+    remove_request = json.loads(request.body)
+    initial_conditions_file_remove(remove_request)
+    return JsonResponse({})
 
 
 # returns the initial species concentrations

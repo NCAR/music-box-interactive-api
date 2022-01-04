@@ -57,6 +57,28 @@ $(document).ready(function(){
     return html;
   }
 
+  // removes an input file
+  $('#initial-conditions-files-container').on('click', '.btn-remove-row', function() {
+    const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+    request = { "file name" : $(this).parent().parent().find(".file-name").val() };
+    $.ajax({
+      url:'initial-conditions-file-remove',
+      type: 'post',
+      headers: {'X-CSRFToken': csrftoken},
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify(request),
+      success: function(response) {
+        location.reload();
+      },
+      error: function(response) {
+        alert(response['error']);
+      }
+    });
+
+  });
+
+  // returns the html for a initial concentration row
   /*
    * Initial species concentrations
    */
