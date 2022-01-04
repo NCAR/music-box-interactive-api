@@ -18,6 +18,8 @@ urlpatterns = [
     # -----------------------------------
     #conditions pages editing and ajax paths:
         #initial conditions paths
+    path('conditions/initial-conditions-files', views.initial_conditions_files_handler),
+    path('conditions/initial-conditions-file-remove', views.initial_conditions_file_remove_handler),
     path('conditions/initial-species-concentrations', views.initial_species_concentrations_handler),
     path('conditions/initial-species-concentrations-save', views.initial_species_concentrations_save_handler),
     path('conditions/initial-reaction-rates', views.initial_reaction_rates_handler),

@@ -23,6 +23,38 @@ config_files_to_ignore = [
         'README'
         ]
 
+# reads csv file into dictionary
+def manage_initial_conditions_files(f, filename):
+    filetype = filename.split('.')[1]
+
+    content = f.read()
+    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+    g = open(destination, 'wb')
+    g.write(content)
+
+    # writes config json pointing to csv file
+    config = open_json('my_config.json')
+    if 'initial conditions' in config:
+        initials = config['initial conditions']
+    else:
+        initials = {}
+    initials.update({filename: {}})
+    config.update({'initial conditions': initials})
+    dump_json('my_config.json', config)
+
+
+# removes an initial conditions file
+def initial_conditions_file_remove(remove_request):
+    # remove file
+    filepath = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), remove_request['file name'])
+    os.remove(filepath)
+
+    # update config json
+    config = open_json('my_config.json')
+    del config['initial conditions'][remove_request['file name']]
+    dump_json('my_config.json', config)
+
+
 # handles all uploaded evolving conditions files
 def manage_uploaded_evolving_conditions_files(f, filename):
     filetype = filename.split('.')[1]

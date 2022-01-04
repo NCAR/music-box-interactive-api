@@ -15,6 +15,7 @@ from django.core.files import File
 from interactive.tools import *
 import pandas
 import platform
+from io import TextIOWrapper
 
 def landing_page(request):
     context = {
@@ -141,6 +142,21 @@ def initial_conditions(request):
     return render(request, 'conditions/initial.html', context)
 
 
+# returns the list of initial conditions files
+def initial_conditions_files_handler(request):
+    values = initial_conditions_files()
+    return JsonResponse(values)
+
+
+# removes an initial conditions file
+def initial_conditions_file_remove_handler(request):
+    if request.method != "POST":
+        return JsonResponse({"error":"removing initial conditions files should be a POST request"})
+    remove_request = json.loads(request.body)
+    initial_conditions_file_remove(remove_request)
+    return JsonResponse({})
+
+
 # returns the initial species concentrations
 def initial_species_concentrations_handler(request):
     values = initial_species_concentrations()
@@ -174,8 +190,9 @@ def initial_reaction_rates_save_handler(request):
 # input file upload
 def init_csv(request):
     if request.method == 'POST':
+        filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
-        uploaded_to_config(handle_uploaded_csv(uploaded))
+        manage_initial_conditions_files(uploaded, filename)
     return HttpResponseRedirect('/conditions/initial')
 
 
