@@ -25,8 +25,6 @@ config_files_to_ignore = [
 
 # reads csv file into dictionary
 def manage_initial_conditions_files(f, filename):
-    filetype = filename.split('.')[1]
-
     content = f.read()
     destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
     g = open(destination, 'wb')
@@ -57,8 +55,6 @@ def initial_conditions_file_remove(remove_request):
 
 # handles all uploaded evolving conditions files
 def manage_uploaded_evolving_conditions_files(f, filename):
-    filetype = filename.split('.')[1]
-    
     content = f.read()
     destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
     g = open(destination, 'wb')
