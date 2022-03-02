@@ -15,7 +15,7 @@ def species_info():
     with open(species_path) as f:
         camp_data = json.loads(f.read())
         f.close()
-    return camp_data['pmc-data']
+    return camp_data['camp-data']
 
 
 # returns the list of chemical species names from the species file
@@ -60,7 +60,7 @@ def species_remove(species_name):
             break
         index += 1
     json_data = {}
-    json_data['pmc-data'] = species
+    json_data['camp-data'] = species
     with open(species_path, 'w') as f:
         json.dump(json_data, f, indent=2)
         f.close()
@@ -71,8 +71,8 @@ def species_save(species_data):
     logging.info("saving species '" + species_data['name'] + "'")
     json_data = {}
     species_convert_from_SI(species_data)
-    json_data['pmc-data'] = species_info()
-    json_data['pmc-data'].append(species_data)
+    json_data['camp-data'] = species_info()
+    json_data['camp-data'].append(species_data)
     with open(species_path, 'w') as f:
         json.dump(json_data, f, indent=2)
         f.close()
@@ -98,7 +98,7 @@ def tolerance_dictionary():
     with open(species_file_path) as f:
         species_file = json.loads(f.read())
     default_tolerance = 1e-14
-    species_list = species_file['pmc-data']
+    species_list = species_file['camp-data']
     for spec in species_list:
         if 'absolute tolerance' not in spec:
             spec.update({'absolute tolerance': default_tolerance})

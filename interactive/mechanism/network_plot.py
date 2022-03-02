@@ -15,12 +15,12 @@ def generate_network_plot(species):
 
     contained_reactions = {}
 
-    for r in reactions_data['pmc-data'][0]['reactions']:
+    for r in reactions_data['camp-data'][0]['reactions']:
         if 'reactants' in r:
             if species in r['reactants']:
-                contained_reactions.update({reactions_data['pmc-data'][0]['reactions'].index(r): {}})
+                contained_reactions.update({reactions_data['camp-data'][0]['reactions'].index(r): {}})
             if species in r['products']:
-                contained_reactions.update({reactions_data['pmc-data'][0]['reactions'].index(r): {}})
+                contained_reactions.update({reactions_data['camp-data'][0]['reactions'].index(r): {}})
 
     print(contained_reactions)
     nodes = {}
@@ -28,8 +28,8 @@ def generate_network_plot(species):
 
     if contained_reactions:
         for i in contained_reactions:
-            reactants = [x for x in reactions_data['pmc-data'][0]['reactions'][i]['reactants']]
-            products = [x for x in reactions_data['pmc-data'][0]['reactions'][i]['products']]
+            reactants = [x for x in reactions_data['camp-data'][0]['reactions'][i]['reactants']]
+            products = [x for x in reactions_data['camp-data'][0]['reactions'][i]['products']]
             first = '+'.join(reactants)
             second = '+'.join(products)
             name = first + '->' + second

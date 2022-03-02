@@ -125,7 +125,9 @@ def handle_uploaded_zip_config(f):
     with ZipFile(file_name, 'r') as zip:
         zip.extractall(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped"))
 
-    needed_files = ['my_config.json', 'camp_data/config.json', 'camp_data/reactions.json', 'camp_data/species.json', 'camp_data/tolerance.json']
+    camp_files = ['camp_data/config.json', 'camp_data/reactions.json', 'camp_data/species.json', 'camp_data/tolerance.json']
+    needed_files = ['my_config.json']
+    needed_files.extend(camp_files)
     with open(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config/my_config.json")) as f:
         config = json.loads(f.read())
 
@@ -140,6 +142,22 @@ def handle_uploaded_zip_config(f):
         if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config"), f)):
             logging.info('missing needed file from upload: ' + f)
             return False
+
+    #updates CAMP file format if necessary
+    for file_name in camp_files:
+        path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config"), file_name)
+        with open(path) as config_file:
+            file_data = json.loads(config_file.read())
+            config_file.close()
+        if 'pmc-files' in file_data.keys():
+            file_data['camp-files'] = file_data['pmc-files']
+            del file_data['pmc-files']
+        if 'pmc-data' in file_data.keys():
+            file_data['camp-data'] = file_data['pmc-data']
+            del file_data['pmc-data']
+        with open(path, 'w') as config_file:
+            json.dump(file_data, config_file, indent=2)
+            config_file.close()
 
     #copy files into config folder
     config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
