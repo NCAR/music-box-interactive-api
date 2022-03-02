@@ -48,7 +48,7 @@ def add_integrated_rates():
             s_data = json.loads(h.read())
 
     names_list = []
-    reactions = r_data['pmc-data'][0]['reactions']
+    reactions = r_data['camp-data'][0]['reactions']
     for r in reactions:
         if 'reactants' in r:
             reactants = [j for j in r['reactants']]
@@ -68,9 +68,9 @@ def add_integrated_rates():
         names_list.append(name)
     
     for name in names_list:
-        s_data['pmc-data'].append({"name": name, "type": "CHEM_SPEC"})
+        s_data['camp-data'].append({"name": name, "type": "CHEM_SPEC"})
 
-    r_data['pmc-data'][0].update({'reactions': reactions})
+    r_data['camp-data'][0].update({'reactions': reactions})
     with open(reactions_path, 'w') as g:
         json.dump(r_data, g)
     

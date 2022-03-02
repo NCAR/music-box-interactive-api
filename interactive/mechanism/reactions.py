@@ -16,7 +16,7 @@ def reactions_info():
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
         f.close()
-    return camp_data['pmc-data'][0]['reactions']
+    return camp_data['camp-data'][0]['reactions']
 
 
 # checks if the set of reactions is valid (ie if there is at least one reaction)
@@ -86,7 +86,7 @@ def reaction_remove(reaction_index):
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
         f.close()
-    camp_data['pmc-data'][0]['reactions'].pop(reaction_index)
+    camp_data['camp-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
         f.close()
@@ -101,9 +101,9 @@ def reaction_save(reaction_data):
     if 'index' in reaction_data:
         index = reaction_data['index']
         reaction_data.pop('index')
-        camp_data['pmc-data'][0]['reactions'][index] = reaction_data
+        camp_data['camp-data'][0]['reactions'][index] = reaction_data
     else:
-        camp_data['pmc-data'][0]['reactions'].append(reaction_data)
+        camp_data['camp-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
         f.close()
