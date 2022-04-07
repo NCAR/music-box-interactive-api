@@ -114,7 +114,7 @@ def output_plot(prop, plot_units):
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
             ymax_minimum = tolerance_yrange_factor * tolerance
-            property_maximum = csv[prop.strip()].max()
+            property_maximum = subset[str(prop.strip())].max()
             if ymax_minimum > property_maximum:
                 axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
         else:
