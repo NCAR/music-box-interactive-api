@@ -162,4 +162,5 @@ def plots_unit_select(prop):
         for choice in choices:
             response = response + '<option>' + choice + '</option>'
         response = response + '</select></div></div>'
+        response = response + '<label>Select Species to Plot:</label>' # create label for species selection
     return response
