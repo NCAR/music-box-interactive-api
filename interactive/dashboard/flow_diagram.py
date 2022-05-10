@@ -182,14 +182,16 @@ def generate_flow_diagram(request_dict):
     network_content = find_edges_and_nodes(contained_reactions, contained_reaction_names, reactions_data, widths)
 
     #add edges and nodes
-    net = Network(directed=True)
+    net = Network(height='100%', width='100%',directed=True) #force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
     for s_node in network_content['species_nodes']:
         net.add_node(s_node, color='blue', size='50')
+        print("[DEBUG] Added species node:", s_node)
     for r_node in network_content['reaction_nodes']:
         net.add_node(r_node, color='green')
-
+        print("[DEBUG] Added reaction node:", r_node)
+    print("[DEBUG] Finished Adding nodes:", net)
     net.add_edges(network_content['edges'])
-
+    print("[DEBUG] pushing new table to page")
     #save as html
     net.force_atlas_2based(gravity=-100, overlap=1)
     net.show(path_to_template)
