@@ -21,6 +21,7 @@ $(document).ready(function(){
       <small class='nav-section'>ANALYSIS</small>
       <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph oi-prefix'></span>Plot Results</a>
       <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download oi-prefix'></span>Download</a>
+      <a class='nav-link' id='flow-diagram-link' href='/flow'><span class='oi oi-fork oi-prefix'></span>Flow Diagram</a>
       `);
   }
 
@@ -79,6 +80,66 @@ $(document).ready(function(){
   // changes run button after click
   $("#runMB").on('click', function(){
     $('#runMB').attr('emphasis', 'false')
+  });
+
+  // flow diagram menu items on click
+  $(".flow-species-item").on('click', function(){
+    var id = $(this).attr('id');
+    if ($("#" + id).hasClass('active')) {
+      $("#" + id).removeClass('active')
+    } else {
+      $("#" + id).addClass('active')
+    }
+
+    var includedSpecies = []
+
+    $.each($("#flow-species-menu-list").children(), function(i, value){
+      if ($(value).hasClass('active')) {
+        includedSpecies.push($(value).html())
+      }
+    });
+    let stringed = includedSpecies.toString();
+
+    $.ajax({
+      url:'get_flow',
+      type: 'get',
+      data: {
+        "includedSpecies": stringed,
+        "startStep": $("#flow-start-range").val(),
+        "endStep": $("#flow-end-range").val(),
+        "maxArrowWidth": $("#flow-arrow-width-range").val(),
+        "arrowScalingType": $("#flow-scale-select").val(),
+      },
+      success: function(response){
+        $("#flow-diagram-container").html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
+      }
+    })
+
+  });
+
+  // sync range sliders and inputs
+  $("#flow-start-range").on('change', function(){
+    var newValue = $("#flow-start-range").val()
+    $("#flow-start-input").val(newValue)
+  });
+  $("#flow-end-range").on('change', function(){
+    var newValue = $("#flow-end-range").val()
+    $("#flow-end-input").val(newValue)
+
+  });
+  $("#flow-start-input").on('change', function(){
+    var newValue = $("#flow-start-input").val()
+    $("#flow-start-range").val(newValue)
+
+  });
+  $("#flow-end-input").on('change', function(){
+    var newValue = $("#flow-end-input").val()
+    $("#flow-end-range").val(newValue)
+// slider value display for arrow slider
+  });
+  $("#flow-arrow-width-range").on('change', function(){
+    var newValue = $("#flow-arrow-width-range").val()
+    $("#arrow-range-val-display").html(newValue)
   });
 
 });

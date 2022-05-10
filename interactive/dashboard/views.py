@@ -3,6 +3,7 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
+from .flow_diagram import generate_flow_diagram, get_simulation_length, get_species
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
@@ -15,6 +16,8 @@ from django.core.files import File
 from interactive.tools import *
 import pandas
 import platform
+import codecs
+import time
 from io import TextIOWrapper
 
 def landing_page(request):
@@ -90,6 +93,33 @@ def visualize(request):
     else:
         return HttpResponseRedirect('/')
 
+###############
+
+###   Flow diagram page
+
+#Base page render
+def flow(request):
+
+    context = {
+        "species": get_species(),
+        "simulation_length": get_simulation_length()
+    }
+    return render(request, 'flow.html', context)
+
+#Flow diagram render
+def get_flow(request):
+    path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+
+    generate_flow_diagram(request.GET.dict())
+    return HttpResponse()
+
+
+def render_flow(request):
+    time.sleep(0.1)
+    path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+    return render(request, 'network_plot/flow_plot.html')
+
+############
 
 def conditions(request):
     export()

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <p>
+        <h2>Integrated reaction rate flow diagrams</h2>
+        <h4>Click on species from the list and select your desired setting</h4>
+        <h5>This feature is experimental. Reload the page if problems arise.</h5>
+    </p>
+    <div class="row">
+        <div class="col-3" id="flow-sidebar-col">
+            <nav>
+                <ul class="list-group bg-ncar-menu-secondary p-2" id="flow-diagram-options">
+                    <form>
+                        <div class="list-group-item">
+                            <label for="flow-scale-select">Arrow width scaling:</label>
+                            <select class="form-select" id='flow-scale-select'>
+                                <option value="log">Log</option>
+                                <option value="linear">Linear</option>
+                            </select>
+                        </div>
+                        <div class="list-group-item">
+                            <label for="flow-arrow-width-range" class="form-label">Max arrow width:</label>
+                            <input type="range" class="form-range" min="1" max="15" value="10" id="flow-arrow-width-range">
+                            <h4 id="arrow-range-val-display">10</h4>
+                        </div>
+                        <div class="list-group-item">
+                            <label for="flow-start-range" class="form-label">Start time step:</label>
+                            <input type="range" class="form-range" value="1" min="1" max="{{ simulation_length }}" id="flow-start-range">
+                            <div class='col-xs-2'>
+                                <input type='number' class="form-control" value="1" id="flow-start-input">
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <label for="flow-end-range" class="form-label">End time step:</label>
+                            <input type="range" class="form-range" value="{{simulation_length}}" min="1" max="{{ simulation_length }}" id="flow-end-range">
+                            <div class='col-xs-2'>
+                                <input type='number' class="form-control" value="{{simulation_length}}" id="flow-end-input">
+                            </div>
+                        </div>
+                    </form>
+                </ul>
+                <ul id="flow-species-menu-list" class="list-group bg-ncar-menu-secondary p-2">
+                    {% for item in species %}
+                        <a id="li_{{item}}" class="list-group-item flow-species-item" href="#">{{item}}</a>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+        <div id="flow-diagram-container" class="col">
+        </div>
+    </div>
+</div>
+
+{% endblock %}
