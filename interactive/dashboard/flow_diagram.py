@@ -1,3 +1,4 @@
+from unicodedata import decimal
 from pyvis.network import Network
 import os
 import json
@@ -44,10 +45,20 @@ def relative_linear_scaler(maxWidth, di):
 def relative_log_scaler(maxWidth, di):
     print(maxWidth)
     li = di.items()
-    logged = [(i[0], math.log(i[1])) for i in li]
+    logged = []
+    for i in li:
+        # fail safe for null->null value and so we don't divide/log by 0
+        if str(i[0]) != 'null->null' and float(0.0) != float(i[1]):
+            # we cant take the log of a number less than 1/ FIGURE OUT WEIRD null->null error
+            print("adding i: "+str(i))
+            logged.append((i[0], math.log(i[1])))
+            
+    # logged = [(i[0], math.log(i[1])) for i in li]
     vals = [i[1] for i in logged]
     min_val = abs(min(vals))
     range = max(vals) - min(vals)
+    if max(vals) == min(vals): #case where we only have one element selected
+        range = 1
     scaled = [(x[0], (float(((x[1] + min_val)/range))* float(maxWidth)) + 1) for x in logged]
     return dict(scaled)
 
@@ -120,19 +131,22 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
         reaction = r_list[r_index]
         reaction_name = reactions_names_dict[r_index]
         r_nodes.append(reaction_name)
-        width = widths_dict[reaction_name]
-        if 'reactants' in reaction:
-            reactants = reaction['reactants']
-            for r in reactants:
-                edge = (r, reaction_name, width)
-                edges.update({edge: {}})
-                s_nodes.update({r: {}})
-        if 'products' in reaction:
-            products = reaction['products']
-            for p in products:
-                edge = (reaction_name, p, width)
-                edges.update({edge: {}})
-                s_nodes.update({p: {}})
+        try:
+            width = widths_dict[reaction_name]
+            if 'reactants' in reaction:
+                reactants = reaction['reactants']
+                for r in reactants:
+                    edge = (r, reaction_name, width)
+                    edges.update({edge: {}})
+                    s_nodes.update({r: {}})
+            if 'products' in reaction:
+                products = reaction['products']
+                for p in products:
+                    edge = (reaction_name, p, width)
+                    edges.update({edge: {}})
+                    s_nodes.update({p: {}})
+        except KeyError as e:
+            print("discovered key error, most likely the element's scaled width is 0")
     return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes}
 
 
@@ -188,12 +202,11 @@ def generate_flow_diagram(request_dict):
     # net.add_nodes(network_content['reaction_nodes'], color=['green' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
     # ********************* ^^^^ ABOVE CODE ADDS COLORS BUT ALSO CREATES VISUAL BUGS. FOR NOW JUST ADD NODES ^^^^ *********************
 
-    net.add_nodes(network_content['species_nodes'], color=['blue' for x in range(len(network_content['species_nodes']))]) # add all nodes at once and fill color array with blue
-    net.add_nodes(network_content['reaction_nodes'], color=['green' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
+    net.add_nodes(network_content['species_nodes']) # add all nodes at once and fill color array with blue
+    net.add_nodes(network_content['reaction_nodes'], color=['#FF7F7F' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
     
     # net.add_edges(network_content['edges'], title = [x for x in widths]) # add all edges at once and fill title array with widths
-    for x in widths:
-        print("width:", x)
+    
     net.add_edges(network_content['edges'])
     print(network_content['edges'])
     # print("[DEBUG] Finished Adding nodes + edges:", net)
