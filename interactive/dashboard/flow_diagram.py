@@ -37,7 +37,7 @@ def relative_linear_scaler(maxWidth, di):
     vals = [i[1] for i in li]
     min_val = abs(min(vals))
     range = max(vals) - min(vals)
-    scaled = [(x[0], (((x[1] + min_val)/range)* maxWidth) + 1) for x in li]
+    scaled = [(x[0], (((x[1] + min_val)/range)* int(maxWidth)) + 1) for x in li]
     return dict(scaled)
 
 
@@ -98,7 +98,7 @@ def find_reactions(list_of_species, reactions_json):
             if (species in products) or (species in reactants):
                 included.update({r_list.index(reaction): {}})
                 print('prod,react', products, reactants, species)
-    print('included', list(included))
+    # print('included', list(included))
     return list(included)
 
 

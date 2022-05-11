@@ -25,8 +25,8 @@
                         </div>
                         <div class="list-group-item">
                             <label for="flow-arrow-width-range" class="form-label">Max arrow width:</label>
-                            <input type="range" class="form-range" min="1" max="15" value="10" id="flow-arrow-width-range">
-                            <h4 id="arrow-range-val-display">10</h4>
+                            <input type="range" class="form-range" min="1" max="15" value="3" id="flow-arrow-width-range">
+                            <h4 id="arrow-range-val-display">3</h4>
                         </div>
                         <div class="list-group-item">
                             <p>
@@ -51,8 +51,12 @@
                                       $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
                                       document.getElementById("flow-start-range").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range").value = ui.values[ 1 ];
-                                    //   reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
-                                    }
+                                       //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
+                                    },
+                                    stop: function(event, ui) {
+                                        // reload graph when slider is released (a lot less stress on the server by waiting for the user to release the slider)
+                                        reloadGraph();
+                                        }
                                   });
                                 //   base values for the slider
                                   $( "#amount" ).val("1s - {{simulation_length}}s");
@@ -81,7 +85,7 @@
     #flow-species-menu-list {
         overflow-x: hidden;
                 overflow-y: auto;
-                height: 500px; /* make it so we can scroll in elements list, change this to change the menu height */
+                height: 300px; /* make it so we can scroll in elements list, change this to change the menu height */
     }
 footer {
     position: absolute;

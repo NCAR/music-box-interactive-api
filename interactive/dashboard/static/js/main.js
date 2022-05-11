@@ -1,5 +1,7 @@
+var currentlyLoadingGraph = false
 // helper function to reload graph (called when something other than elements changed)
 function reloadGraph() {
+  currentlyLoadingGraph = true
   var includedSpecies = []
 
     $.each($("#flow-species-menu-list").children(), function(i, value){
@@ -23,6 +25,7 @@ function reloadGraph() {
       },
       success: function(response){
         $("#flow-diagram-container").html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
+        currentlyLoadingGraph = false
       }
     });
 }
@@ -131,9 +134,9 @@ $(document).ready(function(){
     var newValue = $("#flow-start-range").val()
     $("#flow-start-input").val(newValue)
   });
-  $("#range-slider").on('change', function(){
-    reloadGraph();
-  });
+  // $("#range-slider").on('change', function(){
+  //   reloadGraph();
+  // });
   $("#flow-end-range").on('change', function(){
     var newValue = $("#flow-end-range").val()
     $("#flow-end-input").val(newValue)
@@ -157,4 +160,5 @@ $(document).ready(function(){
   $("#flow-scale-select").on('change', function(){
     reloadGraph();
   });
+  
 });
