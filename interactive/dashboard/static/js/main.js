@@ -1,3 +1,35 @@
+var currentlyLoadingGraph = false
+// helper function to reload graph (called when something other than elements changed)
+function reloadGraph() {
+  currentlyLoadingGraph = true
+  var includedSpecies = []
+
+    $.each($("#flow-species-menu-list").children(), function(i, value){
+      if ($(value).hasClass('active')) {
+        console.log("adding " +$(value).html().replace("☐ ", "").replace("☑ ", ""));
+        includedSpecies.push($(value).html().replace("☐ ", "").replace("☑ ", ""))
+      }
+    });
+    let stringed = includedSpecies.toString();
+    console.log("stringed: " + stringed);
+    console.log("asking for new plot graph")
+    $.ajax({
+      url:'get_flow',
+      type: 'get',
+      data: {
+        "includedSpecies": stringed,
+        "startStep": $("#flow-start-range").val(),
+        "endStep": $("#flow-end-range").val(),
+        "maxArrowWidth": $("#flow-arrow-width-range").val(),
+        "arrowScalingType": $("#flow-scale-select").val(),
+      },
+      success: function(response){
+        $("#flow-diagram-container").html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
+        currentlyLoadingGraph = false
+      }
+    });
+}
+
 $(document).ready(function(){
 
   // disables enter button, unless a button or link has focus
@@ -20,6 +52,7 @@ $(document).ready(function(){
     $('#post-run-links').html(`
       <small class='nav-section'>ANALYSIS</small>
       <a class='nav-link' id='plot-results-link' href='/visualize'><span class='oi oi-graph oi-prefix'></span>Plot Results</a>
+      <a class='nav-link' id='flow-diagram-link' href='/flow'><span class='oi oi-fork oi-prefix'></span>Flow Diagram</a>
       <a class='nav-link' id='download-link' href='/download'><span class='oi oi-data-transfer-download oi-prefix'></span>Download</a>
       `);
   }
@@ -80,5 +113,52 @@ $(document).ready(function(){
   $("#runMB").on('click', function(){
     $('#runMB').attr('emphasis', 'false')
   });
+  var sheet = window.document.styleSheets[0];
+  $(".flow-species-item").on('click', function(){
+    
+    var id = $(this).attr('id');
+    if ($("#" + id).hasClass('active')) {
+      $("#" + id).removeClass('active')
+      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.replace("☑ ", "☐ ");
+    } else {
+      $("#" + id).addClass('active')
+      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.replace("☐ ", "☑ ");
+    }
 
+    reloadGraph();
+
+  });
+
+  // sync range sliders and inputs
+  $("#flow-start-range").on('change', function(){
+    var newValue = $("#flow-start-range").val()
+    $("#flow-start-input").val(newValue)
+  });
+  // $("#range-slider").on('change', function(){
+  //   reloadGraph();
+  // });
+  $("#flow-end-range").on('change', function(){
+    var newValue = $("#flow-end-range").val()
+    $("#flow-end-input").val(newValue)
+
+  });
+  $("#flow-start-input").on('change', function(){
+    var newValue = $("#flow-start-input").val()
+    $("#flow-start-range").val(newValue)
+
+  });
+  $("#flow-end-input").on('change', function(){
+    var newValue = $("#flow-end-input").val()
+    $("#flow-end-range").val(newValue)
+// slider value display for arrow slider
+  });
+  $("#flow-arrow-width-range").on('change', function(){
+    var newValue = $("#flow-arrow-width-range").val()
+    $("#arrow-range-val-display").html(newValue)
+    reloadGraph();
+  });
+  $("#flow-scale-select").on('change', function(){
+    reloadGraph();
+  });
+  
 });

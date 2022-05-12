@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> <!-- scripts + styling for jquery min-max slider -->
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+<div class="container" style="max-width: 3000px;"> <!-- make better use of space by showing bigger plot -->
+    <p>
+        <h2>Integrated reaction rate flow diagrams</h2>
+        <h4>Click on species from the list and select your desired setting</h4>
+        <h5>This feature is experimental. Reload the page if problems arise.</h5>
+    </p>
+    <div class="row">
+        <div class="col-3" id="flow-sidebar-col">
+            <nav>
+                <ul class="list-group bg-ncar-menu-secondary p-2" id="flow-diagram-options">
+                    <form>
+                        <div class="list-group-item">
+                            <label for="flow-scale-select">Arrow width scaling:</label>
+                            <select class="form-select" id='flow-scale-select'>
+                                <option value="log">Log</option>
+                                <option value="linear">Linear</option>
+                            </select>
+                        </div>
+                        <div class="list-group-item">
+                            <label for="flow-arrow-width-range" class="form-label">Max arrow width: <h4 id="arrow-range-val-display">3</h4></label>
+                            <input type="range" class="form-range" min="1" max="15" value="3" id="flow-arrow-width-range">
+                            
+                        </div>
+                        <div class="list-group-item">
+                            <p>
+                                <label for="number">Time Range (seconds):</label>
+                                <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold;">
+                              </p>
+                                
+                              <div id="range-slider"></div>
+                              <!-- start-range and end-range elements used to track slider values -->
+                               <div id="flow-start-range" style="display: none;"></div>
+                               <div id="flow-end-range" style="display: none;"></div>
+                                <script>
+                               
+                                $( function() {
+                                  $( "#range-slider" ).slider({
+                                    range: true,
+                                    min: 1,
+                                    max: {{ simulation_length }},
+                                    values: [ 1, {{ simulation_length }} ],
+                                    slide: function( event, ui ) {
+                                        // update values when slider changed
+                                      $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
+                                      document.getElementById("flow-start-range").value = ui.values[ 0 ];
+                                      document.getElementById("flow-end-range").value = ui.values[ 1 ];
+                                       //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
+                                    },
+                                    stop: function(event, ui) {
+                                        // reload graph when slider is released (a lot less stress on the server by waiting for the user to release the slider)
+                                        reloadGraph();
+                                        }
+                                  });
+                                //   base values for the slider
+                                  $( "#amount" ).val("1s - {{simulation_length}}s");
+                                  document.getElementById("flow-start-range").value = 1;
+                                      document.getElementById("flow-end-range").value = {{simulation_length}};
+                                } );
+                               
+                                </script>
+                        </div>
+                    </form>
+                </ul>
+                <ul id="flow-species-menu-list" class="list-group bg-ncar-menu-secondary p-2">
+                    {% for item in species %}
+                        <a id="li_{{item}}" class="list-group-item flow-species-item" href="#">☐ {{item}}</a>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+        <div id="flow-diagram-container" class="col">
+        </div>
+    </div>
+</div>
+<!-- push footer down so it doesn't get in the way -->
+<style>
+    /* make it so we can scroll in elements list */
+    #flow-species-menu-list {
+        overflow-x: hidden;
+                overflow-y: auto;
+                height: 300px; /* make it so we can scroll in elements list, change this to change the menu height */
+    }
+/* footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+} */
+.ui-slider-handle {
+    background-color: #1863f9!important;
+    border-radius: 50%!important;
+}
+.ui-slider-range {
+    background-color: rgb(217, 222, 226)!important;
+}
+#range-slider {
+    border-radius: 25px!important;
+    height: .6em!important;
+}
+</style>
+{% endblock %}
