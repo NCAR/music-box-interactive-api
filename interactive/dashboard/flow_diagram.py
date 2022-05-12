@@ -50,7 +50,6 @@ def relative_log_scaler(maxWidth, di):
         # fail safe for null->null value and so we don't divide/log by 0
         if str(i[0]) != 'null->null' and float(0.0) != float(i[1]):
             # we cant take the log of a number less than 1/ FIGURE OUT WEIRD null->null error
-            print("adding i: "+str(i))
             logged.append((i[0], math.log(i[1])))
             
     # logged = [(i[0], math.log(i[1])) for i in li]
@@ -149,7 +148,13 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
             print("discovered key error, most likely the element's scaled width is 0")
     return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes}
 
-
+def createLegend():
+    x = -300
+    y = -250
+    legend_nodes = [
+       'Element', 'Reaction'
+    ]
+    return legend_nodes
 # parent function for generating flow diagram
 def generate_flow_diagram(request_dict):
 
@@ -202,12 +207,16 @@ def generate_flow_diagram(request_dict):
     # net.add_nodes(network_content['reaction_nodes'], color=['green' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
     # ********************* ^^^^ ABOVE CODE ADDS COLORS BUT ALSO CREATES VISUAL BUGS. FOR NOW JUST ADD NODES ^^^^ *********************
 
+    net.add_nodes(createLegend(), color=['#cfe0fd','#FF7F7F'], size=['7','7'], x=[-300,-300], y=[-250,-200])
+    for n in net.nodes:
+        n.update({'physics': False, 'fixed': True})
     net.add_nodes(network_content['species_nodes']) # add all nodes at once and fill color array with blue
     net.add_nodes(network_content['reaction_nodes'], color=['#FF7F7F' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
     
     # net.add_edges(network_content['edges'], title = [x for x in widths]) # add all edges at once and fill title array with widths
-    
+    print("added edges:", network_content['edges'])
     net.add_edges(network_content['edges'])
+    
     print(network_content['edges'])
     # print("[DEBUG] Finished Adding nodes + edges:", net)
     print("[DEBUG] pushing new table to page")
