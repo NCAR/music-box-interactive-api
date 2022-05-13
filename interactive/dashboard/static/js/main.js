@@ -29,10 +29,10 @@ function reloadGraph() {
         "startStep": $("#flow-start-range").val(),
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
-        "arrowScalingType": $("#flow-scale-select").val(),
+        "arrowScalingType": $("#flow-scale-select").val()
       },
       success: function(response){
-        $("#flow-diagram-container").html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
+        $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:175px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
         currentlyLoadingGraph = false
       }
     });
@@ -168,7 +168,6 @@ $(document).ready(function(){
   $("#flow-scale-select").on('change', function(){
     reloadGraph();
   });
-  
 });
 function handleShowBlockElementChange() {
   if(document.getElementById('show-elements').classList.contains("selected-menu-it")) {

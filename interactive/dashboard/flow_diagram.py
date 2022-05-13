@@ -124,6 +124,12 @@ def isBlocked(blocked, element_or_reaction):
         if bl in element_or_reaction and len(blocked) != 0:
             return True
     return False
+def beautifyReaction(reaction):
+    if '->' in reaction:
+        reaction = reaction.replace('->', ' → ')
+    if '_' in reaction:
+        reaction = reaction.replace('_', ' + ')
+    return reaction
 # generates dict with list of edges and list of nodes: di = {'edges': [], 'species_nodes': [], r_nodes: []}
 def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_json, widths_dict, blocked):
     edges = {}
@@ -143,13 +149,13 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
             reactions_colors.append("#FF7F7F")
         else:
             reactions_colors.append("#ededed")
-        r_nodes.append(reaction_name)
+        r_nodes.append(beautifyReaction(reaction_name))
         try:
             width = widths_dict[reaction_name]
             if 'reactants' in reaction:
                 reactants = reaction['reactants']
                 for r in reactants:
-                    edge = (r, reaction_name, width)
+                    edge = (r, beautifyReaction(reaction_name), width)
 
                     # move edges.update into the if statement to not have arrows between blocked elements
                     s_nodes.update({r: {}})
@@ -165,7 +171,7 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
             if 'products' in reaction:
                 products = reaction['products']
                 for p in products:
-                    edge = (reaction_name, p, width)
+                    edge = (beautifyReaction(reaction_name), p, width)
                     
                     
                     s_nodes.update({p: {}})

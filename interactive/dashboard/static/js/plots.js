@@ -1,3 +1,16 @@
+function beautifyReaction(reaction) {
+  reaction.replace('->', '→');
+  reaction.replace('_', ' + ');
+  
+  return reaction
+}
+function refreshTableNames() {
+  var children = document.getElementById('plotbar').children;
+  for (var i = 0; i < children.length; i++) {
+    var tableChild = children[i];
+    tableChild.innerHTML = beautifyReaction(tableChild.innerHTML);
+  }
+}
 $(document).ready(function(){
 
   // default plot sub-page
@@ -10,6 +23,7 @@ $(document).ready(function(){
       data: {"type": linkId},
       success: function(response){
         $("#plotbar").html(response);
+        refreshTableNames();
       }
     });
   }
@@ -34,11 +48,12 @@ $(document).ready(function(){
         data: {"type": linkId},
         success: function(response){
           $("#plotbar").html(response);
+          refreshTableNames();
         }
       });
     }
   });
-
+  refreshTableNames();
   //plot property buttons
   $(".prop").on('click', function(){
     var linkId = $(this).attr('id');
@@ -50,6 +65,7 @@ $(document).ready(function(){
       type: 'get',
       data: {"type": linkId},
       success: function(response){
+        refreshTableNames();
       }
     });
   });
@@ -84,9 +100,10 @@ $(document).ready(function(){
     }
 
     $('#plot').prepend('<img id="'+linkId.replace(">", "")+ 'plot"src="plots/get?type=' + prop + '&unit=' + plotUnit + '">'); // replace '>' with '' to get rid of invalid id
+    refreshTableNames();
     }
   });
-
+ 
   //update plot units from select
   $(document).on('change', "#plotsUnitSelect", function() {
     var unitName = $(this).val();
