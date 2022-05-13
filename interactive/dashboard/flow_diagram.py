@@ -121,7 +121,7 @@ def name_included_reactions(included_reactions, reactions_json):
 
 def isBlocked(blocked, element_or_reaction):
     for bl in blocked:
-        if bl in element_or_reaction and len(blocked) != 0:
+        if bl == element_or_reaction and len(blocked) != 0:
             return True
     return False
 def beautifyReaction(reaction):
@@ -145,10 +145,12 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
     for r_index in contained_reactions:
         reaction = r_list[r_index]
         reaction_name = reactions_names_dict[r_index]
-        if isBlocked(blocked, reaction_name) == False or len(blocked) == 0 or blocked == ['']:
-            reactions_colors.append("#FF7F7F")
-        else:
-            reactions_colors.append("#ededed")
+        # if isBlocked(blocked, reaction_name) == False or len(blocked) == 0 or blocked == ['']:
+        #     reactions_colors.append("#FF7F7F")
+        # else:
+        #     reactions_colors.append("#ededed")
+
+        reactions_colors.append("#FF7F7F")
         r_nodes.append(beautifyReaction(reaction_name))
         try:
             width = widths_dict[reaction_name]
@@ -157,35 +159,38 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
                 for r in reactants:
                     edge = (r, beautifyReaction(reaction_name), width)
 
-                    # move edges.update into the if statement to not have arrows between blocked elements
-                    s_nodes.update({r: {}})
-                    edges.update({edge: {}})
+                    
                     # check if in blocked list
                     if isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']:
-                        
+                        #if not blocked, dont add species node or edge
+                        edges.update({edge: {}})
+                        s_nodes.update({r: {}})
                         edge_colors.append("#94b8f8")
                         species_colors[r] = "#94b8f8"
-                    else:
-                        edge_colors.append("#ededed")
-                        species_colors[r] = "#ededed"
+
+                        
+                    # else:
+                        # edge_colors.append("#ededed")
+                        # species_colors[r] = "#ededed"
             if 'products' in reaction:
                 products = reaction['products']
                 for p in products:
                     edge = (beautifyReaction(reaction_name), p, width)
                     
                     
-                    s_nodes.update({p: {}})
-                    # move edges.update into the if statement to not have arrows between blocked elements
-                    edges.update({edge: {}})
+                    
                     # check if in blocked list
-                    if isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']:
+                    if isBlocked(blocked, p) == False or len(blocked) == 0 or blocked == ['']:
+                        #if not blocked, dont add species node or edge
                         
+                        edges.update({edge: {}})
+                        s_nodes.update({p: {}})
                         edge_colors.append("#94b8f8")
                         species_colors[r] = "#94b8f8"
-                    else:
-                        edge_colors.append("#ededed")
-                        species_colors[r] = "#ededed"
-        except KeyError as e:
+                    # else:
+                        # edge_colors.append("#ededed")
+                        # species_colors[r] = "#ededed"
+        except:
             print("discovered key error, most likely the element's scaled width is 0")
     return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes, 'edge_colors': edge_colors, 'species_colors': species_colors, 'reactions_colors': reactions_colors}
 
@@ -248,6 +253,7 @@ def generate_flow_diagram(request_dict):
     # for n in net.nodes:
     #     n.update({'physics': False, 'fixed': True})
     print("species nodes:", network_content['species_nodes'], "color nodes:", network_content['species_colors'])
+    print("reaction nodes:", network_content['reaction_nodes'], "edges:", network_content['edges'])
     net.add_nodes(network_content['reaction_nodes'], color=[x for x in network_content['reactions_colors']])
     for spec in network_content["species_nodes"]:
         network_content['species_colors'].setdefault(spec, "#94b8f8")

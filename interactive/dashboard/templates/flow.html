@@ -66,11 +66,49 @@
                                
                                 </script>
                         </div>
+                        <div class="list-group-item">
+                            <p>
+                                <label for="number">Filter range (mol m-3):</label>
+                                <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;">
+                              </p>
+                                
+                              <div id="range-slider2"></div>
+                              <!-- start-range and end-range elements used to track slider values -->
+                               <div id="flow-start-range2" style="display: none;"></div>
+                               <div id="flow-end-range2" style="display: none;"></div>
+                                <script>
+                               
+                                $( function() {
+                                  $( "#range-slider2" ).slider({
+                                    range: true,
+                                    min: 1,
+                                    max: {{ simulation_length }},
+                                    values: [ 1, {{ simulation_length }} ],
+                                    slide: function( event, ui ) {
+                                        // update values when slider changed
+                                      $( "#filterRange" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
+                                      document.getElementById("flow-start-range2").value = ui.values[ 0 ];
+                                      document.getElementById("flow-end-range2").value = ui.values[ 1 ];
+                                       //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
+                                    },
+                                    stop: function(event, ui) {
+                                        // reload graph when slider is released (a lot less stress on the server by waiting for the user to release the slider)
+                                        // reloadGraph();
+                                        }
+                                  });
+                                //   base values for the slider
+                                  $( "#filterRange" ).val("NULL - NULL");
+                                  document.getElementById("flow-start-range2").value = 1;
+                                    //   document.getElementById("flow-end-range2").value = {{simulation_length}};
+                                } );
+                               
+                                </script>
+                        </div>
                     </form>
                 </ul>
                 <ul style="padding-left:0; background-color: white;height: 60px; box-sizing: border-box;padding: 0.5rem; background-color: #D9D9D6; font-size:1vm;">
-                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Visualize</div> 
-                    <div id="block-elements" class="menu-it">Filter Elements</div>
+                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Add Elements</div> 
+                    <div id="block-elements" class="menu-it">Block Elements</div>
                 </ul>
                 <script>
                     document.getElementById("show-elements").addEventListener("click", handleShowBlockElementChange);
