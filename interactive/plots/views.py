@@ -2,7 +2,15 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .plot_setup import *
 from django.shortcuts import render
 from interactive.tools import *
-
+def beautifyReaction(reaction):
+    if '->' in reaction:
+        reaction = reaction.replace('->', ' → ')
+    if '__' in reaction:
+        reaction = reaction.replace('__', ' (')
+        reaction = reaction+")"
+    if '_' in reaction:
+        reaction = reaction.replace('_', ' + ')
+    return reaction
 # returns response with sub properties as buttons (species, rates, etc)
 def get_contents(request):
     if request.method == 'GET':
@@ -15,10 +23,10 @@ def get_contents(request):
     subs.sort()
     if prop != 'compare':
         for i in subs:
-            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' + i + '">☐ ' + sub_props_names(i) + "</a>")
+            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
     elif prop == 'compare':
         for i in subs:
-            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' + i + '">☐ ' + sub_props_names(i) + "</a>")
+            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
     return response
 
 

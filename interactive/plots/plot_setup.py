@@ -64,7 +64,12 @@ def sub_props_names(subprop):
     else:
         return subprop
 
-
+def beautifyReaction(reaction):
+    if '->' in reaction:
+        reaction = reaction.replace('->', ' → ')
+    if '_' in reaction:
+        reaction = reaction.replace('_', ' + ')
+    return reaction
 def output_plot(prop, plot_units):
     matplotlib.use('agg')
         
@@ -99,7 +104,7 @@ def output_plot(prop, plot_units):
     if prop.split('.')[0] == 'CONC':
         if 'myrate__' not in prop.split('.')[1]:
             axes.set_ylabel("("+plot_units+")")
-            axes.set_title(name)
+            axes.set_title(beautifyReaction(name))
             #unit converter for tolerance      
             if plot_units:
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
@@ -120,7 +125,7 @@ def output_plot(prop, plot_units):
         else:
             name = name.split('__')[1]
             axes.set_ylabel(r"(mol/m^3 s^-1)")
-            axes.set_title(name)
+            axes.set_title(beautifyReaction(name))
     elif prop.split('.')[0] == 'ENV':
         axes.set_title(sub_props_names(name))
         if name == 'temperature':
@@ -130,9 +135,9 @@ def output_plot(prop, plot_units):
         elif name == 'number_density_air':
             axes.set_ylabel(r"moles/m^3")
 
-    axes.legend()
+    # axes.legend()
     axes.grid(True)
-    
+    axes.get_legend().remove()
     # Store image in a string buffer
     buffer = io.BytesIO()
     figure.savefig(buffer, format='png')
