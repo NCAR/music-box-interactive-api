@@ -178,7 +178,7 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
                     # move edges.update into the if statement to not have arrows between blocked elements
                     edges.update({edge: {}})
                     # check if in blocked list
-                    if isBlocked(blocked, r) == False or len(blocked) is 0 or blocked == ['']:
+                    if isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']:
                         
                         edge_colors.append("#94b8f8")
                         species_colors[r] = "#94b8f8"
