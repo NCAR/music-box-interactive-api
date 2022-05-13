@@ -119,13 +119,19 @@ def name_included_reactions(included_reactions, reactions_json):
         names_dict.update({reaction_index: name})
     return names_dict
 
-
+def isBlocked(blocked, element_or_reaction):
+    for bl in blocked:
+        if bl in element_or_reaction and len(blocked) is not 0:
+            return True
+    return False
 # generates dict with list of edges and list of nodes: di = {'edges': [], 'species_nodes': [], r_nodes: []}
-def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_json, widths_dict):
+def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_json, widths_dict, blocked):
     edges = {}
     s_nodes = {}
     r_nodes = []
+    edge_colors = []
     r_list = reactions_json['camp-data'][0]['reactions']
+    print("blocked list:", blocked)
     for r_index in contained_reactions:
         reaction = r_list[r_index]
         reaction_name = reactions_names_dict[r_index]
@@ -136,17 +142,29 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
                 reactants = reaction['reactants']
                 for r in reactants:
                     edge = (r, reaction_name, width)
-                    edges.update({edge: {}})
+                    # print("checking if reaction is blocked:", reaction_name)
+                    # check if in blocked list
+                    if isBlocked(blocked, reaction_name) == False:
+                        edges.update({edge: {}})
+                        edge_colors.append("#cfe0fd")
+                    else:
+                        edge_colors.append("#ededed")
                     s_nodes.update({r: {}})
             if 'products' in reaction:
                 products = reaction['products']
                 for p in products:
                     edge = (reaction_name, p, width)
-                    edges.update({edge: {}})
+                    # print("checking if reaction is blocked:", reaction_name)
+                    # check if in blocked list
+                    if isBlocked(blocked, reaction_name) == False :
+                        edges.update({edge: {}})
+                        edge_colors.append("#FF7F7F")
+                    else:
+                        edge_colors.append("#ededed")
                     s_nodes.update({p: {}})
         except KeyError as e:
             print("discovered key error, most likely the element's scaled width is 0")
-    return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes}
+    return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes, 'edge_colors': edge_colors}
 
 def createLegend():
     x = -300
@@ -157,7 +175,6 @@ def createLegend():
     return legend_nodes
 # parent function for generating flow diagram
 def generate_flow_diagram(request_dict):
-
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -198,7 +215,7 @@ def generate_flow_diagram(request_dict):
     contained_reactions = find_reactions(selected_species, reactions_data)
     contained_reaction_names = name_included_reactions(contained_reactions, reactions_data)
     # make lists of edges and nodes
-    network_content = find_edges_and_nodes(contained_reactions, contained_reaction_names, reactions_data, widths)
+    network_content = find_edges_and_nodes(contained_reactions, contained_reaction_names, reactions_data, widths, request_dict['blockedSpecies'].split(','))
 
     #add edges and nodes
     net = Network(height='100%', width='100%',directed=True) #force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
@@ -207,15 +224,16 @@ def generate_flow_diagram(request_dict):
     # net.add_nodes(network_content['reaction_nodes'], color=['green' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
     # ********************* ^^^^ ABOVE CODE ADDS COLORS BUT ALSO CREATES VISUAL BUGS. FOR NOW JUST ADD NODES ^^^^ *********************
 
-    net.add_nodes(createLegend(), color=['#cfe0fd','#FF7F7F'], size=['7','7'], x=[-300,-300], y=[-250,-200])
-    for n in net.nodes:
-        n.update({'physics': False, 'fixed': True})
+    # net.add_nodes(createLegend(), color=['#cfe0fd','#FF7F7F'], size=['7','7'], x=[-300,-300], y=[-250,-200])
+    # for n in net.nodes:
+    #     n.update({'physics': False, 'fixed': True})
     net.add_nodes(network_content['species_nodes']) # add all nodes at once and fill color array with blue
     net.add_nodes(network_content['reaction_nodes'], color=['#FF7F7F' for x in range(len(network_content['reaction_nodes']))]) # all nodes at once and fill color array with green
     
-    # net.add_edges(network_content['edges'], title = [x for x in widths]) # add all edges at once and fill title array with widths
-    print("added edges:", network_content['edges'])
-    net.add_edges(network_content['edges'])
+
+    # for i in range(len(network_content['edges'])):
+    #     net.add_edge(network_content['edges'][i], title = network_content['edges'][i][2], color=network_content['edge_colors'][i])
+    net.add_edges(network_content['edges']) # add all edges at once and fill style array with dashed
     
     print(network_content['edges'])
     # print("[DEBUG] Finished Adding nodes + edges:", net)

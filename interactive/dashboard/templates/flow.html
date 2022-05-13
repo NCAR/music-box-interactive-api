@@ -9,7 +9,7 @@
     <p>
         <h2>Integrated reaction rate flow diagrams</h2>
         <h4>Click on species from the list and select your desired setting</h4>
-        <h5>This feature is experimental. Reload the page if problems arise.</h5>
+        <!-- <h5>This feature is experimental. Reload the page if problems arise.</h5> -->
     </p>
     <div class="row">
         <div class="col-3" id="flow-sidebar-col">
@@ -24,9 +24,9 @@
                             </select>
                         </div>
                         <div class="list-group-item">
-                            <label for="flow-arrow-width-range" class="form-label">Max arrow width: <h4 id="arrow-range-val-display">3</h4></label>
+                            <label for="flow-arrow-width-range" class="form-label">Max arrow width: </label>
                             <input type="range" class="form-range" min="1" max="15" value="3" id="flow-arrow-width-range">
-                            
+                            <h4 id="arrow-range-val-display">3</h4>
                         </div>
                         <div class="list-group-item">
                             <p>
@@ -68,11 +68,26 @@
                         </div>
                     </form>
                 </ul>
-                <ul id="flow-species-menu-list" class="list-group bg-ncar-menu-secondary p-2">
-                    {% for item in species %}
-                        <a id="li_{{item}}" class="list-group-item flow-species-item" href="#">☐ {{item}}</a>
-                    {% endfor %}
+                <ul style="padding-left:0; background-color: white;height: 45px; box-sizing: border-box;padding: 0.5rem; background-color: #D9D9D6; font-size:1vm;">
+                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Shown Elements</div> 
+                    <div id="block-elements" class="menu-it">Blocked Elements</div>
                 </ul>
+                <script>
+                    document.getElementById("show-elements").addEventListener("click", handleShowBlockElementChange);
+                    document.getElementById("block-elements").addEventListener("click", handleShowBlockElementChange);
+                </script>
+                    <ul id="flow-species-menu-list" class="list-group bg-ncar-menu-secondary p-2" style="width:100%; margin-top: -20px;">
+                        
+                        {% for item in species %}
+                            <a id="li_{{item}}" class="list-group-item flow-species-item" href="#">☐ {{item}}</a>
+                        {% endfor %}
+                    </ul>
+                    <ul id="blocked-elements-list" class="list-group bg-ncar-menu-secondary p-2" style="width:100%; margin-top: -20px; display:none;">
+                        
+                        {% for item in species %}
+                            <a id="li_{{item}}_blocked" class="blocked-list-group-item flow-species-item" href="#" style="">☐ {{item}}</a>
+                        {% endfor %}
+                    </ul>
             </nav>
         </div>
         <div id="flow-diagram-container" class="col">
@@ -85,14 +100,20 @@
     #flow-species-menu-list {
         overflow-x: hidden;
                 overflow-y: auto;
-                height: 300px; /* make it so we can scroll in elements list, change this to change the menu height */
+                height: 300px; /* Umake it so we can scroll in elements list, change this to change the menu height */
     }
-/* footer {
-    position: absolute;
+    #blocked-elements-list {
+        overflow-x: hidden;
+                overflow-y: auto;
+                height: 300px; /* Umake it so we can scroll in elements list, change this to change the menu height */
+    }
+footer {
+    /* position: absolute;
     bottom: 0;
     width: 100%;
-    height: auto;
-} */
+    height: auto; */
+    display: none;
+}
 .ui-slider-handle {
     background-color: #1863f9!important;
     border-radius: 50%!important;
@@ -103,6 +124,53 @@
 #range-slider {
     border-radius: 25px!important;
     height: .6em!important;
+}
+.menu-it {
+    width: 50%;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    color: #00797C;
+    padding: 0;
+    margin: 0;
+
+}
+.selected-menu-it{
+    /* border-bottom: 3px solid #00797C;
+     */
+     background-color: #00797C;
+     color:white;
+}
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+.blocked-list-group-item {
+    position: relative;
+    display: block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    background-color: #fff;
+    color: red;
+    border: 1px solid rgba(0,0,0,.125);
+}
+.blocked-list-group-item.active {
+    z-index: 2;
+    color: #fff;
+    background-color: red;
+    border-color: red;
+}
+.list-group-item.active {
+    z-index: 2;
+    color: #fff;
+    background-color: #00797C;
+    border-color: #00797C;
 }
 </style>
 {% endblock %}

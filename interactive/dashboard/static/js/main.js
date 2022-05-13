@@ -3,13 +3,20 @@ var currentlyLoadingGraph = false
 function reloadGraph() {
   currentlyLoadingGraph = true
   var includedSpecies = []
-
+  var blockedSpecies = []
     $.each($("#flow-species-menu-list").children(), function(i, value){
       if ($(value).hasClass('active')) {
-        console.log("adding " +$(value).html().replace("☐ ", "").replace("☑ ", ""));
         includedSpecies.push($(value).html().replace("☐ ", "").replace("☑ ", ""))
       }
     });
+
+    $.each($("#blocked-elements-list").children(), function(i, value){
+      if ($(value).hasClass('active')) {
+        blockedSpecies.push($(value).html().replace("☐ ", "").replace("☑ ", ""))
+      }
+    });
+
+
     let stringed = includedSpecies.toString();
     console.log("stringed: " + stringed);
     console.log("asking for new plot graph")
@@ -18,6 +25,7 @@ function reloadGraph() {
       type: 'get',
       data: {
         "includedSpecies": stringed,
+        "blockedSpecies": blockedSpecies.toString(),
         "startStep": $("#flow-start-range").val(),
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
@@ -162,3 +170,21 @@ $(document).ready(function(){
   });
   
 });
+function handleShowBlockElementChange() {
+  if(document.getElementById('show-elements').classList.contains("selected-menu-it")) {
+    //show blocked elements
+    document.getElementById('block-elements').classList.add("selected-menu-it");
+    document.getElementById('show-elements').classList.remove("selected-menu-it");
+    
+    document.getElementById("flow-species-menu-list").style.display = "none";
+    document.getElementById("blocked-elements-list").style.display = "flex";
+    
+  } else {
+    // show "show elements"
+    document.getElementById('show-elements').classList.add("selected-menu-it");
+    document.getElementById('block-elements').classList.remove("selected-menu-it");
+
+    document.getElementById("blocked-elements-list").style.display = "none";
+    document.getElementById("flow-species-menu-list").style.display = "flex";
+  }
+}
