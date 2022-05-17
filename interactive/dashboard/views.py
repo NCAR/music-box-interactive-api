@@ -109,12 +109,13 @@ def flow(request):
 #Flow diagram render
 def get_flow(request):
     path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
-
+    print("get_flow called")
     generate_flow_diagram(request.GET.dict())
     return HttpResponse()
 
 
 def render_flow(request):
+    
     time.sleep(0.1)
     path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
     return render(request, 'network_plot/flow_plot.html')

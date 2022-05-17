@@ -1,4 +1,5 @@
 from unicodedata import decimal
+from urllib import request
 from pyvis.network import Network
 import os
 import json
@@ -13,7 +14,12 @@ path_to_species = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_
 # path to output html file
 path_to_template = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
 
+raw_mol_rates = {}
+maxMol = -1
+minMol = 999999999999
 
+filteredMaxMol = -1
+filteredMinMol = 999999999999
 # returns species in csv
 def get_species():
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
@@ -47,6 +53,7 @@ def relative_log_scaler(maxWidth, di):
     li = di.items()
     logged = []
     for i in li:
+        print("got item", i)
         # fail safe for null->null value and so we don't divide/log by 0
         if str(i[0]) != 'null->null' and float(0.0) != float(i[1]):
             # we cant take the log of a number less than 1/ FIGURE OUT WEIRD null->null error
@@ -64,10 +71,22 @@ def relative_log_scaler(maxWidth, di):
 
 # returns raw widths from dataframe
 def trim_dataframe(df, start, end):
+    global maxMol
+    global minMol
+    global filteredMaxMol
+    global filteredMinMol
+    global raw_mol_rates
     print('trim function', start, end)
+
+    # reset min and max mol
+    maxMol = -1
+    minMol = 999999999999
+
+
+    raw_mol_rates = {}
     for col in df.columns:
         col.strip()
-
+    
     rates_cols = [x for x in df.columns if 'myrate' in x]
     rates = df[rates_cols]
     first_and_last = rates.iloc[[start, end]]
@@ -76,9 +95,22 @@ def trim_dataframe(df, start, end):
     widths = {}
     for key in values:
         widths.update({key.split('.')[1]: values[key]})
+        raw_mol_rates.update({key.split('.')[1]: values[key]})
+        # print("checking for max:", key, values[key], "max:", maxMol, " ====>",float(values[key]) > float(maxMol) or maxMol == -1)
+        # print("checking for min:", key, values[key], "min:", minMol, " ====>",float(values[key]) < float(minMol) or minMol == 999999999999)
+        if float(values[key]) > float(maxMol) or maxMol == -1:
+            #new max
+            maxMol = float(values[key])
+        if float(values[key]) < float(minMol) or minMol == 999999999999:
+            #new min
+            minMol = float(values[key])
     widths = {key.split('__')[1]: widths[key] for key in widths}
+    raw_mol_rates = {key.split('__')[1]: raw_mol_rates[key] for key in raw_mol_rates}
+    if filteredMaxMol == -1:
+        filteredMaxMol = maxMol
+    if filteredMinMol == 999999999999:
+        filteredMinMol = minMol
     return widths
-
 
 # make list of indexes of included reactions
 def find_reactions(list_of_species, reactions_json):
@@ -132,6 +164,9 @@ def beautifyReaction(reaction):
     return reaction
 # generates dict with list of edges and list of nodes: di = {'edges': [], 'species_nodes': [], r_nodes: []}
 def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_json, widths_dict, blocked):
+    global maxMol
+    global minMol
+    global raw_mol_rates
     edges = {}
     s_nodes = {}
     r_nodes = []
@@ -145,12 +180,13 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
     for r_index in contained_reactions:
         reaction = r_list[r_index]
         reaction_name = reactions_names_dict[r_index]
-        # if isBlocked(blocked, reaction_name) == False or len(blocked) == 0 or blocked == ['']:
-        #     reactions_colors.append("#FF7F7F")
-        # else:
-        #     reactions_colors.append("#ededed")
+        isInRange = (float(raw_mol_rates[reaction_name]) <= float(filteredMaxMol)) and (float(raw_mol_rates[reaction_name]) >= float(filteredMinMol))
+        if isInRange:
+            reactions_colors.append("#FF7F7F")
+        else:
+            print("out of range:", raw_mol_rates[reaction_name], " ===>", filteredMaxMol, filteredMinMol)
+            reactions_colors.append("#ededed")
 
-        reactions_colors.append("#FF7F7F")
         r_nodes.append(beautifyReaction(reaction_name))
         try:
             width = widths_dict[reaction_name]
@@ -158,40 +194,43 @@ def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_js
                 reactants = reaction['reactants']
                 for r in reactants:
                     edge = (r, beautifyReaction(reaction_name), width)
-
-                    
                     # check if in blocked list
-                    if isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']:
+                    if (isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']) and isInRange == True:
                         #if not blocked, dont add species node or edge
                         edges.update({edge: {}})
                         s_nodes.update({r: {}})
                         edge_colors.append("#94b8f8")
                         species_colors[r] = "#94b8f8"
-
+                    elif (isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']) and isInRange == False:
+                        #not in range, make grey
                         
-                    # else:
-                        # edge_colors.append("#ededed")
-                        # species_colors[r] = "#ededed"
+                        edges.update({edge: {}})
+                        s_nodes.update({r: {}})
+                        edge_colors.append("#ededed")
+                        species_colors[r] = "#ededed"
+
             if 'products' in reaction:
                 products = reaction['products']
                 for p in products:
                     edge = (beautifyReaction(reaction_name), p, width)
-                    
-                    
-                    
                     # check if in blocked list
-                    if isBlocked(blocked, p) == False or len(blocked) == 0 or blocked == ['']:
+                    if (isBlocked(blocked, p) == False or len(blocked) == 0 or blocked == ['']) and isInRange == True:
                         #if not blocked, dont add species node or edge
                         
                         edges.update({edge: {}})
                         s_nodes.update({p: {}})
                         edge_colors.append("#94b8f8")
                         species_colors[r] = "#94b8f8"
-                    # else:
-                        # edge_colors.append("#ededed")
-                        # species_colors[r] = "#ededed"
-        except:
+                    elif (isBlocked(blocked, p) == False or len(blocked) == 0 or blocked == ['']) and isInRange == False:
+                        #not in range, make grey
+                        edges.update({edge: {}})
+                        s_nodes.update({p: {}})
+                        edge_colors.append("#ededed")
+                        species_colors[p] = "#ededed"
+
+        except Exception as e:
             print("discovered key error, most likely the element's scaled width is 0")
+            print("error e:", e)
     return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes, 'edge_colors': edge_colors, 'species_colors': species_colors, 'reactions_colors': reactions_colors}
 
 def createLegend():
@@ -203,6 +242,11 @@ def createLegend():
     return legend_nodes
 # parent function for generating flow diagram
 def generate_flow_diagram(request_dict):
+    global filteredMaxMol
+    global filteredMinMol
+    if ('maxMolval' in request_dict and 'minMolval' in request_dict) and (request_dict['maxMolval'] != '' and request_dict['minMolval'] != ''):
+        filteredMaxMol = float(request_dict["maxMolval"])
+        filteredMinMol = float(request_dict["minMolval"])
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -249,9 +293,6 @@ def generate_flow_diagram(request_dict):
     net = Network(height='100%', width='100%',directed=True) #force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
 
 
-    # net.add_nodes(createLegend(), color=['#cfe0fd','#FF7F7F'], size=['7','7'], x=[-300,-300], y=[-250,-200])
-    # for n in net.nodes:
-    #     n.update({'physics': False, 'fixed': True})
     print("species nodes:", network_content['species_nodes'], "color nodes:", network_content['species_colors'])
     print("reaction nodes:", network_content['reaction_nodes'], "edges:", network_content['edges'])
     net.add_nodes(network_content['reaction_nodes'], color=[x for x in network_content['reactions_colors']])
@@ -260,12 +301,32 @@ def generate_flow_diagram(request_dict):
     net.add_nodes(network_content['species_nodes'], color=[network_content['species_colors'][x] for x in network_content['species_nodes']])
     
     
-
-    # for i in range(len(network_content['edges'])):
-    #     net.add_edge(network_content['edges'][i], title = network_content['edges'][i][2], color=network_content['edge_colors'][i])
-    net.add_edges(network_content['edges']) # add all edges at once and fill style array with dashed
+    net.add_edges(network_content['edges']) # add all edges
     
-    print("[DEBUG] pushing new table to page")
+    print("[DEBUG] pushing new table to page using url:",path_to_template)
     #save as html
     net.force_atlas_2based(gravity=-200, overlap=1)
     net.show(path_to_template)
+
+    with open(path_to_template, 'r+') as f:
+        ###################################################################################################################
+        # here we are going to replace the contents of the file with new html to avoid problems with cross-site scripting #
+        ###################################################################################################################
+        a = ''
+        if minMol == 999999999999 or maxMol == -1:
+            a = '<script>parent.document.getElementById("flow-start-range2").value = "NULL"; parent.document.getElementById("flow-end-range2").value = "NULL"; console.log("inputting NULL");'
+        
+        else:
+            a = '<script>parent.document.getElementById("flow-start-range2").value = "'+str('{:0.3e}'.format(minMol))+'"; parent.document.getElementById("flow-end-range2").value = "'+str('{:0.3e}'.format(maxMol))+'"; console.log("Overrided element values via cross scripting?");'
+        a = a + 'parent.document.getElementById("filterRange").value = parent.document.getElementById("flow-start-range2").value + " to " + parent.document.getElementById("flow-end-range2").value;' #update our filter range with new values
+        a = a + 'parent.reloadSlider("'+str(filteredMinMol)+'", "'+str(filteredMaxMol)+'");</script>' #destroy slider and update slider entirely
+        
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if line.startswith('</script>'):   # find a pattern so that we can add next to that line
+                lines[i] = lines[i]+a
+        f.truncate()
+        f.seek(0)  # rewrite into the file
+        for line in lines:
+            f.write(line)
+    

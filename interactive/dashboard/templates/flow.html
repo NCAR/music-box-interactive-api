@@ -68,8 +68,8 @@
                         </div>
                         <div class="list-group-item">
                             <p>
-                                <label for="number">Filter range (mol m-3):</label>
-                                <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;">
+                                <label for="number">Filter range (mol m<sup>-3</sup>):</label>
+                                <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;width: 100%;">
                               </p>
                                 
                               <div id="range-slider2"></div>
@@ -81,12 +81,12 @@
                                 $( function() {
                                   $( "#range-slider2" ).slider({
                                     range: true,
-                                    min: 1,
-                                    max: {{ simulation_length }},
-                                    values: [ 1, {{ simulation_length }} ],
+                                    min: 0,
+                                    max: 1,
+                                    values: [ 0,1 ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                      $( "#filterRange" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
+                                      $( "#filterRange" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] + "" );
                                       document.getElementById("flow-start-range2").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range2").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this

@@ -1,4 +1,29 @@
 var currentlyLoadingGraph = false
+function reloadSlider(firstVal, secondVal) {
+  var stepVal = (parseFloat(document.getElementById("flow-end-range2").value) - parseFloat(document.getElementById("flow-start-range2").value)) / 40;
+  console.log("step value: " + stepVal);
+  $( "#range-slider2", window.parent.document ).slider("destroy");
+  $( function() {
+    $( "#range-slider2",window.parent.document ).slider({
+      range: true,
+      min: parseFloat(document.getElementById("flow-start-range2").value),
+      max: parseFloat(document.getElementById("flow-end-range2").value),
+      step: stepVal,
+      values: [ firstVal, secondVal ],
+      // values: [ parseFloat(document.getElementById("flow-start-range2").value), parseFloat(document.getElementById("flow-end-range2").value) ],
+      slide: function( event, ui ) {
+          // update values when slider changed
+        $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(1) + " to " + parseFloat(ui.values[ 1 ]).toExponential(1) + "" );
+        document.getElementById("flow-start-range2").value = ui.values[ 0 ];
+        document.getElementById("flow-end-range2").value = ui.values[ 1 ];
+      },
+      stop: function(event, ui) {
+          // reload graph when slider is released (a lot less stress on the server by waiting for the user to release the slider)
+          reloadGraph();
+          }
+    });
+  } );
+}
 // helper function to reload graph (called when something other than elements changed)
 function reloadGraph() {
   currentlyLoadingGraph = true
@@ -29,11 +54,29 @@ function reloadGraph() {
         "startStep": $("#flow-start-range").val(),
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
-        "arrowScalingType": $("#flow-scale-select").val()
+        "arrowScalingType": $("#flow-scale-select").val(),
+        "minMolval": $("#flow-start-range2").val(),
+        "maxMolval": $("#flow-end-range2").val()
       },
       success: function(response){
-        $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:175px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
-        currentlyLoadingGraph = false
+        $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:200px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" id="graph-frame" title="Network plot" src="show_flow"></iframe>');
+        // CLIENT SIDE SLIDER CHANGES -- CHANGED TO SERVER SIDE flow_diagram.py
+        // var maxMol = $("iframe#graph-frame").contents().find("#max-mol").html();
+        //   var minMol = $("iframe#graph-frame").contents().find("#min-mol").html();
+        //   console.log(minMol);
+        //   console.log(minMol);
+        //   if (maxMol != parseFloat(-1) && minMol != parseFloat(999999999999) && maxMol != undefined && minMol != undefined && maxMol != NaN && minMol != NaN) {
+        //     $( "#filterRange" ).val(minMol +" - " + maxMol);
+        //     document.getElementById("flow-start-range2").value = minMol;
+        //     document.getElementById("flow-end-range2").value = maxMol;
+        //   } else {
+        //     $( "#filterRange" ).val("NULL - NULL");
+        //     document.getElementById("flow-start-range2").value = "0";
+        //     document.getElementById("flow-end-range2").value = "999999999999";
+        //   }
+        
+        // document.getElementById("flow-start-range2").value = ;
+        // document.getElementById("flow-end-range2").value = ui.values[ 1 ];
       }
     });
 }
