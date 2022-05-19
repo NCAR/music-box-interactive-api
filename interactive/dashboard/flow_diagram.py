@@ -1,3 +1,4 @@
+from re import I, L
 from unicodedata import decimal
 from urllib import request
 from pyvis.network import Network
@@ -6,7 +7,6 @@ import json
 from django.conf import settings
 import pandas as pd
 import math
-
 # paths to mechansim files
 path_to_reactions = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
 path_to_species = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
@@ -35,82 +35,6 @@ def get_simulation_length():
     csv = pd.read_csv(csv_results_path)
     return csv.shape[0] -1
 
-
-#scales values linearly- smallest becomses 1 and largest becomes maxwidth
-def relative_linear_scaler(maxWidth, di):
-    # print(di)
-    li = di.items()
-    vals = [i[1] for i in li]
-    min_val = abs(min(vals))
-    range = max(vals) - min(vals)
-    scaled = [(x[0], (((x[1] + min_val)/range)* int(maxWidth)) + 1) for x in li]
-    return dict(scaled)
-
-
-#scales values on log- smallest becomes 1 and largest becomes maxwidth
-def relative_log_scaler(maxWidth, di):
-    # print(maxWidth)
-    li = di.items()
-    logged = []
-    for i in li:
-        print("got item", i)
-        # fail safe for null->null value and so we don't divide/log by 0
-        if str(i[0]) != 'null->null' and float(0.0) != float(i[1]):
-            # we cant take the log of a number less than 1/ FIGURE OUT WEIRD null->null error
-            logged.append((i[0], math.log(i[1])))
-            
-    # logged = [(i[0], math.log(i[1])) for i in li]
-    vals = [i[1] for i in logged]
-    min_val = abs(min(vals))
-    range = max(vals) - min(vals)
-    if max(vals) == min(vals): #case where we only have one element selected
-        range = 1
-    scaled = [(x[0], (float(((x[1] + min_val)/range))* float(maxWidth)) + 1) for x in logged]
-    return dict(scaled)
-
-
-# returns raw widths from dataframe
-def trim_dataframe(df, start, end):
-    global maxMol
-    global minMol
-    global filteredMaxMol
-    global filteredMinMol
-    global raw_mol_rates
-    print('trim function', start, end)
-
-    # reset min and max mol
-    maxMol = -1
-    minMol = 999999999999
-
-
-    raw_mol_rates = {}
-    for col in df.columns:
-        col.strip()
-    
-    rates_cols = [x for x in df.columns if 'myrate' in x]
-    rates = df[rates_cols]
-    first_and_last = rates.iloc[[start, end]]
-    difference = first_and_last.diff()
-    values = dict(difference.iloc[-1])
-    widths = {}
-    for key in values:
-        widths.update({key.split('.')[1]: values[key]})
-        raw_mol_rates.update({key.split('.')[1]: values[key]})
-        # print("checking for max:", key, values[key], "max:", maxMol, " ====>",float(values[key]) > float(maxMol) or maxMol == -1)
-        # print("checking for min:", key, values[key], "min:", minMol, " ====>",float(values[key]) < float(minMol) or minMol == 999999999999)
-        if float(values[key]) > float(maxMol) or maxMol == -1:
-            #new max
-            maxMol = float(values[key])
-        if float(values[key]) < float(minMol) or minMol == 999999999999:
-            #new min
-            minMol = float(values[key])
-    widths = {key.split('__')[1]: widths[key] for key in widths}
-    raw_mol_rates = {key.split('__')[1]: raw_mol_rates[key] for key in raw_mol_rates}
-    if filteredMaxMol == -1:
-        filteredMaxMol = maxMol
-    if filteredMinMol == 999999999999:
-        filteredMinMol = minMol
-    return widths
 
 # make list of indexes of included reactions
 def find_reactions(list_of_species, reactions_json):
@@ -162,77 +86,201 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-# generates dict with list of edges and list of nodes: di = {'edges': [], 'species_nodes': [], r_nodes: []}
-def find_edges_and_nodes(contained_reactions, reactions_names_dict, reactions_json, widths_dict, blocked):
-    global maxMol
-    global minMol
-    global raw_mol_rates
-    edges = {}
-    s_nodes = {}
-    r_nodes = []
-
-    edge_colors = []
-    species_colors = {}
-    reactions_colors = []
+# make list of indexes of included reactions, and names of all species that participate in them
+def find_reactions_and_species(list_of_species, reactions_json):
+    print("[2/7] finding reactions and species")
     r_list = reactions_json['camp-data'][0]['reactions']
-    print("blocked list:", blocked)
-    print("contained reactions count:", len(contained_reactions))
-    for r_index in contained_reactions:
-        reaction = r_list[r_index]
-        reaction_name = reactions_names_dict[r_index]
-        isInRange = (float(raw_mol_rates[reaction_name]) <= float(filteredMaxMol)) and (float(raw_mol_rates[reaction_name]) >= float(filteredMinMol))
-        if isInRange:
-            reactions_colors.append("#FF7F7F")
+    included_reactions = {}
+    included_species = {}
+    for species in list_of_species: # catches species that don't participate in any reactions
+        included_species.update({species: {}})
+    for reaction in r_list:
+        reactants = []
+        products = []
+        if 'reactants' in reaction:
+            reactants = reaction['reactants']
+
+        if 'products' in reaction:
+            products = reaction['products']
+
+        for species in list_of_species:
+            if (species in products) or (species in reactants):
+                included_reactions.update({r_list.index(reaction): {}})
+                if 'reactants' in reaction:
+                    for reactant in reaction['reactants']:
+                        included_species.update({reactant: {}})
+                if 'products' in reaction:
+                    for product in reaction['products']:
+                        included_species.update({product: {}})
+
+    return list(included_reactions), list(included_species)
+# return two lists, one is all the species, the other is all the reaction nodes
+# (using integrated reaction rates JUST for set of reaction we get)
+def getAllNodes(request_dict, reactions_data):
+    print("[1/7] Finding nodes via species and reactions")
+    # 1) get selected species and get list of reactions from those
+    # 2) use reactions to get list of species
+    # 3) remove blocked species from list of species
+    # 4) return lists
+    selected_species = request_dict['includedSpecies'].split(',')
+    blockedSpecies = request_dict['blockedSpecies'].split(',')
+
+    reactions, species = find_reactions_and_species(selected_species, reactions_data)
+
+    for spec in species:
+        if spec in blockedSpecies:
+            species.remove(spec)
+    return reactions, species
+
+    
+# 1) pass csv file
+# 2) start time, end time
+# 3) list of reactions
+def getIntegratedReactionRates(df, start, end, reactions):
+    # return list of integrated reaction rates (the diffrence between start and end time) ONLY for selected/non-blocked reactions
+    print("[3/7] getting integrated reaction rates")
+    rates_cols = [x for x in df.columns if 'myrate' in x]
+
+    reactionsToAdd = []
+    for re in reactions:
+        reactionsToAdd.append(rates_cols[re].replace(' CONC.', '')) #convert index of reaction into actual reaction name
+    rates = df[rates_cols]
+    first_and_last = rates.iloc[[start, end]]
+    difference = first_and_last.diff()
+    values = dict(difference.iloc[-1])
+    widths = {}
+    for key in values:
+        if key.split('.')[1] in reactionsToAdd:
+            widths.update({key.split('.')[1]: values[key]})
+    
+    widths = {key.split('__')[1]: widths[key] for key in widths}
+    return widths
+def CalculateRawYields(df, reactions_json, reactions, widths): #pass dataframe and reactions widths
+    # return a map where the key the species name and value is integrated reaction rate from previous function mulitplied by quantity/yield for this species
+    # FORMAT FOR RETURN ARRAY: [{'N2__TO__O1D_N2->O_N2' : yield}, {'[FROM]__TO__[TO]': (reaction_rate * yield)}, ...]
+    print("[4/7] sorting yields from species")
+    calculatedYields = {}
+    rates_cols = [x for x in df.columns if 'myrate' in x]
+
+    reationsNamesList = []
+    for re in reactions:
+        reationsNamesList.append(rates_cols[re].replace(' CONC.', '').split('__')[1]) #convert index of reaction into actual reaction name
+
+
+    r_list = reactions_json['camp-data'][0]['reactions']
+    i=0
+    for reaction in reactions:
+        
+        ######################################################
+        # LOOK AT PRODUCTS AND GET FLUX FROM YIELD AND WIDTH #
+        ######################################################
+        reaction_data = r_list[reaction]['products'] #get products data at index reaction
+        for product in reaction_data:
+            product_name = product
+            product_yield = reaction_data[product_name]
+            if product_yield == {}:
+                # no product yield, defaulting to reaction rate
+                # print("(no product yield) ==> "+str(reationsNamesList[i])+"__TO__"+str(product_name)+" = "+str(widths[str(reationsNamesList[i])]))
+                if float(widths[str(reationsNamesList[i])]) != float(0.0):
+                    calculatedYields.update({str(reationsNamesList[i])+"__TO__"+str(product_name): widths[str(reationsNamesList[i])]})
+            else:
+                # element has yield, multiply by reaction rate
+                product_yield = product_yield['yield']
+                new_yield = widths[str(reationsNamesList[i])]*product_yield
+                if float(new_yield) != float(0.0):
+                    calculatedYields.update({str(reationsNamesList[i])+"__TO__"+str(product_name): float(new_yield)})
+
+
+
+
+        ######################################################
+        # LOOK AT REACTANTS AND GET FLUX FROM YIELD AND WIDTH #
+        ######################################################
+        reaction_data = r_list[i]['reactants'] #get products data at index reaction
+        for reactant in reaction_data:
+            reactant_name = reactant
+            reactant_yield = reaction_data[reactant_name]
+            if reactant_yield == {}:
+                # no product yield, defaulting to reaction rate
+                if float(widths[str(reationsNamesList[i])]) != float(0.0):
+                    calculatedYields.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): widths[str(reationsNamesList[i])]})
+            else:
+                # element has yield, multiply by reaction rate
+                reactant_yield = reactant_yield['qty']
+                new_yield = widths[str(reationsNamesList[i])]*reactant_yield
+                # print("(found reactant yield) ==> "+str(reactant_name)+"__TO__"+str(reationsNamesList[i])+" = "+str(new_yield))
+                if float(new_yield) != float(0.0):
+                    calculatedYields.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): float(new_yield)})
+        i=i+1
+    return calculatedYields
+def calculateLineWeights(maxWidth, species_yields, scale_type):
+    #use fluxes from map we setup, scale the values, add weights and whatnot (maybe say what color we want arrow to be)
+    if scale_type == 'log':
+        print("[5/7] logarithmically scaling weights...")
+        if species_yields != {}:
+
+            li = species_yields
+            logged = []
+            for i in li:
+                # fail safe for null->null value and so we don't divide/log by 0
+                if str(i) != 'null->null' and float(0.0) != float(species_yields[i]):
+                    # we cant take the log of a number less than 1/ FIGURE OUT WEIRD null->null error
+                    try:
+                        logged.append((i, math.log(species_yields[i])))
+                    except:
+                        print("|_ Detected log error, value is most likely 0")
+            
+            # logged = [(i[0], math.log(i[1])) for i in li]
+            vals = [i[1] for i in logged]
+            min_val = abs(min(vals))
+            range = max(vals) - min(vals)
+            if max(vals) == min(vals): #case where we only have one element selected
+                range = 1
+            scaled = [(x[0], (float(((x[1] + min_val)/range))* float(maxWidth)) + 1) for x in logged]
+            print("[6/7] got logarithmically scaled weights:", scaled)
+            return (list(scaled))
         else:
-            print("out of range:", raw_mol_rates[reaction_name], " ===>", filteredMaxMol, filteredMinMol)
-            reactions_colors.append("#ededed")
+            print("[7/7] no species selected, returning empty list")
+            return list([])
+    else:
+        print("[5/7] linearly scaling weights...")
+        li = species_yields
+        vals = [species_yields[i] for i in li]
+        min_val = abs(min(vals))
+        range = max(vals) - min(vals)
+        scaled = [(x, (((species_yields[x] + min_val)/range)* int(maxWidth)) + 1) for x in li]
+        print("[6/7] got linearly scaled weights:", scaled)
+        return (list(scaled))
+def CalculateEdgesAndNodes(reactions, species, scaledLineWeights):
+    print("[7/7] Calculating edges and nodes...")
+    species = {}
+    edges = {}
+    reactions = {}
 
-        r_nodes.append(beautifyReaction(reaction_name))
-        try:
-            width = widths_dict[reaction_name]
-            if 'reactants' in reaction:
-                reactants = reaction['reactants']
-                for r in reactants:
-                    edge = (r, beautifyReaction(reaction_name), width)
-                    # check if in blocked list
-                    if (isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']) and isInRange == True:
-                        #if not blocked, dont add species node or edge
-                        edges.update({edge: {}})
-                        s_nodes.update({r: {}})
-                        edge_colors.append("#94b8f8")
-                        species_colors[r] = "#94b8f8"
-                    elif (isBlocked(blocked, r) == False or len(blocked) == 0 or blocked == ['']) and isInRange == False:
-                        #not in range, make grey
-                        
-                        edges.update({edge: {}})
-                        s_nodes.update({r: {}})
-                        edge_colors.append("#ededed")
-                        species_colors[r] = "#ededed"
+    for weight in scaledLineWeights:
 
-            if 'products' in reaction:
-                products = reaction['products']
-                for p in products:
-                    edge = (beautifyReaction(reaction_name), p, width)
-                    # check if in blocked list
-                    if (isBlocked(blocked, p) == False or len(blocked) == 0 or blocked == ['']) and isInRange == True:
-                        #if not blocked, dont add species node or edge
-                        
-                        edges.update({edge: {}})
-                        s_nodes.update({p: {}})
-                        edge_colors.append("#94b8f8")
-                        species_colors[r] = "#94b8f8"
-                    elif (isBlocked(blocked, p) == False or len(blocked) == 0 or blocked == ['']) and isInRange == False:
-                        #not in range, make grey
-                        edges.update({edge: {}})
-                        s_nodes.update({p: {}})
-                        edge_colors.append("#ededed")
-                        species_colors[p] = "#ededed"
 
-        except Exception as e:
-            print("discovered key error, most likely the element's scaled width is 0")
-            print("error e:", e)
-    return {'edges': list(edges), 'species_nodes': list(s_nodes), 'reaction_nodes': r_nodes, 'edge_colors': edge_colors, 'species_colors': species_colors, 'reactions_colors': reactions_colors}
+        fromElement = weight[0].split('__TO__')[0].replace("__TO__", "")
+        ToElement = weight[0].split('__TO__')[1].replace("__TO__", "")
+        lineWidth = float(weight[1])
 
+
+        if "->" in fromElement:
+            # reaction -> product
+            edge = (beautifyReaction(fromElement), ToElement, lineWidth)
+            edges.update({edge: {}})
+            species.update({ToElement: {}})
+            reactions.update({beautifyReaction(fromElement): {}})
+            # edge_colors.append("#94b8f8")
+            # species_colors[r] = "#94b8f8"
+        else:
+            # reactant -> reaction
+            edge = (fromElement, beautifyReaction(ToElement), lineWidth)
+            edges.update({edge: {}})
+            species.update({fromElement: {}})
+            reactions.update({beautifyReaction(ToElement): {}})
+    # print("pushing diagram: ",{'edges': list(edges), 'species_nodes': list(species), 'reaction_nodes': list(reactions)})
+    return {'edges': list(edges), 'species_nodes': list(species), 'reaction_nodes': list(reactions)}
 def createLegend():
     x = -300
     y = -250
@@ -244,9 +292,9 @@ def createLegend():
 def generate_flow_diagram(request_dict):
     global filteredMaxMol
     global filteredMinMol
-    if ('maxMolval' in request_dict and 'minMolval' in request_dict) and (request_dict['maxMolval'] != '' and request_dict['minMolval'] != ''):
-        filteredMaxMol = float(request_dict["maxMolval"])
-        filteredMinMol = float(request_dict["minMolval"])
+    # if ('maxMolval' in request_dict and 'minMolval' in request_dict) and (request_dict['maxMolval'] != '' and request_dict['minMolval'] != '') and (request_dict['maxMolval'] != 'NULL' and request_dict['minMolval'] != 'NULL'):
+    #     filteredMaxMol = float(request_dict["maxMolval"])
+    #     filteredMinMol = float(request_dict["minMolval"])
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -256,23 +304,14 @@ def generate_flow_diagram(request_dict):
     # load csv file
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pd.read_csv(csv_results_path)
-
+    
     start_step = int(request_dict['startStep'])
     end_step = int(request_dict['endStep'])
-
-    # get irr change from dataframe
-    trimmed = trim_dataframe(csv, start_step, end_step)
 
     # scale with correct scaling function
     scale_type = request_dict['arrowScalingType']
     max_width = request_dict['maxArrowWidth']
 
-    if scale_type == 'log':
-        scaled = relative_log_scaler(max_width, trimmed)
-    else:
-        scaled = relative_linear_scaler(max_width, trimmed)
-
-    widths = scaled
 
     # load species json and reactions json
 
@@ -282,23 +321,20 @@ def generate_flow_diagram(request_dict):
     with open(path_to_species, 'r') as f:
         species_data = json.load(f)
 
-    # make list of contained reactions for included species
-    selected_species = request_dict['includedSpecies'].split(',')
-    contained_reactions = find_reactions(selected_species, reactions_data)
-    contained_reaction_names = name_included_reactions(contained_reactions, reactions_data)
-    # make lists of edges and nodes
-    network_content = find_edges_and_nodes(contained_reactions, contained_reaction_names, reactions_data, widths, request_dict['blockedSpecies'].split(','))
+    # NEW METHOD OF CREATING NODES
+    reactions, species = getAllNodes(request_dict, reactions_data)
+    reactionRates = getIntegratedReactionRates(csv, start_step, end_step, reactions)
+    raw_yields = CalculateRawYields(csv, reactions_data, reactions, reactionRates)
+    scaledLineWeights = calculateLineWeights(max_width, raw_yields, scale_type)
+    network_content = CalculateEdgesAndNodes(reactions, species, scaledLineWeights)
 
     #add edges and nodes
     net = Network(height='100%', width='100%',directed=True) #force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
 
-
-    print("species nodes:", network_content['species_nodes'], "color nodes:", network_content['species_colors'])
-    print("reaction nodes:", network_content['reaction_nodes'], "edges:", network_content['edges'])
-    net.add_nodes(network_content['reaction_nodes'], color=[x for x in network_content['reactions_colors']])
-    for spec in network_content["species_nodes"]:
-        network_content['species_colors'].setdefault(spec, "#94b8f8")
-    net.add_nodes(network_content['species_nodes'], color=[network_content['species_colors'][x] for x in network_content['species_nodes']])
+    net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']])
+    # for spec in network_content["species_nodes"]:
+    #     network_content['species_colors'].setdefault(spec, "#94b8f8")
+    net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']])
     
     
     net.add_edges(network_content['edges']) # add all edges
