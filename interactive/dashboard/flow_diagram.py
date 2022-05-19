@@ -249,7 +249,7 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
         min_val = abs(min(vals))
         range = max(vals) - min(vals)
         scaled = [(x, (((species_yields[x] + min_val)/range)* int(maxWidth)) + 1) for x in li]
-        print("[6/7] got linearly scaled weights:", scaled)
+        print("[6/7] got linearly scaled weights")
         return (list(scaled))
 def CalculateEdgesAndNodes(reactions, species, scaledLineWeights):
     print("[7/7] Calculating edges and nodes...")
