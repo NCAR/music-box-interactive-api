@@ -14,12 +14,9 @@ path_to_species = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_
 # path to output html file
 path_to_template = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
 
-raw_mol_rates = {}
-maxMol = -1
-minMol = 999999999999
+minAndMaxOfSelectedTimeFrame = [999999999999, -1]
+userSelectedMinMax = [999999999999, -1]
 
-filteredMaxMol = -1
-filteredMinMol = 999999999999
 # returns species in csv
 def get_species():
     csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
@@ -151,15 +148,34 @@ def getIntegratedReactionRates(df, start, end, reactions):
     widths = {}
     for key in values:
         if key.split('.')[1] in reactionsToAdd:
-            widths.update({key.split('.')[1]: values[key]})
+            widths.update({key.split('.')[1]: float(str('{:0.3e}'.format(values[key])))})
     
     widths = {key.split('__')[1]: widths[key] for key in widths}
+    print("final widths:", widths)
     return widths
-def CalculateRawYields(df, reactions_json, reactions, widths): #pass dataframe and reactions widths
+def updateMinOrMaxInTimeFrame(newvalue):
+    #check if newvalue is greater than or less than the min and max of our dataframe
+    global minAndMaxOfSelectedTimeFrame
+    global userSelectedMinMax
+    # print("comparing current minMax:",minAndMaxOfSelectedTimeFrame,"with new value:",newvalue)
+    if newvalue < minAndMaxOfSelectedTimeFrame[0]:
+        minAndMaxOfSelectedTimeFrame[0] = newvalue
+        # if userSelectedMinMax[0] < minAndMaxOfSelectedTimeFrame[0] or userSelectedMinMax[0] == 999999999999:
+        #     userSelectedMinMax[0] = minAndMaxOfSelectedTimeFrame[0]
+        
+    if newvalue > minAndMaxOfSelectedTimeFrame[1]:
+        minAndMaxOfSelectedTimeFrame[1] = newvalue
+        # if userSelectedMinMax[1] > minAndMaxOfSelectedTimeFrame[1] or userSelectedMinMax[1] == -1:
+        #     userSelectedMinMax[1] = minAndMaxOfSelectedTimeFrame[1]
+def CalculateRawYields(df, reactions_json, reactions, widths, blockedSpecies): #pass dataframe and reactions widths
+    global userSelectedMinMax
+    global minAndMaxOfSelectedTimeFrame
     # return a map where the key the species name and value is integrated reaction rate from previous function mulitplied by quantity/yield for this species
     # FORMAT FOR RETURN ARRAY: [{'N2__TO__O1D_N2->O_N2' : yield}, {'[FROM]__TO__[TO]': (reaction_rate * yield)}, ...]
     print("[4/7] sorting yields from species")
     calculatedYields = {}
+
+    edgeColors = {}
     rates_cols = [x for x in df.columns if 'myrate' in x]
 
     reationsNamesList = []
@@ -181,14 +197,27 @@ def CalculateRawYields(df, reactions_json, reactions, widths): #pass dataframe a
             if product_yield == {}:
                 # no product yield, defaulting to reaction rate
                 # print("(no product yield) ==> "+str(reationsNamesList[i])+"__TO__"+str(product_name)+" = "+str(widths[str(reationsNamesList[i])]))
-                if float(widths[str(reationsNamesList[i])]) != float(0.0):
+                if float(widths[str(reationsNamesList[i])]) != float(0.0) and product_name not in blockedSpecies:
+                    updateMinOrMaxInTimeFrame(float(widths[str(reationsNamesList[i])]))
+                    
                     calculatedYields.update({str(reationsNamesList[i])+"__TO__"+str(product_name): widths[str(reationsNamesList[i])]})
+                    # this value falls within the user selected min and max
+                    if widths[str(reationsNamesList[i])] >= userSelectedMinMax[0] and widths[str(reationsNamesList[i])] <= userSelectedMinMax[1]:
+                        edgeColors.update({str(reationsNamesList[i])+"__TO__"+str(product_name): '#FF7F7F'})
+                    else:
+                        edgeColors.update({str(reationsNamesList[i])+"__TO__"+str(product_name): '#e0e0e0'})
             else:
                 # element has yield, multiply by reaction rate
                 product_yield = product_yield['yield']
                 new_yield = widths[str(reationsNamesList[i])]*product_yield
-                if float(new_yield) != float(0.0):
+                if float(new_yield) != float(0.0) and product_name not in blockedSpecies:
+                    updateMinOrMaxInTimeFrame(float(new_yield))
                     calculatedYields.update({str(reationsNamesList[i])+"__TO__"+str(product_name): float(new_yield)})
+                    # this value falls within the user selected min and max
+                    if float(new_yield) >= userSelectedMinMax[0] and float(new_yield) <= userSelectedMinMax[1]:
+                        edgeColors.update({str(reationsNamesList[i])+"__TO__"+str(product_name): '#FF7F7F'})
+                    else:
+                        edgeColors.update({str(reationsNamesList[i])+"__TO__"+str(product_name): '#e0e0e0'})
 
 
 
@@ -202,19 +231,43 @@ def CalculateRawYields(df, reactions_json, reactions, widths): #pass dataframe a
             reactant_yield = reaction_data[reactant_name]
             if reactant_yield == {}:
                 # no product yield, defaulting to reaction rate
-                if float(widths[str(reationsNamesList[i])]) != float(0.0):
+                if float(widths[str(reationsNamesList[i])]) != float(0.0) and str(reactant_name) not in blockedSpecies:
+                    updateMinOrMaxInTimeFrame(float(widths[str(reationsNamesList[i])]))
                     calculatedYields.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): widths[str(reationsNamesList[i])]})
+                    # this value falls within the user selected min and max
+                    if widths[str(reationsNamesList[i])] >= userSelectedMinMax[0] and widths[str(reationsNamesList[i])] <= userSelectedMinMax[1]:
+                        edgeColors.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): "#94b8f8"})
+                    else:
+                        edgeColors.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): "#e0e0e0"})
             else:
                 # element has yield, multiply by reaction rate
                 reactant_yield = reactant_yield['qty']
                 new_yield = widths[str(reationsNamesList[i])]*reactant_yield
                 # print("(found reactant yield) ==> "+str(reactant_name)+"__TO__"+str(reationsNamesList[i])+" = "+str(new_yield))
-                if float(new_yield) != float(0.0):
-                    calculatedYields.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): float(new_yield)})
+                if float(new_yield) != float(0.0) and str(reactant_name) not in blockedSpecies:
+                    updateMinOrMaxInTimeFrame(float(new_yield))
+
+                    # this value falls within the user selected min and max
+                    if float(new_yield) >= userSelectedMinMax[0] and float(new_yield) <= userSelectedMinMax[1]:
+                        edgeColors.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]):  "#94b8f8"})
+                    else:
+                        edgeColors.update({str(reactant_name)+"__TO__"+str(reationsNamesList[i]): "#e0e0e0"})
         i=i+1
-    return calculatedYields
+    if userSelectedMinMax[0] == 999999999999:
+        userSelectedMinMax[0] = minAndMaxOfSelectedTimeFrame[0]
+    if userSelectedMinMax[1] == -1:
+        userSelectedMinMax[1] = minAndMaxOfSelectedTimeFrame[1]
+
+    if userSelectedMinMax[0] < minAndMaxOfSelectedTimeFrame[0]:
+        userSelectedMinMax[0] = minAndMaxOfSelectedTimeFrame[0]
+    if userSelectedMinMax[1] > minAndMaxOfSelectedTimeFrame[1]:
+        userSelectedMinMax[1] = minAndMaxOfSelectedTimeFrame[1]
+    # print("min and max of selected time frame: ",minAndMaxOfSelectedTimeFrame,"user selected min and max: ",userSelectedMinMax)
+    return calculatedYields, edgeColors
 def calculateLineWeights(maxWidth, species_yields, scale_type):
     #use fluxes from map we setup, scale the values, add weights and whatnot (maybe say what color we want arrow to be)
+    maxVal = -1
+    minVal = 99999999
     if scale_type == 'log':
         print("[5/7] logarithmically scaling weights...")
         if species_yields != {}:
@@ -227,32 +280,44 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
                     # we cant take the log of a number less than 1/ FIGURE OUT WEIRD null->null error
                     try:
                         logged.append((i, math.log(species_yields[i])))
+                        if species_yields[i] < minVal:
+                            minVal = species_yields[i]
+                        if species_yields[i] > maxVal:
+                            maxVal = species_yields[i]
                     except:
-                        print("|_ Detected log error, value is most likely 0")
+                        print("|_ Detected log error, getting abs value: "+str(abs(math.log(abs(species_yields[i])))))
+                        new_edge_equation = str(i.split("__TO__")[1])+"__TO__"+str(i.split("__TO__")[0])
+                        print("     |_ Creating reversal line for: "+str(i))
+                        print("           |_ ",new_edge_equation)
+                        logged.append((i, abs(math.log(abs(species_yields[i])))))
             
-            # logged = [(i[0], math.log(i[1])) for i in li]
             vals = [i[1] for i in logged]
             min_val = abs(min(vals))
             range = max(vals) - min(vals)
             if max(vals) == min(vals): #case where we only have one element selected
                 range = 1
             scaled = [(x[0], (float(((x[1] + min_val)/range))* float(maxWidth)) + 1) for x in logged]
-            print("[6/7] got logarithmically scaled weights:", scaled)
-            return (list(scaled))
+            print("[6/7] got logarithmically scaled weights")
+            return list(scaled), minVal, maxVal
         else:
             print("[7/7] no species selected, returning empty list")
-            return list([])
+            return list([]), -1, 999999999
     else:
         print("[5/7] linearly scaling weights...")
         li = species_yields
         vals = [species_yields[i] for i in li]
         min_val = abs(min(vals))
+
+        minVal = min_val
+        maxVal = abs(max(vals))
+
+
         range = max(vals) - min(vals)
         scaled = [(x, (((species_yields[x] + min_val)/range)* int(maxWidth)) + 1) for x in li]
         print("[6/7] got linearly scaled weights")
-        return (list(scaled))
-def CalculateEdgesAndNodes(reactions, species, scaledLineWeights):
-    print("[7/7] Calculating edges and nodes...")
+        return list(scaled), minVal, maxVal
+def CalculateEdgesAndNodes(reactions, species, scaledLineWeights, blockedSpecies):
+    print("[7/7] Creating edges and nodes...")
     species = {}
     edges = {}
     reactions = {}
@@ -269,17 +334,16 @@ def CalculateEdgesAndNodes(reactions, species, scaledLineWeights):
             # reaction -> product
             edge = (beautifyReaction(fromElement), ToElement, lineWidth)
             edges.update({edge: {}})
-            species.update({ToElement: {}})
+            if species not in blockedSpecies:
+                species.update({ToElement: {}})
             reactions.update({beautifyReaction(fromElement): {}})
-            # edge_colors.append("#94b8f8")
-            # species_colors[r] = "#94b8f8"
         else:
             # reactant -> reaction
             edge = (fromElement, beautifyReaction(ToElement), lineWidth)
             edges.update({edge: {}})
-            species.update({fromElement: {}})
+            if species not in blockedSpecies:
+                species.update({fromElement: {}})
             reactions.update({beautifyReaction(ToElement): {}})
-    # print("pushing diagram: ",{'edges': list(edges), 'species_nodes': list(species), 'reaction_nodes': list(reactions)})
     return {'edges': list(edges), 'species_nodes': list(species), 'reaction_nodes': list(reactions)}
 def createLegend():
     x = -300
@@ -290,11 +354,12 @@ def createLegend():
     return legend_nodes
 # parent function for generating flow diagram
 def generate_flow_diagram(request_dict):
-    global filteredMaxMol
-    global filteredMinMol
-    # if ('maxMolval' in request_dict and 'minMolval' in request_dict) and (request_dict['maxMolval'] != '' and request_dict['minMolval'] != '') and (request_dict['maxMolval'] != 'NULL' and request_dict['minMolval'] != 'NULL'):
-    #     filteredMaxMol = float(request_dict["maxMolval"])
-    #     filteredMinMol = float(request_dict["minMolval"])
+    global userSelectedMinMax
+    global minAndMaxOfSelectedTimeFrame
+
+    if ('maxMolval' in request_dict and 'minMolval' in request_dict) and (request_dict['maxMolval'] != '' and request_dict['minMolval'] != '') and (request_dict['maxMolval'] != 'NULL' and request_dict['minMolval'] != 'NULL'):
+        userSelectedMinMax = [float(request_dict["minMolval"]), float(request_dict["maxMolval"])]
+        # print("new user selected min and max: ", userSelectedMinMax)
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -312,6 +377,8 @@ def generate_flow_diagram(request_dict):
     scale_type = request_dict['arrowScalingType']
     max_width = request_dict['maxArrowWidth']
 
+    previousMin = float(request_dict["currentMinValOfGraph"])
+    previousMax = float(request_dict["currentMaxValOfGraph"])
 
     # load species json and reactions json
 
@@ -324,39 +391,70 @@ def generate_flow_diagram(request_dict):
     # NEW METHOD OF CREATING NODES
     reactions, species = getAllNodes(request_dict, reactions_data)
     reactionRates = getIntegratedReactionRates(csv, start_step, end_step, reactions)
-    raw_yields = CalculateRawYields(csv, reactions_data, reactions, reactionRates)
-    scaledLineWeights = calculateLineWeights(max_width, raw_yields, scale_type)
-    network_content = CalculateEdgesAndNodes(reactions, species, scaledLineWeights)
+    raw_yields, edgeColors = CalculateRawYields(csv, reactions_data, reactions, reactionRates, request_dict['blockedSpecies'].split(','))
+    scaledLineWeights, minVal, maxVal = calculateLineWeights(max_width, raw_yields, scale_type)
+    network_content = CalculateEdgesAndNodes(reactions, species, scaledLineWeights, request_dict['blockedSpecies'].split(','))
 
     #add edges and nodes
     net = Network(height='100%', width='100%',directed=True) #force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
+    net.inherit_edge_colors(False) #make it so we can manually change arrow colors
 
     net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']])
-    # for spec in network_content["species_nodes"]:
-    #     network_content['species_colors'].setdefault(spec, "#94b8f8")
     net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']])
     
-    
-    net.add_edges(network_content['edges']) # add all edges
+    # add edges individually so we can modify contents
+    i=0
+    values=list(edgeColors.values())
+    for edge in network_content['edges']:
+        if values[i] == "#e0e0e0":
+            # don't allow blocked edge to show value on hover (by removing title)
+            net.add_edge(edge[0], edge[1], color=values[i], width=edge[2])
+        else:
+            # hover over arrow to show value for arrows within range
+            net.add_edge(edge[0], edge[1], color=values[i], width=float(edge[2]), title=edge[2])
+        i=i+1
+    # net.add_edges(network_content['edges'], edge_color=["#94b8f8" for x in network_content['edges']])
     
     print("[DEBUG] pushing new table to page using url:",path_to_template)
     #save as html
     net.force_atlas_2based(gravity=-200, overlap=1)
     net.show(path_to_template)
-
+    if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
+        minAndMaxOfSelectedTimeFrame = [0, maxVal]
     with open(path_to_template, 'r+') as f:
         ###################################################################################################################
         # here we are going to replace the contents of the file with new html to avoid problems with cross-site scripting #
         ###################################################################################################################
         a = ''
-        if minMol == 999999999999 or maxMol == -1:
+        # print("((DEBUG)) [min,max] of selected time frame:",minAndMaxOfSelectedTimeFrame)
+        # print("((DEBUG)) [min,max] given by user:",userSelectedMinMax)
+        if int(minAndMaxOfSelectedTimeFrame[1]) == -1 or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999:
             a = '<script>parent.document.getElementById("flow-start-range2").value = "NULL"; parent.document.getElementById("flow-end-range2").value = "NULL"; console.log("inputting NULL");'
         
         else:
-            a = '<script>parent.document.getElementById("flow-start-range2").value = "'+str('{:0.3e}'.format(minMol))+'"; parent.document.getElementById("flow-end-range2").value = "'+str('{:0.3e}'.format(maxMol))+'"; console.log("Overrided element values via cross scripting?");'
-        a = a + 'parent.document.getElementById("filterRange").value = parent.document.getElementById("flow-start-range2").value + " to " + parent.document.getElementById("flow-end-range2").value;' #update our filter range with new values
-        a = a + 'parent.reloadSlider("'+str(filteredMinMol)+'", "'+str(filteredMaxMol)+'");</script>' #destroy slider and update slider entirely
-        
+            a = '<script>parent.document.getElementById("flow-start-range2").value = "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'"; parent.document.getElementById("flow-end-range2").value = "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'"; console.log("Overrided element values via cross scripting?");'
+        formattedPrevMin = str('{:0.3e}'.format(previousMin))
+        formattedPrevMax = str('{:0.3e}'.format(previousMax))
+        formattedMinOfSelected = str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))
+        formattedMaxOfSelected = str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))
+
+        if str(formattedPrevMin) != str(formattedMinOfSelected) or str(formattedPrevMax) != str(formattedMaxOfSelected) or previousMin == 0 or previousMax == 1:
+            print("previousMin:",formattedPrevMin,"does not equal",formattedMinOfSelected)
+            print("previousMax:",formattedPrevMax,"does not equal",formattedMaxOfSelected)
+            a = a + 'parent.document.getElementById("filterRange").value = "'+str(formattedMinOfSelected)+'" + " to " + "'+str(formattedMaxOfSelected)+'";' #update our filter range with new values
+            a = a + 'parent.document.getElementById("flow-start-range2").value = "'+str(formattedMinOfSelected)+'"; parent.document.getElementById("flow-end-range2").value = "'+str(formattedMaxOfSelected)+'";'
+            a = a + 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>' #destroy slider and update slider entirely
+        else:
+
+            if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
+                # print("user has selected min and max that are valid")
+                a = a + 'parent.document.getElementById("filterRange").value = "'+str('{:0.3e}'.format(userSelectedMinMax[0]))+'" + " to " + "'+str('{:0.3e}'.format(userSelectedMinMax[1]))+'";' #update our filter range with new values
+                a = a + 'parent.document.getElementById("flow-start-range2").value = "'+str('{:0.3e}'.format(userSelectedMinMax[0]))+'"; parent.document.getElementById("flow-end-range2").value = "'+str('{:0.3e}'.format(userSelectedMinMax[1]))+'";'
+                a = a + 'parent.reloadSlider("'+str('{:0.3e}'.format(userSelectedMinMax[0]))+'", "'+str('{:0.3e}'.format(userSelectedMinMax[1]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'");</script>' #destroy slider and update slider entirely
+            else:
+                # print("user selected values not valid, just pushing timeframe: ",minAndMaxOfSelectedTimeFrame)
+                a = a + 'parent.document.getElementById("filterRange").value = "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'" + " to " + "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'";' #update our filter range with new values
+                a = a + 'parent.reloadSlider("'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'");</script>' #destroy slider and update slider entirely
         lines = f.readlines()
         for i, line in enumerate(lines):
             if line.startswith('</script>'):   # find a pattern so that we can add next to that line

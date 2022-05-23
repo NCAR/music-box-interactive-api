@@ -1,19 +1,24 @@
 var currentlyLoadingGraph = false
-function reloadSlider(firstVal, secondVal) {
-  var stepVal = (parseFloat(document.getElementById("flow-end-range2").value) - parseFloat(document.getElementById("flow-start-range2").value)) / 40;
+var currentMinValOfGraph = 0
+var currentMaxValOfGraph = 1
+function reloadSlider(firstVal, secondVal, minVal, maxVal) {
+  var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 60;
   console.log("step value: " + stepVal);
+  console.log("received values: "+firstVal+" "+secondVal);
   $( "#range-slider2", window.parent.document ).slider("destroy");
+  currentMinValOfGraph = minVal;
+  currentMaxValOfGraph = maxVal;
   $( function() {
     $( "#range-slider2",window.parent.document ).slider({
       range: true,
-      min: parseFloat(document.getElementById("flow-start-range2").value),
-      max: parseFloat(document.getElementById("flow-end-range2").value),
+      min: parseFloat(minVal),
+      max: parseFloat(maxVal),
       step: stepVal,
-      values: [ firstVal, secondVal ],
+      values: [ parseFloat(firstVal).toExponential(3), parseFloat(secondVal).toExponential(3) ],
       // values: [ parseFloat(document.getElementById("flow-start-range2").value), parseFloat(document.getElementById("flow-end-range2").value) ],
       slide: function( event, ui ) {
           // update values when slider changed
-        $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(1) + " to " + parseFloat(ui.values[ 1 ]).toExponential(1) + "" );
+        $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(3) + " to " + parseFloat(ui.values[ 1 ]).toExponential(3) + "" );
         document.getElementById("flow-start-range2").value = ui.values[ 0 ];
         document.getElementById("flow-end-range2").value = ui.values[ 1 ];
       },
@@ -56,27 +61,13 @@ function reloadGraph() {
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
         "arrowScalingType": $("#flow-scale-select").val(),
         "minMolval": $("#flow-start-range2").val(),
-        "maxMolval": $("#flow-end-range2").val()
+        "maxMolval": $("#flow-end-range2").val(),
+        "currentMinValOfGraph": currentMinValOfGraph,
+        "currentMaxValOfGraph": currentMaxValOfGraph
       },
       success: function(response){
         $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:200px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" id="graph-frame" title="Network plot" src="show_flow"></iframe>');
-        // CLIENT SIDE SLIDER CHANGES -- CHANGED TO SERVER SIDE flow_diagram.py
-        // var maxMol = $("iframe#graph-frame").contents().find("#max-mol").html();
-        //   var minMol = $("iframe#graph-frame").contents().find("#min-mol").html();
-        //   console.log(minMol);
-        //   console.log(minMol);
-        //   if (maxMol != parseFloat(-1) && minMol != parseFloat(999999999999) && maxMol != undefined && minMol != undefined && maxMol != NaN && minMol != NaN) {
-        //     $( "#filterRange" ).val(minMol +" - " + maxMol);
-        //     document.getElementById("flow-start-range2").value = minMol;
-        //     document.getElementById("flow-end-range2").value = maxMol;
-        //   } else {
-        //     $( "#filterRange" ).val("NULL - NULL");
-        //     document.getElementById("flow-start-range2").value = "0";
-        //     document.getElementById("flow-end-range2").value = "999999999999";
-        //   }
         
-        // document.getElementById("flow-start-range2").value = ;
-        // document.getElementById("flow-end-range2").value = ui.values[ 1 ];
       }
     });
 }
