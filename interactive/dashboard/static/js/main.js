@@ -63,7 +63,8 @@ function reloadGraph() {
         "minMolval": $("#flow-start-range2").val(),
         "maxMolval": $("#flow-end-range2").val(),
         "currentMinValOfGraph": currentMinValOfGraph,
-        "currentMaxValOfGraph": currentMaxValOfGraph
+        "currentMaxValOfGraph": currentMaxValOfGraph,
+        "isPhysicsEnabled": $("#physics").is(":checked"),
       },
       success: function(response){
         $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:200px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" id="graph-frame" title="Network plot" src="show_flow"></iframe>');
@@ -183,6 +184,10 @@ $(document).ready(function(){
     var newValue = $("#flow-end-range").val()
     $("#flow-end-input").val(newValue)
 
+  });
+  // physics checkbox
+  $("#physics").on('change', function(){
+    reloadGraph();
   });
   $("#flow-start-input").on('change', function(){
     var newValue = $("#flow-start-input").val()
