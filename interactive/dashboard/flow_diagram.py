@@ -423,6 +423,8 @@ def generate_flow_diagram(request_dict):
     previous_vals = [previousMin, previousMax]
 
     isPhysicsEnabled = request_dict['isPhysicsEnabled']
+    if isPhysicsEnabled == 'true':
+        max_width = 2 #change for max width with optimized performance
     
     # load species json and reactions json
 
@@ -443,20 +445,23 @@ def generate_flow_diagram(request_dict):
     net = Network(height='100%', width='100%',directed=True) #force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
     net.inherit_edge_colors(False) #make it so we can manually change arrow colors
     shouldMakeSmallNode = False
-    if isPhysicsEnabled == "false":
-        # net.force_atlas_2based(gravity=400, overlap=1)
+    if isPhysicsEnabled == "true":
         net.toggle_physics(False)
         shouldMakeSmallNode = True
+        # net.barnes_hut()
+        net.force_atlas_2based()
     else:
         net.force_atlas_2based(gravity=-200, overlap=1)
-
+    
     if shouldMakeSmallNode:
+        # net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])])
+        # net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']], title=["quantity: "+str(quantities[x]) for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
         net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])])
-        net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']], title=["quantity: "+str(quantities[x]) for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
+        net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']], title=[str(quantities[x]) for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
     else:
         net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']])
         net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']], title=["quantity: "+str(quantities[x]) for x in list(network_content['species_nodes'])])
-    
+    net.set_edge_smooth('dynamic')
     # add edges individually so we can modify contents
     i=0
     values=list(edgeColors.values())
@@ -466,6 +471,7 @@ def generate_flow_diagram(request_dict):
             net.add_edge(edge[0], edge[1], color=values[i], width=edge[2])
         else:
             # hover over arrow to show value for arrows within range
+            
             net.add_edge(edge[0], edge[1], color=values[i], width=float(edge[2]), title="yield: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
         i=i+1
     #save as html
@@ -511,6 +517,10 @@ def generate_flow_diagram(request_dict):
                 # print("user selected values not valid, just pushing timeframe: ",minAndMaxOfSelectedTimeFrame)
                 a = a + 'parent.document.getElementById("filterRange").value = "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'" + " to " + "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'";' #update our filter range with new values
                 a = a + 'parent.reloadSlider("'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))+'", "'+str('{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))+'");</script>' #destroy slider and update slider entirely
+        if isPhysicsEnabled == 'true':
+            # add options to reduce text size
+            a = a + '<script>var container = document.getElementById("mynetwork");var options = {physics: false, nodes: {shape: "dot", size: 10,font: {size: 5}},};var network = new vis.Network(container, data, options);</script>'
+
         lines = f.readlines()
         for i, line in enumerate(lines):
             if line.startswith('</script>'):   # find a pattern so that we can add next to that line

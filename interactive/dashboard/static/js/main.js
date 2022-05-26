@@ -2,7 +2,7 @@ var currentlyLoadingGraph = false
 var currentMinValOfGraph = 0
 var currentMaxValOfGraph = 1
 function reloadSlider(firstVal, secondVal, minVal, maxVal) {
-  var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 60;
+  var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 100;
   console.log("step value: " + stepVal);
   console.log("received values: "+firstVal+" "+secondVal);
   $( "#range-slider2", window.parent.document ).slider("destroy");
