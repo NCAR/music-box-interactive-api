@@ -1,10 +1,12 @@
 var currentlyLoadingGraph = false
 var currentMinValOfGraph = 0
 var currentMaxValOfGraph = 1
+var shouldShowArrowWidth = false // if true, show arrow width slider (mostly used for debug)
+
 function reloadSlider(firstVal, secondVal, minVal, maxVal) {
-  var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 100;
+  var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 60;
   console.log("step value: " + stepVal);
-  console.log("received values: "+firstVal+" "+secondVal);
+  console.log("received values: "+firstVal+" "+parseFloat(secondVal).toExponential(3));
   $( "#range-slider2", window.parent.document ).slider("destroy");
   currentMinValOfGraph = minVal;
   currentMaxValOfGraph = maxVal;
@@ -18,7 +20,7 @@ function reloadSlider(firstVal, secondVal, minVal, maxVal) {
       // values: [ parseFloat(document.getElementById("flow-start-range2").value), parseFloat(document.getElementById("flow-end-range2").value) ],
       slide: function( event, ui ) {
           // update values when slider changed
-        $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(3) + " to " + parseFloat(ui.values[ 1 ]).toExponential(3) + "" );
+        // $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(3) + " to " + parseFloat(ui.values[ 1 ]).toExponential(3) + "" );
         document.getElementById("flow-start-range2").value = ui.values[ 0 ];
         document.getElementById("flow-end-range2").value = ui.values[ 1 ];
       },
@@ -60,8 +62,8 @@ function reloadGraph() {
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
         "arrowScalingType": $("#flow-scale-select").val(),
-        "minMolval": $("#flow-start-range2").val(),
-        "maxMolval": $("#flow-end-range2").val(),
+        "minMolval": parseFloat($("#flow-start-range2").val()),
+        "maxMolval": parseFloat($("#flow-end-range2").val()),
         "currentMinValOfGraph": currentMinValOfGraph,
         "currentMaxValOfGraph": currentMaxValOfGraph,
         "isPhysicsEnabled": $("#physics").is(":checked"),
@@ -176,6 +178,8 @@ $(document).ready(function(){
   $("#flow-start-range").on('change', function(){
     var newValue = $("#flow-start-range").val()
     $("#flow-start-input").val(newValue)
+    $("#range-slider").slider('values',0,newValue);
+    reloadGraph()
   });
   // $("#range-slider").on('change', function(){
   //   reloadGraph();
@@ -183,7 +187,21 @@ $(document).ready(function(){
   $("#flow-end-range").on('change', function(){
     var newValue = $("#flow-end-range").val()
     $("#flow-end-input").val(newValue)
-
+    $("#range-slider").slider('values',1,newValue);
+    reloadGraph()
+  });
+  $("#flow-start-range2").on('change', function(){
+    var newValue = $("#flow-start-range2").val()
+    $("#flow-start-input2").val(newValue)
+    reloadGraph()
+  });
+  // $("#range-slider").on('change', function(){
+  //   reloadGraph();
+  // });
+  $("#flow-end-range2").on('change', function(){
+    var newValue = $("#flow-end-range2").val()
+    $("#flow-end-input2").val(newValue)
+    reloadGraph()
   });
   // physics checkbox
   $("#physics").on('change', function(){
@@ -199,9 +217,14 @@ $(document).ready(function(){
     $("#flow-end-range").val(newValue)
 // slider value display for arrow slider
   });
+  if (shouldShowArrowWidth == false) {
+    console.log("removing arrow elements")
+    document.getElementById("arrow-width-group-item").style.display = "none";
+  }
   $("#flow-arrow-width-range").on('change', function(){
     var newValue = $("#flow-arrow-width-range").val()
     $("#arrow-range-val-display").html(newValue)
+    document.getElementById("max-arrow-label").innerHTML = "Max arrow width: "+newValue;
     reloadGraph();
   });
   $("#flow-scale-select").on('change', function(){

@@ -25,23 +25,30 @@
                         </div>
                         <div class="list-group-item">
                             <input type="checkbox" id="physics" name="physics" value="true">
-                            <label for="physics"> Optimize Performance (for big graphs)</label><br>
+                            <label for="physics"> Optimize Performance</label><br>
                         </div>
-                        <div class="list-group-item">
-                            <label for="flow-arrow-width-range" class="form-label">Max arrow width: </label>
+                        <div class="list-group-item" id="arrow-width-group-item">
+                            <label for="flow-arrow-width-range" class="form-label" id="max-arrow-label">Max arrow width: 7</label>
                             <input type="range" class="form-range" min="1" max="15" value="7" id="flow-arrow-width-range">
-                            <h4 id="arrow-range-val-display">7</h4>
+                            
+                            <h4 id="arrow-range-val-display" style="display:none;">7</h4>
                         </div>
                         <div class="list-group-item">
                             <p>
                                 <label for="number">Time Range (seconds):</label>
-                                <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold;">
+                                <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold; display:none;">
                               </p>
-                                
+                              <input type="text" id="flow-start-range" name="flow-start-range" value="0" style="float:left; width: 40%;">
+                              <p style="float:left;padding-left:10px;padding-right:10px;padding-top:5px;"> to </p>
+                              <input type="text" id="flow-end-range" name="flow-end-range" value="1" style="float:left;width: 40%;">
+                              <br>
+                              <br>
                               <div id="range-slider"></div>
                               <!-- start-range and end-range elements used to track slider values -->
-                               <div id="flow-start-range" style="display: none;"></div>
-                               <div id="flow-end-range" style="display: none;"></div>
+                               <!-- <div id="flow-start-range" style="display: none;"></div> -->
+                               
+                               <!-- <div id="flow-end-range" style="display: none;"></div> -->
+                               
                                 <script>
                                
                                 $( function() {
@@ -52,7 +59,7 @@
                                     values: [ 1, {{ simulation_length }} ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                      $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
+                                    //   $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
                                       document.getElementById("flow-start-range").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
@@ -73,13 +80,17 @@
                         <div class="list-group-item">
                             <p>
                                 <label for="number">Filter range (mol m<sup>-3</sup>):</label>
-                                <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;width: 100%;">
+                                <!-- <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;width: 100%;"> -->
                               </p>
-                                
+                              <input type="text" id="flow-start-range2" name="flow-start-range2" value="0" style="float:left; width: 40%;">
+                              <p style="float:left;padding-left:10px;padding-right:10px;padding-top:5px;"> to </p>
+                              <input type="text" id="flow-end-range2" name="flow-end-range2" value="1" style="float:left;width: 40%;">
+                              <br>
+                              <br>
                               <div id="range-slider2"></div>
                               <!-- start-range and end-range elements used to track slider values -->
-                               <div id="flow-start-range2" style="display: none;"></div>
-                               <div id="flow-end-range2" style="display: none;"></div>
+                               <!-- <div id="flow-start-range2" style="display: none;"></div>
+                               <div id="flow-end-range2" style="display: none;"></div> -->
                                 <script>
                                
                                 $( function() {
@@ -90,7 +101,7 @@
                                     values: [ 0,1 ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                      $( "#filterRange" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] + "" );
+                                    //   $( "#filterRange" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] + "" );
                                       document.getElementById("flow-start-range2").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range2").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
@@ -102,7 +113,7 @@
                                   });
                                 //   base values for the slider
                                   $( "#filterRange" ).val("NULL - NULL");
-                                  document.getElementById("flow-start-range2").value = 1;
+                                  document.getElementById("flow-start-range2").value = 0;
                                     //   document.getElementById("flow-end-range2").value = {{simulation_length}};
                                 } );
                                
