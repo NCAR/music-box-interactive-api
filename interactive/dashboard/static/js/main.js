@@ -7,22 +7,23 @@ function reloadSlider(firstVal, secondVal, minVal, maxVal) {
   var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 60;
   console.log("step value: " + stepVal);
   console.log("received values: "+firstVal+" "+parseFloat(secondVal).toExponential(3));
+  console.log("received min max (* 10^100): "+(parseFloat(minVal) * Math.pow(10,100))+" "+(parseFloat(maxVal) * Math.pow(10,100)));
   $( "#range-slider2", window.parent.document ).slider("destroy");
-  currentMinValOfGraph = minVal;
-  currentMaxValOfGraph = maxVal;
+  currentMinValOfGraph = parseFloat(minVal);
+  currentMaxValOfGraph = parseFloat(maxVal);
   $( function() {
     $( "#range-slider2",window.parent.document ).slider({
       range: true,
-      min: parseFloat(minVal),
-      max: parseFloat(maxVal),
-      step: stepVal,
-      values: [ parseFloat(firstVal).toExponential(3), parseFloat(secondVal).toExponential(3) ],
+      min: parseFloat(minVal).toExponential(3) * Math.pow(10,100),
+      max: parseFloat(maxVal).toExponential(3) * Math.pow(10,100),
+      step: stepVal * Math.pow(10,100),
+      values: [ parseFloat(firstVal).toExponential(3) *Math.pow(10,100), parseFloat(secondVal).toExponential(3) * Math.pow(10,100) ],
       // values: [ parseFloat(document.getElementById("flow-start-range2").value), parseFloat(document.getElementById("flow-end-range2").value) ],
       slide: function( event, ui ) {
           // update values when slider changed
         // $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(3) + " to " + parseFloat(ui.values[ 1 ]).toExponential(3) + "" );
-        document.getElementById("flow-start-range2").value = ui.values[ 0 ];
-        document.getElementById("flow-end-range2").value = ui.values[ 1 ];
+        document.getElementById("flow-start-range2").value = (ui.values[ 0 ] / Math.pow(10,100)).toExponential(3);
+        document.getElementById("flow-end-range2").value = (ui.values[ 1 ] / Math.pow(10,100)).toExponential(3);
       },
       stop: function(event, ui) {
           // reload graph when slider is released (a lot less stress on the server by waiting for the user to release the slider)
@@ -62,8 +63,8 @@ function reloadGraph() {
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
         "arrowScalingType": $("#flow-scale-select").val(),
-        "minMolval": parseFloat($("#flow-start-range2").val()),
-        "maxMolval": parseFloat($("#flow-end-range2").val()),
+        "minMolval": parseFloat(parseFloat($("#flow-start-range2").val())).toExponential(3),
+        "maxMolval": parseFloat(parseFloat($("#flow-end-range2").val())).toExponential(3),
         "currentMinValOfGraph": currentMinValOfGraph,
         "currentMaxValOfGraph": currentMaxValOfGraph,
         "isPhysicsEnabled": $("#physics").is(":checked"),
