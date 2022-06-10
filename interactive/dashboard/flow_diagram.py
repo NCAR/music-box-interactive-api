@@ -695,10 +695,11 @@ def generate_flow_diagram(request_dict):
         net.force_atlas_2based(gravity=-200, overlap=1)
     
     if shouldMakeSmallNode:
-        net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])], title=[beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in list(network_content['reaction_nodes'])])
+
+        net.add_nodes([beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in network_content['reaction_nodes']], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])], title=[beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in list(network_content['reaction_nodes'])])
         net.add_nodes(network_content['species_nodes'], color=[species_colors[x] for x in network_content['species_nodes']], title=[total_quantites[x] for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
     else:
-        net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], title=[beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in list(network_content['reaction_nodes'])])
+        net.add_nodes([beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in network_content['reaction_nodes']], color=["#FF7F7F" for x in network_content['reaction_nodes']], title=[beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in list(network_content['reaction_nodes'])])
         net.add_nodes(network_content['species_nodes'], color=[species_colors[x] for x in network_content['species_nodes']], title=["quantity: "+str(total_quantites[x]) for x in list(network_content['species_nodes'])], size=[species_sizes[x] for x in list(network_content['species_nodes'])])
     net.set_edge_smooth('dynamic')
     # add edges individually so we can modify contents
@@ -712,8 +713,14 @@ def generate_flow_diagram(request_dict):
             net.add_edge(edge[0], edge[1], color=values[val], width=edge[2])
         else:
             # hover over arrow to show value for arrows within range
-            
-            net.add_edge(edge[0], edge[1], color=values[val], width=float(edge[2]), title="flux: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
+
+            #check if value is reaction by looking for arrow
+            if "→" in edge[0]:
+                net.add_edge(beautifyReaction(reaction_names_on_hover[unbeautifyReaction(edge[0])]), edge[1], color=values[val], width=float(edge[2]), title="flux: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
+            elif "→" in edge[1]:
+                net.add_edge(edge[0], beautifyReaction(reaction_names_on_hover[unbeautifyReaction(edge[1])]), color=values[val], width=float(edge[2]), title="flux: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
+            else:
+                net.add_edge(edge[0], edge[1], color=values[val], width=float(edge[2]), title="flux: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
         i=i+1
     #save as html
     
