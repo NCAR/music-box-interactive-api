@@ -710,7 +710,12 @@ def generate_flow_diagram(request_dict):
         print("* loaded edge: ", edge)
         if values[val] == "#e0e0e0":
             # don't allow blocked edge to show value on hover (by removing title)
-            net.add_edge(edge[0], edge[1], color=values[val], width=edge[2])
+            if "→" in edge[0]:
+                net.add_edge(beautifyReaction(reaction_names_on_hover[unbeautifyReaction(edge[0])]), edge[1], color=values[val], width=edge[2])
+            elif "→" in edge[1]:
+                net.add_edge(edge[0], beautifyReaction(reaction_names_on_hover[unbeautifyReaction(edge[1])]), color=values[val], width=edge[2])
+            else:
+                net.add_edge(edge[0], edge[1], color=values[val], width=edge[2])
         else:
             # hover over arrow to show value for arrows within range
 
