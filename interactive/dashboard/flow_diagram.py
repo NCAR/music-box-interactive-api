@@ -174,7 +174,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data, blockedSpeci
     # raw_yields, edgeColors, quantities = CalculateRawYields(df, reactions_data, contained_reactions, widths, blockedSpecies)
     raw_yields = {}
     edgeColors = {}
-    quantities = findQuantities(species_nodes, reactions_data)
+    quantities, total_quantites, reaction_names_on_hover = findQuantities(reactions_nodes, reactions_data)
     print("|_ finished getting quantities:", quantities)
     for reaction in reactions_nodes:
         
@@ -186,11 +186,11 @@ def new_find_reactions_and_species(list_of_species, reactions_data, blockedSpeci
             else:
                 edgeColors.update({reaction+"__TO__"+product: "#e0e0e0"})
             if reaction not in blockedSpecies and product not in blockedSpecies:
-                raw_yields.update({reaction+"__TO__"+product: widths[reaction]*quantities[product]})
+                raw_yields.update({reaction+"__TO__"+product: widths[reaction]*quantities[reaction+"__TO__"+product]})
         for reactant in reactants_data:
             print("|_ added interaction:", reactant, " ==> ", beautifyReaction(reaction))
             if reactant not in blockedSpecies and reaction not in blockedSpecies:
-                raw_yields.update({reactant+"__TO__"+reaction: widths[reaction]*quantities[reactant]})
+                raw_yields.update({reactant+"__TO__"+reaction: widths[reaction]*quantities[reactant+"__TO__"+reaction]})
             if widths[reaction] <= userSelectedMinMax[1] and widths[reaction] >= userSelectedMinMax[0]:
                 if reactant in list_of_species:
                     edgeColors.update({reactant+"__TO__"+reaction: "#6b6bdb"})
@@ -213,7 +213,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data, blockedSpeci
     print(" ********************************* ")
 
     # quantities = [] #actually do this later
-    return CalculateEdgesAndNodes(reactions_nodes, species_nodes, scaledLineWeights, blockedSpecies), raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values, species_colors, species_sizes
+    return CalculateEdgesAndNodes(reactions_nodes, species_nodes, scaledLineWeights, blockedSpecies), raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values, species_colors, species_sizes, total_quantites, reaction_names_on_hover
 def getProductsAndReactionsFrom(reaction):
     reactants = []
     products = []
@@ -227,39 +227,84 @@ def isSpeciesInReaction(reaction, species):
         if species == re:
             return True
     return False
+def reactionNameFromDictionary(r):
+    reaction_string = ""
+    for reactant in r['reactants']:
+        reaction_string = reaction_string + reactant + "_"
+    reaction_string = reaction_string[:-1] + "->" # remove last _ and replace with ->
+    for product in r['products']:
+        reaction_string = reaction_string + product + "_"
+    reaction_string = reaction_string[:-1]
+
+    return reaction_string
 # return quantities of species in reactions
-def findQuantities(reactions, reactions_json):
+def findQuantities(reactions_nodes, reactions_json):
     global userSelectedMinMax
     global previous_vals
     global minAndMaxOfSelectedTimeFrame
+
+    # save quantities for use in arrows
     quantities = {}
 
+    # add quantities of every reaction selected for species (makes the quantities label accurate)
+    total_quantites = {}
+
+    # dict to save both the reaction name and the quantities of the species in that reaction
+    reaction_names_on_hover = {} #these names will be shown on hover
+
     r_list = reactions_json['camp-data'][0]['reactions']
-    print("|_ got reactions:", r_list)
+    # print("|_ got reactions:", r_list)
     i=0
     for reaction in r_list:
         if "products" in r_list[i] :
             reaction_data = r_list[i]['products'] #get products data at index reaction
             reactant_data = r_list[i]['reactants'] #get reactants data at index reaction
-            for product in reaction_data:
-                product_name = product
-                product_yield = reaction_data[product_name]
-                if product_yield == {} and (isSpeciesInReaction(reaction_data, product_name) or isSpeciesInReaction(reactant_data, product_name)):
-                    quantities.update({str(product_name): 1})
-                elif isSpeciesInReaction(reaction_data, product_name) or isSpeciesInReaction(reactant_data, product_name):
-                    product_yield = product_yield['yield']
-                    quantities.update({str(product_name): product_yield})
-        
+
+            reactants_string = ""
+            products_string = ""
+
+            speciesFromReaction = reactionNameFromDictionary(r_list[i])
+
             for reactant in reactant_data:
                 reactant_name = reactant
                 reactant_yield = reactant_data[reactant_name]
                 if reactant_yield == {} and (isSpeciesInReaction(reaction_data, reactant_name) or isSpeciesInReaction(reactant_data, reactant_name)):
-                    quantities.update({str(reactant_name): 1})
+                    quantities.update({str(reactant_name)+"__TO__"+str(speciesFromReaction): 1})
+                    # total_quantites.update({str(reactant_name): total_quantites.get(reactant_name, 0) + 1})
+                    if str(speciesFromReaction) in reactions_nodes:
+                        total_quantites.update({str(reactant_name): total_quantites.get(reactant_name, 0) + 1})
+                        reactants_string += str(reactant_name)+"_"
                 elif isSpeciesInReaction(reaction_data, reactant_name) or isSpeciesInReaction(reactant_data, reactant_name):
                     reactant_yield = reactant_yield['qty']
-                    quantities.update({str(reactant_name): reactant_yield})
+                    quantities.update({str(reactant_name)+"__TO__"+str(speciesFromReaction): reactant_yield})
+                    if str(speciesFromReaction) in reactions_nodes:
+                        total_quantites.update({str(reactant_name): total_quantites.get(reactant_name, 0) + reactant_yield})
+                        reactants_string += (str(reactant_yield['qty'])+str(reactant_name)+"_").replace(".0"+str(product_name), str(product_name)) # clean up by replacing .0 with nothing
+            reactants_string = reactants_string[:-1] # remove last _
+            for product in reaction_data:
+                product_name = product
+                product_yield = reaction_data[product_name]
+
+                
+                # reaction_names_on_hover
+                if product_yield == {} and (isSpeciesInReaction(reaction_data, product_name) or isSpeciesInReaction(reactant_data, product_name)):
+                    quantities.update({str(speciesFromReaction)+"__TO__"+str(product_name): 1})
+                    # total_quantites.update({str(product_name): total_quantites.get(product_name, 0) + 1})
+
+                    # check if reaction is included in user selected species (so we don't add EVERYTHING from the model)
+                    if str(speciesFromReaction) in reactions_nodes:
+                        total_quantites.update({str(product_name): total_quantites.get(product_name, 0) + 1})
+                        products_string+= str(product_name)+"_"
+                elif isSpeciesInReaction(reaction_data, product_name) or isSpeciesInReaction(reactant_data, product_name):
+                    product_yield = product_yield['yield']
+                    quantities.update({str(speciesFromReaction)+"__TO__"+str(product_name): product_yield})
+                    if str(speciesFromReaction) in reactions_nodes:
+                        total_quantites.update({str(product_name): total_quantites.get(product_name, 0) + product_yield})
+                        products_string += (str(product_yield)+str(product_name)+"_").replace(".0"+str(product_name), str(product_name)) # clean up by replacing .0 with nothing
+            products_string = products_string[:-1] # remove last _
+            reaction_names_on_hover.update({speciesFromReaction: reactants_string+"->"+products_string})
         i+=1
-    return quantities
+    return quantities, total_quantites, reaction_names_on_hover
 # make list of indexes of included reactions, and names of all species that participate in them
 def find_reactions_and_species(list_of_species, reactions_json):
     print("[2/7] finding reactions and species")
@@ -480,7 +525,7 @@ def CalculateRawYields(df, reactions_json, reactions, widths, blockedSpecies): #
     if userSelectedMinMax[1] > minAndMaxOfSelectedTimeFrame[1]:
         print("user selected max is greater than max of selected time frame, changing to",minAndMaxOfSelectedTimeFrame[1])
         userSelectedMinMax[1] = minAndMaxOfSelectedTimeFrame[1]
-    # print("min and max of selected time frame: ",minAndMaxOfSelectedTimeFrame,"user selected min and max: ",userSelectedMinMax)
+    
     return calculatedYields, edgeColors, quantities
 def calculateLineWeights(maxWidth, species_yields, scale_type):
     #use fluxes from map we setup, scale the values, add weights and whatnot (maybe say what color we want arrow to be)
@@ -624,7 +669,7 @@ def generate_flow_diagram(request_dict):
     # completely new method of creating nodes and filtering elements    
     selected_species = request_dict['includedSpecies'].split(',')
     blockedSpecies = request_dict['blockedSpecies'].split(',')
-    network_content, raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values, species_colors, species_sizes = new_find_reactions_and_species(selected_species, reactions_data, blockedSpecies, csv, start_step, end_step, max_width,scale_type, reactions_data, csv)
+    network_content, raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values, species_colors, species_sizes, total_quantites, reaction_names_on_hover = new_find_reactions_and_species(selected_species, reactions_data, blockedSpecies, csv, start_step, end_step, max_width,scale_type, reactions_data, csv)
 
 
 
@@ -650,13 +695,11 @@ def generate_flow_diagram(request_dict):
         net.force_atlas_2based(gravity=-200, overlap=1)
     
     if shouldMakeSmallNode:
-        # net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])])
-        # net.add_nodes(network_content['species_nodes'], color=['#94b8f8' for x in network_content['species_nodes']], title=["quantity: "+str(quantities[x]) for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
-        net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])])
-        net.add_nodes(network_content['species_nodes'], color=[species_colors[x] for x in network_content['species_nodes']], title=[quantities[x] for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
+        net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], size=[10 for x in list(network_content['reaction_nodes'])], title=[beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in list(network_content['reaction_nodes'])])
+        net.add_nodes(network_content['species_nodes'], color=[species_colors[x] for x in network_content['species_nodes']], title=[total_quantites[x] for x in list(network_content['species_nodes'])], size=[10 for x in list(network_content['species_nodes'])])
     else:
-        net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']])
-        net.add_nodes(network_content['species_nodes'], color=[species_colors[x] for x in network_content['species_nodes']], title=["quantity: "+str(quantities[x]) for x in list(network_content['species_nodes'])], size=[species_sizes[x] for x in list(network_content['species_nodes'])])
+        net.add_nodes(network_content['reaction_nodes'], color=["#FF7F7F" for x in network_content['reaction_nodes']], title=[beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)]) for x in list(network_content['reaction_nodes'])])
+        net.add_nodes(network_content['species_nodes'], color=[species_colors[x] for x in network_content['species_nodes']], title=["quantity: "+str(total_quantites[x]) for x in list(network_content['species_nodes'])], size=[species_sizes[x] for x in list(network_content['species_nodes'])])
     net.set_edge_smooth('dynamic')
     # add edges individually so we can modify contents
     i=0
@@ -670,7 +713,7 @@ def generate_flow_diagram(request_dict):
         else:
             # hover over arrow to show value for arrows within range
             
-            net.add_edge(edge[0], edge[1], color=values[val], width=float(edge[2]), title="yield: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
+            net.add_edge(edge[0], edge[1], color=values[val], width=float(edge[2]), title="flux: "+str(raw_yields[unbeautifyReaction(edge[0])+"__TO__"+unbeautifyReaction(edge[1])]))
         i=i+1
     #save as html
     

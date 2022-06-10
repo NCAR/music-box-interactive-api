@@ -1,7 +1,7 @@
 var currentlyLoadingGraph = false
 var currentMinValOfGraph = 0
 var currentMaxValOfGraph = 1
-var shouldShowArrowWidth = false // if true, show arrow width slider (mostly used for debug)
+var shouldShowArrowWidth = true // if true, show arrow width slider (mostly used for debug)
 
 function reloadSlider(firstVal, secondVal, minVal, maxVal) {
   var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 60;
