@@ -35,7 +35,7 @@
                         </div>
                         <div class="list-group-item">
                             <p>
-                                <label for="number">Time Range (minutes):</label>
+                                <label for="number">Time Range (seconds):</label>
                                 <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold; display:none;">
                               </p>
                               <input type="text" id="flow-start-range" name="flow-start-range" value="0" style="float:left; width: 40%;">
@@ -55,8 +55,8 @@
                                   $( "#range-slider" ).slider({
                                     range: true,
                                     min: 1,
-                                    max: {{ simulation_length }},
-                                    values: [ 1, {{ simulation_length }} ],
+                                    max: {{ simulation_length }}*60,
+                                    values: [ 1, {{ simulation_length }}*60 ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
                                     //   $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
@@ -72,7 +72,7 @@
                                 //   base values for the slider
                                   $( "#amount" ).val("1s - {{simulation_length}}s");
                                   document.getElementById("flow-start-range").value = 1;
-                                      document.getElementById("flow-end-range").value = {{simulation_length}};
+                                      document.getElementById("flow-end-range").value = {{simulation_length}}*60; // remove *600 to get minutes
                                 } );
                                
                                 </script>
