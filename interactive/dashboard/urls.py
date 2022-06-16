@@ -1,8 +1,28 @@
 from django.urls import path, include
 
 from . import views 
-
+from . import api
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.views import APIView
+from rest_framework.response import Response
+# Root url tree
+# Dashboard.urls contains landing and getting started pages + conditions editing pages
+schema_view = get_schema_view(
+   openapi.Info(
+      title="MusicBox interactive API",
+      default_version='v1',
+      description="All API calls used in the MusicBox interactive",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@snippets.local"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
 app_name = 'dashboard'
+
 urlpatterns = [
     #main page rendering paths:
     path('',          views.landing_page),
@@ -50,5 +70,17 @@ urlpatterns = [
     # -----------------------------------
     #file download paths:
     path('download_config', views.download_file),
-    path('download', views.download_handler)
+    path('download', views.download_handler),
+    # -----------------------------------
+    #api paths:
+    path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('test-view/', views.TestAPIView.as_view(), name='test-view'),
+
+
+    path('api/current-conditions/', api.ConditionsView.as_view(), name='current-conditions'),
+    path('api/current-mechanisms/', api.MechanismView.as_view(), name='current-conditions'),
+    path('api/set-example/', api.ConditionsView.as_view(), name='set-example'),
+    path('api/run-model/', api.ConditionsView.as_view(), name='run-model'),
+    path('api/session-id/', api.SessionView.as_view(), name='session-id')
 ]

@@ -20,6 +20,7 @@ import codecs
 import time
 from io import TextIOWrapper
 
+
 def landing_page(request):
     context = {
         'bugform': BugForm()
