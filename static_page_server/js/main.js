@@ -4,7 +4,7 @@ var currentMaxValOfGraph = 1
 var shouldShowArrowWidth = true // if true, show arrow width slider (mostly used for debug)
 
 function reloadSlider(firstVal, secondVal, minVal, maxVal) {
-  var stepVal = (parseFloat(maxVal) - parseFloat(minVal));
+  var stepVal = (parseFloat(maxVal) - parseFloat(minVal)) / 60;
   console.log("step value: " + stepVal);
   console.log("received values: "+firstVal+" "+parseFloat(secondVal).toExponential(3));
   console.log("received min max (* 10^100): "+(parseFloat(minVal) * Math.pow(10,100))+" "+(parseFloat(maxVal) * Math.pow(10,100)));
@@ -74,36 +74,6 @@ function reloadGraph() {
         
       }
     });
-
-    // TEST API CALLS
-    // $.ajax({
-    //   url:'api/mechanisms/',
-    //   type: 'get',
-    //   data: {
-    //   },
-    //   success: function(response){
-    //     console.log("got response from mechanisms GET: ");
-    //     console.log(response["species"]);
-    //   }
-    // });
-
-    // $.ajax({
-    //   url:'api/mechanisms/add/',
-    //   type: 'post',
-    //   data: {
-    //     "type": "species",
-    //     "name": "M",
-    //     "absolute_convergence_tolerance": "",
-    //     "description": "TEST SPECIES",
-    //     "molecular_weight": 420,
-    //     "tracer_type": "Test!!"
-    //   },
-    //   success: function(response){
-    //     console.log("got response from mechanisms ADD: ");
-    //     console.log(response);
-    //   }
-    // });
-    
 }
 
 $(document).ready(function(){

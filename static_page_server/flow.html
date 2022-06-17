@@ -54,10 +54,9 @@
                                 $( function() {
                                   $( "#range-slider" ).slider({
                                     range: true,
-                                    min: 0,
-                                    max: {{ simulation_length }},
-                                    values: [ 0, {{ simulation_length }} ],
-                                    step: {{ step_length }},
+                                    min: 1,
+                                    max: {{ simulation_length }}*60,
+                                    values: [ 1, {{ simulation_length }}*60 ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
                                     //   $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
@@ -72,8 +71,8 @@
                                   });
                                 //   base values for the slider
                                   $( "#amount" ).val("1s - {{simulation_length}}s");
-                                  document.getElementById("flow-start-range").value = 0;
-                                      document.getElementById("flow-end-range").value = {{simulation_length}}; // remove *600 to get minutes
+                                  document.getElementById("flow-start-range").value = 1;
+                                      document.getElementById("flow-end-range").value = {{simulation_length}}*60; // remove *600 to get minutes
                                 } );
                                
                                 </script>

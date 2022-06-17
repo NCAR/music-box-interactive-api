@@ -75,12 +75,14 @@ urlpatterns = [
     #api paths:
     path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('test-view/', views.TestAPIView.as_view(), name='test-view'),
+    path('yaml/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('test-view/', api.TestAPIView.as_view(), name='test-view'),
 
 
-    path('api/current-conditions/', api.ConditionsView.as_view(), name='current-conditions'),
-    path('api/current-mechanisms/', api.MechanismView.as_view(), name='current-conditions'),
-    path('api/set-example/', api.ConditionsView.as_view(), name='set-example'),
-    path('api/run-model/', api.ConditionsView.as_view(), name='run-model'),
+    path('api/conditions/', api.ConditionsView.as_view(), name='current-conditions'),
+    path('api/mechanisms/', api.MechanismView.as_view(), name='current-mechanisms'),
+    path('api/mechanisms/add/', api.AddMechanismView.as_view(), name='current-mechanisms'),
+    path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
+    path('api/run-model/', api.RunView.as_view(), name='run-model'),
     path('api/session-id/', api.SessionView.as_view(), name='session-id')
 ]

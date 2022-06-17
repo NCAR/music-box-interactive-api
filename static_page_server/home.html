@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<main role="main">
+  <div id="about" class="jumbotron text-center hero-img" style='background-image: url("{% static 'img/image_calvin.jpg' %}")'>
+    <div class="container">
+      <h1 class="display-2">MusicBox</h1>
+      <h1 class="display-6">an atmospheric box model</h1>
+      <p class="lead hero-text">
+        Simulate chamber or flow-tube experiments, recreate field observations, or
+        evalute the effects of new chemistry on an existing system. MusicBox is designed to
+        let you build the chemical system you want. You can simulate that system for the
+        conditions you're interested in, and evalute the results.
+      </p>
+      <p class="lead hero-text">
+        When you're ready,
+        communicate your new chemical system to the community, so it can run in any
+        <a href="#collaborators">participating model</a>.
+      <p>
+        <a href="/getting_started" class="btn btn-primary btn-lg btn-ncar-active">Get started »</a>
+      </p>
+      <div class="warning-box">
+        MusicBox is currently being tested. Please verify all simulation results independently.
+      </div>
+    </div>
+  </div>
+  <div style="height:150px;">
+  </div>
+  <div id="behind-the-music" class="about-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6" style="padding-top:100px;">
+          <h1 class="about-heading">Behind the Music</h1>
+          <div class="pt-4">
+            <h4>MusicBox leverages several state-of-the-art technologies to solve aspects of the atmospheric system.</h4>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-4">
+                <h3 class="about-heading">CAMP</h3>
+              </div>
+              <div class="col-lg-8">
+                <p>
+                Chemistry Across Multiple Phases (CAMP) is a run-time configured chemical system solver for gas- and condensed-phase reactions and mass transfer associated with the condensation and evaporation of gases to and from aerosol particles and cloud droplets. It is designed to work with a variety of aerosol representations (modes, bins, single particles). CAMP is a product of the Barcelona Supercomputing Center (BSC) and the University of Illinois at Urbana&ndash;Champaign.
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-4">
+                <h3 class="about-heading">MICM</h3>
+              </div>
+              <div class="col-lg-8">
+                <p>
+                The Model-Independent Chemistry Module (MICM) is a chemical system solver designed to bring flexibility for chemical systems to high-performance weather and climate models. MICM is developed at the National Center for Atmospheric Research (NCAR).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="about-section hero-img" style='background-image: url("{% static 'img/image_ammann.jpg' %}"); height:300px;'>
+  </div>
+  <div id="collaborators" class="about-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-4 d-flex justify-content-center">
+                <a href="https://ncar.ucar.edu/">
+                  <img src="{% static 'img/ACOM_small.png' %}" class="logo-small img-fluid" alt="National Center for Atmospheric Research">
+                </a>
+              </div>
+              <div class="col-lg-8">
+                <p>
+                  MusicBox is a component of the MUSICA project of the National Center for Atmospheric Research's Atmospheric Chemistry Observations and Modeling Laboratory. MUSICA – the Multi-Scale Infrastructure for Chemistry and Aerosols – will become a computationally feasible global modeling framework that allows for the simulation of large-scale atmospheric phenomena, while still resolving chemistry at emission and exposure relevant scales (down to ~4 km within the next 5 years). The Model-Independent Chemistry Module (MICM) is also developed at NCAR-ACOM and can bring MusicBox mechanisms you develop here to high-performance weather and climate models.
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-4 d-flex justify-content-center">
+                <a href="https://www.bsc.es/">
+                  <img src="{% static 'img/bsc_small.jpg' %}" class="logo-small img-fluid" alt="Barcelona Supercomputing Center">
+                </a>
+              </div>
+              <div class="col-lg-8">
+                <p>
+                  MusicBox uses Chemistry Across Multiple Phases (CAMP) from the Barcelona Supercomputing Center (BSC) Earth Sciences Department. CAMP is being incorporated into BSC's Multiscale Online Non-hydrostatic AtmospheRe CHemistry model (MONARCH) model. This means mechanisms you develop in MusicBox can be rapidly deployed to a global/regional chemical weather prediction system.
+                </p>
+                <div class="container">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="d-flex justify-content-center">
+                        <img src="{% static 'img/MDC.png' %}" class="logo-small img-fluid" alt="Ministerio de Ciencia, Innovación y Universidades">
+                      </div>
+                      <div class="my-2">
+                        <p><small>
+                          Ministerio de Ciencia, Innovación y Universidades as part of the BROWNING project RTI2018-099894-B-I00
+                        </small></p>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="d-flex justify-content-center">
+                        <img src="{% static 'img/EU.png' %}" class="logo-small img-fluid" alt="European Union Horizon 2020">
+                      </div>
+                      <div class="my-2">
+                        <p><small>
+                          European Union’s Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement No 747048
+                        </small></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-4 d-flex justify-content-center">
+                <a href="https://illinois.edu/">
+                  <img src="{% static 'img/UI_small.png' %}" class="logo-small img-fluid" alt="University of Illinois at Urbana Champaign">
+                </a>
+              </div>
+              <div class="col-lg-8">
+                <p>
+                  Chemistry Across Multiple Phases (CAMP) is co-developed at the Univesity of Illinois at Urbana&ndash;Champaign and is used in the PartMC Particle-Resolved Monte Carlo model for atmopsheric aerosol simulation. PartMC can use MusicBox mechanisms to explore mixing-state effects of the atmospheric system you are interested in.
+                </p>
+                <div class="container">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="d-flex justify-content-center">
+                        <img src="{% static 'img/NSF.png' %}" class="logo-small img-fluid" alt="National Science Foundation">
+                      </div>
+                      <div class="my-2">
+                        <p><small>
+                          National Science Foundation Award NSF-AGS 19-41110
+                        </small></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <h1 class="about-heading">MusicBox Collaborators</h1>
+          <div class="pt-4">
+            <h4>MusicBox chooses its friends wisely. Our goal is to streamline the communication of chemical mechanisms from MusicBox to any collaborator model.</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="sponsors" class="about-section">
+    <div class="container">
+      <h1 class="about-heading">Our Sponsor</h1>
+      <h4 class="py-4">The National Science Foundation funds the MUSICA project</h4>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="d-flex justify-content-center">
+              <img src="{% static 'img/NSF.png' %}" class="logo-small img-fluid" alt="National Science Foundation">
+            </div>
+            <div class="my-2">
+              <p>
+                National Science Foundation Cooperative Agreement 1755088
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="developers" class="about-section">
+    <div class="container">
+      <h1 class="about-heading">Developers</h1>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4">
+            <ul><h4>
+              <li>Andrew Conley</li>
+              <li>Matt Dawson</li>
+              <li>Simon Thomas</li>
+            </h4></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="report-a-bug" class="about-section standout-section">
+    <div class="container">
+      <h1 class="about-heading" style="color:white;">Report a bug</h1>
+      <div class="pt-4">
+        <p style="color:white;">
+          <h5>Fill in your report here, and hit submit. This will download a zip file, which you can send to <a href="mailto: music-box-support@ucar.edu">music-box-support@ucar.edu</a></h5>
+          <form method="POST" action='/conditions/report'>
+            {% csrf_token %}
+            {{ bugform }}
+            <button type="submit" class="btn btn-primary my-2">Submit</button>
+          </form>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div id="contact" class="about-section">
+    <div class="container">
+      <h1 class="about-heading">Contact the MusicBox team</h1>
+      <div class="pt-4">
+        <p>You can reach us at <a href="mailto: music-box-support@ucar.edu">music-box-support@ucar.edu</a> to tell us your thoughts about MusicBox. We look forward to hearing your ideas and concerns. We're a small team, but we'll try to respond promptly.</p>
+      </div>
+    </div>
+  </div>
+  <div class="pt-4 px-2">
+    <p>
+      <small>
+        Background images: Copyright University Corporation for Atmospheric Research (UCAR). By Carlye Calvin and Caspar Ammann, licensed under a Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) License, via OpenSky.
+      </small>
+    </p>
+  </div>
+</main>
+
+
+
+{% endblock %}

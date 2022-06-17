@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'dashboard',
     'plots',
     'crispy_forms',
-    'drf_yasg',
-    "django.contrib.sessions"
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [

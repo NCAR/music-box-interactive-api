@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container text-center">
+  <div class="plotnav navbox pt-2">
+    {% if "CONC" in plots_list %}
+      <a class="propfam btn btn-secondary" id="species">Chemical species</a>
+    {% endif %}
+    {% if "RATE" in plots_list %}
+      <a class="propfam btn btn-secondary" id="rates">Reaction rates</a>
+    {% endif %}
+    {% if "ENV" in plots_list %}
+      <a class="propfam btn btn-secondary" id="env">Environmental conditions</a>
+    {% endif %}
+  </div>
+</div>
+<p class="lead-muted p-2">
+Select a category from the top and then choose specific elements to plot from the left.
+</p>
+<div id=plots_content class="container-fluid p-2 d-flex flex-column vh-100 overflow-hidden">
+  <div class="row flex-grow-1 overflow-hidden">
+    <div class="col-md-4 col-lg-3 mh-100 overflow-auto">
+      <div class="row flex-shrink-0">
+        <div class="col">
+          <nav>
+            <ul class="list-group bg-ncar-menu-secondary p-2" id="plotbar">
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div class="col mh-100 overflow-auto">
+      <div class="row flex-shrink-0">
+        <div id="plot" class="col">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/static/js/plots.js"></script>
+{% endblock %}

@@ -20,6 +20,7 @@ import codecs
 import time
 from io import TextIOWrapper
 from rest_framework import generics, status, views, permissions
+from rest_framework.response import Response
 
 # api.py contains all DJANGO based backend requests made to the server from client --
 # each browser session creates a "session_key" saved to cookie on client side
@@ -41,10 +42,10 @@ from rest_framework import generics, status, views, permissions
 
 
 
-class TestAPIView(APIView):
+class TestAPIView(views.APIView):
     def get(self, request):
         return Response({"message": "This is a test API view"})
-class ConditionsView(APIView):
+class ConditionsView(views.APIView):
     def get(self, request):
         print("****** GET request received CONDITIONS_VIEW ******")
         if not request.session.exists(request.session.session_key):
@@ -53,7 +54,9 @@ class ConditionsView(APIView):
         
         print("fetching conditions for session id: " + request.session.session_key)
         return Response({"session_id": request.session.session_key})
-class MechanismView(APIView):
+    def post(self, request):
+        print("post request")
+class MechanismView(views.APIView):
     def get(self, request):
         print("****** GET request received MECHANISM_VIEW ******")
         if not request.session.exists(request.session.session_key):
@@ -61,18 +64,89 @@ class MechanismView(APIView):
             print("new session created")
         
         print("fetching mechanisms for session id: " + request.session.session_key)
-        return Response({"session_id": request.session.session_key})
-class SessionView(APIView):
+        species = request.session.get("species", []) #set default value to [] so that we don't get any errors
+        reactions = request.session.get("reactions", [])
+        return Response({"session_id": request.session.session_key, "species":species, "reactions":reactions})
+    
+    def delete(self, request):
+        # delete mechanism
+        print("****** DELETE request received MECHANISM_VIEW ******")
+        #delete all species and reactions
+        del request.session['species']
+        del request.session['reactions']
+
+        return Response(status=status.HTTP_200_OK)
+class AddMechanismView(views.APIView):
+    def post(self, request):
+        if not request.session.exists(request.session.session_key):
+            request.session.create() 
+        print("********* adding mechanism for user "+request.session.session_key+" *********")
+        print(request.POST.dict())
+        type_to_add = request.POST.dict()["type"] # 'species' or 'reaction'
+        if type_to_add == "species":
+
+            name = request.POST.dict()["name"]
+            convergence_tolerance = request.POST.dict()["absolute_convergence_tolerance"]
+            description = request.POST.dict()["description"]
+            molecular_weight = request.POST.dict()["molecular_weight"]
+            tracer_type = request.POST.dict()["tracer_type"]
+
+            if 'species' not in request.session:
+                print("no species added, creating new array")
+                request.session['species'] = [{"name":name, "convergence_tolerance": convergence_tolerance, "description":description,"molecular_weight":molecular_weight,"tracer_type":tracer_type}]
+            else:
+                print("species array exists, appending")
+                species = request.session['species']
+                species.append({"name":name, "convergence_tolerance": convergence_tolerance, "description":description,"molecular_weight":molecular_weight,"tracer_type":tracer_type})
+                request.session['species'] = species
+            
+            print("returning species:",request.session['species'])
+            return Response(request.session['species'])
+        elif type_to_add == "reaction":
+            reaction_type = request.POST.dict()["reaction_type"]
+            reactants = request.POST.dict()["reactants"]
+            products = request.POST.dict()["products"]
+            scaling_factor = request.POST.dict()["scaling_factor"]
+            musica_name = request.POST.dict()["musica_name"]
+            if 'reactions' not in request.session:
+                print("no reactions added, creating new array")
+                request.session['reactions'] = [{"reaction_type":reaction_type, "reactants": reactants, "products":products,"scaling_factor":scaling_factor,"musica_name":musica_name}]
+            else:
+                print("reactions array exists, appending")
+                reactions = request.session['species']
+                reactions.append({"reaction_type":reaction_type, "reactants": reactants, "products":products,"scaling_factor":scaling_factor,"musica_name":musica_name})
+                request.session['reactions'] = reactions
+            
+            print("returning reactions:",request.session['reactions'])
+            return Response(request.session['reactions'])
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+class ExampleView(views.APIView):
+    def get(self, request):
+        if not request.session.exists(request.session.session_key):
+            request.session.create() 
+        #set example conditions and species/reactions
+        example_name = 'example_' + str(request.GET.dict()['example'])
+        examples_path = os.path.join(settings.BASE_DIR, 'dashboard/static/examples')
+        example_folder_path = os.path.join(examples_path, example_name)
+class SessionView(views.APIView):
     def get(self, request):
         print("****** GET request received SESSION_VIEW ******")
         if not request.session.exists(request.session.session_key):
             request.session.create() 
             print("new session created")
         
-        print("fetching mechanisms for session id: " + request.session.session_key)
+        print("returning session id: " + request.session.session_key)
         return Response({"session_id": request.session.session_key})
     def post(self, request):
-        new_session_id = request.POST.dict()["set_session_id"]
+        new_session_id = request.POST.dict()["session_id"]
         request.session.session_key = new_session_id
         print("****** setting new session key for user:",new_session_id,"******")
+        return Response({"session_id": request.session.session_key}, status=status.HTTP_201_CREATED)
+class RunView(views.APIView):
+    def post(self, request):
+        if not request.session.exists(request.session.session_key):
+            request.session.create() 
+        print("****** Running simulation for user session:",request.session.session_key,"******")
         return Response({"session_id": request.session.session_key}, status=status.HTTP_201_CREATED)

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="navbox">
+  <div id="plotnav" class="plotnav">
+      <a class="propfam" id="species">Chemical species</a>
+      <a class="propfam" id="rates">Reaction rates</a>
+      <a class="propfam" id="env">Enviornmental conditions</a>
+      <a class="propfam" id="custom">Custom plot</a>
+      <a href="/plots/compare" id="compare">Compare results</a>
+  </div> 
+</div>
+
+<div class="compare-navbox">
+  {% if runs %}
+    {% for run in runs %}
+        <a class="modelrun" id="{{run}}">{{run}}</a>
+    {% endfor %}
+  {% endif %}
+</div>
+
+
+
+<div id=plots_content>
+  <div id="plotbar">
+  </div> 
+  <div id="plot">
+    <h3><div id='plotmessage'>Select two plot runs to compare.</div></h3>
+  </div>
+</div>
+
+
+{% endblock %}
