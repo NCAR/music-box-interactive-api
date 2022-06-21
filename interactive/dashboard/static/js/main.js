@@ -76,33 +76,33 @@ function reloadGraph() {
     });
 
     // TEST API CALLS
-    // $.ajax({
-    //   url:'api/mechanisms/',
-    //   type: 'get',
-    //   data: {
-    //   },
-    //   success: function(response){
-    //     console.log("got response from mechanisms GET: ");
-    //     console.log(response["species"]);
-    //   }
-    // });
+    $.ajax({
+      url:'api/mechanisms/',
+      type: 'get',
+      data: {
+      },
+      success: function(response){
+        console.log("got response from mechanisms GET: ");
+        console.log(response["species"]);
+      }
+    });
 
-    // $.ajax({
-    //   url:'api/mechanisms/add/',
-    //   type: 'post',
-    //   data: {
-    //     "type": "species",
-    //     "name": "M",
-    //     "absolute_convergence_tolerance": "",
-    //     "description": "TEST SPECIES",
-    //     "molecular_weight": 420,
-    //     "tracer_type": "Test!!"
-    //   },
-    //   success: function(response){
-    //     console.log("got response from mechanisms ADD: ");
-    //     console.log(response);
-    //   }
-    // });
+    $.ajax({
+      url:'api/mechanisms/add/',
+      type: 'post',
+      data: {
+        "type": "species",
+        "name": "M",
+        "absolute_convergence_tolerance": "",
+        "description": "TEST SPECIES",
+        "molecular_weight": 420,
+        "tracer_type": "Test!!"
+      },
+      success: function(response){
+        console.log("got response from mechanisms ADD: ");
+        console.log(response);
+      }
+    });
     
 }
 
