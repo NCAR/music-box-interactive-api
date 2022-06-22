@@ -386,11 +386,15 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     print(" ********************************* ")
     print("*= [6/6] calculating line colors =*")
     print(" ********************************* ")
-
+    re_no = reactions_nodes
+    sp_no = species_nodes
+    sp_no = scaledLineWeights
+    b = blockedSpecies
     # quantities = [] #actually do this later
-    return (CalculateEdgesAndNodes(reactions_nodes, species_nodes, scaledLineWeights, blockedSpecies),
-            raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values,
-            species_colors, species_sizes, total_quantites, reaction_names_on_hover)
+    return (CalculateEdgesAndNodes(re_no, sp_no, sp_no, b),
+            raw_yields, edgeColors, quantities, minVal, maxVal,
+            raw_yield_values, species_colors, species_sizes,
+            total_quantites, reaction_names_on_hover)
 
 
 def getProductsAndReactionsFrom(reaction):
@@ -454,11 +458,13 @@ def findQuantities(reactions_nodes, reactions_json):
             for reactant in reactant_data:
                 reactant_name = reactant
                 reactant_yield = reactant_data[reactant_name]
+                inReac = isSpeciesInReaction(reactant_data, reactant_name)
+                name = str(reactant_name)+"__TO__"+str(speciesFromReaction)
                 if (reactant_yield == {}
                     and (isSpeciesInReaction(reaction_data, reactant_name)
-                        or isSpeciesInReaction(reactant_data, reactant_name))):
-                    quantities.update(
-                        {str(reactant_name)+"__TO__"+str(speciesFromReaction): 1})
+                        or inReac)):
+                    nme = str(reactant_name)+"__TO__"+str(speciesFromReaction)
+                    quantities.update({nme: 1})
                     if str(speciesFromReaction) in reactions_nodes:
                         new_val = total_quantites.get(reactant_name, 0) + 1
                         total_quantites.update(
@@ -467,14 +473,15 @@ def findQuantities(reactions_nodes, reactions_json):
                 elif (isSpeciesInReaction(reaction_data, reactant_name)
                       or isSpeciesInReaction(reactant_data, reactant_name)):
                     reactant_yield = reactant_yield['qty']
-                    name = str(reactant_name)+"__TO__"+str(speciesFromReaction)
+                    
                     quantities.update(
                         {name: reactant_yield})
                     if str(speciesFromReaction) in reactions_nodes:
-                        new_val = total_quantites.get(reactant_name, 0) + reactant_yield
+                        new_val = total_quantites.get(reactant_name, 0)
                         total_quantites.update(
-                            {str(reactant_name): new_val})
-                        reactants_string += (str(reactant_yield)+str(reactant_name)+"_")
+                            {str(reactant_name): new_val + reactant_yield})
+                        reactants_string += (str(reactant_yield))
+                        reactants_string += str(reactant_name)+"_"
                         reactants_string = (reactants_string.replace(".0" +
                             str(reactant_name), str(reactant_name)))
             reactants_string = reactants_string[:-1]
@@ -486,12 +493,13 @@ def findQuantities(reactions_nodes, reactions_json):
                 if (product_yield == {}
                     and (isSpeciesInReaction(reaction_data, product_name)
                     or isSpeciesInReaction(reactant_data, product_name))):
-                    quantities.update(
-                        {str(speciesFromReaction)+"__TO__"+str(product_name): 1})
+                    nme = str(speciesFromReaction)+"__TO__"+str(product_name)
+                    quantities.update({nme: 1})
 
                     # check if reaction is included in user selected species
                     if str(speciesFromReaction) in reactions_nodes:
-                        new_val = total_quantites.get(product_name, 0) + 1
+                        quan = total_quantites.get(product_name, 0)
+                        new_val = quan + 1
                         total_quantites.update(
                             {str(product_name): new_val})
                         products_string += str(product_name)+"_"
@@ -502,7 +510,8 @@ def findQuantities(reactions_nodes, reactions_json):
                     quantities.update(
                         {name: product_yield})
                     if str(speciesFromReaction) in reactions_nodes:
-                        new_val = total_quantites.get(product_name, 0) + product_yield
+                        quan = total_quantites.get(product_name, 0)
+                        new_val = quan + product_yield
                         total_quantites.update(
                             {str(product_name): new_val})
                         products_string += (str(product_yield)
@@ -516,7 +525,8 @@ def findQuantities(reactions_nodes, reactions_json):
     return quantities, total_quantites, reaction_names_on_hover
 
 
-def CalculateEdgesAndNodes(reactions, species, scaledLineWeights, blockedSpecies):
+def CalculateEdgesAndNodes(reactions, species, scaledLineWeights,
+                           blockedSpecies):
     print("[7/7] Creating edges and nodes...")
     species = {}
     edges = {}
@@ -569,7 +579,8 @@ def generate_flow_diagram(request_dict):
         and (request_dict['maxMolval'] != 'NULL'
             and request_dict['minMolval'] != 'NULL')):
         userSelectedMinMax = [
-            float(request_dict["minMolval"]), float(request_dict["maxMolval"])]
+            float(request_dict["minMolval"]),
+            float(request_dict["maxMolval"])]
         print("new user selected min and max: ", userSelectedMinMax)
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
@@ -608,12 +619,13 @@ def generate_flow_diagram(request_dict):
 
     (network_content, raw_yields, edgeColors, quantities, minVal, maxVal,
      raw_yield_values, species_colors, species_sizes,
-     total_quantites, reaction_names_on_hover) = new_find_reactions_and_species(
+     total_quantites,
+     reaction_names_on_hover) = new_find_reactions_and_species(
         selected_species, reactions_data, blockedSpecies,
         csv, start_step, end_step, max_width, scale_type)
 
     # add edges and nodes
-    # force network to be 100% width and height before it's sent to page so we don't have cross-site scripting issues
+    # force network to be 100% width and height before it's sent to page
     net = Network(height='100%', width='100%', directed=True)
     # make it so we can manually change arrow colors
     net.inherit_edge_colors(False)
@@ -715,7 +727,7 @@ def generate_flow_diagram(request_dict):
             a = '<script>\
             parent.document.getElementById("flow-start-range2").value = \
             "'+formattedMinOfSelected+'";'
-            a = a + 'parent.document.getElementById("flow-end-range2").value = \
+            a += 'parent.document.getElementById("flow-end-range2").value = \
                 "'+str(
                 formattedMaxOfSelected)+'";'
 
@@ -728,25 +740,26 @@ def generate_flow_diagram(request_dict):
                   "does not equal", formattedMaxOfSelected)
             print("previousMin:", previousMin, "equals", 0)
             print("previousMax:", previousMax, "equals", 1)
-            a = a + 'parent.document.getElementById("flow-start-range2").value = "'+str(
-                formattedMinOfSelected)+'";\
-                    parent.document.getElementById("flow-end-range2").value = \
+            a += 'parent.document.getElementById("flow-start-range2").value =\
+                "'+str(formattedMinOfSelected)+'";\
+                    parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
-            a = a + 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
+            a += 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
                 formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>'
         else:
 
             if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
-                a = a + 'parent.document.getElementById("flow-start-range2").value = "'+str(
-                    formattedUserMin)+'"; parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
-                a = a + 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
+                a += 'parent.document.getElementById("flow-start-range2").value = "'+str(
+                    formattedUserMin)+'"; \
+                        parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
+                a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
                     formattedMinOfSelected)+'", "'+formattedUserMax+'");</script>'
             else:
-                a = a + 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
+                a += 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
                     formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
-            a = a + \
+            a += \
                 """<script>
                 var container = document.getElementById("mynetwork");
                 var options = {physics: false,
