@@ -1,2 +1,0 @@
-## HOW TO RUN ##
-python -m SimpleHTTPServer 80

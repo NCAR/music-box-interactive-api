@@ -462,7 +462,7 @@ def findQuantities(reactions_nodes, reactions_json):
                 name = str(reactant_name)+"__TO__"+str(speciesFromReaction)
                 if (reactant_yield == {}
                     and (isSpeciesInReaction(reaction_data, reactant_name)
-                        or inReac)):
+                         or inReac)):
                     nme = str(reactant_name)+"__TO__"+str(speciesFromReaction)
                     quantities.update({nme: 1})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -482,8 +482,9 @@ def findQuantities(reactions_nodes, reactions_json):
                             {str(reactant_name): new_val + reactant_yield})
                         reactants_string += (str(reactant_yield))
                         reactants_string += str(reactant_name)+"_"
-                        reactants_string = (reactants_string.replace(".0" +
-                            str(reactant_name), str(reactant_name)))
+                        rep = ".0"+str(product_name)
+                        rep1 = str(product_name)
+                        reactants_string = reactants_string.replace(rep, rep1)
             reactants_string = reactants_string[:-1]
             for product in reaction_data:
                 product_name = product
@@ -492,7 +493,7 @@ def findQuantities(reactions_nodes, reactions_json):
                 # reaction_names_on_hover
                 if (product_yield == {}
                     and (isSpeciesInReaction(reaction_data, product_name)
-                    or isSpeciesInReaction(reactant_data, product_name))):
+                         or isSpeciesInReaction(reactant_data, product_name))):
                     nme = str(speciesFromReaction)+"__TO__"+str(product_name)
                     quantities.update({nme: 1})
 
@@ -514,8 +515,8 @@ def findQuantities(reactions_nodes, reactions_json):
                         new_val = quan + product_yield
                         total_quantites.update(
                             {str(product_name): new_val})
-                        products_string += (str(product_yield)
-                            + str(product_name)+"_")
+                        tmp = str(product_yield) + str(product_name)+"_"
+                        products_string += tmp
                         products_string = products_string.replace(".0"+str(
                             product_name), str(product_name))
             products_string = products_string[:-1]
@@ -553,7 +554,7 @@ def CalculateEdgesAndNodes(reactions, species, scaledLineWeights,
                 species.update({fromElement: {}})
             reactions.update({beautifyReaction(ToElement): {}})
     return {'edges': list(edges), 'species_nodes': list(species),
-        'reaction_nodes': list(reactions)}
+            'reaction_nodes': list(reactions)}
 
 
 def createLegend():
@@ -577,7 +578,7 @@ def generate_flow_diagram(request_dict):
         and (request_dict['maxMolval'] != ''
         and request_dict['minMolval'] != '')
         and (request_dict['maxMolval'] != 'NULL'
-            and request_dict['minMolval'] != 'NULL')):
+             and request_dict['minMolval'] != 'NULL')):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
@@ -653,7 +654,7 @@ def generate_flow_diagram(request_dict):
                       "#FF7F7F" for x in reac_nodes], title=names)
         net.add_nodes(network_content['species_nodes'], color=colors,
                       size=[species_sizes[x] for x in list(
-                      network_content['species_nodes'])])
+                        network_content['species_nodes'])])
     net.set_edge_smooth('dynamic')
     # add edges individually so we can modify contents
     i = 0
@@ -717,7 +718,7 @@ def generate_flow_diagram(request_dict):
         formattedUserMin = str('{:0.3e}'.format(userSelectedMinMax[0]))
         formattedUserMax = str('{:0.3e}'.format(userSelectedMinMax[1]))
         if (int(minAndMaxOfSelectedTimeFrame[1]) == -1
-            or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
+                or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
             a = """<script>
         parent.document.getElementById("flow-start-range2").value = "NULL";
         parent.document.getElementById("flow-end-range2").value = "NULL";
