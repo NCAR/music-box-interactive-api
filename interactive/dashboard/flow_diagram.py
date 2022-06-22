@@ -23,9 +23,8 @@ userSelectedMinMax = [999999999999, -1]
 
 previous_vals = [0, 1]
 
+
 # returns species in csv
-
-
 def get_species():
     csv_results_path = os.path.join(
         os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
@@ -43,6 +42,8 @@ def get_simulation_length():
     print("* got simulation length: ", (csv.shape[0] - 1))
     print("* got final time:", csv['time'].iloc[-1])
     return int(csv['time'].iloc[-1])
+
+
 # get user inputted step length
 def get_step_length():
     csv_results_path = os.path.join(
@@ -52,12 +53,16 @@ def get_step_length():
         return int(csv['time'].iloc[1])
     else:
         return 0
+
+
 # get entire time column from results
 def time_column_list():
     csv_results_path = os.path.join(
         os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pd.read_csv(csv_results_path)
     return csv['time'].tolist()
+
+
 # make list of indexes of included reactions
 def find_reactions(list_of_species, reactions_json):
     r_list = reactions_json['camp-data'][0]['reactions']
@@ -96,35 +101,35 @@ def name_included_reactions(included_reactions, reactions_json):
         name = '_'.join(reactants) + '->' + '_'.join(products)
         names_dict.update({reaction_index: name})
     return names_dict
+
+
 # check if element is in 'blocked' elements list
-
-
 def isBlocked(blocked, element_or_reaction):
     for bl in blocked:
         if bl == element_or_reaction and len(blocked) != 0:
             return True
     return False
+
+
 # make reaction hot hot hot by adding some nicer arrows and cleaning it up
-
-
 def beautifyReaction(reaction):
     if '->' in reaction:
         reaction = reaction.replace('->', ' → ')
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
+
+
 # undo beautifyReaction (usually used when indexing dictionaries)
-
-
 def unbeautifyReaction(reaction):
     if '→' in reaction:
         reaction = reaction.replace(' → ', '->')
     if '+' in reaction:
         reaction = reaction.replace(' + ', '_')
     return reaction
+
+
 # return list of species, reactions, species size and colors.
-
-
 def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
@@ -177,11 +182,11 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
         if speci not in list_of_species:
             species_colors.update({speci: "#94b8f8"})
             species_sizes.update({speci: 20})
-    return (contained_reactions, species_nodes, 
+    return (contained_reactions, species_nodes,
             reactions_nodes, species_colors, species_sizes)
+
+
 # return list of raw widths for arrows. Also set new minAndMax
-
-
 def findReactionRates(reactions_nodes, df, start, end):
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
@@ -218,9 +223,9 @@ def findReactionRates(reactions_nodes, df, start, end):
         userSelectedMinMax = [float(str('{:0.3e}'.format(mam[0]))), float(
             str('{:0.3e}'.format(mam[1])))]
     return widths
+
+
 # calculate new widths for the arrows by multiplying quantity of species
-
-
 def sortYieldsAndEdgeColors(reactions_nodes, reactions_data, 
                             widths, blockedSpecies, list_of_species):
     global minAndMaxOfSelectedTimeFrame
@@ -238,38 +243,40 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for product in products_data:
             print("|_ added interaction:", beautifyReaction(
                 reaction), " ==> ", product)
+            name = reaction+"__TO__"+product
             if (widths[reaction] <= userMM[1] 
                 and widths[reaction] >= userMM[0]):
-                edgeColors.update({reaction+"__TO__"+product: "#FF7F7F"})
+                edgeColors.update({name: "#FF7F7F"})
             else:
-                edgeColors.update({reaction+"__TO__"+product: "#e0e0e0"})
-            if reaction not in blockedSpecies and product not in blockedSpecies:
-                tmp =  widths[reaction]*quantities[reaction+"__TO__"+product]
+                edgeColors.update({name: "#e0e0e0"})
+            if (reaction not in blockedSpecies
+                and product not in blockedSpecies):
+                tmp =  widths[reaction]*quantities[name]
                 raw_yields.update(
-                    {reaction+"__TO__"+product:tmp})
+                    {name: tmp})
         for reactant in reactants_data:
             print("|_ added interaction:", reactant,
                   " ==> ", beautifyReaction(reaction))
-            if (reactant not in blockedSpecies 
+            if (reactant not in blockedSpecies
                 and reaction not in blockedSpecies):
                 qt = quantities[reactant+"__TO__"+reaction]
                 tmp = widths[reaction]*qt
                 raw_yields.update(
                     {reactant+"__TO__"+reaction: tmp})
-            if (widths[reaction] <= userMM[1] 
+            if (widths[reaction] <= userMM[1]
                 and widths[reaction] >= userMM[0]):
+                name = reactant+"__TO__"+reaction
                 if reactant in list_of_species:
-                    edgeColors.update({reactant+"__TO__"+reaction: "#6b6bdb"})
+                    edgeColors.update({name: "#6b6bdb"})
                 else:
-                    edgeColors.update({reactant+"__TO__"+reaction: "#94b8f8"})
+                    edgeColors.update({name: "#94b8f8"})
             else:
-                edgeColors.update({reactant+"__TO__"+reaction: "#e0e0e0"})
-    return (raw_yields, edgeColors, quantities, 
+                edgeColors.update({name: "#e0e0e0"})
+    return (raw_yields, edgeColors, quantities,
             total_quantites, reaction_names_on_hover)
 
+
 # create line widths scaling based on user selected option
-
-
 def calculateLineWeights(maxWidth, species_yields, scale_type):
     # use fluxes from map we setup, scale the values, add weights and whatnot
     maxVal = -1
@@ -284,7 +291,7 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
             logged = []
             for i in li:
                 # fail safe for null->null value
-                if (str(i) != 'null->null' 
+                if (str(i) != 'null->null'
                     and float(0.0) != float(species_yields[i])):
                     rawVal.update({i: species_yields[i]})
                     try:
@@ -330,10 +337,10 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
                    * int(maxWidth)) + 1) for x in li]
         print("[6/7] got linearly scaled weights")
         return list(scaled), minVal, maxVal, {}
+    
+
 # bring everything together, call functions and debug
-
-
-def new_find_reactions_and_species(list_of_species, reactions_data, 
+def new_find_reactions_and_species(list_of_species, reactions_data,
                                     blockedSpecies, df, start,
                                     end, max_width, scale_type):
 
@@ -364,7 +371,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
 
     (raw_yields, edgeColors, quantities, 
     total_quantites, reaction_names_on_hover) = sortYieldsAndEdgeColors(
-        reactions_nodes, reactions_data, widths, 
+        reactions_nodes, reactions_data, widths,
         blockedSpecies, list_of_species)
 
     print("|_ got calculated yields:", raw_yields)
@@ -381,9 +388,9 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     print(" ********************************* ")
 
     # quantities = [] #actually do this later
-    return (CalculateEdgesAndNodes(reactions_nodes, species_nodes, scaledLineWeights, blockedSpecies), 
-    raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values, 
-    species_colors, species_sizes, total_quantites, reaction_names_on_hover)
+    return (CalculateEdgesAndNodes(reactions_nodes, species_nodes, scaledLineWeights, blockedSpecies),
+            raw_yields, edgeColors, quantities, minVal, maxVal, raw_yield_values,
+            species_colors, species_sizes, total_quantites, reaction_names_on_hover)
 
 
 def getProductsAndReactionsFrom(reaction):
@@ -414,9 +421,9 @@ def reactionNameFromDictionary(r):
     reaction_string = reaction_string[:-1]
 
     return reaction_string
+
+
 # return quantities of species in reactions
-
-
 def findQuantities(reactions_nodes, reactions_json):
     global userSelectedMinMax
     global previous_vals
@@ -447,8 +454,8 @@ def findQuantities(reactions_nodes, reactions_json):
             for reactant in reactant_data:
                 reactant_name = reactant
                 reactant_yield = reactant_data[reactant_name]
-                if (reactant_yield == {} 
-                    and (isSpeciesInReaction(reaction_data, reactant_name) 
+                if (reactant_yield == {}
+                    and (isSpeciesInReaction(reaction_data, reactant_name)
                     or isSpeciesInReaction(reactant_data, reactant_name))):
                     quantities.update(
                         {str(reactant_name)+"__TO__"+str(speciesFromReaction): 1})
@@ -457,7 +464,7 @@ def findQuantities(reactions_nodes, reactions_json):
                         total_quantites.update(
                             {str(reactant_name): new_val})
                         reactants_string += str(reactant_name)+"_"
-                elif (isSpeciesInReaction(reaction_data, reactant_name) 
+                elif (isSpeciesInReaction(reaction_data, reactant_name)
                       or isSpeciesInReaction(reactant_data, reactant_name)):
                     reactant_yield = reactant_yield['qty']
                     name = str(reactant_name)+"__TO__"+str(speciesFromReaction)
@@ -477,7 +484,7 @@ def findQuantities(reactions_nodes, reactions_json):
 
                 # reaction_names_on_hover
                 if (product_yield == {}
-                    and (isSpeciesInReaction(reaction_data, product_name) 
+                    and (isSpeciesInReaction(reaction_data, product_name)
                     or isSpeciesInReaction(reactant_data, product_name))):
                     quantities.update(
                         {str(speciesFromReaction)+"__TO__"+str(product_name): 1})
@@ -488,7 +495,7 @@ def findQuantities(reactions_nodes, reactions_json):
                         total_quantites.update(
                             {str(product_name): new_val})
                         products_string += str(product_name)+"_"
-                elif (isSpeciesInReaction(reaction_data, product_name) 
+                elif (isSpeciesInReaction(reaction_data, product_name)
                       or isSpeciesInReaction(reactant_data, product_name)):
                     product_yield = product_yield['yield']
                     name = str(speciesFromReaction)+"__TO__"+str(product_name)
@@ -546,8 +553,9 @@ def createLegend():
         'Element', 'Reaction'
     ]
     return legend_nodes
-# parent function for generating flow diagram
 
+
+# parent function for generating flow diagram
 def getReactName(reaction_names_on_hover, x):
     return beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)])
 def generate_flow_diagram(request_dict):
@@ -555,10 +563,10 @@ def generate_flow_diagram(request_dict):
     global minAndMaxOfSelectedTimeFrame
     global previous_vals
 
-    if (('maxMolval' in request_dict and 'minMolval' in request_dict) 
-        and (request_dict['maxMolval'] != '' 
-        and request_dict['minMolval'] != '') 
-        and (request_dict['maxMolval'] != 'NULL' 
+    if (('maxMolval' in request_dict and 'minMolval' in request_dict)
+        and (request_dict['maxMolval'] != ''
+        and request_dict['minMolval'] != '')
+        and (request_dict['maxMolval'] != 'NULL'
         and request_dict['minMolval'] != 'NULL')):
         userSelectedMinMax = [
             float(request_dict["minMolval"]), float(request_dict["maxMolval"])]
@@ -598,10 +606,10 @@ def generate_flow_diagram(request_dict):
     selected_species = request_dict['includedSpecies'].split(',')
     blockedSpecies = request_dict['blockedSpecies'].split(',')
 
-    (network_content, raw_yields, edgeColors, quantities, minVal, maxVal, 
-    raw_yield_values, species_colors, species_sizes, 
+    (network_content, raw_yields, edgeColors, quantities, minVal, maxVal,
+    raw_yield_values, species_colors, species_sizes,
     total_quantites, reaction_names_on_hover) = new_find_reactions_and_species(
-        selected_species, reactions_data, blockedSpecies, 
+        selected_species, reactions_data, blockedSpecies,
         csv, start_step, end_step, max_width, scale_type)
 
     # add edges and nodes
@@ -625,7 +633,7 @@ def generate_flow_diagram(request_dict):
     if shouldMakeSmallNode:
         net.add_nodes(names, color=["#FF7F7F" for x in reac_nodes], size=[
                       10 for x in list(reac_nodes)], title=names)
-        net.add_nodes(network_content['species_nodes'], color=colors, 
+        net.add_nodes(network_content['species_nodes'], color=colors,
                       size=[
                       10 for x in list(network_content['species_nodes'])])
     else:
@@ -697,15 +705,20 @@ def generate_flow_diagram(request_dict):
             '{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))
         formattedUserMin = str('{:0.3e}'.format(userSelectedMinMax[0]))
         formattedUserMax = str('{:0.3e}'.format(userSelectedMinMax[1]))
-        if int(minAndMaxOfSelectedTimeFrame[1]) == -1 or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999:
+        if (int(minAndMaxOfSelectedTimeFrame[1]) == -1
+        or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
             a = """<script>
         parent.document.getElementById("flow-start-range2").value = "NULL";
         parent.document.getElementById("flow-end-range2").value = "NULL";
         console.log("inputting NULL");"""
 
         else:
-            a = '<script>parent.document.getElementById("flow-start-range2").value = "'+formattedMinOfSelected+'"; parent.document.getElementById("flow-end-range2").value = "'+str(
-                formattedMaxOfSelected)+'"; console.log("Overrided element values via cross scripting?");'
+            a = '<script>\
+            parent.document.getElementById("flow-start-range2").value = \
+            "'+formattedMinOfSelected+'";'; 
+            a = a + 'parent.document.getElementById("flow-end-range2").value = \
+                "'+str(
+                formattedMaxOfSelected)+'";'
         
 
         if (str(formattedPrevMin) != str(formattedMinOfSelected) 
@@ -718,7 +731,9 @@ def generate_flow_diagram(request_dict):
             print("previousMin:", previousMin, "equals", 0)
             print("previousMax:", previousMax, "equals", 1)
             a = a + 'parent.document.getElementById("flow-start-range2").value = "'+str(
-                formattedMinOfSelected)+'"; parent.document.getElementById("flow-end-range2").value = "'+str(formattedMaxOfSelected)+'";'
+                formattedMinOfSelected)+'";\
+                    parent.document.getElementById("flow-end-range2").value = \
+                "'+str(formattedMaxOfSelected)+'";'
             a = a + 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
                 formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>'
         else:
@@ -726,8 +741,8 @@ def generate_flow_diagram(request_dict):
             if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
                 a = a + 'parent.document.getElementById("flow-start-range2").value = "'+str(
                     formattedUserMin)+'"; parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
-                a = a + 'parent.reloadSlider("'+formattedUserMin+'", "'+str('{:0.3e}'.format(userSelectedMinMax[1]))+'", "'+str('{:0.3e}'.format(
-                    minAndMaxOfSelectedTimeFrame[0]))+'", "'+formattedUserMax+'");</script>'
+                a = a + 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
+                    formattedMinOfSelected)+'", "'+formattedUserMax+'");</script>'
             else:
                 a = a + 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
                     formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
