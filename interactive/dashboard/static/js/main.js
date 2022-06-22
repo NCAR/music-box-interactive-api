@@ -4,19 +4,21 @@ var currentMaxValOfGraph = 1
 var shouldShowArrowWidth = true // if true, show arrow width slider (mostly used for debug)
 
 function reloadSlider(firstVal, secondVal, minVal, maxVal) {
-  var stepVal = (parseFloat(maxVal) - parseFloat(minVal));
-  console.log("step value: " + stepVal);
+  
+  
   console.log("received values: "+firstVal+" "+parseFloat(secondVal).toExponential(3));
   console.log("received min max (* 10^100): "+(parseFloat(minVal) * Math.pow(10,100))+" "+(parseFloat(maxVal) * Math.pow(10,100)));
   $( "#range-slider2", window.parent.document ).slider("destroy");
-  currentMinValOfGraph = parseFloat(minVal);
-  currentMaxValOfGraph = parseFloat(maxVal);
+  var mini = (parseFloat(minVal) * Math.pow(10,100))
+  var maxy = (parseFloat(maxVal) * Math.pow(10,100))
+  var stepVal = (parseFloat(maxy) - parseFloat(mini)) / 60;
+  console.log("step value: " + stepVal);
   $( function() {
     $( "#range-slider2",window.parent.document ).slider({
       range: true,
       min: parseFloat(minVal).toExponential(3) * Math.pow(10,100),
       max: parseFloat(maxVal).toExponential(3) * Math.pow(10,100),
-      step: stepVal * Math.pow(10,100),
+      step: stepVal,
       values: [ parseFloat(firstVal).toExponential(3) *Math.pow(10,100), parseFloat(secondVal).toExponential(3) * Math.pow(10,100) ],
       // values: [ parseFloat(document.getElementById("flow-start-range2").value), parseFloat(document.getElementById("flow-end-range2").value) ],
       slide: function( event, ui ) {
@@ -76,33 +78,33 @@ function reloadGraph() {
     });
 
     // TEST API CALLS
-    $.ajax({
-      url:'api/mechanisms/',
-      type: 'get',
-      data: {
-      },
-      success: function(response){
-        console.log("got response from mechanisms GET: ");
-        console.log(response["species"]);
-      }
-    });
+    // $.ajax({
+    //   url:'api/mechanisms/',
+    //   type: 'get',
+    //   data: {
+    //   },
+    //   success: function(response){
+    //     console.log("got response from mechanisms GET: ");
+    //     console.log(response["species"]);
+    //   }
+    // });
 
-    $.ajax({
-      url:'api/mechanisms/add/',
-      type: 'post',
-      data: {
-        "type": "species",
-        "name": "M",
-        "absolute_convergence_tolerance": "",
-        "description": "TEST SPECIES",
-        "molecular_weight": 420,
-        "tracer_type": "Test!!"
-      },
-      success: function(response){
-        console.log("got response from mechanisms ADD: ");
-        console.log(response);
-      }
-    });
+    // $.ajax({
+    //   url:'api/mechanisms/add/',
+    //   type: 'post',
+    //   data: {
+    //     "type": "species",
+    //     "name": "M",
+    //     "absolute_convergence_tolerance": "",
+    //     "description": "TEST SPECIES",
+    //     "molecular_weight": 420,
+    //     "tracer_type": "Test!!"
+    //   },
+    //   success: function(response){
+    //     console.log("got response from mechanisms ADD: ");
+    //     console.log(response);
+    //   }
+    // });
     
 }
 
