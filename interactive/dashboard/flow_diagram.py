@@ -257,6 +257,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for reactant in reactants_data:
             print("|_ added interaction:", reactant,
                   " ==> ", beautifyReaction(reaction))
+            name = reactant+"__TO__"+reaction
             if (reactant not in blockedSpecies
                     and reaction not in blockedSpecies):
                 qt = quantities[reactant+"__TO__"+reaction]
@@ -265,7 +266,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     {reactant+"__TO__"+reaction: tmp})
             if (widths[reaction] <= userMM[1]
                     and widths[reaction] >= userMM[0]):
-                name = reactant+"__TO__"+reaction
+                
                 if reactant in list_of_species:
                     edgeColors.update({name: "#6b6bdb"})
                 else:
@@ -602,7 +603,9 @@ def generate_flow_diagram(request_dict):
     max_width = request_dict['maxArrowWidth']
 
     previousMin = float(request_dict["currentMinValOfGraph"])
+    print("* previous min:",request_dict["currentMinValOfGraph"],"saved as",previousMin)
     previousMax = float(request_dict["currentMaxValOfGraph"])
+    print("* previous max:",request_dict["currentMaxValOfGraph"],"saved as",previousMax)
     previous_vals = [previousMin, previousMax]
 
     isPhysicsEnabled = request_dict['isPhysicsEnabled']
@@ -659,20 +662,21 @@ def generate_flow_diagram(request_dict):
     # add edges individually so we can modify contents
     i = 0
     values = edgeColors
+    print("color values:", values)
     for edge in network_content['edges']:
         unbeu1 = unbeautifyReaction(edge[0])
         unbeu2 = unbeautifyReaction(edge[1])
         val = unbeu1+"__TO__"+unbeu2
         print("* loaded edge: ", edge)
-        be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
-        be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
 
         flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
         if values[val] == "#e0e0e0":
             # don't allow blocked edge to show value on hover
             if "→" in edge[0]:
+                be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
                 net.add_edge(be1, edge[1], color=values[val], width=edge[2])
             elif "→" in edge[1]:
+                be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
                 net.add_edge(edge[0], be2, color=values[val], width=edge[2])
             else:
                 net.add_edge(edge[0], edge[1],
@@ -682,9 +686,11 @@ def generate_flow_diagram(request_dict):
 
             # check if value is reaction by looking for arrow
             if "→" in edge[0]:
+                be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
                 net.add_edge(be1, edge[1], color=values[val], width=float(
                              edge[2]), title="flux: "+flux)
             elif "→" in edge[1]:
+                be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
                 net.add_edge(edge[0], be2, color=values[val], width=float(
                     edge[2]), title="flux: "+flux)
             else:
@@ -731,7 +737,12 @@ def generate_flow_diagram(request_dict):
             a += 'parent.document.getElementById("flow-end-range2").value = \
                 "'+str(
                 formattedMaxOfSelected)+'";'
-
+        a += """
+            console.log("ALRIGHTY WE're SETTING NEW CURRENT MIN AND MAX");
+        currentMinValOfGraph = """+formattedPrevMin+""";
+        currentMaxValOfGraph = """+formattedPrevMax+""";
+        console.log("here's what we got:", currentMinValOfGraph, currentMaxValOfGraph);
+        """
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
@@ -748,13 +759,13 @@ def generate_flow_diagram(request_dict):
             a += 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
                 formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>'
         else:
-
+            print("looks like min and max are the same")
             if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
                 a += 'parent.document.getElementById("flow-start-range2").value = "'+str(
                     formattedUserMin)+'"; \
                         parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
                 a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
-                    formattedMinOfSelected)+'", "'+formattedUserMax+'");</script>'
+                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
             else:
                 a += 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
                     formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'

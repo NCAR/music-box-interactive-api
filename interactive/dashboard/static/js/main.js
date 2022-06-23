@@ -11,6 +11,9 @@ function reloadSlider(firstVal, secondVal, minVal, maxVal) {
   $( "#range-slider2", window.parent.document ).slider("destroy");
   var mini = (parseFloat(minVal) * Math.pow(10,100))
   var maxy = (parseFloat(maxVal) * Math.pow(10,100))
+  currentMinValOfGraph = parseFloat(minVal).toExponential(3);
+  currentMaxValOfGraph = parseFloat(maxVal).toExponential(3);
+  console.log("* set new previous min max:",currentMinValOfGraph, currentMaxValOfGraph)
   var stepVal = (parseFloat(maxy) - parseFloat(mini)) / 60;
   console.log("step value: " + stepVal);
   $( function() {
