@@ -401,10 +401,13 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
 def getProductsAndReactionsFrom(reaction):
     reactants = []
     products = []
-    for reactant in reaction.split('->')[0].split('_'):
-        reactants.append(reactant)
-    for product in reaction.split('->')[1].split('_'):
-        products.append(product)
+    
+    if len(reaction.split('->')) > 1:
+        #check to make sure we actually have a product
+        for reactant in reaction.split('->')[0].split('_'):
+            reactants.append(reactant)
+        for product in reaction.split('->')[1].split('_'):
+            products.append(product)
     return products, reactants
 
 
