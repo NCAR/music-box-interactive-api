@@ -161,7 +161,11 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
                     for product in r['products']:
                         species_nodes.update({product: {}})
                         reaction_string = reaction_string + product + "_"
-                    reaction_string = reaction_string[:-1]
+                    if r['products'] == [] or len(r['products']) == 0:
+                        # reaction_string = reaction_string[:-2]
+                        print("* FOUND REACTION WITH NO PRODUCTS", reaction_string)
+                    else:
+                        reaction_string = reaction_string[:-1]
                     reactions_nodes.update({reaction_string: {}})
                 if species in r['products']:
                     tmp_val = reactions_data['camp-data'][0]['reactions']
@@ -237,30 +241,39 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         reactions_nodes, reactions_data)
     userMM = userSelectedMinMax  # short version to clean up code
     print("|_ finished getting quantities:", quantities)
+    print("|_ got widths:", widths)
     for reaction in reactions_nodes:
 
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
-            print("|_ added interaction:", beautifyReaction(
+            if product != "TEMP":
+                print("|_ added interaction:", beautifyReaction(
                 reaction), " ==> ", product)
-            name = reaction+"__TO__"+product
-            if (widths[reaction] <= userMM[1]
-                    and widths[reaction] >= userMM[0]):
-                edgeColors.update({name: "#FF7F7F"})
-            else:
-                edgeColors.update({name: "#e0e0e0"})
-            if (reaction not in blockedSpecies
-                    and product not in blockedSpecies):
-                tmp = widths[reaction]*quantities[name]
-                raw_yields.update(
-                    {name: tmp})
+                name = reaction+"__TO__"+product
+                if (widths[reaction] <= userMM[1]
+                        and widths[reaction] >= userMM[0]):
+                    edgeColors.update({name: "#FF7F7F"})
+                else:
+                    edgeColors.update({name: "#e0e0e0"})
+                if (reaction not in blockedSpecies
+                        and product not in blockedSpecies):
+                    tmp = widths[reaction]*quantities[name]
+                    raw_yields.update(
+                        {name: tmp})
         for reactant in reactants_data:
+            tmp_reaction = reaction
+            
             print("|_ added interaction:", reactant,
-                  " ==> ", beautifyReaction(reaction))
+                    " ==> ", beautifyReaction(reaction))
             name = reactant+"__TO__"+reaction
+            if products_data == ['']:
+                name = name.replace("->","-")
+                tmp_reaction = tmp_reaction.replace("->","-")
+                
+                print("     |_ modified name:", name)
             if (reactant not in blockedSpecies
-                    and reaction not in blockedSpecies):
-                qt = quantities[reactant+"__TO__"+reaction]
+                    and tmp_reaction not in blockedSpecies):
+                qt = quantities[reactant+"__TO__"+tmp_reaction]
                 tmp = widths[reaction]*qt
                 raw_yields.update(
                     {reactant+"__TO__"+reaction: tmp})
@@ -273,6 +286,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     edgeColors.update({name: "#94b8f8"})
             else:
                 edgeColors.update({name: "#e0e0e0"})
+            
     return (raw_yields, edgeColors, quantities,
             total_quantites, reaction_names_on_hover)
 
@@ -401,13 +415,20 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
 def getProductsAndReactionsFrom(reaction):
     reactants = []
     products = []
-    
+    no_products = []
+    for reactant in reaction.split('->')[0].split('_'):
+        reactants.append(reactant)
+        
     if len(reaction.split('->')) > 1:
-        #check to make sure we actually have a product
-        for reactant in reaction.split('->')[0].split('_'):
-            reactants.append(reactant)
+        # check for products
         for product in reaction.split('->')[1].split('_'):
             products.append(product)
+    else:
+        # if no products, set to NO_PRODUCTS
+        products.append('NO_PRODUCTS')
+        print("|_ no products found for reaction:", reaction)
+        no_products.append(reaction)
+        
     return products, reactants
 
 
@@ -524,6 +545,7 @@ def findQuantities(reactions_nodes, reactions_json):
                         products_string = products_string.replace(".0"+str(
                             product_name), str(product_name))
             products_string = products_string[:-1]
+            print("* pushing to hover:", reactants_string, "->", products_string)
             reaction_names_on_hover.update(
                 {speciesFromReaction: reactants_string+"->"+products_string})
         i += 1
@@ -572,7 +594,12 @@ def createLegend():
 
 # parent function for generating flow diagram
 def getReactName(reaction_names_on_hover, x):
-    return beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)])
+    name = ""
+    try:
+        name = beautifyReaction(reaction_names_on_hover[unbeautifyReaction(x)])
+    except KeyError:
+        name = x
+    return name
 def generate_flow_diagram(request_dict):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
@@ -666,6 +693,7 @@ def generate_flow_diagram(request_dict):
     i = 0
     values = edgeColors
     print("color values:", values)
+    print("reaction names on hover:", reaction_names_on_hover)
     for edge in network_content['edges']:
         unbeu1 = unbeautifyReaction(edge[0])
         unbeu2 = unbeautifyReaction(edge[1])
@@ -673,31 +701,45 @@ def generate_flow_diagram(request_dict):
         print("* loaded edge: ", edge)
 
         flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
-        if values[val] == "#e0e0e0":
+        colorVal = ""
+        try:
+            colorVal = values[val]
+        except KeyError:
+            colorVal = values[val.replace('->', '-')]
+        if colorVal == "#e0e0e0":
             # don't allow blocked edge to show value on hover
             if "→" in edge[0]:
                 be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
-                net.add_edge(be1, edge[1], color=values[val], width=edge[2])
+                net.add_edge(be1, edge[1], color=colorVal, width=edge[2])
             elif "→" in edge[1]:
-                be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
-                net.add_edge(edge[0], be2, color=values[val], width=edge[2])
+                try:
+                    be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
+                    net.add_edge(edge[0], be2, color=colorVal, width=edge[2])
+                except KeyError:
+                    be2 = beautifyReaction(unbeu2)
+                    net.add_edge(edge[0], be2, color=colorVal, width=edge[2])
             else:
                 net.add_edge(edge[0], edge[1],
-                             color=values[val], width=edge[2])
+                             color=colorVal, width=edge[2])
         else:
             # hover over arrow to show value for arrows within range
 
             # check if value is reaction by looking for arrow
             if "→" in edge[0]:
                 be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
-                net.add_edge(be1, edge[1], color=values[val], width=float(
+                net.add_edge(be1, edge[1], color=colorVal, width=float(
                              edge[2]), title="flux: "+flux)
             elif "→" in edge[1]:
-                be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
-                net.add_edge(edge[0], be2, color=values[val], width=float(
-                    edge[2]), title="flux: "+flux)
+                try:
+                    be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
+                    net.add_edge(edge[0], be2, color=colorVal, width=float(
+                        edge[2]), title="flux: "+flux)
+                except KeyError:
+                    be2 = beautifyReaction(unbeu2)
+                    net.add_edge(edge[0], be2, color=colorVal, width=float(
+                        edge[2]), title="flux: "+flux)
             else:
-                net.add_edge(edge[0], edge[1], color=values[val],
+                net.add_edge(edge[0], edge[1], color=colorVal,
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
