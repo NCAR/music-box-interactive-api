@@ -246,7 +246,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
 
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
-            if product != "TEMP":
+            if product != "NO_PRODUCTS":
                 print("|_ added interaction:", beautifyReaction(
                 reaction), " ==> ", product)
                 name = reaction+"__TO__"+product
@@ -260,6 +260,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     tmp = widths[reaction]*quantities[name]
                     raw_yields.update(
                         {name: tmp})
+            else:
+                print("|_ found no products for reaction:", reaction)
         for reactant in reactants_data:
             tmp_reaction = reaction
             
@@ -511,6 +513,9 @@ def findQuantities(reactions_nodes, reactions_json):
                         rep1 = str(product_name)
                         reactants_string = reactants_string.replace(rep, rep1)
             reactants_string = reactants_string[:-1]
+            if len(reaction_data) == 0:
+                print("|_ found no products for reaction:", reactant_data, reaction_data)
+                products_string = "NO_PRODUCTS-"
             for product in reaction_data:
                 product_name = product
                 product_yield = reaction_data[product_name]
