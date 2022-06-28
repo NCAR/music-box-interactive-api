@@ -211,23 +211,45 @@ def findReactionRates(reactions_nodes, df, start, end):
         if key.split('.')[1].split("__")[1] in reactionsToAdd:
             widths.update({key.split('.')[1].split("__")[1]: float(
                 str('{:0.3e}'.format(values[key])))})
-            if values[key] < minAndMaxOfSelectedTimeFrame[0]:
-                minAndMaxOfSelectedTimeFrame[0] = values[key]
-            if values[key] > minAndMaxOfSelectedTimeFrame[1]:
-                minAndMaxOfSelectedTimeFrame[1] = values[key]
-    if (minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]
-            and minAndMaxOfSelectedTimeFrame[1] > 0):
+    #         if values[key] < minAndMaxOfSelectedTimeFrame[0]:
+    #             minAndMaxOfSelectedTimeFrame[0] = values[key]
+    #         if values[key] > minAndMaxOfSelectedTimeFrame[1]:
+    #             minAndMaxOfSelectedTimeFrame[1] = values[key]
+    # if (minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]
+    #         and minAndMaxOfSelectedTimeFrame[1] > 0):
 
-        minAndMaxOfSelectedTimeFrame[0] = 0
-    mam = minAndMaxOfSelectedTimeFrame
-    if (str(previous_vals[0]) != str(float(str('{:0.3e}'.format(mam[0]))))
-        or str(previous_vals[1]) != str(float(str('{:0.3e}'.format(mam[1]))))
-            or previous_vals[1] == 1):
+    #     minAndMaxOfSelectedTimeFrame[0] = 0
+    # mam = minAndMaxOfSelectedTimeFrame
+    # if (str(previous_vals[0]) != str(float(str('{:0.3e}'.format(mam[0]))))
+    #     or str(previous_vals[1]) != str(float(str('{:0.3e}'.format(mam[1]))))
+    #         or previous_vals[1] == 1):
 
-        userSelectedMinMax = [float(str('{:0.3e}'.format(mam[0]))), float(
-            str('{:0.3e}'.format(mam[1])))]
+    #     userSelectedMinMax = [float(str('{:0.3e}'.format(mam[0]))), float(
+    #         str('{:0.3e}'.format(mam[1])))]
     return widths
 
+# get the actual min and max
+def minAndmax(reaction_nodes, quantities, widths):
+    min_val = 999999999999
+    max_val = 0
+    for reaction in reaction_nodes:
+
+        products_data, reactants_data = getProductsAndReactionsFrom(reaction)
+        for product in products_data:
+            edge = reaction + "__TO__" + product
+            val = quantities[edge]*widths[reaction]
+            if val < min_val:
+                min_val = val
+            if val > max_val:
+                max_val = val
+        for reactant in reactants_data:
+            edge = reactant + "__TO__" + reaction
+            val = quantities[edge]*widths[reaction]
+            if val < min_val:
+                min_val = val
+            if val > max_val:
+                max_val = val
+    return min_val, max_val
 
 # calculate new widths for the arrows by multiplying quantity of species
 def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
@@ -239,9 +261,18 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     edgeColors = {}
     quantities, total_quantites, reaction_names_on_hover = findQuantities(
         reactions_nodes, reactions_data)
-    userMM = userSelectedMinMax  # short version to clean up code
+    
     print("|_ finished getting quantities:", quantities)
     print("|_ got widths:", widths)
+    newmin, newmax = minAndmax(reactions_nodes, quantities, widths)
+    print("|_ comparing to preivous vals:", previous_vals)
+    print("|_ calculated new min max:", newmin, newmax)
+    minAndMaxOfSelectedTimeFrame = [newmin, newmax]
+    if str('{:0.3e}'.format(newmin)) != str('{:0.3e}'.format(previous_vals[0])) or str('{:0.3e}'.format(newmax)) != str('{:0.3e}'.format(previous_vals[1])):
+        print("|_ detected new graph, setting user selected min max:", newmin, newmax)
+        userSelectedMinMax = [newmin, newmax]
+    
+    userMM = userSelectedMinMax  # short version to clean up code
     for reaction in reactions_nodes:
 
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
@@ -250,14 +281,24 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 print("|_ added interaction:", beautifyReaction(
                 reaction), " ==> ", product)
                 name = reaction+"__TO__"+product
-                if (widths[reaction] <= userMM[1]
-                        and widths[reaction] >= userMM[0]):
+                tmp = widths[reaction]*quantities[name]
+                if (tmp <= userMM[1]
+                        and tmp >= userMM[0]):
                     edgeColors.update({name: "#FF7F7F"})
                 else:
+                    # for grey lines, we wanna make their value the min/max value
+                    if tmp > userMM[1]:
+                        print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
+                        widths.update({reaction: userMM[1]})
+                        tmp = userMM[1]
+                    elif tmp < userMM[0]:
+                        print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
+                        widths.update({reaction: userMM[0]})
+                        tmp = userMM[0]
                     edgeColors.update({name: "#e0e0e0"})
                 if (reaction not in blockedSpecies
                         and product not in blockedSpecies):
-                    tmp = widths[reaction]*quantities[name]
+                    
                     raw_yields.update(
                         {name: tmp})
             else:
@@ -273,22 +314,31 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 tmp_reaction = tmp_reaction.replace("->","-")
                 
                 print("     |_ modified name:", name)
-            if (reactant not in blockedSpecies
-                    and tmp_reaction not in blockedSpecies):
-                qt = quantities[reactant+"__TO__"+tmp_reaction]
-                tmp = widths[reaction]*qt
-                raw_yields.update(
-                    {reactant+"__TO__"+reaction: tmp})
-            if (widths[reaction] <= userMM[1]
-                    and widths[reaction] >= userMM[0]):
+            qt = quantities[reactant+"__TO__"+tmp_reaction]
+            tmp = widths[reaction]*qt
+            
+            if (tmp <= userMM[1]
+                    and tmp >= userMM[0]):
                 
                 if reactant in list_of_species:
                     edgeColors.update({name: "#6b6bdb"})
                 else:
                     edgeColors.update({name: "#94b8f8"})
             else:
+                if tmp > userMM[1]:
+                    print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
+                    widths.update({reaction: userMM[1]})
+                    tmp = userMM[1]
+                elif tmp < userMM[0]:
+                    print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
+                    widths.update({reaction: userMM[0]})
+                    tmp = userMM[0]
                 edgeColors.update({name: "#e0e0e0"})
-            
+            if (reactant not in blockedSpecies
+                    and tmp_reaction not in blockedSpecies):
+                
+                raw_yields.update(
+                    {reactant+"__TO__"+reaction: tmp})
     return (raw_yields, edgeColors, quantities,
             total_quantites, reaction_names_on_hover)
 
