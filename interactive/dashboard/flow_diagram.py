@@ -249,7 +249,7 @@ def minAndmax(reaction_nodes, quantities, widths):
                 min_val = val
             if val > max_val:
                 max_val = val
-    return min_val, max_val
+    return (min_val*0.999), (max_val*1.001)
 
 # calculate new widths for the arrows by multiplying quantity of species
 def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
@@ -289,11 +289,11 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     # for grey lines, we wanna make their value the min/max value
                     if tmp > userMM[1]:
                         print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
-                        widths.update({reaction: userMM[1]})
+                        # widths.update({reaction: userMM[1]})
                         tmp = userMM[1]
                     elif tmp < userMM[0]:
                         print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
-                        widths.update({reaction: userMM[0]})
+                        # widths.update({reaction: userMM[0]})
                         tmp = userMM[0]
                     edgeColors.update({name: "#e0e0e0"})
                 if (reaction not in blockedSpecies
@@ -327,11 +327,11 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
             else:
                 if tmp > userMM[1]:
                     print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
-                    widths.update({reaction: userMM[1]})
+                    # widths.update({reaction: userMM[1]})
                     tmp = userMM[1]
                 elif tmp < userMM[0]:
                     print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
-                    widths.update({reaction: userMM[0]})
+                    # widths.update({reaction: userMM[0]})
                     tmp = userMM[0]
                 edgeColors.update({name: "#e0e0e0"})
             if (reactant not in blockedSpecies
