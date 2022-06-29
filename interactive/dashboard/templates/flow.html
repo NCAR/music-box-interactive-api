@@ -123,8 +123,8 @@
                     </form>
                 </ul>
                 <ul style="padding-left:0; background-color: white;height: 60px; box-sizing: border-box;padding: 0.5rem; background-color: #D9D9D6; font-size:1vm;">
-                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Add Elements</div> 
-                    <div id="block-elements" class="menu-it">Block Elements</div>
+                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Add Species</div> 
+                    <div id="block-elements" class="menu-it">Block Species</div>
                 </ul>
                 <script>
                     document.getElementById("show-elements").addEventListener("click", handleShowBlockElementChange);
@@ -136,12 +136,16 @@
                             <a id="li_{{item}}" class="list-group-item flow-species-item" href="#">☐ {{item}}</a>
                         {% endfor %}
                     </ul>
-                    <ul id="blocked-elements-list" class="list-group bg-ncar-menu-secondary p-2" style="width:100%; margin-top: -20px; display:none;">
+                    <a id="select_all_blocked" class="blocked-list-group-item flow-species-item" href="#" style="display: none;">☐ Select All</a>
+                    <ul id="blocked-elements-list" class="list-group bg-ncar-menu-secondary p-2" style="width:100%; margin-top: 0px; display:none;">
                         
                         {% for item in species %}
                             <a id="li_{{item}}_blocked" class="blocked-list-group-item flow-species-item" href="#" style="">☐ {{item}}</a>
                         {% endfor %}
                     </ul>
+                    <script>
+                        document.getElementById("select_all_blocked").addEventListener("click", handleBlockUnblock);
+                    </script>
             </nav>
         </div>
         <div id="flow-diagram-container" class="col">

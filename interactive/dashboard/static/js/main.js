@@ -37,7 +37,43 @@ function reloadSlider(firstVal, secondVal, minVal, maxVal) {
     });
   } );
 }
+// adds each element to blockedElementsList
+function bockAllSpecies() {
+  console.log('bock all species');
+  $.each($("#blocked-elements-list").children(), function(i, value){
+    var id = $(value).attr('id');
+    if ($(value).hasClass('active') == false) {
+      $("#" + id).addClass('active')
+      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.replace("☐ ", "☑ ");
+    }
+  });
+  reloadGraph();
+}
+// removes each element from blockedElementsList
+function unbockAllSpecies() {
+  console.log('unbock all species');
+  $.each($("#blocked-elements-list").children(), function(i, value){
+    var id = $(value).attr('id');
+    if ($(value).hasClass('active')) {
+      $("#" + id).removeClass('active')
+      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.replace("☑ ", "☐ ");
+    }
+  });
+  reloadGraph();
+}
+function handleBlockUnblock() {
+  if (document.getElementById("select_all_blocked").innerHTML.indexOf("☑") !== -1) {
+    // unblock all
+    unbockAllSpecies();
+    document.getElementById("select_all_blocked").innerHTML = "☐ Select all";
+  } else {
+    // block all
+    bockAllSpecies();
+    document.getElementById("select_all_blocked").innerHTML = "☑ Select all";
+  }
+}
 // helper function to reload graph (called when something other than elements changed)
+
 function reloadGraph() {
   currentlyLoadingGraph = true
   var includedSpecies = []
@@ -276,6 +312,7 @@ function handleShowBlockElementChange() {
     document.getElementById("flow-species-menu-list").style.display = "none";
     document.getElementById("blocked-elements-list").style.display = "flex";
     
+    document.getElementById("select_all_blocked").style.display = "block";
   } else {
     // show "show elements"
     document.getElementById('show-elements').classList.add("selected-menu-it");
@@ -283,5 +320,7 @@ function handleShowBlockElementChange() {
 
     document.getElementById("blocked-elements-list").style.display = "none";
     document.getElementById("flow-species-menu-list").style.display = "flex";
+
+    document.getElementById("select_all_blocked").style.display = "none";
   }
 }
