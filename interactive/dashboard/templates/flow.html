@@ -44,10 +44,6 @@
                               <br>
                               <br>
                               <div id="range-slider"></div>
-                              <!-- start-range and end-range elements used to track slider values -->
-                               <!-- <div id="flow-start-range" style="display: none;"></div> -->
-                               
-                               <!-- <div id="flow-end-range" style="display: none;"></div> -->
                                
                                 <script>
                                
@@ -60,7 +56,6 @@
                                     step: {{ step_length }},
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                    //   $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
                                       document.getElementById("flow-start-range").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
@@ -89,9 +84,6 @@
                               <br>
                               <br>
                               <div id="range-slider2"></div>
-                              <!-- start-range and end-range elements used to track slider values -->
-                               <!-- <div id="flow-start-range2" style="display: none;"></div>
-                               <div id="flow-end-range2" style="display: none;"></div> -->
                                 <script>
                                
                                 $( function() {
@@ -102,7 +94,6 @@
                                     values: [ 0,1 ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                    //   $( "#filterRange" ).val( "" + ui.values[ 0 ] + " - " + ui.values[ 1 ] + "" );
                                       document.getElementById("flow-start-range2").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range2").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
@@ -115,7 +106,6 @@
                                 //   base values for the slider
                                   $( "#filterRange" ).val("NULL - NULL");
                                   document.getElementById("flow-start-range2").value = 0;
-                                    //   document.getElementById("flow-end-range2").value = {{simulation_length}};
                                 } );
                                
                                 </script>

@@ -7,10 +7,10 @@ from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-species_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+# species_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
 
 # returns the full set of json objects from the species file
-def species_info():
+def species_info(species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     logging.info('getting chemical species data from file')
     with open(species_path) as f:
         camp_data = json.loads(f.read())
@@ -19,25 +19,37 @@ def species_info():
 
 
 # returns the list of chemical species names from the species file
-def species_list():
+def species_list(species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     species_list = []
-    for entry in species_info():
+    for entry in species_info(species_path):
       if entry['type'] == "CHEM_SPEC":
           species_list.append(entry['name'])
     return sorted(species_list)
 
 
 # returns the list of chemical species whose concentrations can be specified
-def conditions_species_list():
-    species = species_list()
+def conditions_species_list(species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
+    species = species_list(species_path)
     if 'M' in species: species.remove('M')
     return species
 
+# returns a modified list
+def api_species_menu_names(species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
+    logging.info('getting list of species names')
+    m_list = species_list(species_path)
+    newlist = []
+    for name in m_list:
+        if len(name) > 25:
+            shortname = name[0:25] + '..'
+            newlist.append(shortname)
+        else:
+            newlist.append(name)
+    return {'species_list_0': m_list, 'species_list_1': newlist}
 
 # returns a list of chemical species names from the species file for use in a menu
-def species_menu_names():
+def species_menu_names(species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     logging.info('getting list of species names')
-    m_list = species_list()
+    m_list = species_list(species_path)
     newlist = []
     for name in m_list:
         if len(name) > 25:
@@ -50,9 +62,9 @@ def species_menu_names():
 
 
 # removes a chemical species from the mechanism
-def species_remove(species_name):
+def species_remove(species_name, species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     logging.info("removing species '" + species_name + "'")
-    species = species_info()
+    species = species_info(species_path)
     index = 0
     for entry in species:
         if entry['type'] == "CHEM_SPEC" and entry['name'] == species_name:
@@ -67,11 +79,11 @@ def species_remove(species_name):
 
 
 # saves a chemical species to the mechanism
-def species_save(species_data):
+def species_save(species_data, species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     logging.info("saving species '" + species_data['name'] + "'")
     json_data = {}
     species_convert_from_SI(species_data)
-    json_data['camp-data'] = species_info()
+    json_data['camp-data'] = species_info(species_path)
     json_data['camp-data'].append(species_data)
     with open(species_path, 'w') as f:
         json.dump(json_data, f, indent=2)
@@ -93,8 +105,8 @@ def species_convert_to_SI(species_data):
 
 
 #creates a dictionary of species tolerances for plot minimum scales
-def tolerance_dictionary():
-    species_file_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+def tolerance_dictionary(species_file_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
+    # species_file_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
     with open(species_file_path) as f:
         species_file = json.loads(f.read())
     default_tolerance = 1e-14

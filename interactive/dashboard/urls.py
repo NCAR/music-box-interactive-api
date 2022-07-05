@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from . import views 
-# from . import api
+from . import api
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -73,16 +73,31 @@ urlpatterns = [
     path('download', views.download_handler),
     # -----------------------------------
     #api paths:
-    # path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    # path('yaml/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    # path('test-view/', api.TestAPIView.as_view(), name='test-view'),
+    path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('yaml/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('test-view/', api.TestAPIView.as_view(), name='test-view'),
 
 
-    # path('api/conditions/', api.ConditionsView.as_view(), name='current-conditions'),
+    path('api/conditions/', api.ConditionsView.as_view(), name='current-conditions'),
     # path('api/mechanisms/', api.MechanismView.as_view(), name='current-mechanisms'),
-    # path('api/mechanisms/add/', api.AddMechanismView.as_view(), name='current-mechanisms'),
-    # path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
-    # path('api/run-model/', api.RunView.as_view(), name='run-model'),
-    # path('api/session-id/', api.SessionView.as_view(), name='session-id')
+
+    path('api/species/', api.SpeciesView.as_view(), name='current-species'),
+    path('api/species-detail/', api.SpeciesDetailView.as_view(), name='species-detail'),
+    path('api/remove-species/', api.RemoveSpeciesView.as_view(), name='remove-species'),
+    path('api/add-species/', api.AddSpeciesView.as_view(), name='add-species'),
+    path('api/plot-species/', api.PlotSpeciesView.as_view(), name='plot-species'),
+
+    path('api/reactions/', api.ReactionsView.as_view(), name='current-reactions'),
+    path('api/reactions-detail/', api.ReactionsDetailView.as_view(), name='reactions-detail'),
+    path('api/remove-reaction/', api.RemoveReactionView.as_view(), name='remove-reaction'),
+    path('api/save-reaction/', api.SaveReactionView.as_view(), name='save-reaction'),
+    path('api/reaction-type-schema/', api.ReactionTypeSchemaView.as_view(), name='reaction-type-schema'),
+
+    path('api/get-model-options/', api.GetModelOptionsView.as_view(), name='get-model-options'),
+
+    # path('api/mechanisms/add/', api.AddMechanismView.as_view(), name='add-mechanisms'),
+    path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
+    path('api/run-model/', api.RunView.as_view(), name='run-model'),
+    path('api/session-id/', api.SessionView.as_view(), name='session-id')
 ]

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'dashboard',
     'plots',
     'crispy_forms',
-    'drf_yasg'
+    'drf_yasg',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',  
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'interactive.urls'
@@ -118,7 +120,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-SESSION_ENGINE = "django.contrib.sessions.backends.file"
+# SESSION_ENGINE = "django.contrib.sessions.backends.file"
+# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -131,3 +134,21 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "dashboard/static")]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
+# add any frontend URLs that can access the API here
+# CORS_ORIGIN_WHITELIST = [
+# 'http://localhost:80',
+# 'http://127.0.0.1:80'
+# ]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+# this allows possibly overriding another users session/csrf flags
+# look into a better way to do this
+# SESSION_COOKIE_SAMESITE = 'None'
+# SESSION_COOKIE_DOMAIN = 'None'
+# SESSION_COOKIE_NAME = 'sessionid'
+
+#so that we can show plots in iframe
+X_FRAME_OPTIONS = 'ALLOWALL'
+
+XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']

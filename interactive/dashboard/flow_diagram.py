@@ -327,11 +327,9 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
             else:
                 if tmp > userMM[1]:
                     print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
-                    # widths.update({reaction: userMM[1]})
                     tmp = userMM[1]
                 elif tmp < userMM[0]:
                     print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
-                    # widths.update({reaction: userMM[0]})
                     tmp = userMM[0]
                 edgeColors.update({name: "#e0e0e0"})
             if (reactant not in blockedSpecies
@@ -406,7 +404,10 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
         return list(scaled), minVal, maxVal, {}
 
 
-# bring everything together, call functions and debug
+# 1) load reactions from output file, and create a list of reactions
+# 2) load species and reaction rates
+# 3) scale arrows and handle colors for arrows outside of range
+# 4) create nodes and edges for graph
 def new_find_reactions_and_species(list_of_species, reactions_data,
                                    blockedSpecies, df, start,
                                    end, max_width, scale_type):
@@ -647,7 +648,7 @@ def createLegend():
     return legend_nodes
 
 
-# parent function for generating flow diagram
+# get reaction name (when hovering on node) and beautify it
 def getReactName(reaction_names_on_hover, x):
     name = ""
     try:
@@ -655,6 +656,8 @@ def getReactName(reaction_names_on_hover, x):
     except KeyError:
         name = x
     return name
+
+# function called from API to get data for graph (AKA the main function)
 def generate_flow_diagram(request_dict):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
@@ -721,8 +724,6 @@ def generate_flow_diagram(request_dict):
     shouldMakeSmallNode = False
     if isPhysicsEnabled == "true":
         net.toggle_physics(False)
-        # shouldMakeSmallNode = True
-        # net.barnes_hut()
         net.force_atlas_2based()
     else:
         net.force_atlas_2based(gravity=-200, overlap=1)

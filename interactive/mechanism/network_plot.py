@@ -4,12 +4,9 @@ import json
 from django.conf import settings
 
 
-def generate_network_plot(species):
-    path_to_template = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/plot.html")
+def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/plot.html"),  path_to_reactions=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
     net = Network(directed=True)
-
-    path_to_reactions = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
-
+    
     with open(path_to_reactions, 'r') as f:
         reactions_data = json.load(f)
 

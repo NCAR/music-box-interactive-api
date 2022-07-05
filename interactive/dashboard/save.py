@@ -327,7 +327,62 @@ def review_json():
     config = open_json('my_config.json')
     return config
 
+def export_to_user_config_files(jsonPath):
+    config = direct_open_json(jsonPath+'/my_config.json') # {session_id}/my_config.json
+    
+    species_dict = {
+        'formula': {},
+        'value': {},
+        'unit': {}
+    }
+    i = 1
+    for key in config['chemical species']:
+        name = 'Species ' + str(i)
+        species_dict['formula'].update({name: key})
+        unit = ""
+        iv = 0
+        for j in config['chemical species'][key]:
+            unit = j.split('[')[1]
+            unit = unit.split(']')[0]
+            iv = config['chemical species'][key][j]
+            species_dict['unit'].update({name: unit})
+            species_dict['value'].update({name: iv})
+        i = i+1
+    
+    option_dict = {}
+    for key in config['box model options']:
+        if '[' in key:
+            fixedname = key.split(' [')[0]
+            fixedname = fixedname.replace(' ', "_")
+            option_dict.update({fixedname: config['box model options'][key]})
+            unit = key.split(' [')[1]
+            unit = unit.replace(']', "")
+            if 'chemistry' in key:
+                option_dict.update({"chem_step.units": unit})
+            if 'output' in key:
+                option_dict.update({"output_step.units": unit})
+            if 'simulation' in key:
+                option_dict.update({"simulation_length.units": unit})
+        else:
+            fixedname = key.replace(' ', "_")
+            option_dict.update({fixedname: config['box model options'][key]})
 
+
+    initial_dict = {
+        'values': {},
+        'units': {}
+    }
+    for condition in config['environmental conditions']:
+        unit = ''
+        for entry in config['environmental conditions'][condition]:
+            initial_dict['values'].update({condition: config['environmental conditions'][condition][entry]})
+            unit = entry.split('[')[1]
+            unit = unit.split(']')[0]
+            initial_dict['units'].update({condition: unit})
+
+    direct_dump_json(jsonPath+'/initials.json', initial_dict)
+    direct_dump_json(jsonPath+'/options.json', option_dict)
+    direct_dump_json(jsonPath+'/species.json', species_dict)
 # fills form json files with info from my_config file
 def reverse_export():
     config = open_json('my_config.json')

@@ -46,8 +46,13 @@ def open_json(filename):
     with open(path) as f:
         dicti = json.loads(f.read())
     return dicti
-
-
+def direct_open_json(filePath):
+    with open(filePath) as f:
+        dicti = json.loads(f.read())
+    return dicti
+def direct_dump_json(filePath, content):
+    with open(filePath, 'w') as f:
+        json.dump(content, f, indent=4)
 # save dictionary as json to a file
 def dump_json(filename, content):
     path = file_path(filename)

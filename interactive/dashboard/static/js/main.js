@@ -3,6 +3,7 @@ var currentMinValOfGraph = 0
 var currentMaxValOfGraph = 1
 var shouldShowArrowWidth = true // if true, show arrow width slider (mostly used for debug)
 
+
 function reloadSlider(firstVal, secondVal, minVal, maxVal) {
   
   
@@ -23,10 +24,8 @@ function reloadSlider(firstVal, secondVal, minVal, maxVal) {
       max: parseFloat(maxVal).toExponential(3) * Math.pow(10,100),
       step: stepVal,
       values: [ parseFloat(firstVal).toExponential(3) *Math.pow(10,100), parseFloat(secondVal).toExponential(3) * Math.pow(10,100) ],
-      // values: [ parseFloat(document.getElementById("flow-start-range2").value), parseFloat(document.getElementById("flow-end-range2").value) ],
       slide: function( event, ui ) {
           // update values when slider changed
-        // $( "#filterRange" ).val( "" + parseFloat(ui.values[ 0 ]).toExponential(3) + " to " + parseFloat(ui.values[ 1 ]).toExponential(3) + "" );
         document.getElementById("flow-start-range2").value = (ui.values[ 0 ] / Math.pow(10,100)).toExponential(3);
         document.getElementById("flow-end-range2").value = (ui.values[ 1 ] / Math.pow(10,100)).toExponential(3);
       },
@@ -37,9 +36,10 @@ function reloadSlider(firstVal, secondVal, minVal, maxVal) {
     });
   } );
 }
+
 // adds each element to blockedElementsList
-function bockAllSpecies() {
-  console.log('bock all species');
+function blockAllSpecies() {
+  console.log('block all species');
   $.each($("#blocked-elements-list").children(), function(i, value){
     var id = $(value).attr('id');
     if ($(value).hasClass('active') == false) {
@@ -50,7 +50,7 @@ function bockAllSpecies() {
   reloadGraph();
 }
 // removes each element from blockedElementsList
-function unbockAllSpecies() {
+function unblockAllSpecies() {
   console.log('unbock all species');
   $.each($("#blocked-elements-list").children(), function(i, value){
     var id = $(value).attr('id');
@@ -64,11 +64,11 @@ function unbockAllSpecies() {
 function handleBlockUnblock() {
   if (document.getElementById("select_all_blocked").innerHTML.indexOf("☑") !== -1) {
     // unblock all
-    unbockAllSpecies();
+    unblockAllSpecies();
     document.getElementById("select_all_blocked").innerHTML = "☐ Select all";
   } else {
     // block all
-    bockAllSpecies();
+    blockAllSpecies();
     document.getElementById("select_all_blocked").innerHTML = "☑ Select all";
   }
 }
@@ -116,34 +116,6 @@ function reloadGraph() {
       }
     });
 
-    // TEST API CALLS
-    // $.ajax({
-    //   url:'api/mechanisms/',
-    //   type: 'get',
-    //   data: {
-    //   },
-    //   success: function(response){
-    //     console.log("got response from mechanisms GET: ");
-    //     console.log(response["species"]);
-    //   }
-    // });
-
-    // $.ajax({
-    //   url:'api/mechanisms/add/',
-    //   type: 'post',
-    //   data: {
-    //     "type": "species",
-    //     "name": "M",
-    //     "absolute_convergence_tolerance": "",
-    //     "description": "TEST SPECIES",
-    //     "molecular_weight": 420,
-    //     "tracer_type": "Test!!"
-    //   },
-    //   success: function(response){
-    //     console.log("got response from mechanisms ADD: ");
-    //     console.log(response);
-    //   }
-    // });
     
 }
 
@@ -253,9 +225,6 @@ $(document).ready(function(){
     $("#range-slider").slider('values',0,newValue);
     reloadGraph()
   });
-  // $("#range-slider").on('change', function(){
-  //   reloadGraph();
-  // });
   $("#flow-end-range").on('change', function(){
     var newValue = $("#flow-end-range").val()
     $("#flow-end-input").val(newValue)
@@ -267,9 +236,6 @@ $(document).ready(function(){
     $("#flow-start-input2").val(newValue)
     reloadGraph()
   });
-  // $("#range-slider").on('change', function(){
-  //   reloadGraph();
-  // });
   $("#flow-end-range2").on('change', function(){
     var newValue = $("#flow-end-range2").val()
     $("#flow-end-input2").val(newValue)
