@@ -142,6 +142,11 @@ MEDIA_URL = '/media/'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
+#cookie crap
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 # this allows possibly overriding another users session/csrf flags
 # look into a better way to do this
 # SESSION_COOKIE_SAMESITE = 'None'

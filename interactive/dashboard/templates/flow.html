@@ -68,7 +68,7 @@
                                 //   base values for the slider
                                   $( "#amount" ).val("1s - {{simulation_length}}s");
                                   document.getElementById("flow-start-range").value = 0;
-                                      document.getElementById("flow-end-range").value = {{simulation_length}}; // remove *600 to get minutes
+                                      document.getElementById("flow-end-range").value = {{simulation_length}};
                                 } );
                                
                                 </script>
@@ -76,7 +76,6 @@
                         <div class="list-group-item">
                             <p>
                                 <label for="number">Filter range (mol m<sup>-3</sup>):</label>
-                                <!-- <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;width: 100%;"> -->
                               </p>
                               <input type="text" id="flow-start-range2" name="flow-start-range2" value="0" style="float:left; width: 40%;">
                               <p style="float:left;padding-left:10px;padding-right:10px;padding-top:5px;"> to </p>
@@ -157,10 +156,6 @@
                 height: 300px; /* Umake it so we can scroll in elements list, change this to change the menu height */
     }
 footer {
-    /* position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: auto; */
     display: none;
 }
 .ui-slider-handle {
@@ -185,8 +180,6 @@ footer {
     border: 2px solid #00797C;
 }
 .selected-menu-it{
-    /* border-bottom: 3px solid #00797C;
-     */
      background-color: #00797C;
      color:white;
 }

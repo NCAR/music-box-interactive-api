@@ -24,9 +24,9 @@ config_files_to_ignore = [
         ]
 
 # reads csv file into dictionary
-def manage_initial_conditions_files(f, filename):
+def manage_initial_conditions_files(f, filename, path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+    destination = os.path.join(path, filename)
     g = open(destination, 'wb')
     g.write(content)
 
@@ -42,9 +42,9 @@ def manage_initial_conditions_files(f, filename):
 
 
 # removes an initial conditions file
-def initial_conditions_file_remove(remove_request):
+def initial_conditions_file_remove(remove_request, path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     # remove file
-    filepath = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), remove_request['file name'])
+    filepath = os.path.join(path, remove_request['file name'])
     os.remove(filepath)
 
     # update config json
@@ -54,9 +54,9 @@ def initial_conditions_file_remove(remove_request):
 
 
 # handles all uploaded evolving conditions files
-def manage_uploaded_evolving_conditions_files(f, filename):
+def manage_uploaded_evolving_conditions_files(f, filename, path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+    destination = os.path.join(path, filename)
     g = open(destination, 'wb')
     g.write(content)
     g.close()

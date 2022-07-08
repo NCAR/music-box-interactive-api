@@ -211,21 +211,6 @@ def findReactionRates(reactions_nodes, df, start, end):
         if key.split('.')[1].split("__")[1] in reactionsToAdd:
             widths.update({key.split('.')[1].split("__")[1]: float(
                 str('{:0.3e}'.format(values[key])))})
-    #         if values[key] < minAndMaxOfSelectedTimeFrame[0]:
-    #             minAndMaxOfSelectedTimeFrame[0] = values[key]
-    #         if values[key] > minAndMaxOfSelectedTimeFrame[1]:
-    #             minAndMaxOfSelectedTimeFrame[1] = values[key]
-    # if (minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]
-    #         and minAndMaxOfSelectedTimeFrame[1] > 0):
-
-    #     minAndMaxOfSelectedTimeFrame[0] = 0
-    # mam = minAndMaxOfSelectedTimeFrame
-    # if (str(previous_vals[0]) != str(float(str('{:0.3e}'.format(mam[0]))))
-    #     or str(previous_vals[1]) != str(float(str('{:0.3e}'.format(mam[1]))))
-    #         or previous_vals[1] == 1):
-
-    #     userSelectedMinMax = [float(str('{:0.3e}'.format(mam[0]))), float(
-    #         str('{:0.3e}'.format(mam[1])))]
     return widths
 
 # get the actual min and max
@@ -251,7 +236,9 @@ def minAndmax(reaction_nodes, quantities, widths):
                 max_val = val
     return (min_val*0.999), (max_val*1.001)
 
-# calculate new widths for the arrows by multiplying quantity of species
+# 1) calculate new widths for the arrows by multiplying quantity of species
+# 2) calculate new min and max
+# 3) set colors for arrows
 def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                             widths, blockedSpecies, list_of_species):
     global minAndMaxOfSelectedTimeFrame
@@ -289,11 +276,9 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     # for grey lines, we wanna make their value the min/max value
                     if tmp > userMM[1]:
                         print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
-                        # widths.update({reaction: userMM[1]})
                         tmp = userMM[1]
                     elif tmp < userMM[0]:
                         print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
-                        # widths.update({reaction: userMM[0]})
                         tmp = userMM[0]
                     edgeColors.update({name: "#e0e0e0"})
                 if (reaction not in blockedSpecies

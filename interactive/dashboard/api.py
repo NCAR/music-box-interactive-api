@@ -27,6 +27,7 @@ from mechanism.species import *
 from mechanism.network_plot import *
 from dashboard.forms.formsetup import *
 from os.path import exists
+from model_driver.session_model_runner import *
 
 # api.py contains all DJANGO based backend requests made to the server from client --
 # each browser session creates a "session_key" saved to cookie on client side
@@ -263,7 +264,7 @@ class ReactionTypeSchemaView(views.APIView):
 
 
 
-class GetModelOptionsView(views.APIView):
+class ModelOptionsView(views.APIView):
     def get(self, request):
         print("****** GET request received GET_MODEL_VIEW ******")
         # print("current cookie:" + request.COOKIES['sessionid'])
@@ -280,32 +281,294 @@ class GetModelOptionsView(views.APIView):
             print("* returning options:", options)
             return  JsonResponse(options)
     def post(self, request):
+        print("****** POST request received MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.create()
         print("* saving model options for user: "+request.session.session_key)
-        
-class ConditionsView(views.APIView):
+        print("* received options:", request.body)
+        newOptions = json.loads(request.body)
+        path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/options.json"
+        print("* saving to path: "+path)
+        options = {}
+        for key in newOptions:
+            options.update({key: newOptions[key]})
+        with open(path, 'w') as f:
+            json.dump(options, f, indent=4)
+        print('box model options updated')
+        config_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        options = option_setup(config_path)
+        print("* returning options:", options)
+        return  JsonResponse(options)
+
+class InitialConditionsFiles(views.APIView):
     def get(self, request):
-        print("****** GET request received CONDITIONS_VIEW ******")
+        print("****** GET request received INITIAL CONDITIONS FILE ******")
         if not request.session.session_key:
             request.session.create()
         
-        print("fetching conditions for session id: " + request.session.session_key)
-        return Response({"session_id": request.session.session_key})
+        print("* fetching conditions files for session id: " + request.session.session_key)
+        if not os.path.isfile(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/my_config.json")):
+            print("* detected no data from this user")
+            return JsonResponse({})
+        else:
+            config_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/my_config.json")
+            values = initial_conditions_files(config_path)
+            print("* returning values [icf]:", values)
+            return JsonResponse(values)
+class ConditionsSpeciesList(views.APIView):
+    def get(self, request):
+        print("****** GET request received INITIAL SPECIES LIST ******")
+        if not request.session.session_key:
+            request.session.create()
+        
+        print("* fetching species list for session id: " + request.session.session_key)
+        if not os.path.isdir(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)):
+            print("* detected no data from this user")
+            return JsonResponse({})
+        else:
+            print("* fetching species list:",os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/camp_data/species.json")
+            species = { "species" : conditions_species_list(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/camp_data/species.json") }
+            print("* returning species [csl]:", species)
+            return JsonResponse(species)
+class InitialConditionsSetup(views.APIView):
+    def get(self, request):
+        print("****** GET request received INITIAL CONDITIONS SETUP ******")
+        if not request.session.session_key:
+            request.session.create()
+        
+        print("* fetching initial conditions setup for session id: " + request.session.session_key)
+        if not os.path.isfile(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initials.json")):
+            print("* detected no data from this user")
+            return JsonResponse({})
+        else:
+            data = ""
+            with open(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initials.json")) as f:
+                data = json.loads(f.read())
+            print("* returning initial conditions setup:", data)
+            return JsonResponse(data)
+class InitialSpeciesConcentrations(views.APIView):
+    def get(self, request):
+        
+        print("****** GET request received INITIAL SPECIES CONCENTRATIONS ******")
+        if not request.session.session_key:
+            request.session.create()
+        
+        print("* fetching initial species conc. for session id: " + request.session.session_key)
+        if not os.path.isfile(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/species.json")):
+            print("* detected no data from this user")
+            return JsonResponse({})
+        else:
+           
+            path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/species.json")
+            print("* getting initial species concentrations:",path)
+            values = initial_species_concentrations(path)
+            print("* returning species [isc]:", values)
+            return JsonResponse(values)
     def post(self, request):
-        print("post request")
+        print("****** POST request received INITIAL SPECIES CONCENTRATIONS ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* received options:", request.body)
+        initial_values = json.loads(request.body)
+        path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/species.json")
+        print("* saving to path: "+path)
+        if not os.path.isfile(path):
+            print("* detected no species this user")
+            return Response(status=status.HTTP_200_OK)
+        else:
+            print("* pushing new options:", initial_values)
+            formulas = {}
+            units = {}
+            values = {}
+            i = 0
+            for key, value in initial_values.items():
+                name = "Species " + str(i)
+                formulas[name] = key
+                units[name] = value["units"]
+                values[name] = value["value"]
+                i += 1
+            file_data = {}
+            file_data["formula"] = formulas
+            file_data["unit"] = units
+            file_data["value"] = values
+            with open(path, 'w') as f:
+                json.dump(file_data, f, indent=4)
+            # run export next?
+            export_to_path(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/")
+            return JsonResponse({})
+class InitialReactionRates(views.APIView):
+    def get(self, request):
+        print("****** GET request received INITIAL REACTION RATES ******")
+        if not request.session.session_key:
+            request.session.create()
+        
+        print("* fetching initial species conc. for session id: " + request.session.session_key)
+        initial_rates = {}
+        if not os.path.isfile(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")):
+            print("* detected no data from this user")
+            return JsonResponse({})
+        else:
+            initial_reaction_rates_file_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")
+            with open(initial_reaction_rates_file_path, 'r') as f:
+                initial_rates = initial_conditions_file_to_dictionary(f, ',')
+            print("* returning files [irr]:", initial_rates)
+            return JsonResponse(initial_rates)
+    def post(self, request):
+        print("****** POST request received INITIAL REACTION RATES ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* received options:", request.body)
+        initial_values = json.loads(request.body)
+        path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")
+        print("* saving to path: "+path)
+        if not os.path.isfile(path):
+            print("* detected no species this user")
+            return JsonResponse({})
+        else:
+            print("* pushing new options:", initial_values)
+            with open(initial_reaction_rates_file_path, 'w') as f:
+                dictionary_to_initial_conditions_file(initial_values, f, ',')
+            print("* done pushing new options")
+            export_to_path(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/")
+            return JsonResponse({})
+class ConvertValues(views.APIView):
+    def get(self, request):
+        unit_type = request.GET['type']
+        new_unit = request.GET['new unit']
+        initial_value = float(request.GET['value'])
+        if any(c in unit_type for c in ('temperature', 'pressure')):
+            response = convert_initial_conditions(unit_type, new_unit, initial_value)
+        else:
+            response = {}
+        return JsonResponse(response)
+class UnitConversionArguments(views.APIView):
+    def get(self, request):
+        print("****** GET request received UNIT CONVERSION ARGUMENTS ******")
+        if not request.session.session_key:
+            request.session.create()
+        initial = request.GET['initialUnit']
+        final = request.GET['finalUnit']
+        arguments = get_required_arguments(initial, final)
+        f = make_additional_argument_form(arguments)
+        return f
+class UnitOptions(views.APIView):
+    def get(self, request):
+        unit_type = request.GET['unitType']
+        response = make_unit_convert_form(unit_type)
+        return response
+class ConversionCalculator(views.APIView):
+    def get(self, request):
+        conversion_request = request.GET.dict()
+        args = [x for x in conversion_request if 'args' in x]
+        arg_dict = {}
+        for key in conversion_request:
+            if 'title' in key:
+                arg_dict.update({conversion_request[key]: float(conversion_request[key.replace('title', 'value')])})
+                arg_dict.update({conversion_request[key] + ' units': conversion_request[key.replace('title', 'unit')]})
+        converter = create_unit_converter(conversion_request['initialUnit'], conversion_request['finalUnit'])
+        if arg_dict:
+            new_value = converter(float(conversion_request['initialValue']), arg_dict)
+        else:
+            new_value = converter(float(conversion_request['initialValue']))
 
+        return HttpResponse(new_value)
+class MusicaReactionsList(views.APIView):
+    def get(self, request):
+        print("****** GET request received MUSICA REACTIONS LIST ******")
+        if not request.session.session_key:
+            request.session.create()
+        
+        print("* fetching species list for session id: " + request.session.session_key)
+        reactions = {}
+        if not os.path.isdir(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)):
+            print("* detected no data from this user")
+            return JsonResponse({})
+        else:
+            reactions = { "reactions" : reaction_musica_names(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/camp_data/reactions.json") }
+            print("* returning reactions [mrl]:", reactions)
+            return JsonResponse(reactions)
+class EvolvingConditions(views.APIView):
+    def get(self, request):
+        print("****** GET request received EVOLVING CONDITIONS ******")
+        if not request.session.session_key:
+            request.session.create()
+        config_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/my_config.json")
+        print("* config path: "+config_path)
+        with open(config_path) as f:
+            config = json.loads(f.read())
 
+        e = config['evolving conditions']
+        evolving_conditions_list = e.keys()
+
+        file_header_dict = {} #contains a dictionary w/ key as filename and value as header of file
+        for i in evolving_conditions_list:
+            if '.csv' in i or '.txt' in i:
+                print("* adding file: "+i)
+                path = os.path.join(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key), i)
+                with open(path, 'r') as read_obj:
+                    csv_reader = reader(read_obj)
+                    list_of_rows = list(csv_reader)
+
+                try:
+                    file_header_dict.update({i:list_of_rows[0]})
+                except IndexError:
+                    file_header_dict.update({i:['EMPTY FILE']})
+            elif '.nc' in i:
+                file_header_dict.update({i:['NETCDF FILE']})
+        return JsonResponse(file_header_dict)
+class LinearCombinations(views.APIView):
+    def get(self, request):
+        print("****** GET request received LINEAR COMBINATIONS ******")
+        if not request.session.session_key:
+            request.session.create()
+        config_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/my_config.json")
+        print("* config path: "+config_path)
+        config = direct_open_json(config_path)
+       
+        if 'evolving conditions' not in config:
+            return []
+        else:
+            filelist = config['evolving conditions'].keys()
+
+        linear_combo_dict = {}
+
+        for f in filelist:
+            if config['evolving conditions'][f]['linear combinations']:
+                for key in config['evolving conditions'][f]['linear combinations']:
+                    combo = config['evolving conditions'][f]['linear combinations'][key]['properties']
+                    c = [key for key in combo]
+                    linear_combo_dict.update({f.replace('.','-'): c})
+        
+        return JsonResponse(linear_combo_dict)
+class CheckLoadView(views.APIView):
+    def get(self, request):
+        print("****** GET request received RUN_STATUS_VIEW ******")
+        if not request.session.session_key:
+            request.session.create()
+        # print("****** Running simulation for user session:",request.session.session_key,"******")
+        runner = SessionModelRunner(request.session.session_key)
+        return runner.check_load(request)
+class CheckView(views.APIView):
+    def get(self, request):
+        print("****** GET request received RUN_STATUS_VIEW ******")
+        if not request.session.session_key:
+            request.session.create()
+        # print("****** Running simulation for user session:",request.session.session_key,"******")
+        runner = SessionModelRunner(request.session.session_key)
+        return runner.check(request)
+class RunView(views.APIView):
+    def get(self, request):
+        if not request.session.session_key:
+            request.session.create()
+        print("****** Running simulation for user session:",request.session.session_key,"******")
+        runner = SessionModelRunner(request.session.session_key)
+
+        return runner.run(request)
 class SessionView(views.APIView):
     def get(self, request):
         print("****** GET request received SESSION_VIEW ******")
-        session_key = ""
-        try:
-            session_key = request.COOKIES['sessionid']
-            request.session.session_key = session_key
-        except KeyError:
+        if not request.session.session_key:
             request.session.create()
-        
         print("returning session id: " + request.session.session_key)
         return Response({"session_id": request.session.session_key})
     def post(self, request):
@@ -313,13 +576,11 @@ class SessionView(views.APIView):
         request.session.session_key = new_session_id
         print("****** setting new session key for user:",new_session_id,"******")
         return Response({"session_id": request.session.session_key}, status=status.HTTP_201_CREATED)
-class RunView(views.APIView):
+
+class LoadFromConfigJsonView(views.APIView):
     def post(self, request):
-        session_key = ""
-        try:
-            session_key = request.COOKIES['sessionid']
-            request.session.session_key = session_key
-        except KeyError:
+        if not request.session.session_key:
             request.session.create()
-        print("****** Running simulation for user session:",request.session.session_key,"******")
-        return Response({"session_id": request.session.session_key}, status=status.HTTP_201_CREATED)
+        print("* saving model options for user: "+request.session.session_key)
+        uploaded = request.FILES['file']
+
