@@ -329,7 +329,6 @@ class ConditionsSpeciesList(views.APIView):
         print("****** GET request received INITIAL SPECIES LIST ******")
         if not request.session.session_key:
             request.session.create()
-        
         print("* fetching species list for session id: " + request.session.session_key)
         if not os.path.isdir(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)):
             print("* detected no data from this user")
@@ -530,7 +529,9 @@ class LinearCombinations(views.APIView):
         print("****** GET request received LINEAR COMBINATIONS ******")
         if not request.session.session_key:
             request.session.create()
-        config_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/my_config.json")
+        config_path = os.path.join(settings.BASE_DIR,
+                                   'configs/'+request.session.session_key+
+                                   "/my_config.json")
         print("* config path: "+config_path)
         config = direct_open_json(config_path)
        

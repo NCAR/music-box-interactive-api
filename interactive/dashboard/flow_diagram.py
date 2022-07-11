@@ -163,7 +163,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
                         reaction_string = reaction_string + product + "_"
                     if r['products'] == [] or len(r['products']) == 0:
                         # reaction_string = reaction_string[:-2]
-                        print("* FOUND REACTION WITH NO PRODUCTS", reaction_string)
+                        print("* no products:", reaction_string)
                     else:
                         reaction_string = reaction_string[:-1]
                     reactions_nodes.update({reaction_string: {}})
@@ -255,7 +255,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     print("|_ comparing to preivous vals:", previous_vals)
     print("|_ calculated new min max:", newmin, newmax)
     minAndMaxOfSelectedTimeFrame = [newmin, newmax]
-    if str('{:0.3e}'.format(newmin)) != str('{:0.3e}'.format(previous_vals[0])) or str('{:0.3e}'.format(newmax)) != str('{:0.3e}'.format(previous_vals[1])):
+    if (str('{:0.3e}'.format(newmin)) != str('{:0.3e}'.format(previous_vals[0])) or
+        str('{:0.3e}'.format(newmax)) != str('{:0.3e}'.format(previous_vals[1]))):
         print("|_ detected new graph, setting user selected min max:", newmin, newmax)
         userSelectedMinMax = [newmin, newmax]
     
@@ -273,12 +274,10 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                         and tmp >= userMM[0]):
                     edgeColors.update({name: "#FF7F7F"})
                 else:
-                    # for grey lines, we wanna make their value the min/max value
+                    # for grey lines, we wanna make their value the min/max
                     if tmp > userMM[1]:
-                        print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
                         tmp = userMM[1]
                     elif tmp < userMM[0]:
-                        print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
                         tmp = userMM[0]
                     edgeColors.update({name: "#e0e0e0"})
                 if (reaction not in blockedSpecies
@@ -297,24 +296,19 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
             if products_data == ['']:
                 name = name.replace("->","-")
                 tmp_reaction = tmp_reaction.replace("->","-")
-                
                 print("     |_ modified name:", name)
             qt = quantities[reactant+"__TO__"+tmp_reaction]
             tmp = widths[reaction]*qt
-            
             if (tmp <= userMM[1]
                     and tmp >= userMM[0]):
-                
                 if reactant in list_of_species:
                     edgeColors.update({name: "#6b6bdb"})
                 else:
                     edgeColors.update({name: "#94b8f8"})
             else:
                 if tmp > userMM[1]:
-                    print("|_ ["+str(reaction)+"] setting edge color to max:", userMM[1])
                     tmp = userMM[1]
                 elif tmp < userMM[0]:
-                    print("|_ ["+str(reaction)+"] setting edge color to min:", userMM[0])
                     tmp = userMM[0]
                 edgeColors.update({name: "#e0e0e0"})
             if (reactant not in blockedSpecies
@@ -536,7 +530,6 @@ def findQuantities(reactions_nodes, reactions_json):
                 elif (isSpeciesInReaction(reaction_data, reactant_name)
                       or isSpeciesInReaction(reactant_data, reactant_name)):
                     reactant_yield = reactant_yield['qty']
-                    
                     quantities.update(
                         {name: reactant_yield})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -550,7 +543,6 @@ def findQuantities(reactions_nodes, reactions_json):
                         reactants_string = reactants_string.replace(rep, rep1)
             reactants_string = reactants_string[:-1]
             if len(reaction_data) == 0:
-                print("|_ found no products for reaction:", reactant_data, reaction_data)
                 products_string = "NO_PRODUCTS-"
             for product in reaction_data:
                 product_name = product
@@ -676,9 +668,7 @@ def generate_flow_diagram(request_dict):
     max_width = request_dict['maxArrowWidth']
 
     previousMin = float(request_dict["currentMinValOfGraph"])
-    print("* previous min:",request_dict["currentMinValOfGraph"],"saved as",previousMin)
     previousMax = float(request_dict["currentMaxValOfGraph"])
-    print("* previous max:",request_dict["currentMaxValOfGraph"],"saved as",previousMax)
     previous_vals = [previousMin, previousMax]
 
     isPhysicsEnabled = request_dict['isPhysicsEnabled']
@@ -832,12 +822,6 @@ def generate_flow_diagram(request_dict):
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            print("previousMin:", formattedPrevMin,
-                  "does not equal", formattedMinOfSelected)
-            print("previousMax:", formattedPrevMax,
-                  "does not equal", formattedMaxOfSelected)
-            print("previousMin:", previousMin, "equals", 0)
-            print("previousMax:", previousMax, "equals", 1)
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
