@@ -23,8 +23,8 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 model_output_units = 'mol/m-3'
 
-def sub_props(prop):
-    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def sub_props(prop, csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
+    
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     spec = list([])
@@ -70,11 +70,11 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-def output_plot(prop, plot_units):
+def output_plot(prop, plot_units, csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
     matplotlib.use('agg')
         
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
-    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()

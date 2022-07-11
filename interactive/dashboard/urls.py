@@ -115,6 +115,8 @@ urlpatterns = [
     path('api/check/', api.CheckView.as_view(), name='check'),
     path('api/run/', api.RunView.as_view(), name='run'),
 
+    path('api/plots/get_contents/', api.GetPlotContents.as_view(), name='get_contents'),
+
     path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
     path('api/config_json/', api.ExampleView.as_view(), name='load-config-from-file'),
     path('api/run-model/', api.RunView.as_view(), name='run-model'),

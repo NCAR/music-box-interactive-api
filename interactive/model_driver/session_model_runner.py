@@ -16,6 +16,7 @@ from .run_setup import setup_run
 from datetime import datetime
 from mechanism.reactions import reactions_are_valid
 from interactive.tools import *
+from pathlib import Path
 
 class SessionModelRunner():
     def __init__(self, session_id):
@@ -65,9 +66,9 @@ class SessionModelRunner():
 
         self.mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], session_id)
         print("* set mb_dir to: " + self.mb_dir)
-        self.out_path = os.path.join(self.mb_dir, session_id+'/output.csv')
+        self.out_path = os.path.join(self.mb_dir, 'output.csv')
         # print("* set out_path to: " + out_path)
-        self.error_path = os.path.join(self.mb_dir, session_id+'/error.json')
+        self.error_path = os.path.join(self.mb_dir, 'error.json')
         # print("* set error_path to: " + error_path)
         self.copy_path = os.path.join(settings.BASE_DIR, 'past_run/'+session_id+'/past.csv')
         # print("* set copy_path to: " + copy_path)
@@ -83,7 +84,7 @@ class SessionModelRunner():
         # print("* set config_dest to: " + config_dest)
 
         self.config_folder_path = os.path.join(settings.BASE_DIR, "configs/"+session_id)
-        # self.log_path = os.path.join(settings.BASE_DIR, 'logs/'+session_id)
+        self.log_path = os.path.join(settings.BASE_DIR, 'logs/'+session_id)
         # print("* set log_path to: " + self.log_path)
         self.camp_folder_path = os.path.join(settings.BASE_DIR, "configs/"+session_id+"/camp_data")
 
@@ -92,7 +93,7 @@ class SessionModelRunner():
         self.species_path = os.path.join(settings.BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
         # print("* set species_path to: " + species_path)
         self.sessionid = session_id
-
+    
     def copyConfigFile(self, source, destination):
         configFile = open(source, 'rb')
         content = configFile.read()
@@ -199,7 +200,11 @@ class SessionModelRunner():
         os.makedirs(camp_path)
         for f in os.listdir(self.camp_folder_path):
             self.copyConfigFile(os.path.join(self.camp_folder_path, f), os.path.join(camp_path, f))
-
+        os.makedirs(self.log_path)
+        print("* made log path: " + self.log_path)
+        originalPath = os.path.join(settings.BASE_DIR, 'dashboard/static/log/log_config.json')
+        self.copyConfigFile(originalPath, os.path.join(self.log_path, "log_config.json"))
+        print("* copied log config file:", os.path.join(self.log_path, "log_config.json"))
         time.sleep(0.1)
 
         filelist.remove('my_config.json')
@@ -209,7 +214,8 @@ class SessionModelRunner():
         print("* running model from base directory: " + self.mb_dir)
         print("* my_config location:", self.mb_dir+'/mb_configuration/my_config.json')
         # process = subprocess.Popen([r'./music_box', r'.'+self.mb_dir+'/mb_configuration/my_config.json'], cwd=self.mb_dir) 
-        process = subprocess.Popen([r'./music_box', r''+self.mb_dir+'/mb_configuration/my_config.json'], cwd=os.environ['MUSIC_BOX_BUILD_DIR'])
+        print("* myconfig: ", direct_open_json(self.mb_dir+'/mb_configuration/my_config.json'))
+        process = subprocess.Popen([r'../music_box', r'./mb_configuration/my_config.json'], cwd=self.mb_dir)
         with open(self.reactions_path, 'w') as k:
             json.dump(reactions_data, k)
 
@@ -223,22 +229,23 @@ class SessionModelRunner():
         self.copyConfigFile(self.config_path, self.old_path)
 
     def check(self, request):
-        print("* checking...")
-        time.sleep(1)
+        time.sleep(2)
         response_message = {}
         status = 'checking'
-
+        print("* checking via path: " + self.complete_path)
         # check if output file exists
         t = 0
         while status == 'checking':
             print(status)
-            time.sleep(.2)
+            time.sleep(1)
             if os.path.isfile(self.error_path): # check if error file exists
                 if os.path.getsize(self.error_path) != 0:  # check if error has been output
                     status = 'error'
             elif os.path.isfile(self.complete_path):
                 time.sleep(0.2)
+                print("* complete file found")
                 if os.path.getsize(self.out_path) != 0:  # check if model has finished
+                    print("* output file found")
                     status = 'done'
 
         # update_with_result(status)
@@ -259,7 +266,8 @@ class SessionModelRunner():
                         response_message.update({'spec_ID': key + '.Formula'})
             response_message.update({'e_code': errorfile['code']})
             response_message.update({'e_message': errorfile['message']})
-
+        print("* looks like we're done")
+        print("* response message: ", response_message)
         return JsonResponse(response_message)
 
     def check_load(self, request):
@@ -275,7 +283,6 @@ class SessionModelRunner():
                 status = 'done'
 
         response_message.update({'status': status})
-
         return JsonResponse(response_message)
 
     def run(self, request):

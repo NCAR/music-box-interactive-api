@@ -26,6 +26,7 @@ from mechanism.reactions import *
 from mechanism.species import *
 from mechanism.network_plot import *
 from dashboard.forms.formsetup import *
+from plots.plot_setup import *
 from os.path import exists
 from model_driver.session_model_runner import *
 
@@ -47,7 +48,15 @@ from model_driver.session_model_runner import *
 #       - GET REQUEST => Return JSON with key 'session_id' equal to the users' session_key
 
 
-
+def beautifyReaction(reaction):
+    if '->' in reaction:
+        reaction = reaction.replace('->', ' → ')
+    if '__' in reaction:
+        reaction = reaction.replace('__', ' (')
+        reaction = reaction+")"
+    if '_' in reaction:
+        reaction = reaction.replace('_', ' + ')
+    return reaction
 
 class TestAPIView(views.APIView):
     def get(self, request):
@@ -564,6 +573,26 @@ class RunView(views.APIView):
         runner = SessionModelRunner(request.session.session_key)
 
         return runner.run(request)
+class GetPlotContents(views.APIView):
+    def get(self, request):
+        print("****** GET request received GET_PLOT_CONTENTS ******")
+        if not request.session.session_key:
+            request.session.create()
+        get = request.GET
+        prop = get['type']
+        csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        print("* searching for file: "+csv_results_path)
+        response = HttpResponse()
+        response.write(plots_unit_select(prop))
+        subs = sub_props(prop, csv_results_path)
+        subs.sort()
+        if prop != 'compare':
+            for i in subs:
+                response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
+        elif prop == 'compare':
+            for i in subs:
+                response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
+        return response
 class SessionView(views.APIView):
     def get(self, request):
         print("****** GET request received SESSION_VIEW ******")

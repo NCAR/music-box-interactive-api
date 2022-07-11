@@ -360,9 +360,9 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
                             maxVal = abs(species_yields[i])
 
             vals = [i[1] for i in logged]
-            min_val = abs(min(vals))
-            range = max(vals) - min(vals)
-            if max(vals) == min(vals):
+            min_val = abs(min(vals, default="EMPTY"))
+            range = max(vals) - min(vals, default="EMPTY")
+            if max(vals) == min(vals, default="EMPTY"):
                 range = 1
             scaled = [(x[0], (float(((x[1] + min_val)/range))
                        * float(maxWidth)) + 1) for x in logged]
@@ -377,12 +377,12 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
         print("[5/7] linearly scaling weights...")
         li = species_yields
         vals = [species_yields[i] for i in li]
-        min_val = abs(min(vals))
+        min_val = abs(min(vals, default="EMPTY"))
 
         minVal = min_val
-        maxVal = abs(max(vals))
+        maxVal = abs(max(vals, default="EMPTY"))
 
-        range = max(vals) - min(vals)
+        range = max(vals) - min(vals, default="EMPTY")
         scaled = [(x, (((species_yields[x] + min_val)/range)
                    * int(maxWidth)) + 1) for x in li]
         print("[6/7] got linearly scaled weights")
