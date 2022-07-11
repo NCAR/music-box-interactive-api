@@ -8,9 +8,9 @@ from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-
+reactions_default = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
 # returns the full set of reaction json objects from the reactions file
-def reactions_info(reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reactions_info(reactions_path = reactions_default):
     logging.info('getting reaction data from file')
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
@@ -19,14 +19,14 @@ def reactions_info(reactions_path = os.path.join(settings.BASE_DIR, "dashboard/s
 
 
 # checks if the set of reactions is valid (ie if there is at least one reaction)
-def reactions_are_valid(reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reactions_are_valid(reactions_path = reactions_default):
     if len(reactions_info(reactions_path)) > 0:
         return True
     return False
 
 
 # returns whether a reaction with the specified MUSICA name exists
-def is_musica_named_reaction(name, reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def is_musica_named_reaction(name, reactions_path = reactions_default):
     reactions = reactions_info(reactions_path)
     name_parts = name.split('.')
     if len(name_parts) != 2: return False
@@ -43,7 +43,7 @@ def is_musica_named_reaction(name, reactions_path = os.path.join(settings.BASE_D
 
 
 # creates a list of reaction names based on data from the reactions file for use in a menu
-def reaction_menu_names(reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reaction_menu_names(reactions_path = reactions_default):
     logging.info('getting list of reaction names')
     names = []
 
@@ -80,7 +80,7 @@ def reaction_menu_names(reactions_path = os.path.join(settings.BASE_DIR, "dashbo
 
 
 # removes a reaction from the mechanism
-def reaction_remove(reaction_index,reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reaction_remove(reaction_index,reactions_path = reactions_default):
     logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
@@ -92,7 +92,7 @@ def reaction_remove(reaction_index,reactions_path = os.path.join(settings.BASE_D
 
 
 # saves a reaction to the mechanism
-def reaction_save(reaction_data,reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reaction_save(reaction_data,reactions_path = reactions_default):
     logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
@@ -109,7 +109,7 @@ def reaction_save(reaction_data,reactions_path = os.path.join(settings.BASE_DIR,
 
 # returns the set of reactions with MUSICA names including the
 # units for their rates or rate constants
-def reaction_musica_names(reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reaction_musica_names(reactions_path = reactions_default):
     logging.info('getting reactions with MUSICA names')
     reactions = {}
     for reaction in reactions_info(reactions_path):
@@ -129,7 +129,7 @@ def reaction_musica_names(reactions_path = os.path.join(settings.BASE_DIR, "dash
 
 
 # returns the json schema for a particular reaction type
-def reaction_type_schema(reaction_type, reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def reaction_type_schema(reaction_type, reactions_path = reactions_default):
     logging.info('getting schema for ' + reaction_type)
     species = ""
     for idx, entry in enumerate(species_list(reactions_path.replace('reactions.json', 'species.json'))):
