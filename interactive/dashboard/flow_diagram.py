@@ -259,7 +259,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     stnewmin = str('{:0.3e}'.format(newmin))
     stnewmax = str('{:0.3e}'.format(newmax))
     if (stnewmin != str('{:0.3e}'.format(previous_vals[0]))
-        or stnewmax != str('{:0.3e}'.format(previous_vals[1]))):
+            or stnewmax != str('{:0.3e}'.format(previous_vals[1]))):
         print("|_ detected new graph, set min max:", newmin, newmax)
         userSelectedMinMax = [newmin, newmax]
     userMM = userSelectedMinMax  # short version to clean up code
@@ -268,14 +268,14 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for product in products_data:
             if product != "NO_PRODUCTS":
                 print("|_ added interaction:", beautifyReaction(
-                reaction), " ==> ", product)
+                      reaction), " ==> ", product)
                 name = reaction+"__TO__"+product
                 tmp = widths[reaction]*quantities[name]
                 if (tmp <= userMM[1]
                         and tmp >= userMM[0]):
                     edgeColors.update({name: "#FF7F7F"})
                 else:
-                    # for grey lines, we wanna make their value the min/max value
+                    # for grey lines, we wanna make their value the min/max
                     if tmp > userMM[1]:
                         print("|_ setting edge color to max:", userMM[1])
                         tmp = userMM[1]
@@ -829,17 +829,18 @@ def generate_flow_diagram(request_dict):
                     parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
             a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
-                  +str(formattedMaxOfSelected)+'", "'+str(
+                  + str(formattedMaxOfSelected)+'", "'+str(
                   formattedMinOfSelected)+'", "'
-                  +str(formattedMaxOfSelected)+'");</script>')
+                  + str(formattedMaxOfSelected)+'");</script>')
         else:
             print("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
+            rangeId = 'parent.document.getElementById("flow-start-range2").value = '
             if isNotDefaultmax or isNotDefaultMin:
-                a += ('parent.document.getElementById("flow-start-range2").value = "'+str(
+                a += (rangeId+str(
                     formattedUserMin)+'"; \
-                        parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";')
+                        '+rangeId+'"'+formattedUserMax+'";')
                 a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
                     formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
             else:

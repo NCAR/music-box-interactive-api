@@ -42,7 +42,8 @@ def direct_open_json(filePath):
 ##################################
 # Initial species concentrations #
 ##################################
-my_config = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")
+my_config = os.path.join(settings.BASE_DIR,
+                         "dashboard/static/config/my_config.json")
 
 
 # returns the initial conditions files
@@ -107,7 +108,8 @@ def add_to_initial_conditions_file(file_path, delimiter, dictionary):
     initial_conditions = {}
     if os.path.isfile(file_path):
         with open(file_path) as f:
-            initial_conditions = initial_conditions_file_to_dictionary(f, delimiter)
+            ic = initial_conditions_file_to_dictionary(f, delimiter)
+            initial_conditions = ic
             f.close()
     for key, value in dictionary.items():
         if is_musica_named_reaction(key):
@@ -132,11 +134,11 @@ def initial_conditions_file_to_dictionary(input_file, delimiter):
          if len(key_parts) == 2:
              name = key_parts[0] + '.' + key_parts[1]
              units = default_units(key_parts[0], key_parts[1])
-             rates[name] = { "value": values[keys.index(key)], "units": units }
+             rates[name] = {"value": values[keys.index(key)], "units": units}
          elif len(key_parts) == 3:
              name = key_parts[0] + '.' + key_parts[1]
              units = key_parts[2]
-             rates[name] = { "value": values[keys.index(key)], "units": units }
+             rates[name] = {"value": values[keys.index(key)], "units": units}
     return(rates)
 
 

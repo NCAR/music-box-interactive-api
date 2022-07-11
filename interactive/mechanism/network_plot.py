@@ -3,8 +3,13 @@ import os
 import json
 from django.conf import settings
 
+temp_default = os.path.join(settings.BASE_DIR,
+                            "dashboard/templates/network_plot/plot.html")
+reac = os.path.join(settings.BASE_DIR,
+                    "dashboard/static/config/camp_data/reactions.json")
 
-def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/plot.html"),  path_to_reactions=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+
+def generate_network_plot(species, path_to_template=temp_default,  path_to_reactions=reac):
     net = Network(directed=True)
     
     with open(path_to_reactions, 'r') as f:
@@ -14,10 +19,11 @@ def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_D
 
     for r in reactions_data['camp-data'][0]['reactions']:
         if 'reactants' in r:
+            tmp = reactions_data['camp-data'][0]['reactions']
             if species in r['reactants']:
-                contained_reactions.update({reactions_data['camp-data'][0]['reactions'].index(r): {}})
+                contained_reactions.update({tmp.index(r): {}})
             if species in r['products']:
-                contained_reactions.update({reactions_data['camp-data'][0]['reactions'].index(r): {}})
+                contained_reactions.update({tmp.index(r): {}})
 
     print(contained_reactions)
     nodes = {}
@@ -25,12 +31,16 @@ def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_D
 
     if contained_reactions:
         for i in contained_reactions:
-            reactants = [x for x in reactions_data['camp-data'][0]['reactions'][i]['reactants']]
-            products = [x for x in reactions_data['camp-data'][0]['reactions'][i]['products']]
+            tmp = reactions_data['camp-data'][0]['reactions']
+            reac_data = tmp[i]['reactants']
+            prod_data = tmp[i]['products']
+            reactants = [x for x in reac_data]
+            products = [x for x in prod_data]
             first = '+'.join(reactants)
             second = '+'.join(products)
             name = first + '->' + second
-            net.add_node(name, label=name,  color='green', borderWidthSelected=3)
+            net.add_node(name, label=name,  color='green',
+                         borderWidthSelected=3)
             for j in reactants:
                 nodes.update({j: {}})
                 edges.append([j, name])
@@ -46,7 +56,5 @@ def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_D
         net.add_node(n, label=n, borderWidthSelected=3, size=40)
     for e in edges:
         net.add_edge(e[0], e[1])
-
     net.force_atlas_2based(gravity=-100, overlap=1)
     net.show(str(path_to_template))
-
