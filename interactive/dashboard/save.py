@@ -9,9 +9,10 @@ import random
 from scipy.io import netcdf
 from mechanism.reactions import is_musica_named_reaction
 
-
-config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-initial_reaction_rates_file_path = os.path.join(config_path, 'initial_reaction_rates.csv')
+cfg = "dashboard/static/config"
+config_path = os.path.join(settings.BASE_DIR, cfg)
+tmp = 'initial_reaction_rates.csv'
+initial_reaction_rates_file_path = os.path.join(config_path, tmp)
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -41,9 +42,11 @@ def direct_open_json(filePath):
 ##################################
 # Initial species concentrations #
 ##################################
+my_config = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")
+
 
 # returns the initial conditions files
-def initial_conditions_files(path = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")):
+def initial_conditions_files(path = my_config):
     files = {}
     config = direct_open_json(path)
     if 'initial conditions' in config:
@@ -429,7 +432,7 @@ def review_json():
     return config
 
 def export_to_user_config_files(jsonPath):
-    config = direct_open_json(jsonPath+'/my_config.json') # {session_id}/my_config.json
+    config = direct_open_json(jsonPath+'/my_config.json')
     
     species_dict = {
         'formula': {},
@@ -564,9 +567,9 @@ def uploaded_to_config(uploaded_dict):
     initial_dict = {
         'values': {},
         'units': {
-        "temperature": "K",
-        "pressure": "atm"
-    }
+            "temperature": "K",
+            "pressure": "atm"
+        }
     }
     
 

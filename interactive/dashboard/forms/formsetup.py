@@ -6,22 +6,22 @@ from mechanism.reactions import reaction_musica_names
 from dashboard.save import initial_conditions_file_to_dictionary
 
 
-
-def option_setup(config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+defaultVal = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+def option_setup(config_path = defaultVal):
     with open(os.path.join(config_path, 'options.json')) as f:
         data = json.loads(f.read())
 
     return data
 
 
-def ini_cond_setup(config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def ini_cond_setup(config_path = defaultVal):
     with open(os.path.join(config_path, 'initials.json')) as f:
         data = json.loads(f.read())
 
     return data
 
 
-def display_evolves(config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def display_evolves(config_path = defaultVal):
     with open(os.path.join(config_path, 'my_config.json')) as f:
         config = json.loads(f.read())
 
