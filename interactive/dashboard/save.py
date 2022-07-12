@@ -267,7 +267,7 @@ def export_to_path(path):
     logging.info('my_config.json updated')
 
 
-# Combines all individual configuration json files and writes 
+# Combines all individual configuration json files and writes
 # to the config file readable by the mode
 def export():
     species = open_json('species.json')
