@@ -291,8 +291,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 print("|_ found no products for reaction:", reaction)
         for reactant in reactants_data:
             tmp_reaction = reaction
-            print("|_ added interaction:", reactant,
-                   " ==> ", beautifyReaction(reaction))
+            tmp = "==> " + beautifyReaction(reaction)
+            print("|_ added interaction:", reactant, tmp)
             name = reactant+"__TO__"+reaction
             if products_data == ['']:
                 name = name.replace("->", "-")

@@ -247,18 +247,16 @@ def export_to_path(path):
     config.update({'initial conditions': initial_files})
 
     config.update({
-        "model components": [
-        {
+        "model components": [{
             "type": "CAMP",
             "configuration file": "camp_data/config.json",
             "override species": {
-                "M": {"mixing ratio mol mol-1" : 1.0}
+                "M": {"mixing ratio mol mol-1": 1.0}
             },
             "suppress output": {
                 "M": {}
             }
-        }
-        ]
+        }]
     })
 
     # write dict as json
@@ -482,7 +480,6 @@ def export_to_user_config_files(jsonPath):
         else:
             fixedname = key.replace(' ', "_")
             option_dict.update({fixedname: config['box model options'][key]})
-
 
     initial_dict = {
         'values': {},

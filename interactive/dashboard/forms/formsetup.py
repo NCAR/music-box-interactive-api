@@ -31,7 +31,7 @@ def display_evolves(config_path=defaultVal):
     evolving_conditions_list = e.keys()
 
     # key as filename and value as header of file
-    file_header_dict = {} 
+    file_header_dict = {}
     for i in evolving_conditions_list:
         if '.csv' in i or '.txt' in i:
             path = os.path.join(config_path, i)
