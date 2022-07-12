@@ -32,11 +32,14 @@ def file_path(filename):
     }
     file_loc = locations[filename]
     if file_loc == "config":
-        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+        return os.path.join(cfg, filename)
     elif file_loc == "mechanism":
-        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/mechanism"), filename)
+        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+        return os.path.join(cfg, filename)
     elif file_loc == "log":
-        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/log"), filename)
+        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/log")
+        return os.path.join(cfg, filename)
 
 
 
@@ -46,13 +49,19 @@ def open_json(filename):
     with open(path) as f:
         dicti = json.loads(f.read())
     return dicti
+
+
 def direct_open_json(filePath):
     with open(filePath) as f:
         dicti = json.loads(f.read())
     return dicti
+
+
 def direct_dump_json(filePath, content):
     with open(filePath, 'w') as f:
         json.dump(content, f, indent=4)
+
+
 # save dictionary as json to a file
 def dump_json(filename, content):
     path = file_path(filename)

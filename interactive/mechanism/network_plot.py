@@ -9,10 +9,10 @@ reac = os.path.join(settings.BASE_DIR,
                     "dashboard/static/config/camp_data/reactions.json")
 
 
-def generate_network_plot(species, path_to_template=temp_default,  path_to_reactions=reac):
+def generate_network_plot(species, pathz=temp_default,  pr=reac):
     net = Network(directed=True)
     
-    with open(path_to_reactions, 'r') as f:
+    with open(pathz, 'r') as f:
         reactions_data = json.load(f)
 
     contained_reactions = {}
@@ -57,4 +57,4 @@ def generate_network_plot(species, path_to_template=temp_default,  path_to_react
     for e in edges:
         net.add_edge(e[0], e[1])
     net.force_atlas_2based(gravity=-100, overlap=1)
-    net.show(str(path_to_template))
+    net.show(str(pathz))

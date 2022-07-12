@@ -7,6 +7,8 @@ from dashboard.save import initial_conditions_file_to_dictionary
 
 
 defaultVal = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+
+
 def option_setup(config_path=defaultVal):
     with open(os.path.join(config_path, 'options.json')) as f:
         data = json.loads(f.read())
@@ -28,7 +30,8 @@ def display_evolves(config_path=defaultVal):
     e = config['evolving conditions']
     evolving_conditions_list = e.keys()
 
-    file_header_dict = {} #key as filename and value as header of file
+    # key as filename and value as header of file
+    file_header_dict = {} 
     for i in evolving_conditions_list:
         if '.csv' in i or '.txt' in i:
             path = os.path.join(config_path, i)

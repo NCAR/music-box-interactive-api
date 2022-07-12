@@ -23,6 +23,7 @@ config_files_to_ignore = [
         'README'
         ]
 
+
 # reads csv file into dictionary
 def manage_initial_conditions_files(f, filename, path=config_path):
     content = f.read()
@@ -210,11 +211,11 @@ def check_loss_uploaded():
         return False
 
 
-
 # saves uploaded photo rate file to config folder
 def handle_uploaded_p_rates(f):
     content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'photo_rates.nc')
+    conf = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+    destination = os.path.join(conf, 'photo_rates.nc')
     g = open(destination, 'wb')
     g.write(content)
     g.close()

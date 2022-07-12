@@ -292,7 +292,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for reactant in reactants_data:
             tmp_reaction = reaction
             print("|_ added interaction:", reactant,
-                    " ==> ", beautifyReaction(reaction))
+                   " ==> ", beautifyReaction(reaction))
             name = reactant+"__TO__"+reaction
             if products_data == ['']:
                 name = name.replace("->", "-")
@@ -836,16 +836,22 @@ def generate_flow_diagram(request_dict):
             print("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
-            rangeId = 'parent.document.getElementById("flow-start-range2").value = '
+            block1 = 'parent.document.getElementById("flow-start-range2")'
+            rangeId = block1+'.value = '
             if isNotDefaultmax or isNotDefaultMin:
                 a += (rangeId+str(
                     formattedUserMin)+'"; \
                         '+rangeId+'"'+formattedUserMax+'";')
-                a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
-                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+                block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
+                fmos = str(formattedMinOfSelected)
+                block2 = formattedUserMax + '", "' + fmos
+                block3 = '", "' + formattedMaxOfSelected + '");</script>'
+                a += block1 + block2 + block3
             else:
-                a += ('parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'
-                +str(formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>')
+                fmos = formattedMinOfSelected
+                block1 = 'parent.reloadSlider("' + fmos + '", "'
+                block2 = formattedMaxOfSelected + '", "' + str(fmos)
+                a += block1 + '", "' + formattedMaxOfSelected + '");</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \

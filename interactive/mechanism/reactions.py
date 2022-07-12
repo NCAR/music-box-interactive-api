@@ -8,7 +8,10 @@ from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-reactions_default = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
+react = "dashboard/static/config/camp_data/reactions.json"
+reactions_default = os.path.join(settings.BASE_DIR, react)
+
+
 # returns the full set of reaction json objects from the reactions file
 def reactions_info(reactions_path=reactions_default):
     logging.info('getting reaction data from file')
@@ -19,7 +22,7 @@ def reactions_info(reactions_path=reactions_default):
 
 
 # checks if the set of reactions is valid (ie if there is at least one reaction)
-def reactions_are_valid(reactions_path = reactions_default):
+def reactions_are_valid(reactions_path=reactions_default):
     if len(reactions_info(reactions_path)) > 0:
         return True
     return False
@@ -80,7 +83,7 @@ def reaction_menu_names(reactions_path=reactions_default):
 
 
 # removes a reaction from the mechanism
-def reaction_remove(reaction_index,reactions_path=reactions_default):
+def reaction_remove(reaction_index, reactions_path=reactions_default):
     logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
@@ -92,7 +95,7 @@ def reaction_remove(reaction_index,reactions_path=reactions_default):
 
 
 # saves a reaction to the mechanism
-def reaction_save(reaction_data,reactions_path=reactions_default):
+def reaction_save(reaction_data, reactions_path=reactions_default):
     logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
@@ -106,6 +109,7 @@ def reaction_save(reaction_data,reactions_path=reactions_default):
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=2)
         f.close()
+
 
 # returns the set of reactions with MUSICA names including the
 # units for their rates or rate constants
@@ -132,7 +136,8 @@ def reaction_musica_names(reactions_path=reactions_default):
 def reaction_type_schema(reaction_type, reactions_path=reactions_default):
     logging.info('getting schema for ' + reaction_type)
     species = ""
-    for idx, entry in enumerate(species_list(reactions_path.replace('reactions.json', 'species.json'))):
+    rea = reactions_path.replace('reactions.json', 'species.json')
+    for idx, entry in enumerate(species_list(rea)):
         if idx > 0:
             species += ";"
         species += entry

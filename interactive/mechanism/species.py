@@ -34,6 +34,7 @@ def conditions_species_list(species_path=species_default):
     if 'M' in species: species.remove('M')
     return species
 
+
 # returns a modified list
 def api_species_menu_names(species_path=species_default):
     logging.info('getting list of species names')
@@ -46,6 +47,7 @@ def api_species_menu_names(species_path=species_default):
         else:
             newlist.append(name)
     return {'species_list_0': m_list, 'species_list_1': newlist}
+
 
 # returns a list of chemical species names from the species file for use
 def species_menu_names(species_path=species_default):
@@ -91,22 +93,24 @@ def species_save(species_data, species_path=species_default):
         f.close()
 
 
-# patch to allow interface to use SI units until CAMP is 
+# patch to allow interface to use SI units until CAMP is
 # updated to use all SI units
 def species_convert_from_SI(species_data):
     if 'absolute convergence tolerance [mol mol-1]' in species_data:
         mol = species_data['absolute convergence tolerance [mol mol-1]']
-        species_data['absolute tolerance'] = mol * 1.0e6 # mol mol-1 -> ppm
+        # mol mol-1 -> ppm
+        species_data['absolute tolerance'] = mol * 1.0e6
         species_data.pop('absolute convergence tolerance [mol mol-1]')
 
 
-# patch to allow interface to use SI units until CAMP is 
+# patch to allow interface to use SI units until CAMP is
 # updated to use all SI units
 def species_convert_to_SI(species_data):
     if 'absolute tolerance' in species_data:
         mol = species_data['absolute tolerance']
         name = 'absolute convergence tolerance [mol mol-1]'
-        species_data[name] = mol * 1.0e-6 # ppm -> mol mol-1
+        # ppm -> mol mol-1
+        species_data[name] = mol * 1.0e-6
         species_data.pop('absolute tolerance')
 
 

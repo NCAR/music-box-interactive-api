@@ -54,7 +54,7 @@ urlpatterns = [
          views.initial_reaction_rates_save_handler),
     path('conditions/cond-csv', views.init_csv),
         #evolving conditions paths
-    path('conditions/evolving-file',views.evolv_file),
+    path('conditions/evolving-file', views.evolv_file),
     path('conditions/download_config', views.download_file),
     path('conditions/config_json', views.config_json),
     path('conditions/linear_combination_form', views.linear_combination_form),
@@ -72,10 +72,10 @@ urlpatterns = [
     path('conditions/convert', views.convert_values),
     path('conditions/unit-options', views.unit_options),
     path('conditions/conversion-calculator', views.convert_calculator),
-    path('conditions/unit-conversion-arguments', views.unit_conversion_arguments),
+    path('conditions/unit-conversion-arguments',
+         views.unit_conversion_arguments),
     # -----------------------------------
     #file download paths:
     path('download_config', views.download_file),
     path('download', views.download_handler),
-   
 ]

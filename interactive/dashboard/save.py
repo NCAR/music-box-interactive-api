@@ -34,10 +34,14 @@ def default_units(prefix, name):
     elif prefix == "ENV" and name == "pressure":
         return "Pa"
     return ""
+
+
+# open json with file path directly
 def direct_open_json(filePath):
     with open(filePath) as f:
         dicti = json.loads(f.read())
     return dicti
+
 
 ##################################
 # Initial species concentrations #
@@ -47,7 +51,7 @@ my_config = os.path.join(settings.BASE_DIR,
 
 
 # returns the initial conditions files
-def initial_conditions_files(path = my_config):
+def initial_conditions_files(path=my_config):
     files = {}
     config = direct_open_json(path)
     if 'initial conditions' in config:
@@ -65,7 +69,7 @@ def initial_species_concentrations(path=""):
             formula = species["formula"][key]
             units = species["unit"][key]
             value = species["value"][key]
-            initial_values[formula] = { "value": value, "units": units }
+            initial_values[formula] = {"value": value, "units": units}
     else:
         species = direct_open_json(path)
         if "formula" in species:
@@ -73,7 +77,7 @@ def initial_species_concentrations(path=""):
                 formula = species["formula"][key]
                 units = species["unit"][key]
                 value = species["value"][key]
-                initial_values[formula] = { "value": value, "units": units }
+                initial_values[formula] = {"value": value, "units": units}
     print('returning:', initial_values)
     return initial_values
 
@@ -130,16 +134,16 @@ def initial_conditions_file_to_dictionary(input_file, delimiter):
         values = lines[1].split(delimiter)
     rates = {}
     for key in keys:
-         key_parts = key.split('.')
-         if len(key_parts) == 2:
-             name = key_parts[0] + '.' + key_parts[1]
-             units = default_units(key_parts[0], key_parts[1])
-             rates[name] = {"value": values[keys.index(key)], "units": units}
-         elif len(key_parts) == 3:
-             name = key_parts[0] + '.' + key_parts[1]
-             units = key_parts[2]
-             rates[name] = {"value": values[keys.index(key)], "units": units}
-    return(rates)
+        key_parts = key.split('.')
+        if len(key_parts) == 2:
+            name = key_parts[0] + '.' + key_parts[1]
+            units = default_units(key_parts[0], key_parts[1])
+            rates[name] = {"value": values[keys.index(key)], "units": units}
+        elif len(key_parts) == 3:
+            name = key_parts[0] + '.' + key_parts[1]
+            units = key_parts[2]
+            rates[name] = {"value": values[keys.index(key)], "units": units}
+    return rates
 
 
 # converts a dictionary to an initial conditions file
@@ -180,7 +184,7 @@ def export_to_path(path):
     options = direct_open_json(path+'options.json')
     initials = direct_open_json(path+'initials.json')
 
-    #gets evolving conditions section if it exists
+    # gets evolving conditions section if it exists
     oldConfig = direct_open_json(path+'my_config.json')
     if 'evolving conditions' in oldConfig:
         evolves = oldConfig['evolving conditions']
@@ -200,9 +204,12 @@ def export_to_path(path):
     options_section = {}
 
     options_section.update({"grid": options["grid"]})
-    options_section.update({"chemistry time step ["+ options["chem_step.units"] + "]": options["chemistry_time_step"]})
-    options_section.update({"output time step ["+ options["output_step.units"] + "]": options["output_time_step"]})
-    options_section.update({"simulation length ["+ options["simulation_length.units"] + "]": options["simulation_length"]})
+    time_step = "chemistry time step [" + options["chem_step.units"] + "]"
+    options_section.update({time_step: options["chemistry_time_step"]})
+    out_time = "output time step [" + options["output_step.units"] + "]"
+    options_section.update({out_time: options["output_time_step"]})
+    sim = "simulation length [" + options["simulation_length.units"] + "]"
+    options_section.update({sim: options["simulation_length"]})
 
     # write chemical species section
 
@@ -231,7 +238,6 @@ def export_to_path(path):
 
         init_section.update({name: {string: value}})
 
-
     # write sections to main dict
 
     config.update({"box model options": options_section})
@@ -244,15 +250,15 @@ def export_to_path(path):
         "model components": [
         {
             "type": "CAMP",
-            "configuration file" : "camp_data/config.json",
-            "override species" : {
-            "M" : { "mixing ratio mol mol-1" : 1.0 }
-        },
-            "suppress output" : {
-            "M" : { }
+            "configuration file": "camp_data/config.json",
+            "override species": {
+                "M": {"mixing ratio mol mol-1" : 1.0}
+            },
+            "suppress output": {
+                "M": {}
+            }
         }
-      }
-    ]
+        ]
     })
 
     # write dict as json
@@ -262,7 +268,9 @@ def export_to_path(path):
         json.dump(config, f, indent=4)
     logging.info('my_config.json updated')
 
-# Combines all individual configuration json files and writes to the config file readable by the mode
+
+# Combines all individual configuration json files and writes 
+# to the config file readable by the mode
 def export():
     species = open_json('species.json')
     options = open_json('options.json')
@@ -433,9 +441,11 @@ def review_json():
     config = open_json('my_config.json')
     return config
 
+
+# export to path for session_id
 def export_to_user_config_files(jsonPath):
     config = direct_open_json(jsonPath+'/my_config.json')
-    
+
     species_dict = {
         'formula': {},
         'value': {},
@@ -454,7 +464,7 @@ def export_to_user_config_files(jsonPath):
             species_dict['unit'].update({name: unit})
             species_dict['value'].update({name: iv})
         i = i+1
-    
+
     option_dict = {}
     for key in config['box model options']:
         if '[' in key:
@@ -481,7 +491,8 @@ def export_to_user_config_files(jsonPath):
     for condition in config['environmental conditions']:
         unit = ''
         for entry in config['environmental conditions'][condition]:
-            initial_dict['values'].update({condition: config['environmental conditions'][condition][entry]})
+            env_cond = config['environmental conditions'][condition][entry]
+            initial_dict['values'].update({condition: env_cond})
             unit = entry.split('[')[1]
             unit = unit.split(']')[0]
             initial_dict['units'].update({condition: unit})
@@ -489,10 +500,12 @@ def export_to_user_config_files(jsonPath):
     direct_dump_json(jsonPath+'/initials.json', initial_dict)
     direct_dump_json(jsonPath+'/options.json', option_dict)
     direct_dump_json(jsonPath+'/species.json', species_dict)
+
+
 # fills form json files with info from my_config file
 def reverse_export():
     config = open_json('my_config.json')
-    
+
     species_dict = {
         'formula': {},
         'value': {},
