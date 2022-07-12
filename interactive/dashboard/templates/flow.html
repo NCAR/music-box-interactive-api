@@ -24,31 +24,38 @@
                             </select>
                         </div>
                         <div class="list-group-item">
-                            <label for="flow-arrow-width-range" class="form-label">Max arrow width: </label>
-                            <input type="range" class="form-range" min="1" max="15" value="3" id="flow-arrow-width-range">
-                            <h4 id="arrow-range-val-display">3</h4>
+                            <input type="checkbox" id="physics" name="physics" value="true">
+                            <label for="physics"> Optimize Performance</label><br>
+                        </div>
+                        <div class="list-group-item" id="arrow-width-group-item">
+                            <label for="flow-arrow-width-range" class="form-label" id="max-arrow-label">Max arrow width: 7</label>
+                            <input type="range" class="form-range" min="1" max="15" value="7" id="flow-arrow-width-range">
+                            
+                            <h4 id="arrow-range-val-display" style="display:none;">7</h4>
                         </div>
                         <div class="list-group-item">
                             <p>
                                 <label for="number">Time Range (seconds):</label>
-                                <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold;">
+                                <input type="text" id="amount" readonly style="border:0; color:black; font-weight:bold; display:none;">
                               </p>
-                                
+                              <input type="text" id="flow-start-range" name="flow-start-range" value="0" style="float:left; width: 40%;">
+                              <p style="float:left;padding-left:10px;padding-right:10px;padding-top:5px;"> to </p>
+                              <input type="text" id="flow-end-range" name="flow-end-range" value="1" style="float:left;width: 40%;">
+                              <br>
+                              <br>
                               <div id="range-slider"></div>
-                              <!-- start-range and end-range elements used to track slider values -->
-                               <div id="flow-start-range" style="display: none;"></div>
-                               <div id="flow-end-range" style="display: none;"></div>
+                               
                                 <script>
                                
                                 $( function() {
                                   $( "#range-slider" ).slider({
                                     range: true,
-                                    min: 1,
+                                    min: 0,
                                     max: {{ simulation_length }},
-                                    values: [ 1, {{ simulation_length }} ],
+                                    values: [ 0, {{ simulation_length }} ],
+                                    step: {{ step_length }},
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                      $( "#amount" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
                                       document.getElementById("flow-start-range").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
@@ -60,7 +67,7 @@
                                   });
                                 //   base values for the slider
                                   $( "#amount" ).val("1s - {{simulation_length}}s");
-                                  document.getElementById("flow-start-range").value = 1;
+                                  document.getElementById("flow-start-range").value = 0;
                                       document.getElementById("flow-end-range").value = {{simulation_length}};
                                 } );
                                
@@ -68,25 +75,24 @@
                         </div>
                         <div class="list-group-item">
                             <p>
-                                <label for="number">Filter range (mol m-3):</label>
-                                <input type="text" id="filterRange" readonly style="border:0; color:black; font-weight:bold;">
+                                <label for="number">Filter range (mol m<sup>-3</sup>):</label>
                               </p>
-                                
+                              <input type="text" id="flow-start-range2" name="flow-start-range2" value="0" style="float:left; width: 40%;">
+                              <p style="float:left;padding-left:10px;padding-right:10px;padding-top:5px;"> to </p>
+                              <input type="text" id="flow-end-range2" name="flow-end-range2" value="1" style="float:left;width: 40%;">
+                              <br>
+                              <br>
                               <div id="range-slider2"></div>
-                              <!-- start-range and end-range elements used to track slider values -->
-                               <div id="flow-start-range2" style="display: none;"></div>
-                               <div id="flow-end-range2" style="display: none;"></div>
                                 <script>
                                
                                 $( function() {
                                   $( "#range-slider2" ).slider({
                                     range: true,
-                                    min: 1,
-                                    max: {{ simulation_length }},
-                                    values: [ 1, {{ simulation_length }} ],
+                                    min: 0,
+                                    max: 1,
+                                    values: [ 0,1 ],
                                     slide: function( event, ui ) {
                                         // update values when slider changed
-                                      $( "#filterRange" ).val( "" + ui.values[ 0 ] + "s - " + ui.values[ 1 ] + "s" );
                                       document.getElementById("flow-start-range2").value = ui.values[ 0 ];
                                       document.getElementById("flow-end-range2").value = ui.values[ 1 ];
                                        //reloadGraph(); // reload graph everytime slider is moved. if this causes too much stress on the server, we can remove this
@@ -98,8 +104,7 @@
                                   });
                                 //   base values for the slider
                                   $( "#filterRange" ).val("NULL - NULL");
-                                  document.getElementById("flow-start-range2").value = 1;
-                                    //   document.getElementById("flow-end-range2").value = {{simulation_length}};
+                                  document.getElementById("flow-start-range2").value = 0;
                                 } );
                                
                                 </script>
@@ -107,8 +112,8 @@
                     </form>
                 </ul>
                 <ul style="padding-left:0; background-color: white;height: 60px; box-sizing: border-box;padding: 0.5rem; background-color: #D9D9D6; font-size:1vm;">
-                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Add Elements</div> 
-                    <div id="block-elements" class="menu-it">Block Elements</div>
+                    <div id="show-elements" class="menu-it selected-menu-it" style="float:left;">Add Species</div> 
+                    <div id="block-elements" class="menu-it">Block Species</div>
                 </ul>
                 <script>
                     document.getElementById("show-elements").addEventListener("click", handleShowBlockElementChange);
@@ -120,12 +125,16 @@
                             <a id="li_{{item}}" class="list-group-item flow-species-item" href="#">☐ {{item}}</a>
                         {% endfor %}
                     </ul>
-                    <ul id="blocked-elements-list" class="list-group bg-ncar-menu-secondary p-2" style="width:100%; margin-top: -20px; display:none;">
+                    <a id="select_all_blocked" class="blocked-list-group-item flow-species-item" href="#" style="display: none;">☐ Select All</a>
+                    <ul id="blocked-elements-list" class="list-group bg-ncar-menu-secondary p-2" style="width:100%; margin-top: 0px; display:none;">
                         
                         {% for item in species %}
                             <a id="li_{{item}}_blocked" class="blocked-list-group-item flow-species-item" href="#" style="">☐ {{item}}</a>
                         {% endfor %}
                     </ul>
+                    <script>
+                        document.getElementById("select_all_blocked").addEventListener("click", handleBlockUnblock);
+                    </script>
             </nav>
         </div>
         <div id="flow-diagram-container" class="col">
@@ -147,10 +156,6 @@
                 height: 300px; /* Umake it so we can scroll in elements list, change this to change the menu height */
     }
 footer {
-    /* position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: auto; */
     display: none;
 }
 .ui-slider-handle {
@@ -175,8 +180,6 @@ footer {
     border: 2px solid #00797C;
 }
 .selected-menu-it{
-    /* border-bottom: 3px solid #00797C;
-     */
      background-color: #00797C;
      color:white;
 }

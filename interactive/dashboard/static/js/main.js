@@ -1,5 +1,79 @@
 var currentlyLoadingGraph = false
+var currentMinValOfGraph = 0
+var currentMaxValOfGraph = 1
+var shouldShowArrowWidth = true // if true, show arrow width slider (mostly used for debug)
+
+
+function reloadSlider(firstVal, secondVal, minVal, maxVal) {
+  
+  
+  console.log("received values: "+firstVal+" "+parseFloat(secondVal).toExponential(3));
+  console.log("received min max (* 10^100): "+(parseFloat(minVal) * Math.pow(10,100))+" "+(parseFloat(maxVal) * Math.pow(10,100)));
+  $( "#range-slider2", window.parent.document ).slider("destroy");
+  var mini = (parseFloat(minVal) * Math.pow(10,100))
+  var maxy = (parseFloat(maxVal) * Math.pow(10,100))
+  currentMinValOfGraph = parseFloat(minVal).toExponential(3);
+  currentMaxValOfGraph = parseFloat(maxVal).toExponential(3);
+  console.log("* set new previous min max:",currentMinValOfGraph, currentMaxValOfGraph)
+  var stepVal = (parseFloat(maxy) - parseFloat(mini)) / 60;
+  console.log("step value: " + stepVal);
+  $( function() {
+    $( "#range-slider2",window.parent.document ).slider({
+      range: true,
+      min: parseFloat(minVal).toExponential(3) * Math.pow(10,100),
+      max: parseFloat(maxVal).toExponential(3) * Math.pow(10,100),
+      step: stepVal,
+      values: [ parseFloat(firstVal).toExponential(3) *Math.pow(10,100), parseFloat(secondVal).toExponential(3) * Math.pow(10,100) ],
+      slide: function( event, ui ) {
+          // update values when slider changed
+        document.getElementById("flow-start-range2").value = (ui.values[ 0 ] / Math.pow(10,100)).toExponential(3);
+        document.getElementById("flow-end-range2").value = (ui.values[ 1 ] / Math.pow(10,100)).toExponential(3);
+      },
+      stop: function(event, ui) {
+          // reload graph when slider is released (a lot less stress on the server by waiting for the user to release the slider)
+          reloadGraph();
+          }
+    });
+  } );
+}
+
+// adds each element to blockedElementsList
+function blockAllSpecies() {
+  console.log('block all species');
+  $.each($("#blocked-elements-list").children(), function(i, value){
+    var id = $(value).attr('id');
+    if ($(value).hasClass('active') == false) {
+      $("#" + id).addClass('active')
+      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.replace("☐ ", "☑ ");
+    }
+  });
+  reloadGraph();
+}
+// removes each element from blockedElementsList
+function unblockAllSpecies() {
+  console.log('unbock all species');
+  $.each($("#blocked-elements-list").children(), function(i, value){
+    var id = $(value).attr('id');
+    if ($(value).hasClass('active')) {
+      $("#" + id).removeClass('active')
+      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML.replace("☑ ", "☐ ");
+    }
+  });
+  reloadGraph();
+}
+function handleBlockUnblock() {
+  if (document.getElementById("select_all_blocked").innerHTML.indexOf("☑") !== -1) {
+    // unblock all
+    unblockAllSpecies();
+    document.getElementById("select_all_blocked").innerHTML = "☐ Select all";
+  } else {
+    // block all
+    blockAllSpecies();
+    document.getElementById("select_all_blocked").innerHTML = "☑ Select all";
+  }
+}
 // helper function to reload graph (called when something other than elements changed)
+
 function reloadGraph() {
   currentlyLoadingGraph = true
   var includedSpecies = []
@@ -29,13 +103,20 @@ function reloadGraph() {
         "startStep": $("#flow-start-range").val(),
         "endStep": $("#flow-end-range").val(),
         "maxArrowWidth": $("#flow-arrow-width-range").val(),
-        "arrowScalingType": $("#flow-scale-select").val()
+        "arrowScalingType": $("#flow-scale-select").val(),
+        "minMolval": parseFloat(parseFloat($("#flow-start-range2").val())).toExponential(3),
+        "maxMolval": parseFloat(parseFloat($("#flow-end-range2").val())).toExponential(3),
+        "currentMinValOfGraph": currentMinValOfGraph,
+        "currentMaxValOfGraph": currentMaxValOfGraph,
+        "isPhysicsEnabled": $("#physics").is(":checked"),
       },
       success: function(response){
-        $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:175px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" title="Network plot" src="show_flow"></iframe>')
-        currentlyLoadingGraph = false
+        $("#flow-diagram-container").html('<img src="../static/img/plot_diagram_legend.png" style="margin-left:40px;margin-top:40px;width:200px; position: absolute;border: 2px solid rgb(189,189,189);"> <iframe style="width: 100%;height: 100%;" id="graph-frame" title="Network plot" src="show_flow"></iframe>');
+        
       }
     });
+
+    
 }
 
 $(document).ready(function(){
@@ -141,14 +222,28 @@ $(document).ready(function(){
   $("#flow-start-range").on('change', function(){
     var newValue = $("#flow-start-range").val()
     $("#flow-start-input").val(newValue)
+    $("#range-slider").slider('values',0,newValue);
+    reloadGraph()
   });
-  // $("#range-slider").on('change', function(){
-  //   reloadGraph();
-  // });
   $("#flow-end-range").on('change', function(){
     var newValue = $("#flow-end-range").val()
     $("#flow-end-input").val(newValue)
-
+    $("#range-slider").slider('values',1,newValue);
+    reloadGraph()
+  });
+  $("#flow-start-range2").on('change', function(){
+    var newValue = $("#flow-start-range2").val()
+    $("#flow-start-input2").val(newValue)
+    reloadGraph()
+  });
+  $("#flow-end-range2").on('change', function(){
+    var newValue = $("#flow-end-range2").val()
+    $("#flow-end-input2").val(newValue)
+    reloadGraph()
+  });
+  // physics checkbox
+  $("#physics").on('change', function(){
+    reloadGraph();
   });
   $("#flow-start-input").on('change', function(){
     var newValue = $("#flow-start-input").val()
@@ -160,9 +255,14 @@ $(document).ready(function(){
     $("#flow-end-range").val(newValue)
 // slider value display for arrow slider
   });
+  if (shouldShowArrowWidth == false) {
+    console.log("removing arrow elements")
+    document.getElementById("arrow-width-group-item").style.display = "none";
+  }
   $("#flow-arrow-width-range").on('change', function(){
     var newValue = $("#flow-arrow-width-range").val()
     $("#arrow-range-val-display").html(newValue)
+    document.getElementById("max-arrow-label").innerHTML = "Max arrow width: "+newValue;
     reloadGraph();
   });
   $("#flow-scale-select").on('change', function(){
@@ -178,6 +278,7 @@ function handleShowBlockElementChange() {
     document.getElementById("flow-species-menu-list").style.display = "none";
     document.getElementById("blocked-elements-list").style.display = "flex";
     
+    document.getElementById("select_all_blocked").style.display = "block";
   } else {
     // show "show elements"
     document.getElementById('show-elements').classList.add("selected-menu-it");
@@ -185,5 +286,7 @@ function handleShowBlockElementChange() {
 
     document.getElementById("blocked-elements-list").style.display = "none";
     document.getElementById("flow-species-menu-list").style.display = "flex";
+
+    document.getElementById("select_all_blocked").style.display = "none";
   }
 }

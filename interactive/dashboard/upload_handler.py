@@ -23,10 +23,11 @@ config_files_to_ignore = [
         'README'
         ]
 
+
 # reads csv file into dictionary
-def manage_initial_conditions_files(f, filename):
+def manage_initial_conditions_files(f, filename, path=config_path):
     content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+    destination = os.path.join(path, filename)
     g = open(destination, 'wb')
     g.write(content)
 
@@ -42,9 +43,9 @@ def manage_initial_conditions_files(f, filename):
 
 
 # removes an initial conditions file
-def initial_conditions_file_remove(remove_request):
+def initial_conditions_file_remove(remove_request, path=config_path):
     # remove file
-    filepath = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), remove_request['file name'])
+    filepath = os.path.join(path, remove_request['file name'])
     os.remove(filepath)
 
     # update config json
@@ -54,9 +55,9 @@ def initial_conditions_file_remove(remove_request):
 
 
 # handles all uploaded evolving conditions files
-def manage_uploaded_evolving_conditions_files(f, filename):
+def manage_uploaded_evolving_conditions_files(f, filename, path=config_path):
     content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+    destination = os.path.join(path, filename)
     g = open(destination, 'wb')
     g.write(content)
     g.close()
@@ -210,11 +211,11 @@ def check_loss_uploaded():
         return False
 
 
-
 # saves uploaded photo rate file to config folder
 def handle_uploaded_p_rates(f):
     content = f.read()
-    destination = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), 'photo_rates.nc')
+    conf = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+    destination = os.path.join(conf, 'photo_rates.nc')
     g = open(destination, 'wb')
     g.write(content)
     g.close()

@@ -3,12 +3,14 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .flow_diagram import generate_flow_diagram, get_simulation_length, get_species
+from .flow_diagram import generate_flow_diagram, get_simulation_length
+from .flow_diagram import get_species, get_step_length
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
 from .models import Document
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponseRedirect, JsonResponse
 import os
 from django.conf import settings
 import mimetypes
@@ -19,6 +21,7 @@ import platform
 import codecs
 import time
 from io import TextIOWrapper
+
 
 def landing_page(request):
     context = {
@@ -102,14 +105,15 @@ def flow(request):
 
     context = {
         "species": get_species(),
-        "simulation_length": get_simulation_length()
+        "simulation_length": get_simulation_length(),
+        "step_length": get_step_length()
     }
     return render(request, 'flow.html', context)
 
 #Flow diagram render
 def get_flow(request):
     path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
-
+    print("get_flow called")
     generate_flow_diagram(request.GET.dict())
     return HttpResponse()
 
