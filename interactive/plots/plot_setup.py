@@ -17,7 +17,7 @@ from .compare import *
 from mechanism.species import tolerance_dictionary
 from interactive.tools import *
 from numpy import vectorize
-
+import base64
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -70,7 +70,7 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-def output_plot(prop, plot_units, csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
+def output_plot(prop, plot_units, csv_results_path=os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv"), species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     matplotlib.use('agg')
         
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
@@ -110,11 +110,11 @@ def output_plot(prop, plot_units, csv_results_path = os.path.join(os.environ['MU
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
             else:
                 ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
-
+            print("* tolerance dictionary: ", tolerance_dictionary)
             if is_density_needed('ppm', plot_units):
-                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), {'density': float(csv['ENV.number_density_air'].iloc[[-1]]), 'density units': 'mol/m-3 '})
+                tolerance = ppm_to_plot_units(float(tolerance_dictionary(species_path)[name]), {'density': float(csv['ENV.number_density_air'].iloc[[-1]]), 'density units': 'mol/m-3 '})
             else:
-                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
+                tolerance = ppm_to_plot_units(float(tolerance_dictionary(species_path)[name]))
 
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
@@ -143,8 +143,8 @@ def output_plot(prop, plot_units, csv_results_path = os.path.join(os.environ['MU
     figure.savefig(buffer, format='png')
 
     plt.close(figure)
-
-    return buffer
+    encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return encoded
 
 
 # generates html for unit selection in plots sidebar

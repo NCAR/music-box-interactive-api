@@ -105,7 +105,7 @@ urlpatterns = [
 
     path('api/convert-values/', api.ConvertValues.as_view(), name='convert-values'),
     path('api/unit-conversion-arguments/', api.UnitConversionArguments.as_view(), name='unit-conversion-arguments'),
-    path('api/unit-options/', api.UnitConversionArguments.as_view(), name='unit-options'),
+    path('api/unit-options/', api.UnitOptions.as_view(), name='unit-options'),
     path('api/conversion-calculator/', api.ConversionCalculator.as_view(), name='conversion-calculator'),
 
     path('api/evolving-conditions/', api.EvolvingConditions.as_view(), name='evolving-conditions'),
@@ -115,10 +115,18 @@ urlpatterns = [
     path('api/check/', api.CheckView.as_view(), name='check'),
     path('api/run/', api.RunView.as_view(), name='run'),
 
+    path('api/plots/get_basic_details/', api.GetBasicDetails.as_view(), name='get-visualize-details'),
     path('api/plots/get_contents/', api.GetPlotContents.as_view(), name='get_contents'),
+    path('api/plots/get/', api.GetPlot.as_view(), name='get-plots'),
+    path('api/plots/get_flow_details/', api.GetFlowDetails.as_view(), name='get-flow-diagram-details'),
+    path('api/plots/get_flow/', api.GetFlow.as_view(), name='get-flow-diagram'),
+
+    path('api/download_config/', api.DownloadConfig.as_view(), name='download_config'),
+    path('api/download_results/', api.DownloadResults.as_view(), name='download_results'),
+
+    path('api/config_json/', api.ConfigJsonUpload.as_view(), name='load-config-from-files'),
 
     path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
-    path('api/config_json/', api.ExampleView.as_view(), name='load-config-from-file'),
     path('api/run-model/', api.RunView.as_view(), name='run-model'),
     path('api/session-id/', api.SessionView.as_view(), name='session-id')
 ]

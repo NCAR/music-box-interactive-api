@@ -25,27 +25,17 @@ from rest_framework.response import Response
 from mechanism.reactions import *
 from mechanism.species import *
 from mechanism.network_plot import *
+from plots.plot_setup import *
 from dashboard.forms.formsetup import *
 from plots.plot_setup import *
 from os.path import exists
 from model_driver.session_model_runner import *
+from dashboard.flow_diagram import *
 
-# api.py contains all DJANGO based backend requests made to the server from client --
-# each browser session creates a "session_key" saved to cookie on client side
+# api.py contains all DJANGO based backend requests made to the server
+# each browser session creates a "session_key" saved to cookie on client
 #       - request.session.session_key is a string representation of this value
-#       - request.session.session_key is used to access documents from DJANGO sql database
-# CONDITIONSVIEW
-#       - Catches all get and post requests made from conditions page
-#       - POST REQUEST => Save new data to request.session.session_key conditions document in SQL server
-#       - GET REQUEST => Return JSON format of user set conditions
-# MECHANISMVIEW
-#       - Catches all get and post requests made from mechanism page
-#       - POST REQUEST => Save new data to request.session.session_key mechanisms document in SQL server
-#       - GET REQUEST => Return JSON format of user set mechanisms
-# SESSIONVIEW
-#       - Called when user wants their session_key or wants to change it (i.e. import another users' simulation)
-#       - POST REQUEST => Save new session_key for user and set cookie in browser
-#       - GET REQUEST => Return JSON with key 'session_id' equal to the users' session_key
+#       - request.session.session_key is used to access documents from DJANGO
 
 
 def beautifyReaction(reaction):
@@ -429,16 +419,13 @@ class InitialReactionRates(views.APIView):
         initial_values = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")
         print("* saving to path: "+path)
-        if not os.path.isfile(path):
-            print("* detected no species this user")
-            return JsonResponse({})
-        else:
-            print("* pushing new options:", initial_values)
-            with open(initial_reaction_rates_file_path, 'w') as f:
-                dictionary_to_initial_conditions_file(initial_values, f, ',')
-            print("* done pushing new options")
-            export_to_path(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/")
-            return JsonResponse({})
+        
+        print("* pushing new options:", initial_values)
+        with open(initial_reaction_rates_file_path, 'w+') as f:
+            dictionary_to_initial_conditions_file(initial_values, f, ',')
+        print("* done pushing new options")
+        export_to_path(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/")
+        return JsonResponse({})
 class ConvertValues(views.APIView):
     def get(self, request):
         unit_type = request.GET['type']
@@ -583,6 +570,7 @@ class GetPlotContents(views.APIView):
         prop = get['type']
         csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
         print("* searching for file: "+csv_results_path)
+        print("* getting contents of: "+prop+", isfile?",os.path.isfile(csv_results_path))
         response = HttpResponse()
         response.write(plots_unit_select(prop))
         subs = sub_props(prop, csv_results_path)
@@ -594,6 +582,117 @@ class GetPlotContents(views.APIView):
             for i in subs:
                 response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
         return response
+class GetPlot(views.APIView):
+    def get(self, request):
+        print("****** GET request received GET_PLOT ******")
+        if not request.session.session_key:
+            request.session.create()
+        csv_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        print("* csv path: "+csv_path)
+        print("* does csv exist:",os.path.isfile(csv_path))
+        if request.method == 'GET':
+            props = request.GET['type']
+            print("* grabbing props: "+props)
+            if request.GET['unit'] == 'n/a':
+                buffer = output_plot(str(props), False, csv_path, os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/camp_data/species.json")
+            else:
+                buffer = output_plot(str(props), request.GET['unit'], csv_path, os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/camp_data/species.json")
+
+            # return HttpResponse(buffer.getvalue(), content_type="image/png")
+            return HttpResponse(buffer, content_type="image/png")
+        return HttpResponseBadRequest('Bad format for plot request', status=405)
+class GetBasicDetails(views.APIView):
+    def get(self, request):
+        print("****** GET request received GET_BASIC_DETAILS ******")
+        if not request.session.session_key:
+            request.session.create()
+        csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        print("* fetching details from: "+csv_results_path)
+        csv = pandas.read_csv(csv_results_path)
+        plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
+        plot_property_list = [x.strip() for x in plot_property_list]
+        for x in csv.columns.tolist():
+            if "myrate" in x:
+                plot_property_list.append('RATE')
+        context = {
+            'plots_list': plot_property_list
+        }
+        print("* plots list: ", context)
+        return JsonResponse(context)
+class GetFlowDetails(views.APIView):
+    def get(self, request):
+        print("****** GET request received GET_FLOW_DETAILS ******")
+        if not request.session.session_key:
+            request.session.create()
+        csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        context = {
+            "species": get_species(csv_results_path),
+            "simulation_length": get_simulation_length(csv_results_path)
+        }
+        print("* returning basic info:", context)
+        return JsonResponse(context)
+class GetFlow(views.APIView):
+    def get(self, request):
+        print("****** GET request received GET_FLOW ******")
+        if not request.session.session_key:
+            request.session.create()
+        csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        print("* fetching flow from: "+csv_results_path)
+        print("* using data:",request.GET.dict())
+        csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        react_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/camp_data/reactions.json"
+        path_to_template = os.path.join(
+    settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+        return HttpResponse(create_and_return_flow_diagram(request.GET.dict(), react_path, path_to_template, csv_results_path))
+class DownloadConfig(views.APIView):
+    def get(self, request):
+        print("****** GET request received DOWNLOAD_CONFIG ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        destination_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/"+request.session.session_key+"/config_copy")
+        zip_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/output/"+request.session.session_key+"/config.zip")
+        conf_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        print("* destination path: "+destination_path)
+        print("* zip path: "+zip_path)
+        print("* conf path: "+conf_path)
+        create_config_zip(destination_path, zip_path, conf_path)
+
+        fl_path = zip_path
+        zip_file = open(fl_path, 'rb')
+        response = HttpResponse(zip_file, content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % 'config.zip'
+        return response
+class DownloadResults(views.APIView):
+    def get(self, request):
+        print("****** GET request received DOWNLOAD_RESULTS ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        fl_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], request.session.session_key+"/output.csv")
+        now = datetime.now()
+        filename = str(now) + '_model_output.csv'
+
+        fl = open(fl_path, 'r')
+        mime_type, _ = mimetypes.guess_type(fl_path)
+        response = HttpResponse(fl, content_type=mime_type)
+        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        print("* returning results:", response)
+        print("* returning file:", filename)
+        return response
+class ConfigJsonUpload(views.APIView):
+    def post(self, request):
+        print("****** GET request received CONFIG_UPLOAD ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        uploaded = request.FILES['file']
+        print("* uploaded file: "+uploaded.name)
+        print("* uploaded file size: "+str(uploaded.size))
+        configs_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        handle_uploaded_zip_config(uploaded, "dashboard/static/zip/"+request.session.session_key, configs_path)
+        export_to_path(configs_path)
+        return HttpResponseRedirect('/mechanism.html')
 class SessionView(views.APIView):
     def get(self, request):
         print("****** GET request received SESSION_VIEW ******")

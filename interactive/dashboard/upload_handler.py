@@ -1,4 +1,5 @@
 import csv
+from unittest import case
 from zipfile import ZipFile
 from distutils.dir_util import copy_tree
 from django.conf import settings
@@ -8,6 +9,7 @@ import json
 import glob
 from django.conf import settings
 from interactive.tools import *
+from pathlib import Path
 import logging
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
@@ -114,21 +116,27 @@ def copyConfigFile(source, destination):
 
 
 # loads uploaded zip configuration
-def handle_uploaded_zip_config(f):
+def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip", 
+                               config_path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     content = f.read()
-    file_name = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/uploaded"), 'uploaded.zip')
+    file_name = os.path.join(os.path.join(settings.BASE_DIR, uploaded_path+"/uploaded"), 'uploaded.zip')
+    if os.path.isfile(file_name) == False:
+        # make dirs just in case
+        os.makedirs(file_name.replace('uploaded.zip', ''))
+        print("* created directory for uploaded zip file:", file_name.replace('uploaded.zip', ''))
+        g = open(file_name, 'x')
     g = open(file_name, 'wb')
     g.write(content)
     g.close()
 
     #unzipps into /static/zip/unzipped
     with ZipFile(file_name, 'r') as zip:
-        zip.extractall(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped"))
+        zip.extractall(os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped"))
 
     camp_files = ['camp_data/config.json', 'camp_data/reactions.json', 'camp_data/species.json', 'camp_data/tolerance.json']
     needed_files = ['my_config.json']
     needed_files.extend(camp_files)
-    with open(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config/my_config.json")) as f:
+    with open(os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config/my_config.json")) as f:
         config = json.loads(f.read())
 
     #looks for evolving conditions files
@@ -139,13 +147,13 @@ def handle_uploaded_zip_config(f):
 
     #checks that all neccesary files are in the zip
     for f in needed_files:
-        if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config"), f)):
+        if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config"), f)):
             logging.info('missing needed file from upload: ' + f)
             return False
 
     #updates CAMP file format if necessary
     for file_name in camp_files:
-        path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config"), file_name)
+        path = os.path.join(os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config"), file_name)
         with open(path) as config_file:
             file_data = json.loads(config_file.read())
             config_file.close()
@@ -160,18 +168,27 @@ def handle_uploaded_zip_config(f):
             config_file.close()
 
     #copy files into config folder
-    config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-    src_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/unzipped/config")
+    src_path = os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config")
     copy_tree(src_path, config_path)
 
     return True
 
 
 # create configuration zip
-def create_config_zip():
-    destination_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy")
-    copy_tree(config_path, destination_path)
-    zip_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/output/config.zip")
+def create_config_zip(destination_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy"),
+                      zip_path = os.path.join(settings.BASE_DIR, "dashboard/static/zip/output/config.zip"),
+                      conf_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+    print("* [upload_handler] transfering "+conf_path+" to "+destination_path)
+    copy_tree(conf_path, destination_path)
+    
+    # check if zip exists
+    if os.path.isfile(zip_path) == False:
+        # create zip file
+        print("* [upload_handler] creating zip file")
+        # make dirs just in case
+        os.makedirs(zip_path.replace('config.zip', ''))
+        f = open(zip_path, 'x')
+    
     with ZipFile(zip_path, 'w') as zip:
         for filepath in glob.iglob(destination_path + '/**', recursive=True):
             relative_path = os.path.relpath(filepath, destination_path)

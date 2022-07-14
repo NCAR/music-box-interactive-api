@@ -3,8 +3,13 @@ import os
 import json
 from django.conf import settings
 
-
-def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/plot.html"),  path_to_reactions=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+reaction_j = "dashboard/static/config/camp_data/reactions.json"
+path = os.path.join(settings.BASE_DIR, reaction_j)
+plot = "dashboard/templates/network_plot/plot.html"
+template = os.path.join(settings.BASE_DIR, plot)
+def generate_network_plot(species, 
+                          path_to_template=template,
+                          path_to_reactions=path):
     net = Network(directed=True)
     
     with open(path_to_reactions, 'r') as f:
@@ -49,4 +54,3 @@ def generate_network_plot(species, path_to_template=os.path.join(settings.BASE_D
 
     net.force_atlas_2based(gravity=-100, overlap=1)
     net.show(str(path_to_template))
-

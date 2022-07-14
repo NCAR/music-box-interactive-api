@@ -11,9 +11,8 @@ import math
 # paths to mechansim files
 path_to_reactions = os.path.join(
     settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
-path_to_species = os.path.join(
-    settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
-
+csv_results_path_default=os.path.join(
+        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
 # path to output html file
 path_to_template = os.path.join(
     settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
@@ -25,9 +24,8 @@ previous_vals = [0, 1]
 
 
 # returns species in csv
-def get_species():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def get_species(csv_results_path=csv_results_path_default):
+    
     csv = pd.read_csv(csv_results_path)
     concs = [x for x in csv.columns if 'CONC' in x]
     clean_concs = [x.split('.')[1] for x in concs if 'myrate' not in x]
@@ -35,9 +33,7 @@ def get_species():
 
 
 # returns length of csv
-def get_simulation_length():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def get_simulation_length(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
     print("* got simulation length: ", (csv.shape[0] - 1))
     print("* got final time:", csv['time'].iloc[-1])
@@ -45,9 +41,7 @@ def get_simulation_length():
 
 
 # get user inputted step length
-def get_step_length():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def get_step_length(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
     if csv.shape[0] - 1 > 2:
         return int(csv['time'].iloc[1])
@@ -56,9 +50,7 @@ def get_step_length():
 
 
 # get entire time column from results
-def time_column_list():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def time_column_list(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
     return csv['time'].tolist()
 
@@ -191,7 +183,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
 
 
 # return list of raw widths for arrows. Also set new minAndMax
-def findReactionRates(reactions_nodes, df, start, end):
+def findReactionRates(reactions_nodes, df, start, end, csv_results_path_default=csv_results_path_default):
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
     global previous_vals
@@ -201,8 +193,11 @@ def findReactionRates(reactions_nodes, df, start, end):
         # convert index of reaction into actual reaction name
         reactionsToAdd.append(re)
     rates = df[rates_cols]
-    first = time_column_list().index(start)
-    last = time_column_list().index(end)
+    first = 0
+    last = len(time_column_list(csv_results_path_default))-1
+    if start != 1:
+        first = time_column_list(csv_results_path_default).index(start)
+        last = time_column_list(csv_results_path_default).index(end)
     first_and_last = rates.iloc[[first, last]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
@@ -389,7 +384,8 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
 # 4) create nodes and edges for graph
 def new_find_reactions_and_species(list_of_species, reactions_data,
                                    blockedSpecies, df, start,
-                                   end, max_width, scale_type):
+                                   end, max_width, scale_type,
+                                   csv_results_path_default=csv_results_path_default):
 
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
@@ -409,7 +405,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     print("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
     print(" *******************************************")
 
-    widths = findReactionRates(reactions_nodes, df, start, end)
+    widths = findReactionRates(reactions_nodes, df, start, end, csv_results_path_default)
 
     print("|_ got raw widths:", widths)
     print(" *************************************")
@@ -863,3 +859,243 @@ def generate_flow_diagram(request_dict):
         f.seek(0)  # rewrite into the file
         for line in lines:
             f.write(line)
+
+
+# function that returns HTML code for iframe network (used for new api)
+def create_and_return_flow_diagram(request_dict, path_to_reactions=path_to_reactions,
+                                   path_to_template=path_to_template,
+                                   csv_results_path=csv_results_path_default):
+    global userSelectedMinMax
+    global minAndMaxOfSelectedTimeFrame
+    global previous_vals
+    global csv_results_path_default
+    print("* using csv_results_path: ", csv_results_path)
+    csv_results_path_default = csv_results_path
+
+    if (('maxMolval' in request_dict and 'minMolval' in request_dict)
+        and (request_dict['maxMolval'] != ''
+        and request_dict['minMolval'] != '')
+        and (request_dict['maxMolval'] != 'NULL'
+             and request_dict['minMolval'] != 'NULL')):
+        userSelectedMinMax = [
+            float(request_dict["minMolval"]),
+            float(request_dict["maxMolval"])]
+        print("new user selected min and max: ", userSelectedMinMax)
+    if 'startStep' not in request_dict:
+        request_dict.update({'startStep': 1})
+
+    if 'maxArrowWidth' not in request_dict:
+        request_dict.update({'maxArrowWidth': 10})
+    minAndMaxOfSelectedTimeFrame = [999999999999, -1]
+    # load csv file
+    
+    csv = pd.read_csv(csv_results_path)
+
+    start_step = int(request_dict['startStep'])
+    end_step = int(request_dict['endStep'])
+
+    # scale with correct scaling function
+    scale_type = request_dict['arrowScalingType']
+    max_width = request_dict['maxArrowWidth']
+
+    previousMin = float(request_dict["currentMinValOfGraph"])
+    previousMax = float(request_dict["currentMaxValOfGraph"])
+    previous_vals = [previousMin, previousMax]
+
+    isPhysicsEnabled = request_dict['isPhysicsEnabled']
+    if isPhysicsEnabled == 'true':
+        max_width = 2  # change for max width with optimized performance
+
+    # load species json and reactions json
+
+    with open(path_to_reactions, 'r') as f:
+        reactions_data = json.load(f)
+
+    # completely new method of creating nodes and filtering elements
+    selected_species = request_dict['includedSpecies'].split(',')
+    blockedSpecies = request_dict['blockedSpecies'].split(',')
+
+    (network_content, raw_yields, edgeColors, quantities, minVal, maxVal,
+     raw_yield_values, species_colors, species_sizes,
+     total_quantites,
+     reaction_names_on_hover) = new_find_reactions_and_species(
+        selected_species, reactions_data, blockedSpecies,
+        csv, start_step, end_step, max_width, scale_type,
+        csv_results_path)
+
+    # add edges and nodes
+    # force network to be 100% width and height before it's sent to page
+    net = Network(height='100%', width='100%', directed=True)
+    # make it so we can manually change arrow colors
+    net.inherit_edge_colors(False)
+    shouldMakeSmallNode = False
+    if isPhysicsEnabled == "true":
+        net.toggle_physics(False)
+        net.force_atlas_2based()
+    else:
+        net.force_atlas_2based(gravity=-200, overlap=1)
+    
+    reac_nodes = network_content['reaction_nodes']
+    hover_names = reaction_names_on_hover
+    names = [getReactName(hover_names, x) for x in reac_nodes]
+    colors = [species_colors[x] for x in network_content['species_nodes']]
+    if shouldMakeSmallNode:
+        net.add_nodes(names, color=["#FF7F7F" for x in reac_nodes], size=[
+                      10 for x in list(reac_nodes)], title=names)
+        net.add_nodes(network_content['species_nodes'], color=colors,
+                      size=[
+                        10 for x in list(network_content['species_nodes'])])
+    else:
+        net.add_nodes(names, color=[
+                      "#FF7F7F" for x in reac_nodes], title=names)
+        net.add_nodes(network_content['species_nodes'], color=colors,
+                      size=[species_sizes[x] for x in list(
+                        network_content['species_nodes'])])
+    net.set_edge_smooth('dynamic')
+    # add edges individually so we can modify contents
+    i = 0
+    values = edgeColors
+    print("color values:", values)
+    print("reaction names on hover:", reaction_names_on_hover)
+    for edge in network_content['edges']:
+        unbeu1 = unbeautifyReaction(edge[0])
+        unbeu2 = unbeautifyReaction(edge[1])
+        val = unbeu1+"__TO__"+unbeu2
+        print("* loaded edge: ", edge)
+
+        flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
+        colorVal = ""
+        try:
+            colorVal = values[val]
+        except KeyError:
+            colorVal = values[val.replace('->', '-')]
+        if colorVal == "#e0e0e0":
+            # don't allow blocked edge to show value on hover
+            if "→" in edge[0]:
+                be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
+                net.add_edge(be1, edge[1], color=colorVal, width=edge[2])
+            elif "→" in edge[1]:
+                try:
+                    be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
+                    net.add_edge(edge[0], be2, color=colorVal, width=edge[2])
+                except KeyError:
+                    be2 = beautifyReaction(unbeu2)
+                    net.add_edge(edge[0], be2, color=colorVal, width=edge[2])
+            else:
+                net.add_edge(edge[0], edge[1],
+                             color=colorVal, width=edge[2])
+        else:
+            # hover over arrow to show value for arrows within range
+
+            # check if value is reaction by looking for arrow
+            if "→" in edge[0]:
+                be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
+                net.add_edge(be1, edge[1], color=colorVal, width=float(
+                             edge[2]), title="flux: "+flux)
+            elif "→" in edge[1]:
+                try:
+                    be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
+                    net.add_edge(edge[0], be2, color=colorVal, width=float(
+                        edge[2]), title="flux: "+flux)
+                except KeyError:
+                    be2 = beautifyReaction(unbeu2)
+                    net.add_edge(edge[0], be2, color=colorVal, width=float(
+                        edge[2]), title="flux: "+flux)
+            else:
+                net.add_edge(edge[0], edge[1], color=colorVal,
+                             width=float(edge[2]), title="flux: "+flux)
+        i = i+1
+
+    print("* is physics enabled: ", isPhysicsEnabled)
+
+    net.show(path_to_template)
+    if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
+        minAndMaxOfSelectedTimeFrame = [0, maxVal]
+    with open(path_to_template, 'r+') as f:
+        #############################################
+        # here we are going to replace the contents #
+        #############################################
+        a = """<script>
+        network.on("stabilizationIterationsDone", function () {
+            network.setOptions( { physics: false } );
+        });
+        </script>"""
+        print("((DEBUG)) [min,max] of selected time frame:",
+              minAndMaxOfSelectedTimeFrame)
+        print("((DEBUG)) [min,max] given by user:", userSelectedMinMax)
+        formattedPrevMin = str('{:0.3e}'.format(previousMin))
+        formattedPrevMax = str('{:0.3e}'.format(previousMax))
+        formattedMinOfSelected = str(
+            '{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))
+        formattedMaxOfSelected = str(
+            '{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))
+        formattedUserMin = str('{:0.3e}'.format(userSelectedMinMax[0]))
+        formattedUserMax = str('{:0.3e}'.format(userSelectedMinMax[1]))
+        if (int(minAndMaxOfSelectedTimeFrame[1]) == -1
+                or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
+            a = """<script>
+        parent.document.getElementById("flow-start-range2").value = "NULL";
+        parent.document.getElementById("flow-end-range2").value = "NULL";
+        console.log("inputting NULL");"""
+
+        else:
+            a = '<script>\
+            parent.document.getElementById("flow-start-range2").value = \
+            "'+formattedMinOfSelected+'";'
+            a += 'parent.document.getElementById("flow-end-range2").value = \
+                "'+str(
+                formattedMaxOfSelected)+'";'
+        a += """
+            console.log("ALRIGHTY WE're SETTING NEW CURRENT MIN AND MAX");
+        currentMinValOfGraph = """+formattedPrevMin+""";
+        currentMaxValOfGraph = """+formattedPrevMax+""";
+        console.log("here's what we got:", currentMinValOfGraph, currentMaxValOfGraph);
+        """
+        if (str(formattedPrevMin) != str(formattedMinOfSelected)
+            or str(formattedPrevMax) != str(formattedMaxOfSelected)
+                or previousMax == 1):
+            a += 'parent.document.getElementById("flow-start-range2").value =\
+                "'+str(formattedMinOfSelected)+'";\
+                    parent.document.getElementById("flow-end-range2").value =\
+                "'+str(formattedMaxOfSelected)+'";'
+            a += 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
+                formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>'
+        else:
+            print("looks like min and max are the same")
+            if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
+                a += 'parent.document.getElementById("flow-start-range2").value = "'+str(
+                    formattedUserMin)+'"; \
+                        parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
+                a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
+                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+            else:
+                a += 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
+                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+        if isPhysicsEnabled == 'true':
+            # add options to reduce text size
+            a += \
+                """<script>
+                var container = document.getElementById("mynetwork");
+                var options = {physics: false,
+                                nodes: {
+                                    shape: "dot",
+                                    size: 10,
+                                    font: {size: 5}
+                                    }
+                                };
+                var network = new vis.Network(container, data, options);
+                </script>"""
+
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            # find a pattern so that we can add next to that line
+            if line.startswith('</script>'):
+                lines[i] = lines[i]+a
+        f.truncate()
+        f.seek(0)  # rewrite into the file
+        for line in lines:
+            f.write(line)
+        f.close()
+    # read from file and return the contents
+    with open(path_to_template, 'r') as f:
+        return f.read()
