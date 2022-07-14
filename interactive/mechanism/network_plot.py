@@ -11,7 +11,7 @@ reac = os.path.join(settings.BASE_DIR,
 
 def generate_network_plot(species, pathz=temp_default,  pr=reac):
     net = Network(directed=True)
-    with open(pathz, 'r') as f:
+    with open(pr, 'r') as f:
         reactions_data = json.load(f)
 
     contained_reactions = {}
