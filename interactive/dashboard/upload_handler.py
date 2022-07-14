@@ -11,6 +11,7 @@ from django.conf import settings
 from interactive.tools import *
 from pathlib import Path
 import logging
+import shutil
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 config_files_to_ignore = [
@@ -26,21 +27,21 @@ config_files_to_ignore = [
         ]
 
 # reads csv file into dictionary
-def manage_initial_conditions_files(f, filename, path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def manage_initial_conditions_files(f, filename, pathz=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     content = f.read()
-    destination = os.path.join(path, filename)
+    destination = os.path.join(pathz, filename)
     g = open(destination, 'wb')
     g.write(content)
 
     # writes config json pointing to csv file
-    config = open_json('my_config.json')
+    config = direct_open_json(pathz+'/my_config.json')
     if 'initial conditions' in config:
         initials = config['initial conditions']
     else:
         initials = {}
     initials.update({filename: {}})
     config.update({'initial conditions': initials})
-    dump_json('my_config.json', config)
+    direct_dump_json(pathz+'/my_config.json', config)
 
 
 # removes an initial conditions file
@@ -50,21 +51,22 @@ def initial_conditions_file_remove(remove_request, path=os.path.join(settings.BA
     os.remove(filepath)
 
     # update config json
-    config = open_json('my_config.json')
+    config = direct_open_json(path+'/my_config.json')
     del config['initial conditions'][remove_request['file name']]
-    dump_json('my_config.json', config)
+    print("* dumping to json:", path+'/my_config.json')
+    direct_dump_json(path+'/my_config.json', config)
 
 
 # handles all uploaded evolving conditions files
-def manage_uploaded_evolving_conditions_files(f, filename, path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def manage_uploaded_evolving_conditions_files(f, filename, pathz=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     content = f.read()
-    destination = os.path.join(path, filename)
+    destination = os.path.join(pathz, filename)
     g = open(destination, 'wb')
     g.write(content)
     g.close()
 
     #writes config json pointing to csv file
-    config = open_json('my_config.json')
+    config = direct_open_json(pathz+'/my_config.json')
     if 'evolving conditions' in config:
         evolvs = config['evolving conditions']
     else:
@@ -74,7 +76,7 @@ def manage_uploaded_evolving_conditions_files(f, filename, path=os.path.join(set
             }
     })
     config.update({'evolving conditions': evolvs})
-    dump_json('my_config.json', config)
+    direct_dump_json(pathz+'/my_config.json', config)
 
 
 #checks uploaded configuration against current config file
@@ -120,9 +122,11 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
                                config_path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     content = f.read()
     file_name = os.path.join(os.path.join(settings.BASE_DIR, uploaded_path+"/uploaded"), 'uploaded.zip')
-    if os.path.isfile(file_name) == False:
+    if os.path.isdir(file_name.replace('uploaded.zip', '')) == False:
         # make dirs just in case
         os.makedirs(file_name.replace('uploaded.zip', ''))
+    if os.path.isfile(file_name) == False:
+        
         print("* created directory for uploaded zip file:", file_name.replace('uploaded.zip', ''))
         g = open(file_name, 'x')
     g = open(file_name, 'wb')
@@ -180,16 +184,12 @@ def create_config_zip(destination_path = os.path.join(settings.BASE_DIR, "dashbo
                       conf_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")):
     print("* [upload_handler] transfering "+conf_path+" to "+destination_path)
     copy_tree(conf_path, destination_path)
-    
-    # check if zip exists
-    if os.path.isfile(zip_path) == False:
-        # create zip file
-        print("* [upload_handler] creating zip file")
+    if os.path.isdir(zip_path.replace('config.zip', '')) == False:
         # make dirs just in case
         os.makedirs(zip_path.replace('config.zip', ''))
-        f = open(zip_path, 'x')
     
     with ZipFile(zip_path, 'w') as zip:
+        print("* zipping file to "+zip_path)
         for filepath in glob.iglob(destination_path + '/**', recursive=True):
             relative_path = os.path.relpath(filepath, destination_path)
             if not str(relative_path) in config_files_to_ignore:

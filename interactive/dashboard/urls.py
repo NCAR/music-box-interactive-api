@@ -125,6 +125,10 @@ urlpatterns = [
     path('api/download_results/', api.DownloadResults.as_view(), name='download_results'),
 
     path('api/config_json/', api.ConfigJsonUpload.as_view(), name='load-config-from-files'),
+    path('api/remove_initial_conditions_file/', api.RemoveInitialConditionsFile.as_view(), name='remove_initial_conditions_file'),
+    path('api/init_csv/', api.InitCSV.as_view(), name='init_csv'),
+    path('api/clear_evolution_files/', api.ClearEvolutionFiles.as_view(), name='clear_evolution_files'),
+    path('api/evolv_file/', api.EvolvFileUpload.as_view(), name='evolv_file_upload'),
 
     path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
     path('api/run-model/', api.RunView.as_view(), name='run-model'),

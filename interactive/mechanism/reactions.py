@@ -26,7 +26,7 @@ def reactions_are_valid(reactions_path = os.path.join(settings.BASE_DIR, "dashbo
 
 
 # returns whether a reaction with the specified MUSICA name exists
-def is_musica_named_reaction(name, reactions_path = os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def is_musica_named_reaction(name, reactions_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
     reactions = reactions_info(reactions_path)
     name_parts = name.split('.')
     if len(name_parts) != 2: return False

@@ -1,4 +1,5 @@
 # from types import NoneType
+import re
 from django.shortcuts import render
 from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
@@ -344,6 +345,19 @@ class InitialConditionsSetup(views.APIView):
                 data = json.loads(f.read())
             print("* returning initial conditions setup:", data)
             return JsonResponse(data)
+    def post(self, request):
+        print("****** POST request received INITIAL CONDITIONS SETUP ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* saving initial conditions setup for session id: " + request.session.session_key)
+        print("* received initial conditions setup:", request.body)
+        newData = json.loads(request.body)
+        path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/initials.json"
+        print("* saving to path: "+path)
+        with open(path, 'w') as f:
+            json.dump(newData, f, indent=4)
+        print('initial conditions setup updated')
+        return JsonResponse({})
 class InitialSpeciesConcentrations(views.APIView):
     def get(self, request):
         
@@ -402,14 +416,15 @@ class InitialReactionRates(views.APIView):
         
         print("* fetching initial species conc. for session id: " + request.session.session_key)
         initial_rates = {}
-        if not os.path.isfile(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")):
+        path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")
+        if not os.path.isfile(path):
             print("* detected no data from this user")
             return JsonResponse({})
         else:
-            initial_reaction_rates_file_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/initial_reaction_rates.csv")
+            initial_reaction_rates_file_path = path
             with open(initial_reaction_rates_file_path, 'r') as f:
                 initial_rates = initial_conditions_file_to_dictionary(f, ',')
-            print("* returning files [irr]:", initial_rates)
+            print("* returning rates [irr]:", initial_rates)
             return JsonResponse(initial_rates)
     def post(self, request):
         print("****** POST request received INITIAL REACTION RATES ******")
@@ -421,8 +436,10 @@ class InitialReactionRates(views.APIView):
         print("* saving to path: "+path)
         
         print("* pushing new options:", initial_values)
+        config_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key+"/camp_data/reactions.json")
+        initial_reaction_rates_file_path = path
         with open(initial_reaction_rates_file_path, 'w+') as f:
-            dictionary_to_initial_conditions_file(initial_values, f, ',')
+            dictionary_to_initial_conditions_file(initial_values, f, ',', config_path)
         print("* done pushing new options")
         export_to_path(os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)+"/")
         return JsonResponse({})
@@ -691,8 +708,60 @@ class ConfigJsonUpload(views.APIView):
         print("* uploaded file size: "+str(uploaded.size))
         configs_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
         handle_uploaded_zip_config(uploaded, "dashboard/static/zip/"+request.session.session_key, configs_path)
-        export_to_path(configs_path)
+        export_to_path(configs_path+"/")
         return HttpResponseRedirect('/mechanism.html')
+class RemoveInitialConditionsFile(views.APIView):
+    def get(self, request):
+        return JsonResponse({"error":"removing initial conditions files should be a POST request"})
+    def post(self, request):
+        print("****** GET request received REMOVE_INITIAL_CONDITIONS_FILE ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        configs_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        remove_request = json.loads(request.body)
+        # remove_initial_conditions_file(configs_path)
+        print("* removing file:", remove_request)
+        initial_conditions_file_remove(remove_request, configs_path)
+        return JsonResponse({})
+# upload on conditions/intial page
+class InitCSV(views.APIView):
+    def post(self, request):
+        print("****** POST request received INIT_CSV ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        filename = str(request.FILES['file'])
+        uploaded = request.FILES['file']
+        conf_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        print("* uploaded file: "+filename)
+        print("* saving to conf_path: "+conf_path)
+        manage_initial_conditions_files(uploaded, filename, conf_path)
+        # return HttpResponseRedirect('/conditions/initial.html')
+        return JsonResponse({})
+class ClearEvolutionFiles(views.APIView):
+    def get(self, request):
+        print("****** POST request received INIT_CSV ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        conf_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        print("* clearing evolution files:", conf_path)
+        clear_e_files(conf_path)
+        return JsonResponse({})
+class EvolvFileUpload(views.APIView):
+    def post(self, request):
+        print("****** POST request received EVOLV_FILE_UPLOAD ******")
+        if not request.session.session_key:
+            request.session.create()
+        print("* session key: "+request.session.session_key)
+        filename = str(request.FILES['file'])
+        uploaded = request.FILES['file']
+        conf_path = os.path.join(settings.BASE_DIR, 'configs/'+request.session.session_key)
+        print("* uploading file: "+filename)
+        manage_uploaded_evolving_conditions_files(uploaded, filename, conf_path)
+        print("* uploaded evolving file: "+filename)
+        return JsonResponse({})
 class SessionView(views.APIView):
     def get(self, request):
         print("****** GET request received SESSION_VIEW ******")

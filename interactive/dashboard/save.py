@@ -34,6 +34,25 @@ def default_units(prefix, name):
         return "Pa"
     return ""
 def direct_open_json(filePath):
+    if os.path.isfile(filePath) == False:
+        # create file if it doesn't exist
+        f = open(filePath, 'w+')
+        path = ""
+        if "my_config" in filePath:
+            path = os.path.join(settings.BASE_DIR, "dashboard/static/config/my_config.json")
+        elif "species" in filePath:
+            path = os.path.join(settings.BASE_DIR, "dashboard/static/config/species.json")
+        elif "reactions" in filePath:
+            path = os.path.join(settings.BASE_DIR, "dashboard/static/config/reactions.json")
+        elif "initials" in filePath:
+            path = os.path.join(settings.BASE_DIR, "dashboard/static/config/initials.json")
+        elif "options" in filePath:
+            path = os.path.join(settings.BASE_DIR, "dashboard/static/config/options.json")
+        else:
+            path = filePath
+        print("* Copying from:", path, "to:", filePath)
+        shutil.copyfile(path, filePath)
+        
     with open(filePath) as f:
         dicti = json.loads(f.read())
     return dicti
@@ -117,6 +136,7 @@ def add_to_initial_conditions_file(file_path, delimiter, dictionary):
 # converts initial conditions file to dictionary
 def initial_conditions_file_to_dictionary(input_file, delimiter):
     content = input_file.read()
+    print("* read content for reacition rates:", content)
     lines = content.split('\n')
     keys = [lines[0]]
     values = [lines[1]]
@@ -134,18 +154,21 @@ def initial_conditions_file_to_dictionary(input_file, delimiter):
              name = key_parts[0] + '.' + key_parts[1]
              units = key_parts[2]
              rates[name] = { "value": values[keys.index(key)], "units": units }
-    return(rates)
+    return rates
 
 
 # converts a dictionary to an initial conditions file
-def dictionary_to_initial_conditions_file(dictionary, output_file, delimiter):
+def dictionary_to_initial_conditions_file(dictionary, output_file, delimiter, reactions_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
     column_names = ''
     column_values = ''
     for key, value in dictionary.items():
+        print(key,":",value)
         key_label = '' if key == '__blank__' else key
-        if is_musica_named_reaction(key_label):
+        print("* is_musica_named_reaction:", is_musica_named_reaction(key_label, reactions_path))
+        if is_musica_named_reaction(key_label, reactions_path):
             column_names += key_label + '.' + value["units"] + delimiter
             column_values += str(value["value"]) + delimiter
+    print("* writing to output file:", output_file)
     output_file.write(column_names[:-1] + '\n' + column_values[:-1])
 
 
@@ -686,8 +709,8 @@ def display_photo_start_time():
         return {}
     
 
-def clear_e_files():
-    config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+def clear_e_files(config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+    
     with open(os.path.join(config_path, 'my_config.json')) as f:
         config = json.loads(f.read())
 
@@ -701,7 +724,7 @@ def clear_e_files():
         except:
             print('file not found')
     config.update({'evolving conditions': {}})
-    dump_json('my_config.json', config)
+    direct_dump_json(config_path+'/my_config.json', config)
 
     print('ev_conditions files cleared')
     return
