@@ -70,7 +70,9 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-def output_plot(prop, plot_units, csv_results_path=os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv"), species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
+def output_plot(prop, plot_units,
+                csv_results_path=os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv"),
+                species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     matplotlib.use('agg')
         
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
@@ -163,7 +165,11 @@ def plots_unit_select(prop):
     response = ''
     if prop == 'species':
         choices = unit_choices[prop]
-        response = '<div class="my-2"><div class="select-group"><label for="plotsUnitSelect">Select plot units</label><select class="form-control" id="plotsUnitSelect">'
+        response = """
+        <div class="my-2">
+            <div class="select-group">
+                <label for="plotsUnitSelect">Select plot units</label>
+                <select class="form-control" id="plotsUnitSelect">"""
         for choice in choices:
             response = response + '<option>' + choice + '</option>'
         response = response + '</select></div></div>'

@@ -95,14 +95,6 @@ def name_included_reactions(included_reactions, reactions_json):
     return names_dict
 
 
-# check if element is in 'blocked' elements list
-def isBlocked(blocked, element_or_reaction):
-    for bl in blocked:
-        if bl == element_or_reaction and len(blocked) != 0:
-            return True
-    return False
-
-
 # make reaction hot hot hot by adding some nicer arrows and cleaning it up
 def beautifyReaction(reaction):
     if '->' in reaction:
@@ -123,9 +115,6 @@ def unbeautifyReaction(reaction):
 
 # return list of species, reactions, species size and colors.
 def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
-    global minAndMaxOfSelectedTimeFrame
-    global userSelectedMinMax
-    global previous_vals
     contained_reactions = {}
     species_nodes = {}
     reactions_nodes = {}
@@ -153,10 +142,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
                     for product in r['products']:
                         species_nodes.update({product: {}})
                         reaction_string = reaction_string + product + "_"
-                    if r['products'] == [] or len(r['products']) == 0:
-                        # reaction_string = reaction_string[:-2]
-                        print("* no products:", reaction_string)
-                    else:
+                    if r['products'] != [] and len(r['products']) != 0:
                         reaction_string = reaction_string[:-1]
                     reactions_nodes.update({reaction_string: {}})
                 if species in r['products']:
@@ -184,9 +170,6 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
 
 # return list of raw widths for arrows. Also set new minAndMax
 def findReactionRates(reactions_nodes, df, start, end, csv_results_path_default=csv_results_path_default):
-    global minAndMaxOfSelectedTimeFrame
-    global userSelectedMinMax
-    global previous_vals
     rates_cols = [x for x in df.columns if 'myrate' in x]
     reactionsToAdd = []
     for re in reactions_nodes:

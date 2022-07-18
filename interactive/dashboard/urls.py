@@ -88,7 +88,6 @@ urlpatterns = [
          cache_timeout=0), name='schema-redoc'),
     path('yaml/', schema_view.without_ui(cache_timeout=0),
          name='schema-json'),
-    path('test-view/', api.TestAPIView.as_view(), name='test-view'),
 
     path('api/species/', api.SpeciesView.as_view(),
          name='current-species'),
@@ -121,18 +120,22 @@ urlpatterns = [
          api.InitialSpeciesConcentrations.as_view(),
          name='initial-species-concentrations'),
     path('api/initial-conditions-setup/',
-         api.InitialConditionsSetup.as_view(),name='initial-conditions-setup'),
+         api.InitialConditionsSetup.as_view(),
+         name='initial-conditions-setup'),
 
     path('api/initial-reaction-rates/', api.InitialReactionRates.as_view(),
          name='initial-initial-reaction-ratess'),
     path('api/conditions-species-list/',
          api.ConditionsSpeciesList.as_view(), name='conditions-species-list'),
     path('api/reaction-musica-names-list/',
-         api.MusicaReactionsList.as_view(), name='reaction-musica-names-list'),
+         api.MusicaReactionsList.as_view(),
+         name='reaction-musica-names-list'),
 
-    path('api/convert-values/', api.ConvertValues.as_view(), name='convert-values'),
+    path('api/convert-values/', api.ConvertValues.as_view(),
+         name='convert-values'),
     path('api/unit-conversion-arguments/',
-         api.UnitConversionArguments.as_view(), name='unit-conversion-arguments'),
+         api.UnitConversionArguments.as_view(),
+         name='unit-conversion-arguments'),
     path('api/unit-options/', api.UnitOptions.as_view(), name='unit-options'),
     path('api/conversion-calculator/', api.ConversionCalculator.as_view(),
          name='conversion-calculator'),
@@ -153,7 +156,8 @@ urlpatterns = [
     path('api/plots/get/', api.GetPlot.as_view(), name='get-plots'),
     path('api/plots/get_flow_details/', api.GetFlowDetails.as_view(),
          name='get-flow-diagram-details'),
-    path('api/plots/get_flow/', api.GetFlow.as_view(), name='get-flow-diagram'),
+    path('api/plots/get_flow/', api.GetFlow.as_view(),
+         name='get-flow-diagram'),
 
     path('api/download_config/', api.DownloadConfig.as_view(),
          name='download_config'),
@@ -172,6 +176,5 @@ urlpatterns = [
          name='evolv_file_upload'),
 
     path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
-    path('api/run-model/', api.RunView.as_view(), name='run-model'),
-    path('api/session-id/', api.SessionView.as_view(), name='session-id')
+    path('api/run-model/', api.RunView.as_view(), name='run-model')
 ]
