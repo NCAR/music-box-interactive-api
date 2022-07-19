@@ -13,9 +13,10 @@ from mechanism.reactions import is_musica_named_reaction
 config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 initial_reaction_rates_file_path = os.path.join(
     config_path, 'initial_reaction_rates.csv')
-
+r = "dashboard/static/config/camp_data/reactions.json"
+def_reaction = os.path.join(settings.BASE_DIR, r)
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
-
+def_config = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 # Put the data from post request into post.json
 
 
@@ -39,7 +40,7 @@ def default_units(prefix, name):
 
 
 def direct_open_json(filePath):
-    if os.path.isfile(filePath) == False:
+    if not os.path.isfile(filePath):
         # create file if it doesn't exist
         f = open(filePath, 'w+')
         path = ""
@@ -73,7 +74,7 @@ def direct_open_json(filePath):
 # returns the initial conditions files
 
 
-def initial_conditions_files(path=os.path.join(settings.BASE_DIR, 
+def initial_conditions_files(path=os.path.join(settings.BASE_DIR,
                              "dashboard/static/config/my_config.json")):
     files = {}
     config = direct_open_json(path)
@@ -169,7 +170,10 @@ def initial_conditions_file_to_dictionary(input_file, delimiter):
 
 
 # converts a dictionary to an initial conditions file
-def dictionary_to_initial_conditions_file(dictionary, output_file, delimiter, reactions_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")):
+def dictionary_to_initial_conditions_file(dictionary,
+                                          output_file,
+                                          delimiter,
+                                          reactions_path=def_reaction):
     column_names = ''
     column_values = ''
     for key, value in dictionary.items():
@@ -226,12 +230,12 @@ def export_to_path(path):
     options_section = {}
 
     options_section.update({"grid": options["grid"]})
-    options_section.update(
-        {"chemistry time step [" + options["chem_step.units"] + "]": options["chemistry_time_step"]})
-    options_section.update(
-        {"output time step [" + options["output_step.units"] + "]": options["output_time_step"]})
-    options_section.update(
-        {"simulation length [" + options["simulation_length.units"] + "]": options["simulation_length"]})
+    time_step = "chemistry time step [" + options["chem_step.units"] + "]"
+    options_section.update({time_step: options["chemistry_time_step"]})
+    out_time = "output time step [" + options["output_step.units"] + "]"
+    options_section.update({out_time: options["output_time_step"]})
+    sim = "simulation length [" + options["simulation_length.units"] + "]"
+    options_section.update({sim: options["simulation_length"]})
 
     # write chemical species section
 
@@ -291,7 +295,7 @@ def export_to_path(path):
     logging.info('my_config.json updated')
 
 
-# Combines all individual configuration json files and writes to the config file readable by the mode
+# Combines all individual configuration json files and writes to the config
 def export():
     species = open_json('species.json')
     options = open_json('options.json')
@@ -317,12 +321,13 @@ def export():
     options_section = {}
 
     options_section.update({"grid": options["grid"]})
-    options_section.update(
-        {"chemistry time step [" + options["chem_step.units"] + "]": options["chemistry_time_step"]})
-    options_section.update(
-        {"output time step [" + options["output_step.units"] + "]": options["output_time_step"]})
-    options_section.update(
-        {"simulation length [" + options["simulation_length.units"] + "]": options["simulation_length"]})
+    options_section.update({"grid": options["grid"]})
+    time_step = "chemistry time step [" + options["chem_step.units"] + "]"
+    options_section.update({time_step: options["chemistry_time_step"]})
+    out_time = "output time step [" + options["output_step.units"] + "]"
+    options_section.update({out_time: options["output_time_step"]})
+    sim = "simulation length [" + options["simulation_length.units"] + "]"
+    options_section.update({sim: options["simulation_length"]})
 
     # write chemical species section
 
@@ -512,8 +517,8 @@ def export_to_user_config_files(jsonPath):
     for condition in config['environmental conditions']:
         unit = ''
         for entry in config['environmental conditions'][condition]:
-            initial_dict['values'].update(
-                {condition: config['environmental conditions'][condition][entry]})
+            tmp = config['environmental conditions'][condition][entry]
+            initial_dict['values'].update({condition: tmp})
             unit = entry.split('[')[1]
             unit = unit.split(']')[0]
             initial_dict['units'].update({condition: unit})
@@ -571,8 +576,8 @@ def reverse_export():
     for condition in config['environmental conditions']:
         unit = ''
         for entry in config['environmental conditions'][condition]:
-            initial_dict['values'].update(
-                {condition: config['environmental conditions'][condition][entry]})
+            tmp = config['environmental conditions'][condition][entry]
+            initial_dict['values'].update({condition: tmp})
             unit = entry.split('[')[1]
             unit = unit.split(']')[0]
             initial_dict['units'].update({condition: unit})
@@ -701,8 +706,9 @@ def display_linear_combinations():
 
     for f in filelist:
         if config['evolving conditions'][f]['linear combinations']:
-            for key in config['evolving conditions'][f]['linear combinations']:
-                combo = config['evolving conditions'][f]['linear combinations'][key]['properties']
+            comb = config['evolving conditions'][f]['linear combinations']
+            for key in comb:
+                combo = comb[key]['properties']
                 c = [key for key in combo]
                 linear_combo_dict.update({f.replace('.', '-'): c})
 
@@ -725,7 +731,7 @@ def display_photo_start_time():
         return {}
 
 
-def clear_e_files(config_path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def clear_e_files(config_path=def_config):
 
     with open(os.path.join(config_path, 'my_config.json')) as f:
         config = json.loads(f.read())

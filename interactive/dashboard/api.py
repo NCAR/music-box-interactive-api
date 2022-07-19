@@ -57,13 +57,16 @@ def log(string, string2="", string3=""):
     complete_string = str(string) + " " + str(string2) + " " + str(string3)
     logging.info(complete_string)
 
+
 def debug(string, string2="", string3=""):
     complete_string = str(string) + " " + str(string2) + " " + str(string3)
     logging.debug(complete_string)
 
+
 def error(string, string2="", string3=""):
     complete_string = str(string) + " " + str(string2) + " " + str(string3)
     logging.error(complete_string)
+
 
 class ExampleView(views.APIView):
     def get(self, request):
@@ -126,7 +129,7 @@ class SpeciesDetailView(views.APIView):
         log("****** GET request received SPECIES_DETAIL ******")
         if not request.session.session_key:
             request.session.create()
-        if not 'name' in request.GET:
+        if 'name' not in request.GET:
             return JsonResponse({"error": "missing species name"})
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):
@@ -140,7 +143,7 @@ class SpeciesDetailView(views.APIView):
                 settings.BASE_DIR, conf)
             for entry in species_info(config_path):
                 if (entry['type'] == 'CHEM_SPEC' and
-                    entry['name'] == request.GET['name']):
+                        entry['name'] == request.GET['name']):
                     species_convert_to_SI(entry)
                     return JsonResponse(entry)
         return JsonResponse({})
@@ -151,7 +154,7 @@ class RemoveSpeciesView(views.APIView):
         log("****** GET request received REMOVE_SPECIES ******")
         if not request.session.session_key:
             request.session.create()
-        if not 'name' in request.GET:
+        if 'name' not in request.GET:
             return HttpResponseBadRequest("missing species name")
 
         # check for config dir
@@ -172,7 +175,7 @@ class AddSpeciesView(views.APIView):
     def post(self, request):
         log("****** POST request received ADD_SPECIES ******")
         species_data = json.loads(request.body)
-        if not 'name' in species_data:
+        if 'name' not in species_data:
             return JsonResponse({"error": "missing species name"})
         species_data['type'] = "CHEM_SPEC"
         direc = os.path.join(settings.BASE_DIR,
@@ -194,7 +197,7 @@ class PlotSpeciesView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
-        if not 'name' in request.GET:
+        if 'name' not in request.GET:
             return HttpResponseBadRequest("missing species name")
         species = request.GET['name']
         # check for config dir
@@ -208,7 +211,7 @@ class PlotSpeciesView(views.APIView):
             config_path = os.path.join(
                 settings.BASE_DIR,
                 'configs/' + request.session.session_key +
-                    "/camp_data/reactions.json")
+                "/camp_data/reactions.json")
             network_plot_dir = os.path.join(
                 settings.BASE_DIR, "dashboard/templates/network_plot/" +
                 request.session.session_key)
@@ -219,15 +222,17 @@ class PlotSpeciesView(views.APIView):
                 debug("directory doesnt exist, making:" + str(network_plot_dir))
                 os.makedirs(network_plot_dir)
             # use copyfile()
-            if exists(os.path.join(network_plot_dir, "plot.html")) == False:
+            if exists(os.path.join(network_plot_dir, "plot.html")) is False:
                 # create plot.html file if doesn't exist
                 f = open(os.path.join(network_plot_dir, "plot.html"), "w")
             shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
             # generate network plot and place it in unique directory for user
             generate_network_plot(
                 species, network_plot_dir + "/plot.html", config_path)
-            return render(request, 'network_plot/' + request.session.session_key
-                          + '/plot.html')
+            plot = ('network_plot/'
+                + request.session.session_key
+                + '/plot.html')
+            return render(request, plot)
 
 
 class ReactionsView(views.APIView):
@@ -258,7 +263,7 @@ class ReactionsDetailView(views.APIView):
         if not request.session.session_key:
             request.session.create()
         log("fetching reactions for session id: " +
-              request.session.session_key)
+            request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/'+request.session.session_key)
         if not os.path.isdir(direc):
@@ -266,7 +271,7 @@ class ReactionsDetailView(views.APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             # path to save data for user
-            if not 'index' in request.GET:
+            if 'index' not in request.GET:
                 return JsonResponse({"error": "missing reaction index"})
             conf = ('configs/' + request.session.session_key
                     + "/camp_data/reactions.json")
@@ -283,7 +288,7 @@ class RemoveReactionView(views.APIView):
         log("****** GET request received REMOVE_REACTION ******")
         if not request.session.session_key:
             request.session.create()
-        if not 'index' in request.GET:
+        if 'index' not in request.GET:
             return HttpResponseBadRequest("missing reaction index")
         direc = os.path.join(settings.BASE_DIR,
                              'configs/'+request.session.session_key)
@@ -292,8 +297,8 @@ class RemoveReactionView(views.APIView):
             error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
-            conf = ('configs/'+request.session.session_key
-                    +"/camp_data/reactions.json")
+            conf = ('configs/' + request.session.session_key
+                    + "/camp_data/reactions.json")
             config_path = os.path.join(
                 settings.BASE_DIR, conf)
             reaction_remove(int(request.GET['index']), config_path)
@@ -307,7 +312,7 @@ class SaveReactionView(views.APIView):
 
         reaction_data = json.loads(request.body)
         conf = ('configs/' + request.session.session_key
-                    + "/camp_data/reactions.json")
+                + "/camp_data/reactions.json")
         config_path = os.path.join(
             settings.BASE_DIR, conf)
         reaction_save(reaction_data, config_path)
@@ -319,7 +324,7 @@ class ReactionTypeSchemaView(views.APIView):
         log("****** GET request received SCHEMATYPEVIEW ******")
         if not request.session.session_key:
             request.session.create()
-        if not 'type' in request.GET:
+        if 'type' not in request.GET:
             return JsonResponse({"error": "missing reaction type"})
         direc = os.path.join(settings.BASE_DIR,
                              'configs/'+request.session.session_key)
@@ -341,7 +346,7 @@ class ModelOptionsView(views.APIView):
         log("****** GET request received GET_MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        debug("fetching model options for user: " + request.session.session_key)
+        debug("fetching model options for: " + request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         # check for config dir
@@ -455,9 +460,9 @@ class InitialConditionsSetup(views.APIView):
         debug("received initial conditions setup: " + str(request.body))
         newData = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR,
-                             'configs/'
-                             + request.session.session_key
-                             + "/initials.json")
+                            'configs/'
+                            + request.session.session_key
+                            + "/initials.json")
         debug("saving to path: " + path)
         with open(path, 'w') as f:
             json.dump(newData, f, indent=4)
@@ -468,16 +473,16 @@ class InitialConditionsSetup(views.APIView):
 class InitialSpeciesConcentrations(views.APIView):
     def get(self, request):
 
-        log("****** GET request received INITIAL SPECIES CONCENTRATIONS ******")
+        log("****** GET request received INIT_SPECIES_CONC ******")
         if not request.session.session_key:
             request.session.create()
 
         debug("fetching initial species conc. for session id: " +
               request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
-                                'configs/'
-                                + request.session.session_key
-                                + "/species.json")
+                             'configs/'
+                             + request.session.session_key
+                             + "/species.json")
         if not os.path.isfile(direc):
             error("detected no data from this user")
             return JsonResponse({})
@@ -562,7 +567,7 @@ class InitialReactionRates(views.APIView):
         debug("pushing new options:", str(initial_values))
         config_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key
-            +"/camp_data/reactions.json")
+            + "/camp_data/reactions.json")
         initial_reaction_rates_file_path = path
         with open(initial_reaction_rates_file_path, 'w+') as f:
             dictionary_to_initial_conditions_file(
@@ -638,7 +643,7 @@ class MusicaReactionsList(views.APIView):
         debug("* fetching species list for session id: " +
               request.session.session_key)
         reactions = {}
-        path = os.path.join(settings.BASE_DIR, 'configs/' 
+        path = os.path.join(settings.BASE_DIR, 'configs/'
                             + request.session.session_key)
         if not os.path.isdir(path):
             error("detected no data from this user")
@@ -740,7 +745,7 @@ class RunView(views.APIView):
         if not request.session.session_key:
             request.session.create()
         log("****** Running simulation for user session:",
-              request.session.session_key, "******")
+            request.session.session_key, "******")
         runner = SessionModelRunner(request.session.session_key)
 
         return runner.run(request)
@@ -891,7 +896,8 @@ class DownloadConfig(views.APIView):
         fl_path = zip_path
         zip_file = open(fl_path, 'rb')
         response = HttpResponse(zip_file, content_type='application/zip')
-        response['Content-Disposition'] = 'attachment; filename="%s"' % 'config.zip'
+        attach_string = 'attachment; filename="%s"' % 'config.zip'
+        response['Content-Disposition'] = attach_string
         return response
 
 
@@ -911,10 +917,10 @@ class DownloadResults(views.APIView):
         if os.path.exists(fl_path):
             with open(fl_path, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type=mime_type)
-                response['Content-Disposition'] = 'inline; filename=' + filename
+                attach_string = 'inline; filename=' + filename
+                response['Content-Disposition'] = attach_string
                 return response
         raise Http404
-        
 
 
 class ConfigJsonUpload(views.APIView):

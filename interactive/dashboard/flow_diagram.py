@@ -12,7 +12,8 @@ import math
 path_to_reactions = os.path.join(
     settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
 csv_results_path_default=os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+csv_def = csv_results_path_default
 # path to output html file
 path_to_template = os.path.join(
     settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
@@ -25,7 +26,6 @@ previous_vals = [0, 1]
 
 # returns species in csv
 def get_species(csv_results_path=csv_results_path_default):
-    
     csv = pd.read_csv(csv_results_path)
     concs = [x for x in csv.columns if 'CONC' in x]
     clean_concs = [x.split('.')[1] for x in concs if 'myrate' not in x]
@@ -169,7 +169,8 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
 
 
 # return list of raw widths for arrows. Also set new minAndMax
-def findReactionRates(reactions_nodes, df, start, end, csv_results_path_default=csv_results_path_default):
+def findReactionRates(reactions_nodes, df, start, end, 
+                      csv_results_path_default=csv_results_path_default):
     rates_cols = [x for x in df.columns if 'myrate' in x]
     reactionsToAdd = []
     for re in reactions_nodes:
@@ -191,12 +192,12 @@ def findReactionRates(reactions_nodes, df, start, end, csv_results_path_default=
                 str('{:0.3e}'.format(values[key])))})
     return widths
 
+
 # get the actual min and max
 def minAndmax(reaction_nodes, quantities, widths):
     min_val = 999999999999
     max_val = 0
     for reaction in reaction_nodes:
-
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
             edge = reaction + "__TO__" + product
@@ -214,6 +215,7 @@ def minAndmax(reaction_nodes, quantities, widths):
                 max_val = val
     return (min_val*0.999), (max_val*1.001)
 
+
 # 1) calculate new widths for the arrows by multiplying quantity of species
 # 2) calculate new min and max
 # 3) set colors for arrows
@@ -226,18 +228,19 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     edgeColors = {}
     quantities, total_quantites, reaction_names_on_hover = findQuantities(
         reactions_nodes, reactions_data)
-    
     print("|_ finished getting quantities:", quantities)
     print("|_ got widths:", widths)
     newmin, newmax = minAndmax(reactions_nodes, quantities, widths)
     print("|_ comparing to preivous vals:", previous_vals)
     print("|_ calculated new min max:", newmin, newmax)
     minAndMaxOfSelectedTimeFrame = [newmin, newmax]
-    if (str('{:0.3e}'.format(newmin)) != str('{:0.3e}'.format(previous_vals[0])) or
-        str('{:0.3e}'.format(newmax)) != str('{:0.3e}'.format(previous_vals[1]))):
+    newMin = str('{:0.3e}'.format(newmin))
+    prev0 = str('{:0.3e}'.format(previous_vals[0]))
+    newMax = str('{:0.3e}'.format(newmax))
+    prev1 = str('{:0.3e}'.format(previous_vals[0]))
+    if (newMin != prev0 or newMax != prev1):
         print("|_ detected new graph, setting user selected min max:", newmin, newmax)
         userSelectedMinMax = [newmin, newmax]
-    
     userMM = userSelectedMinMax  # short version to clean up code
     for reaction in reactions_nodes:
 
@@ -245,7 +248,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for product in products_data:
             if product != "NO_PRODUCTS":
                 print("|_ added interaction:", beautifyReaction(
-                reaction), " ==> ", product)
+                      reaction), " ==> ", product)
                 name = reaction+"__TO__"+product
                 tmp = widths[reaction]*quantities[name]
                 if (tmp <= userMM[1]
@@ -267,13 +270,12 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 print("|_ found no products for reaction:", reaction)
         for reactant in reactants_data:
             tmp_reaction = reaction
-            
             print("|_ added interaction:", reactant,
-                    " ==> ", beautifyReaction(reaction))
+                  " ==> ", beautifyReaction(reaction))
             name = reactant+"__TO__"+reaction
             if products_data == ['']:
-                name = name.replace("->","-")
-                tmp_reaction = tmp_reaction.replace("->","-")
+                name = name.replace("->", "-")
+                tmp_reaction = tmp_reaction.replace("->", "-")
                 print("     |_ modified name:", name)
             qt = quantities[reactant+"__TO__"+tmp_reaction]
             tmp = widths[reaction]*qt
@@ -291,7 +293,6 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 edgeColors.update({name: "#e0e0e0"})
             if (reactant not in blockedSpecies
                     and tmp_reaction not in blockedSpecies):
-                
                 raw_yields.update(
                     {reactant+"__TO__"+reaction: tmp})
     return (raw_yields, edgeColors, quantities,
@@ -368,7 +369,7 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
 def new_find_reactions_and_species(list_of_species, reactions_data,
                                    blockedSpecies, df, start,
                                    end, max_width, scale_type,
-                                   csv_results_path_default=csv_results_path_default):
+                                   cs=csv_def):
 
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
@@ -388,7 +389,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     print("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
     print(" *******************************************")
 
-    widths = findReactionRates(reactions_nodes, df, start, end, csv_results_path_default)
+    widths = findReactionRates(reactions_nodes, df, start, end, cs)
 
     print("|_ got raw widths:", widths)
     print(" *************************************")
@@ -429,7 +430,6 @@ def getProductsAndReactionsFrom(reaction):
     no_products = []
     for reactant in reaction.split('->')[0].split('_'):
         reactants.append(reactant)
-        
     if len(reaction.split('->')) > 1:
         # check for products
         for product in reaction.split('->')[1].split('_'):
@@ -439,7 +439,6 @@ def getProductsAndReactionsFrom(reaction):
         products.append('NO_PRODUCTS')
         print("|_ no products found for reaction:", reaction)
         no_products.append(reaction)
-        
     return products, reactants
 
 
@@ -557,7 +556,6 @@ def findQuantities(reactions_nodes, reactions_json):
                         products_string = products_string.replace(".0"+str(
                             product_name), str(product_name))
             products_string = products_string[:-1]
-            print("* pushing to hover:", reactants_string, "->", products_string)
             reaction_names_on_hover.update(
                 {speciesFromReaction: reactants_string+"->"+products_string})
         i += 1
@@ -782,8 +780,7 @@ def generate_flow_diagram(request_dict):
                 or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
             a = """<script>
         parent.document.getElementById("flow-start-range2").value = "NULL";
-        parent.document.getElementById("flow-end-range2").value = "NULL";
-        console.log("inputting NULL");"""
+        parent.document.getElementById("flow-end-range2").value = "NULL";"""
 
         else:
             a = '<script>\
@@ -793,31 +790,46 @@ def generate_flow_diagram(request_dict):
                 "'+str(
                 formattedMaxOfSelected)+'";'
         a += """
-            console.log("ALRIGHTY WE're SETTING NEW CURRENT MIN AND MAX");
         currentMinValOfGraph = """+formattedPrevMin+""";
         currentMaxValOfGraph = """+formattedPrevMax+""";
-        console.log("here's what we got:", currentMinValOfGraph, currentMaxValOfGraph);
         """
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
+            print("previousMin:", formattedPrevMin,
+                  "does not equal", formattedMinOfSelected)
+            print("previousMax:", formattedPrevMax,
+                  "does not equal", formattedMaxOfSelected)
+            print("previousMin:", previousMin, "equals", 0)
+            print("previousMax:", previousMax, "equals", 1)
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
-            a += 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
-                formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>'
+            a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
+                  + str(formattedMaxOfSelected)+'", "'+str(
+                  formattedMinOfSelected)+'", "'
+                  + str(formattedMaxOfSelected)+'");</script>')
         else:
             print("looks like min and max are the same")
-            if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
-                a += 'parent.document.getElementById("flow-start-range2").value = "'+str(
+            isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
+            isNotDefaultmax = int(userSelectedMinMax[1]) != -1
+            block1 = 'parent.document.getElementById("flow-start-range2")'
+            rangeId = block1+'.value = '
+            if isNotDefaultmax or isNotDefaultMin:
+                a += (rangeId+str(
                     formattedUserMin)+'"; \
-                        parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
-                a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
-                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+                        '+rangeId+'"'+formattedUserMax+'";')
+                block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
+                fmos = str(formattedMinOfSelected)
+                block2 = formattedUserMax + '", "' + fmos
+                block3 = '", "' + formattedMaxOfSelected + '");</script>'
+                a += block1 + block2 + block3
             else:
-                a += 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
-                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+                fmos = formattedMinOfSelected
+                block1 = 'parent.reloadSlider("' + fmos + '", "'
+                block2 = formattedMaxOfSelected + '", "' + str(fmos)
+                a += block1 + '", "' + formattedMaxOfSelected + '");</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \
@@ -1029,31 +1041,46 @@ def create_and_return_flow_diagram(request_dict, path_to_reactions=path_to_react
                 "'+str(
                 formattedMaxOfSelected)+'";'
         a += """
-            console.log("ALRIGHTY WE're SETTING NEW CURRENT MIN AND MAX");
         currentMinValOfGraph = """+formattedPrevMin+""";
         currentMaxValOfGraph = """+formattedPrevMax+""";
-        console.log("here's what we got:", currentMinValOfGraph, currentMaxValOfGraph);
         """
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
+            print("previousMin:", formattedPrevMin,
+                  "does not equal", formattedMinOfSelected)
+            print("previousMax:", formattedPrevMax,
+                  "does not equal", formattedMaxOfSelected)
+            print("previousMin:", previousMin, "equals", 0)
+            print("previousMax:", previousMax, "equals", 1)
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
-            a += 'parent.reloadSlider("'+str(formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'", "'+str(
-                formattedMinOfSelected)+'", "'+str(formattedMaxOfSelected)+'");</script>'
+            a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
+                  + str(formattedMaxOfSelected)+'", "'+str(
+                  formattedMinOfSelected)+'", "'
+                  + str(formattedMaxOfSelected)+'");</script>')
         else:
             print("looks like min and max are the same")
-            if int(userSelectedMinMax[1]) != -1 or int(userSelectedMinMax[0]) != 999999999999:
-                a += 'parent.document.getElementById("flow-start-range2").value = "'+str(
+            isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
+            isNotDefaultmax = int(userSelectedMinMax[1]) != -1
+            block1 = 'parent.document.getElementById("flow-start-range2")'
+            rangeId = block1+'.value = '
+            if isNotDefaultmax or isNotDefaultMin:
+                a += (rangeId+str(
                     formattedUserMin)+'"; \
-                        parent.document.getElementById("flow-end-range2").value = "'+formattedUserMax+'";'
-                a += 'parent.reloadSlider("'+formattedUserMin+'", "'+formattedUserMax+'", "'+str(
-                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+                        '+rangeId+'"'+formattedUserMax+'";')
+                block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
+                fmos = str(formattedMinOfSelected)
+                block2 = formattedUserMax + '", "' + fmos
+                block3 = '", "' + formattedMaxOfSelected + '");</script>'
+                a += block1 + block2 + block3
             else:
-                a += 'parent.reloadSlider("'+formattedMinOfSelected+'", "'+formattedMaxOfSelected+'", "'+str(
-                    formattedMinOfSelected)+'", "'+formattedMaxOfSelected+'");</script>'
+                fmos = formattedMinOfSelected
+                block1 = 'parent.reloadSlider("' + fmos + '", "'
+                block2 = formattedMaxOfSelected + '", "' + str(fmos)
+                a += block1 + '", "' + formattedMaxOfSelected + '");</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \

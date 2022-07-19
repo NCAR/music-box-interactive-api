@@ -17,14 +17,14 @@ from .compare import *
 from mechanism.species import tolerance_dictionary
 from interactive.tools import *
 from numpy import vectorize
-import base64
+
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 model_output_units = 'mol/m-3'
 
-def sub_props(prop, csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")):
-    
+def sub_props(prop):
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     spec = list([])
@@ -70,13 +70,11 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-def output_plot(prop, plot_units,
-                csv_results_path=os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv"),
-                species_path=os.path.join(settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
+def output_plot(prop, plot_units):
     matplotlib.use('agg')
         
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
-    
+    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
@@ -92,14 +90,6 @@ def output_plot(prop, plot_units,
 
     subset.plot(x="time", ax=axes)
 
-    # time = subset[['time']].values.tolist()
-    # length = time[-1][0]
-    # grad = length / 6
-    # if grad < 700000:
-    #     tick_spacing = [60, 3600, 7200, 14400, 18000, 21600, 25200, 36000, 43200, 86400, 172800, 345600, 604800]
-    #     base = min(tick_spacing, key=lambda x: abs(x - grad))
-    #     axes.xaxis.set_major_locator(plt.MultipleLocator(base))
-
     # set labels and title
     axes.set_xlabel(r"time / s")
     name = prop.split('.')[1]
@@ -112,11 +102,12 @@ def output_plot(prop, plot_units,
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
             else:
                 ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
-            print("* tolerance dictionary: ", tolerance_dictionary)
+
             if is_density_needed('ppm', plot_units):
-                tolerance = ppm_to_plot_units(float(tolerance_dictionary(species_path)[name]), {'density': float(csv['ENV.number_density_air'].iloc[[-1]]), 'density units': 'mol/m-3 '})
+                density = float(csv['ENV.number_density_air'].iloc[[-1]])
+                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), {'density': density, 'density units': 'mol/m-3 '})
             else:
-                tolerance = ppm_to_plot_units(float(tolerance_dictionary(species_path)[name]))
+                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
 
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
@@ -145,8 +136,8 @@ def output_plot(prop, plot_units,
     figure.savefig(buffer, format='png')
 
     plt.close(figure)
-    encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    return encoded
+
+    return buffer
 
 
 # generates html for unit selection in plots sidebar
@@ -173,5 +164,5 @@ def plots_unit_select(prop):
         for choice in choices:
             response = response + '<option>' + choice + '</option>'
         response = response + '</select></div></div>'
-        response = response + '<label>Select Species to Plot:</label>' # create label for species selection
+        response = response + '<label>Select Species to Plot:</label>'
     return response
