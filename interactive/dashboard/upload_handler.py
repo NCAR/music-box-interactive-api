@@ -59,7 +59,8 @@ def initial_conditions_file_remove(remove_request, path=config_default):
 
 
 # handles all uploaded evolving conditions files
-def manage_uploaded_evolving_conditions_files(f, filename, pathz=config_default):
+def manage_uploaded_evolving_conditions_files(f, filename,
+                                              pathz=config_default):
     content = f.read()
     destination = os.path.join(pathz, filename)
     g = open(destination, 'wb')
@@ -183,16 +184,19 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
 
     return True
 
+
 confg_def = os.path.join(settings.BASE_DIR,
                          "dashboard/static/zip/config_copy")
 zip_pathj = "dashboard/static/zip/output/config.zip"
+
+
 # create configuration zip
 def create_config_zip(destination_path=confg_def,
                       zip_path=os.path.join(
                           settings.BASE_DIR, zip_pathj),
                       conf_path=config_path):
     copy_tree(conf_path, destination_path)
-    if os.path.isdir(zip_path.replace('config.zip', '')) == False:
+    if not os.path.isdir(zip_path.replace('config.zip', '')):
         # make dirs just in case
         os.makedirs(zip_path.replace('config.zip', ''))
 

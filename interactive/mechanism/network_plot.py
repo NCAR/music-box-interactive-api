@@ -7,11 +7,12 @@ reaction_j = "dashboard/static/config/camp_data/reactions.json"
 path = os.path.join(settings.BASE_DIR, reaction_j)
 plot = "dashboard/templates/network_plot/plot.html"
 template = os.path.join(settings.BASE_DIR, plot)
-def generate_network_plot(species, 
+
+
+def generate_network_plot(species,
                           path_to_template=template,
                           path_to_reactions=path):
     net = Network(directed=True)
-    
     with open(path_to_reactions, 'r') as f:
         reactions_data = json.load(f)
 
