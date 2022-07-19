@@ -3,7 +3,8 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
-from .flow_diagram import generate_flow_diagram, get_simulation_length, get_species, get_step_length
+from .flow_diagram import generate_flow_diagram, get_simulation_length
+from .flow_diagram import get_species, get_step_length
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
@@ -117,7 +118,6 @@ def get_flow(request):
 
 
 def render_flow(request):
-    
     time.sleep(0.1)
     path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
     return render(request, 'network_plot/flow_plot.html')

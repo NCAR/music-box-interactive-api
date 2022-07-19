@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',  
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware'
 ]
 
@@ -142,7 +142,7 @@ MEDIA_URL = '/media/'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-#cookie crap
+# cookie crap
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
@@ -153,7 +153,7 @@ SESSION_COOKIE_SAMESITE = 'None'
 # SESSION_COOKIE_DOMAIN = 'None'
 # SESSION_COOKIE_NAME = 'sessionid'
 
-#so that we can show plots in iframe
+# so that we can show plots in iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
 
-XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
+XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']

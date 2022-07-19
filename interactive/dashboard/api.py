@@ -219,7 +219,7 @@ class PlotSpeciesView(views.APIView):
                 settings.BASE_DIR,
                 "dashboard/templates/network_plot/plot.html")
             if not os.path.isdir(network_plot_dir):
-                debug("directory doesnt exist, making:" + str(network_plot_dir))
+                debug("making dir:" + str(network_plot_dir))
                 os.makedirs(network_plot_dir)
             # use copyfile()
             if exists(os.path.join(network_plot_dir, "plot.html")) is False:
@@ -230,8 +230,8 @@ class PlotSpeciesView(views.APIView):
             generate_network_plot(
                 species, network_plot_dir + "/plot.html", config_path)
             plot = ('network_plot/'
-                + request.session.session_key
-                + '/plot.html')
+                    + request.session.session_key
+                    + '/plot.html')
             return render(request, plot)
 
 

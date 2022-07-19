@@ -25,11 +25,11 @@ config_files_to_ignore = [
     'species.json',
     'README'
 ]
-
+config_default = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 # reads csv file into dictionary
 
 
-def manage_initial_conditions_files(f, filename, pathz=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def manage_initial_conditions_files(f, filename, pathz=config_default):
     content = f.read()
     destination = os.path.join(pathz, filename)
     g = open(destination, 'wb')
@@ -47,7 +47,7 @@ def manage_initial_conditions_files(f, filename, pathz=os.path.join(settings.BAS
 
 
 # removes an initial conditions file
-def initial_conditions_file_remove(remove_request, path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def initial_conditions_file_remove(remove_request, path=config_default):
     # remove file
     filepath = os.path.join(path, remove_request['file name'])
     os.remove(filepath)
@@ -59,7 +59,7 @@ def initial_conditions_file_remove(remove_request, path=os.path.join(settings.BA
 
 
 # handles all uploaded evolving conditions files
-def manage_uploaded_evolving_conditions_files(f, filename, pathz=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+def manage_uploaded_evolving_conditions_files(f, filename, pathz=config_default):
     content = f.read()
     destination = os.path.join(pathz, filename)
     g = open(destination, 'wb')
@@ -121,14 +121,14 @@ def copyConfigFile(source, destination):
 
 # loads uploaded zip configuration
 def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
-                               config_path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+                               config_path=config_default):
     content = f.read()
     file_name = os.path.join(os.path.join(
         settings.BASE_DIR, uploaded_path+"/uploaded"), 'uploaded.zip')
-    if os.path.isdir(file_name.replace('uploaded.zip', '')) == False:
+    if not os.path.isdir(file_name.replace('uploaded.zip', '')):
         # make dirs just in case
         os.makedirs(file_name.replace('uploaded.zip', ''))
-    if os.path.isfile(file_name) == False:
+    if not os.path.isfile(file_name):
         g = open(file_name, 'x')
     g = open(file_name, 'wb')
     g.write(content)
@@ -143,7 +143,8 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
                   'camp_data/species.json', 'camp_data/tolerance.json']
     needed_files = ['my_config.json']
     needed_files.extend(camp_files)
-    with open(os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config/my_config.json")) as f:
+    confg_sjon = "/unzipped/config/my_config.json"
+    with open(os.path.join(settings.BASE_DIR, uploaded_path+confg_sjon)) as f:
         config = json.loads(f.read())
 
     # looks for evolving conditions files
@@ -151,10 +152,10 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
         for key in config['evolving conditions']:
             if '.' in key:
                 needed_files.append(key)
-
+    unzip = os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config")
     # checks that all neccesary files are in the zip
     for f in needed_files:
-        if not os.path.isfile(os.path.join(os.path.join(settings.BASE_DIR, uploaded_path+"/unzipped/config"), f)):
+        if not os.path.isfile(os.path.join(unzip, f)):
             logging.info('missing needed file from upload: ' + f)
             return False
 
@@ -182,12 +183,14 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
 
     return True
 
-
+confg_def = os.path.join(settings.BASE_DIR,
+                         "dashboard/static/zip/config_copy")
+zip_pathj = "dashboard/static/zip/output/config.zip"
 # create configuration zip
-def create_config_zip(destination_path=os.path.join(settings.BASE_DIR, "dashboard/static/zip/config_copy"),
+def create_config_zip(destination_path=confg_def,
                       zip_path=os.path.join(
-                          settings.BASE_DIR, "dashboard/static/zip/output/config.zip"),
-                      conf_path=os.path.join(settings.BASE_DIR, "dashboard/static/config")):
+                          settings.BASE_DIR, zip_pathj),
+                      conf_path=config_path):
     copy_tree(conf_path, destination_path)
     if os.path.isdir(zip_path.replace('config.zip', '')) == False:
         # make dirs just in case

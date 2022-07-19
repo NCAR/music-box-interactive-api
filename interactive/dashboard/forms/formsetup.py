@@ -6,6 +6,8 @@ from mechanism.reactions import reaction_musica_names
 from dashboard.save import initial_conditions_file_to_dictionary
 
 default = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+
+
 def option_setup(config_path=default):
     with open(os.path.join(config_path, 'options.json')) as f:
         data = json.loads(f.read())

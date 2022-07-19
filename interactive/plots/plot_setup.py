@@ -105,9 +105,14 @@ def output_plot(prop, plot_units):
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
-                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]), {'density': density, 'density units': 'mol/m-3 '})
+                pp = float(tolerance_dictionary()[name])
+                du = 'density units'
+                units = 'mol/m-3 '
+                de = 'density'
+                tolerance = ppm_to_plot_units(pp, {de: density, du: units})
             else:
-                tolerance = ppm_to_plot_units(float(tolerance_dictionary()[name]))
+                pp = float(tolerance_dictionary()[name])
+                tolerance = ppm_to_plot_units(pp)
 
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5

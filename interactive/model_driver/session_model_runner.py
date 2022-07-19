@@ -19,6 +19,7 @@ from interactive.tools import *
 from pathlib import Path
 import logging
 
+
 class SessionModelRunner():
     def __init__(self, session_id):
         self.setPathsForSessionID(session_id)
@@ -92,12 +93,12 @@ class SessionModelRunner():
         self.log_path = os.path.join(settings.BASE_DIR, 'logs/'+session_id)
         self.camp_folder_path = os.path.join(
             settings.BASE_DIR, "configs/"+session_id+"/camp_data")
+        reac = "/camp_data/reactions.json"
         self.reactions_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/camp_data/reactions.json")
+            settings.BASE_DIR, "configs/"+session_id+reac)
         self.species_path = os.path.join(
             settings.BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
         self.sessionid = session_id
-
 
     def add_integrated_rates(self):
         with open(self.reactions_path) as f:
@@ -155,9 +156,11 @@ class SessionModelRunner():
     def setup_run(self):
         logging.info("setup run called")
         if self.interface_solo:
-            return {'model_running': False, 'error_message': 'Model not connected to interface.'}
+            err = 'Model not connected to interface.'
+            return {'model_running': False, 'error_message': err}
         if not reactions_are_valid(self.reactions_path):
-            return {'model_running': False, 'error_message': 'At least one reaction must be present for the model to run.'}
+            err = 'At least one reaction must be present for model to run.'
+            return {'model_running': False, 'error_message': err}
 
         if os.path.isfile(self.complete_path):
             os.remove(self.complete_path)
@@ -204,8 +207,8 @@ class SessionModelRunner():
         # check file list remove for being right?
         for f in filelist:
             self.copyAFile(os.path.join(
-                                self.mb_dir+'/mb_configuration', f),
-                                os.path.join(self.mb_dir, f))
+                           self.mb_dir+'/mb_configuration', f),
+                           os.path.join(self.mb_dir, f))
         logging.info("running model from base directory: " + self.mb_dir)
         process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],
@@ -213,8 +216,8 @@ class SessionModelRunner():
         with open(self.reactions_path, 'w') as k:
             json.dump(reactions_data, k)
 
-        with open(self.species_path, 'w') as l:
-            json.dump(species_data, l)
+        with open(self.species_path, 'w') as z:
+            json.dump(species_data, z)
 
         return {'model_running': True}
 
@@ -238,7 +241,7 @@ class SessionModelRunner():
             elif os.path.isfile(self.complete_path):
                 time.sleep(0.2)
                 logging.info("complete file found")
-                if os.path.getsize(self.out_path) != 0:  # check if model has finished
+                if os.path.getsize(self.out_path) != 0:  # model has finished?
                     logging.info("output file found")
                     status = 'done'
 

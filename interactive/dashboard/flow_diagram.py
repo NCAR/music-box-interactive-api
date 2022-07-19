@@ -11,7 +11,7 @@ import math
 # paths to mechansim files
 path_to_reactions = os.path.join(
     settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
-csv_results_path_default=os.path.join(
+csv_results_path_default = os.path.join(
     os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
 csv_def = csv_results_path_default
 # path to output html file
@@ -169,7 +169,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
 
 
 # return list of raw widths for arrows. Also set new minAndMax
-def findReactionRates(reactions_nodes, df, start, end, 
+def findReactionRates(reactions_nodes, df, start, end,
                       csv_results_path_default=csv_results_path_default):
     rates_cols = [x for x in df.columns if 'myrate' in x]
     reactionsToAdd = []
@@ -239,7 +239,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     newMax = str('{:0.3e}'.format(newmax))
     prev1 = str('{:0.3e}'.format(previous_vals[0]))
     if (newMin != prev0 or newMax != prev1):
-        print("|_ detected new graph, setting user selected min max:", newmin, newmax)
+        print("|_ detected new graph")
         userSelectedMinMax = [newmin, newmax]
     userMM = userSelectedMinMax  # short version to clean up code
     for reaction in reactions_nodes:
@@ -857,7 +857,8 @@ def generate_flow_diagram(request_dict):
 
 
 # function that returns HTML code for iframe network (used for new api)
-def create_and_return_flow_diagram(request_dict, path_to_reactions=path_to_reactions,
+def create_and_return_flow_diagram(request_dict,
+                                   path_to_reactions=path_to_reactions,
                                    path_to_template=path_to_template,
                                    csv_results_path=csv_results_path_default):
     global userSelectedMinMax
