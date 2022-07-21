@@ -225,7 +225,36 @@ class SessionModelRunner():
             json.dump(species_data, z)
 
         return {'model_running': True}
+     # helper function getting all files for user session
+    '''
+    For the given path, get the List of all files in the directory tree 
+    '''
+    def getListOfFiles(self, dirName):
+        # create a list of file and sub directories 
+        # names in the given directory 
+        listOfFile = os.listdir(dirName)
+        allFiles = list()
+        # Iterate over all the entries
+        for entry in listOfFile:
+            # Create full path
+            fullPath = os.path.join(dirName, entry)
+            # If entry is a directory then get the list of files in this directory 
+            if os.path.isdir(fullPath):
+                allFiles = allFiles + self.getListOfFiles(fullPath)
+            else:
+                allFiles.append(fullPath)
+                    
+        return allFiles
 
+
+    # calculate checksum for config/model so we can check if it's run before
+    def calculate_checksum(self):
+        filenames = self.getListOfFiles(self.mb_dir)
+        hash = hashlib.md5()
+        for fn in filenames:
+            if os.path.isfile(fn):
+                hash.update(open(fn, "rb").read())
+        return hash.hexdigest()
     # copy inital config file on first model run
     def setup_config_check(self):
         self.copyAFile(self.config_path, self.old_path)
@@ -374,35 +403,3 @@ class SessionModelRunner():
         direct_dump_json(os.path.join(self.log_path,
                                       'log_config.json'), lc)
         logging.info('log cleared')
-    
-
-    # helper function getting all files for user session
-    '''
-    For the given path, get the List of all files in the directory tree 
-    '''
-    def getListOfFiles(self, dirName):
-        # create a list of file and sub directories 
-        # names in the given directory 
-        listOfFile = os.listdir(dirName)
-        allFiles = list()
-        # Iterate over all the entries
-        for entry in listOfFile:
-            # Create full path
-            fullPath = os.path.join(dirName, entry)
-            # If entry is a directory then get the list of files in this directory 
-            if os.path.isdir(fullPath):
-                allFiles = allFiles + self.getListOfFiles(fullPath)
-            else:
-                allFiles.append(fullPath)
-                    
-        return allFiles
-
-
-    # calculate checksum for config/model so we can check if it's run before
-    def calculate_checksum(self):
-        filenames = self.getListOfFiles(self.mb_dir)
-        hash = hashlib.md5()
-        for fn in filenames:
-            if os.path.isfile(fn):
-                hash.update(open(fn, "rb").read())
-        return hash.hexdigest()
