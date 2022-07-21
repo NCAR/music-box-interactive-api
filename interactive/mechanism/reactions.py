@@ -90,7 +90,31 @@ def reaction_remove(reaction_index, reactions_path=reactions_default):
         f.close()
     camp_data['camp-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
-        json.dump(camp_data, f, indent=2)
+        json.dump(camp_data, f, indent=4)
+        f.close()
+
+
+def remove_reactions_with_species(species, reactions_path=reactions_default,
+                                  my_config_path=""):
+    logging.info('removing reactions with species ' + species)
+    with open(reactions_path) as f:
+        camp_data = json.loads(f.read())
+        f.close()
+    camp_data['camp-data'][0]['reactions'] = [r for r in camp_data['camp-data'][0]['reactions'] if not species in r['reactants'].keys() and not species in r['products'].keys()]
+    with open(reactions_path, 'w') as f:
+        json.dump(camp_data, f, indent=4)
+        f.close()
+    
+    # now remove the species from my_config.json
+    # check if my_config_path exists
+    if not os.path.exists(my_config_path):
+        return
+    with open(my_config_path) as f:
+        chem_species = json.loads(f.read())
+        f.close()
+    del chem_species['chemical species'][species]
+    with open(my_config_path, 'w') as f:
+        json.dump(chem_species, f, indent=4)
         f.close()
 
 
@@ -107,7 +131,7 @@ def reaction_save(reaction_data, reactions_path=reactions_default):
     else:
         camp_data['camp-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
-        json.dump(camp_data, f, indent=2)
+        json.dump(camp_data, f, indent=4)
         f.close()
 
 

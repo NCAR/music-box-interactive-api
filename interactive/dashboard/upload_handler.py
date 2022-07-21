@@ -199,15 +199,17 @@ def create_config_zip(destination_path=confg_def,
     if not os.path.isdir(zip_path.replace('config.zip', '')):
         # make dirs just in case
         os.makedirs(zip_path.replace('config.zip', ''))
+    print("* making zip @ " + zip_path)
+    # create zip via shutil
+    make_archive(destination_path, zip_path)
 
-    with ZipFile(zip_path, 'w') as zip:
-        for filepath in glob.iglob(destination_path + '/**', recursive=True):
-            relative_path = os.path.relpath(filepath, destination_path)
-            if not str(relative_path) in config_files_to_ignore:
-                zip.write(filepath, os.path.join(
-                    'config/', os.path.relpath(filepath, destination_path)))
-
-
+def make_archive(source, destination, format='zip'):
+    base, name = os.path.split(destination)
+    archive_from = os.path.dirname(source)
+    archive_to = os.path.basename(source.strip(os.sep))
+    print(f'Source: {source}\nDestination: {destination}\nArchive From: {archive_from}\nArchive To: {archive_to}\n')
+    shutil.make_archive(name, format, archive_from, archive_to)
+    shutil.move('%s.%s' % (name, format), destination)
 # saves uploaded loss rates file to config folder
 def handle_uploaded_loss_rates(f):
     content = f.read()

@@ -168,6 +168,14 @@ class RemoveSpeciesView(views.APIView):
             config_path = os.path.join(
                 settings.BASE_DIR, conf)
             species_remove(request.GET['name'], config_path)
+            reac = ('configs/' + request.session.session_key
+                    + "/camp_data/reactions.json")
+            reac_path = os.path.join(settings.BASE_DIR, reac)
+            my_conf = ('configs/' + request.session.session_key
+                    + "/my_config.json")
+            my_path = os.path.join(settings.BASE_DIR, my_conf)
+            remove_reactions_with_species(request.GET['name'], reac_path,
+                                          my_path)
             return HttpResponse('')
 
 
@@ -380,6 +388,8 @@ class ModelOptionsView(views.APIView):
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         options = option_setup(config_path)
         log("returning options:", str(options))
+        export_to_path(os.path.join(settings.BASE_DIR,
+                       'configs/' + request.session.session_key) + "/")
         return JsonResponse(options)
 
 
@@ -875,20 +885,19 @@ class GetFlow(views.APIView):
 class DownloadConfig(views.APIView):
     def get(self, request):
         log("****** GET request received DOWNLOAD_CONFIG ******")
-        if not request.session.session_key:
-            request.session.create()
-        debug("session key: "+request.session.session_key)
+        sessid = request.GET.get('sess_id')
+        log("sessid: "+sessid)
         destination_path = os.path.join(
             settings.BASE_DIR,
             "dashboard/static/zip/"
-            + request.session.session_key
+            + sessid
             + "/config_copy")
         zip_path = os.path.join(
             settings.BASE_DIR, "dashboard/static/zip/output/"
-            + request.session.session_key
+            + sessid
             + "/config.zip")
         conf_path = os.path.join(
-            settings.BASE_DIR, 'configs/' + request.session.session_key)
+            settings.BASE_DIR, 'configs/' + sessid)
         debug("destination path: " + destination_path)
         debug("zip path: " + zip_path)
         debug("conf path: " + conf_path)

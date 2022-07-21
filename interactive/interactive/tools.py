@@ -56,8 +56,8 @@ def direct_open_json(filePath):
 
 def direct_dump_json(filePath, content):
     with open(filePath, 'w') as f:
-        # json.dump(content, f, indent=4)
-        json.dump(content, f)
+        json.dump(content, f, indent=4)
+        # json.dump(content, f)
 
 
 # save dictionary as json to a file

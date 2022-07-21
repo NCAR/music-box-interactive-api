@@ -201,18 +201,24 @@ def minAndmax(reaction_nodes, quantities, widths):
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
             edge = reaction + "__TO__" + product
-            val = quantities[edge]*widths[reaction]
-            if val < min_val:
-                min_val = val
-            if val > max_val:
-                max_val = val
+            try:
+                val = quantities[edge]*widths[reaction]
+                if val < min_val:
+                    min_val = val
+                if val > max_val:
+                    max_val = val
+            except KeyError:
+                print("* reaction with no product")
         for reactant in reactants_data:
             edge = reactant + "__TO__" + reaction
-            val = quantities[edge]*widths[reaction]
-            if val < min_val:
-                min_val = val
-            if val > max_val:
-                max_val = val
+            try:
+                val = quantities[edge]*widths[reaction]
+                if val < min_val:
+                    min_val = val
+                if val > max_val:
+                    max_val = val
+            except KeyError:
+                print("* reaction with no reactant")
     return (min_val*0.999), (max_val*1.001)
 
 
@@ -228,18 +234,18 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     edgeColors = {}
     quantities, total_quantites, reaction_names_on_hover = findQuantities(
         reactions_nodes, reactions_data)
-    print("|_ finished getting quantities:", quantities)
-    print("|_ got widths:", widths)
+    # print("|_ finished getting quantities:", quantities)
+    # print("|_ got widths:", widths)
     newmin, newmax = minAndmax(reactions_nodes, quantities, widths)
-    print("|_ comparing to preivous vals:", previous_vals)
-    print("|_ calculated new min max:", newmin, newmax)
+    # print("|_ comparing to preivous vals:", previous_vals)
+    # print("|_ calculated new min max:", newmin, newmax)
     minAndMaxOfSelectedTimeFrame = [newmin, newmax]
     newMin = str('{:0.3e}'.format(newmin))
     prev0 = str('{:0.3e}'.format(previous_vals[0]))
     newMax = str('{:0.3e}'.format(newmax))
     prev1 = str('{:0.3e}'.format(previous_vals[0]))
     if (newMin != prev0 or newMax != prev1):
-        print("|_ detected new graph")
+        # print("|_ detected new graph")
         userSelectedMinMax = [newmin, newmax]
     userMM = userSelectedMinMax  # short version to clean up code
     for reaction in reactions_nodes:
@@ -247,8 +253,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
             if product != "NO_PRODUCTS":
-                print("|_ added interaction:", beautifyReaction(
-                      reaction), " ==> ", product)
+                # print("|_ added interaction:", beautifyReaction(
+                    #   reaction), " ==> ", product)
                 name = reaction+"__TO__"+product
                 tmp = widths[reaction]*quantities[name]
                 if (tmp <= userMM[1]
@@ -270,13 +276,13 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 print("|_ found no products for reaction:", reaction)
         for reactant in reactants_data:
             tmp_reaction = reaction
-            print("|_ added interaction:", reactant,
-                  " ==> ", beautifyReaction(reaction))
+            # print("|_ added interaction:", reactant,
+                #   " ==> ", beautifyReaction(reaction))
             name = reactant+"__TO__"+reaction
             if products_data == ['']:
                 name = name.replace("->", "-")
                 tmp_reaction = tmp_reaction.replace("->", "-")
-                print("     |_ modified name:", name)
+                # print("     |_ modified name:", name)
             qt = quantities[reactant+"__TO__"+tmp_reaction]
             tmp = widths[reaction]*qt
             if (tmp <= userMM[1]
@@ -391,7 +397,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
 
     widths = findReactionRates(reactions_nodes, df, start, end, cs)
 
-    print("|_ got raw widths:", widths)
+    # print("|_ got raw widths:", widths)
     print(" *************************************")
     print("*= [3/6] sorting yields from species =*")
     print(" *************************************")
@@ -401,14 +407,14 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
         reactions_nodes, reactions_data, widths,
         blockedSpecies, list_of_species)
 
-    print("|_ got calculated yields:", raw_yields)
+    # print("|_ got calculated yields:", raw_yields)
     print(" *********************************")
     print("*= [4/6] calculating line widths =*")
     print(" *********************************")
     (scaledLineWeights, minVal, maxVal,
      raw_yield_values) = calculateLineWeights(
         max_width, raw_yields, scale_type)
-    print("|_ got scaled line weights:", scaledLineWeights)
+    # print("|_ got scaled line weights:", scaledLineWeights)
     print("|_ got min and max:", minVal, "and", maxVal)
     print(" ********************************* ")
     print("*= [6/6] calculating line colors =*")
@@ -700,13 +706,10 @@ def generate_flow_diagram(request_dict):
     # add edges individually so we can modify contents
     i = 0
     values = edgeColors
-    print("color values:", values)
-    print("reaction names on hover:", reaction_names_on_hover)
     for edge in network_content['edges']:
         unbeu1 = unbeautifyReaction(edge[0])
         unbeu2 = unbeautifyReaction(edge[1])
         val = unbeu1+"__TO__"+unbeu2
-        print("* loaded edge: ", edge)
 
         flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
         colorVal = ""
@@ -751,8 +754,6 @@ def generate_flow_diagram(request_dict):
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
-    print("* is physics enabled: ", isPhysicsEnabled)
-
     net.show(path_to_template)
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]
@@ -765,9 +766,6 @@ def generate_flow_diagram(request_dict):
             network.setOptions( { physics: false } );
         });
         </script>"""
-        print("((DEBUG)) [min,max] of selected time frame:",
-              minAndMaxOfSelectedTimeFrame)
-        print("((DEBUG)) [min,max] given by user:", userSelectedMinMax)
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -796,12 +794,6 @@ def generate_flow_diagram(request_dict):
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            print("previousMin:", formattedPrevMin,
-                  "does not equal", formattedMinOfSelected)
-            print("previousMax:", formattedPrevMax,
-                  "does not equal", formattedMaxOfSelected)
-            print("previousMin:", previousMin, "equals", 0)
-            print("previousMax:", previousMax, "equals", 1)
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
@@ -811,7 +803,7 @@ def generate_flow_diagram(request_dict):
                   formattedMinOfSelected)+'", "'
                   + str(formattedMaxOfSelected)+'");</script>')
         else:
-            print("looks like min and max are the same")
+            print("* looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
             block1 = 'parent.document.getElementById("flow-start-range2")'
@@ -951,13 +943,10 @@ def create_and_return_flow_diagram(request_dict,
     # add edges individually so we can modify contents
     i = 0
     values = edgeColors
-    print("color values:", values)
-    print("reaction names on hover:", reaction_names_on_hover)
     for edge in network_content['edges']:
         unbeu1 = unbeautifyReaction(edge[0])
         unbeu2 = unbeautifyReaction(edge[1])
         val = unbeu1+"__TO__"+unbeu2
-        print("* loaded edge: ", edge)
 
         flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
         colorVal = ""

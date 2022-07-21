@@ -1,6 +1,7 @@
 # SESSION BASED MODEL RUNNING
 
 
+from tabnanny import check
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.conf import settings
@@ -10,7 +11,7 @@ import subprocess
 import mimetypes
 import pandas as pd
 import time
-from shutil import copy
+import shutil
 from .run_setup import setup_run
 # from .run_logging import *
 from datetime import datetime
@@ -18,6 +19,7 @@ from mechanism.reactions import reactions_are_valid
 from interactive.tools import *
 from pathlib import Path
 import logging
+import hashlib
 
 
 class SessionModelRunner():
@@ -179,7 +181,7 @@ class SessionModelRunner():
 
         newpath = os.path.join(self.mb_dir, 'mb_configuration')
         if os.path.exists(newpath):
-            rmtree(newpath)
+            shutil.rmtree(newpath)
             os.makedirs(newpath)
         else:
             os.makedirs(newpath)
@@ -191,12 +193,13 @@ class SessionModelRunner():
 
         camp_path = os.path.join(self.mb_dir, 'camp_data')
         if os.path.exists(camp_path):
-            rmtree(camp_path)
+            shutil.rmtree(camp_path)
         os.makedirs(camp_path)
         for f in os.listdir(self.camp_folder_path):
             self.copyAFile(os.path.join(
                 self.camp_folder_path, f), os.path.join(camp_path, f))
-        os.makedirs(self.log_path)
+        if not os.path.exists(self.log_path):
+            os.makedirs(self.log_path)
         originalPath = os.path.join(
             settings.BASE_DIR, 'dashboard/static/log/log_config.json')
         self.copyAFile(originalPath, os.path.join(
@@ -209,6 +212,8 @@ class SessionModelRunner():
             self.copyAFile(os.path.join(
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
+        checksum = self.calculate_checksum()
+        print("calculated checksum: ", checksum)
         logging.info("running model from base directory: " + self.mb_dir)
         process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],
@@ -281,7 +286,7 @@ class SessionModelRunner():
             if os.path.getsize(self.out_path) != 0:
                 status = 'done'
 
-        response_message.update({'status': status})
+        response_message.update({'status': status, 'session_id': request.session.session_key})
         return JsonResponse(response_message)
 
     def run(self, request):
@@ -360,12 +365,44 @@ class SessionModelRunner():
         return
 
     def clear_log(self):
-        rmtree(self.log_path)
-        os.mkdir(self.log_path)
-
+        shutil.rmtree(self.log_path)
+        if not os.path.exists(self.log_path):
+            os.mkdir(self.log_path)
         lc = direct_open_json(os.path.join(self.log_path,
                                            'log_config.json'))
         lc.update({'history': {}})
         direct_dump_json(os.path.join(self.log_path,
                                       'log_config.json'), lc)
         logging.info('log cleared')
+    
+
+    # helper function getting all files for user session
+    '''
+    For the given path, get the List of all files in the directory tree 
+    '''
+    def getListOfFiles(self, dirName):
+        # create a list of file and sub directories 
+        # names in the given directory 
+        listOfFile = os.listdir(dirName)
+        allFiles = list()
+        # Iterate over all the entries
+        for entry in listOfFile:
+            # Create full path
+            fullPath = os.path.join(dirName, entry)
+            # If entry is a directory then get the list of files in this directory 
+            if os.path.isdir(fullPath):
+                allFiles = allFiles + self.getListOfFiles(fullPath)
+            else:
+                allFiles.append(fullPath)
+                    
+        return allFiles
+
+
+    # calculate checksum for config/model so we can check if it's run before
+    def calculate_checksum(self):
+        filenames = self.getListOfFiles(self.mb_dir)
+        hash = hashlib.md5()
+        for fn in filenames:
+            if os.path.isfile(fn):
+                hash.update(open(fn, "rb").read())
+        return hash.hexdigest()
