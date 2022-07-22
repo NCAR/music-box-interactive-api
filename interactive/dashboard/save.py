@@ -15,10 +15,11 @@ initial_reaction_rates_file_path = os.path.join(
     config_path, 'initial_reaction_rates.csv')
 r = "dashboard/static/config/camp_data/reactions.json"
 def_reaction = os.path.join(settings.BASE_DIR, r)
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 def_config = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 # Put the data from post request into post.json
-
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 def load(dicti):
     dump_json('post.json', dicti)
@@ -744,11 +745,11 @@ def clear_e_files(config_path=def_config):
         try:
             os.remove(file_path)
         except:
-            print('file not found')
+            logging.error('file not found')
     config.update({'evolving conditions': {}})
     direct_dump_json(config_path+'/my_config.json', config)
 
-    print('ev_conditions files cleared')
+    logging.info('ev_conditions files cleared')
     return
 
 

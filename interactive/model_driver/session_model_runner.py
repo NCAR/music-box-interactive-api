@@ -20,6 +20,9 @@ from interactive.tools import *
 from pathlib import Path
 import logging
 import hashlib
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 
 class SessionModelRunner():
@@ -30,7 +33,7 @@ class SessionModelRunner():
         mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
         interface_solo = False
     else:
-        print(os.environ)
+        logging.debug(os.environ)
         mb_dir = ''
         interface_solo = True
 
@@ -213,7 +216,7 @@ class SessionModelRunner():
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
         checksum = self.calculate_checksum()
-        print("calculated checksum: ", checksum)
+        logging.debug("calculated checksum: " + checksum)
         logging.info("running model from base directory: " + self.mb_dir)
         process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],

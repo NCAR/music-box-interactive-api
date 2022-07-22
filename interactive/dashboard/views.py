@@ -20,6 +20,9 @@ import platform
 import codecs
 import time
 from io import TextIOWrapper
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 
 def landing_page(request):
@@ -112,7 +115,7 @@ def flow(request):
 #Flow diagram render
 def get_flow(request):
     path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
-    print("get_flow called")
+    logging.info("get_flow called")
     generate_flow_diagram(request.GET.dict())
     return HttpResponse()
 

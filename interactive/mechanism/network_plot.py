@@ -2,12 +2,15 @@ from pyvis.network import Network
 import os
 import json
 from django.conf import settings
+import logging
 
 reaction_j = "dashboard/static/config/camp_data/reactions.json"
 path = os.path.join(settings.BASE_DIR, reaction_j)
 plot = "dashboard/templates/network_plot/plot.html"
 template = os.path.join(settings.BASE_DIR, plot)
-
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 def generate_network_plot(species,
                           path_to_template=template,
@@ -25,7 +28,7 @@ def generate_network_plot(species,
             if species in r['products']:
                 contained_reactions.update({reactions_data['camp-data'][0]['reactions'].index(r): {}})
 
-    print(contained_reactions)
+    logging.debug(contained_reactions)
     nodes = {}
     edges = []
 

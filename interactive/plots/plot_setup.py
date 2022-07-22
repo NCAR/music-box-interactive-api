@@ -22,10 +22,10 @@ from numpy import vectorize
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 model_output_units = 'mol/m-3'
-
-def sub_props(prop):
-    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    csv = pandas.read_csv(csv_results_path)
+csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def sub_props(prop, csvz=csv_results_path):
+    
+    csv = pandas.read_csv(csvz)
     titles = csv.columns.tolist()
     spec = list([])
     rate = list([])
@@ -70,16 +70,20 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-def output_plot(prop, plot_units):
+
+
+def output_plot(prop, plot_units,
+                csb=os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv"),
+                spc=os.path.join(
+                    settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
     matplotlib.use('agg')
         
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
-    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv_results_path = csb
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
-
     #make unit conversion if needed
     if plot_units:
         converter = vectorize(create_unit_converter(model_output_units, plot_units))
@@ -105,13 +109,13 @@ def output_plot(prop, plot_units):
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
-                pp = float(tolerance_dictionary()[name])
+                pp = float(tolerance_dictionary(spc)[name])
                 du = 'density units'
                 units = 'mol/m-3 '
                 de = 'density'
                 tolerance = ppm_to_plot_units(pp, {de: density, du: units})
             else:
-                pp = float(tolerance_dictionary()[name])
+                pp = float(tolerance_dictionary(spc)[name])
                 tolerance = ppm_to_plot_units(pp)
 
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
@@ -139,7 +143,6 @@ def output_plot(prop, plot_units):
     # Store image in a string buffer
     buffer = io.BytesIO()
     figure.savefig(buffer, format='png')
-
     plt.close(figure)
 
     return buffer

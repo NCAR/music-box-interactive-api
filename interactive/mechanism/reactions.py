@@ -112,7 +112,12 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
     with open(my_config_path) as f:
         chem_species = json.loads(f.read())
         f.close()
-    del chem_species['chemical species'][species]
+    print("chem_species: ", chem_species.keys())
+    if 'chemical species' in chem_species.keys():
+        if species in chem_species['chemical species']:
+            print("* found species in chemical species")
+            del chem_species['chemical species'][species]
+    print("* returning chem_species: ", chem_species)
     with open(my_config_path, 'w') as f:
         json.dump(chem_species, f, indent=4)
         f.close()
