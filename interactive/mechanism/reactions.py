@@ -87,11 +87,9 @@ def reaction_remove(reaction_index, reactions_path=reactions_default):
     logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
-        f.close()
     camp_data['camp-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=4)
-        f.close()
 
 
 def remove_reactions_with_species(species, reactions_path=reactions_default,
@@ -99,11 +97,9 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
     logging.info('removing reactions with species ' + species)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
-        f.close()
     camp_data['camp-data'][0]['reactions'] = [r for r in camp_data['camp-data'][0]['reactions'] if not species in r['reactants'].keys() and not species in r['products'].keys()]
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=4)
-        f.close()
     
     # now remove the species from my_config.json
     # check if my_config_path exists
@@ -111,7 +107,6 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
         return
     with open(my_config_path) as f:
         chem_species = json.loads(f.read())
-        f.close()
     print("chem_species: ", chem_species.keys())
     if 'chemical species' in chem_species.keys():
         if species in chem_species['chemical species']:
@@ -120,7 +115,6 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
     print("* returning chem_species: ", chem_species)
     with open(my_config_path, 'w') as f:
         json.dump(chem_species, f, indent=4)
-        f.close()
 
 
 # saves a reaction to the mechanism
@@ -137,7 +131,6 @@ def reaction_save(reaction_data, reactions_path=reactions_default):
         camp_data['camp-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
         json.dump(camp_data, f, indent=4)
-        f.close()
 
 
 # returns the set of reactions with MUSICA names including the
