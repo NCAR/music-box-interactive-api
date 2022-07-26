@@ -17,7 +17,6 @@ def reactions_info(reactions_path=reactions_default):
     logging.info('getting reaction data from file')
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
-        f.close()
     return camp_data['camp-data'][0]['reactions']
 
 
@@ -122,7 +121,6 @@ def reaction_save(reaction_data, reactions_path=reactions_default):
     logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
-        f.close()
     if 'index' in reaction_data:
         index = reaction_data['index']
         reaction_data.pop('index')
