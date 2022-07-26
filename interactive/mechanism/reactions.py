@@ -88,7 +88,7 @@ def reaction_remove(reaction_index, reactions_path=reactions_default):
         camp_data = json.loads(f.read())
     camp_data['camp-data'][0]['reactions'].pop(reaction_index)
     with open(reactions_path, 'w') as f:
-        json.dump(camp_data, f, indent=4)
+        json.dump(camp_data, f)
 
 
 def remove_reactions_with_species(species, reactions_path=reactions_default,
@@ -98,7 +98,7 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
         camp_data = json.loads(f.read())
     camp_data['camp-data'][0]['reactions'] = [r for r in camp_data['camp-data'][0]['reactions'] if not species in r['reactants'].keys() and not species in r['products'].keys()]
     with open(reactions_path, 'w') as f:
-        json.dump(camp_data, f, indent=4)
+        json.dump(camp_data, f)
     
     # now remove the species from my_config.json
     # check if my_config_path exists
@@ -113,7 +113,7 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
             del chem_species['chemical species'][species]
     print("* returning chem_species: ", chem_species)
     with open(my_config_path, 'w') as f:
-        json.dump(chem_species, f, indent=4)
+        json.dump(chem_species, f)
 
 
 # saves a reaction to the mechanism
@@ -128,7 +128,7 @@ def reaction_save(reaction_data, reactions_path=reactions_default):
     else:
         camp_data['camp-data'][0]['reactions'].append(reaction_data)
     with open(reactions_path, 'w') as f:
-        json.dump(camp_data, f, indent=4)
+        json.dump(camp_data, f)
 
 
 # returns the set of reactions with MUSICA names including the
