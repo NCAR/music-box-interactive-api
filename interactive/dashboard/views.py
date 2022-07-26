@@ -9,7 +9,8 @@ from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
 from .models import Document
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponseRedirect, JsonResponse
 import os
 from django.conf import settings
 import mimetypes
@@ -23,6 +24,7 @@ from io import TextIOWrapper
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
 logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+
 
 
 def landing_page(request):

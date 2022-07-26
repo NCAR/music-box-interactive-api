@@ -8,6 +8,7 @@ import json
 from django.conf import settings
 import pandas as pd
 import math
+
 import logging
 from bisect import bisect_left
 
@@ -40,6 +41,7 @@ previous_vals = [0, 1]
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
 logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+
 
 # returns species in csv
 def get_species(csv_results_path=csv_results_path_default):
@@ -298,7 +300,6 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     edgeColors.update({name: "#e0e0e0"})
                 if (reaction not in blockedSpecies
                         and product not in blockedSpecies):
-                    
                     raw_yields.update(
                         {name: tmp})
             else:
@@ -555,7 +556,6 @@ def findQuantities(reactions_nodes, reactions_json):
                          or isSpeciesInReaction(reactant_data, product_name))):
                     nme = str(speciesFromReaction)+"__TO__"+str(product_name)
                     quantities.update({nme: 1})
-
                     # check if reaction is included in user selected species
                     if str(speciesFromReaction) in reactions_nodes:
                         quan = total_quantites.get(product_name, 0)
@@ -702,7 +702,6 @@ def generate_flow_diagram(request_dict):
         net.force_atlas_2based()
     else:
         net.force_atlas_2based(gravity=-200, overlap=1)
-    
     reac_nodes = network_content['reaction_nodes']
     hover_names = reaction_names_on_hover
     names = [getReactName(hover_names, x) for x in reac_nodes]
@@ -1008,7 +1007,6 @@ def create_and_return_flow_diagram(request_dict,
                 net.add_edge(edge[0], edge[1], color=colorVal,
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
-
     net.show(path_to_template)
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]

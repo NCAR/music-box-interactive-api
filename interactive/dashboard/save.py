@@ -16,6 +16,7 @@ initial_reaction_rates_file_path = os.path.join(
 r = "dashboard/static/config/camp_data/reactions.json"
 def_reaction = os.path.join(settings.BASE_DIR, r)
 def_config = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+
 # Put the data from post request into post.json
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
@@ -68,13 +69,15 @@ def direct_open_json(filePath):
         dicti = json.loads(f.read())
     return dicti
 
+
 ##################################
 # Initial species concentrations #
 ##################################
+my_config = os.path.join(settings.BASE_DIR,
+                         "dashboard/static/config/my_config.json")
+
 
 # returns the initial conditions files
-
-
 def initial_conditions_files(path=os.path.join(settings.BASE_DIR,
                              "dashboard/static/config/my_config.json")):
     files = {}
@@ -527,6 +530,7 @@ def export_to_user_config_files(jsonPath):
     direct_dump_json(jsonPath+'/initials.json', initial_dict)
     direct_dump_json(jsonPath+'/options.json', option_dict)
     direct_dump_json(jsonPath+'/species.json', species_dict)
+
 # fills form json files with info from my_config file
 
 

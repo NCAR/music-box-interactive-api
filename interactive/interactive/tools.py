@@ -32,11 +32,14 @@ def file_path(filename):
     }
     file_loc = locations[filename]
     if file_loc == "config":
-        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), filename)
+        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+        return os.path.join(cfg, filename)
     elif file_loc == "mechanism":
-        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/mechanism"), filename)
+        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+        return os.path.join(cfg, filename)
     elif file_loc == "log":
-        return os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/log"), filename)
+        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/log")
+        return os.path.join(cfg, filename)
 
 
 

@@ -31,6 +31,7 @@ logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DE
 logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 
+
 # reads csv file into dictionary
 def manage_initial_conditions_files(f, filename, pathz=config_default):
     content = f.read()
