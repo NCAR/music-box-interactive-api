@@ -3,7 +3,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 # Root url tree
-# Dashboard.urls contains landing and getting started pages + conditions
+# Dashboard.urls contains landing and getting started pages + conditions editing pages
 schema_view = get_schema_view(
    openapi.Info(
       title="Snippets API",
@@ -16,13 +16,14 @@ schema_view = get_schema_view(
    public=True,
    permission_classes=[permissions.AllowAny],
 )
-schema = schema_view.with_ui('swagger', cache_timeout=0)
-redoc = schema_view.with_ui('redoc', cache_timeout=0)
+
 urlpatterns = [
     path('', include('dashboard.urls')),
     path('plots/', include('plots.urls')),
     path('model/', include('model_driver.urls')),
     path('mechanism/', include('mechanism.urls')),
-    path('api-docs/', schema, name='schema-swagger-ui'),
-    path('redoc/', redoc, name='schema-redoc')
+    path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0),
+         name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
+         name='schema-redoc')
 ]

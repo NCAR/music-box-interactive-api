@@ -9,14 +9,19 @@ import random
 from scipy.io import netcdf
 from mechanism.reactions import is_musica_named_reaction
 
-cfg = "dashboard/static/config"
-config_path = os.path.join(settings.BASE_DIR, cfg)
-tmp = 'initial_reaction_rates.csv'
-initial_reaction_rates_file_path = os.path.join(config_path, tmp)
 
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+initial_reaction_rates_file_path = os.path.join(
+    config_path, 'initial_reaction_rates.csv')
+r = "dashboard/static/config/camp_data/reactions.json"
+def_reaction = os.path.join(settings.BASE_DIR, r)
+def_config = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
 # Put the data from post request into post.json
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+
 def load(dicti):
     dump_json('post.json', dicti)
 
@@ -36,8 +41,30 @@ def default_units(prefix, name):
     return ""
 
 
-# open json with file path directly
 def direct_open_json(filePath):
+    if not os.path.isfile(filePath):
+        # create file if it doesn't exist
+        f = open(filePath, 'w+')
+        path = ""
+        if "my_config" in filePath:
+            path = os.path.join(settings.BASE_DIR,
+                                "dashboard/static/config/my_config.json")
+        elif "species" in filePath:
+            path = os.path.join(settings.BASE_DIR,
+                                "dashboard/static/config/species.json")
+        elif "reactions" in filePath:
+            path = os.path.join(settings.BASE_DIR,
+                                "dashboard/static/config/reactions.json")
+        elif "initials" in filePath:
+            path = os.path.join(settings.BASE_DIR,
+                                "dashboard/static/config/initials.json")
+        elif "options" in filePath:
+            path = os.path.join(settings.BASE_DIR,
+                                "dashboard/static/config/options.json")
+        else:
+            path = filePath
+        shutil.copyfile(path, filePath)
+
     with open(filePath) as f:
         dicti = json.loads(f.read())
     return dicti
@@ -51,7 +78,8 @@ my_config = os.path.join(settings.BASE_DIR,
 
 
 # returns the initial conditions files
-def initial_conditions_files(path=my_config):
+def initial_conditions_files(path=os.path.join(settings.BASE_DIR,
+                             "dashboard/static/config/my_config.json")):
     files = {}
     config = direct_open_json(path)
     if 'initial conditions' in config:
@@ -78,7 +106,6 @@ def initial_species_concentrations(path=""):
                 units = species["unit"][key]
                 value = species["value"][key]
                 initial_values[formula] = {"value": value, "units": units}
-    print('returning:', initial_values)
     return initial_values
 
 
@@ -112,8 +139,8 @@ def add_to_initial_conditions_file(file_path, delimiter, dictionary):
     initial_conditions = {}
     if os.path.isfile(file_path):
         with open(file_path) as f:
-            ic = initial_conditions_file_to_dictionary(f, delimiter)
-            initial_conditions = ic
+            initial_conditions = initial_conditions_file_to_dictionary(
+                f, delimiter)
             f.close()
     for key, value in dictionary.items():
         if is_musica_named_reaction(key):
@@ -147,12 +174,15 @@ def initial_conditions_file_to_dictionary(input_file, delimiter):
 
 
 # converts a dictionary to an initial conditions file
-def dictionary_to_initial_conditions_file(dictionary, output_file, delimiter):
+def dictionary_to_initial_conditions_file(dictionary,
+                                          output_file,
+                                          delimiter,
+                                          reactions_path=def_reaction):
     column_names = ''
     column_values = ''
     for key, value in dictionary.items():
         key_label = '' if key == '__blank__' else key
-        if is_musica_named_reaction(key_label):
+        if is_musica_named_reaction(key_label, reactions_path):
             column_names += key_label + '.' + value["units"] + delimiter
             column_values += str(value["value"]) + delimiter
     output_file.write(column_names[:-1] + '\n' + column_values[:-1])
@@ -179,7 +209,7 @@ def initial_reaction_rates_save(initial_values):
 ##############################################
 
 def export_to_path(path):
-    print("* exporting data to:", path)
+    logging.info("exporting data to:" + str(path))
     species = direct_open_json(path+'species.json')
     options = direct_open_json(path+'options.json')
     initials = direct_open_json(path+'initials.json')
@@ -247,16 +277,18 @@ def export_to_path(path):
     config.update({'initial conditions': initial_files})
 
     config.update({
-        "model components": [{
-            "type": "CAMP",
-            "configuration file": "camp_data/config.json",
-            "override species": {
-                "M": {"mixing ratio mol mol-1": 1.0}
-            },
-            "suppress output": {
-                "M": {}
+        "model components": [
+            {
+                "type": "CAMP",
+                "configuration file": "camp_data/config.json",
+                "override species": {
+                    "M": {"mixing ratio mol mol-1": 1.0}
+                },
+                "suppress output": {
+                    "M": {}
+                }
             }
-        }]
+        ]
     })
 
     # write dict as json
@@ -267,14 +299,13 @@ def export_to_path(path):
     logging.info('my_config.json updated')
 
 
-# Combines all individual configuration json files and writes
-# to the config file readable by the mode
+# Combines all individual configuration json files and writes to the config
 def export():
     species = open_json('species.json')
     options = open_json('options.json')
     initials = open_json('initials.json')
 
-    #gets evolving conditions section if it exists
+    # gets evolving conditions section if it exists
     oldConfig = open_json('my_config.json')
     if 'evolving conditions' in oldConfig:
         evolves = oldConfig['evolving conditions']
@@ -294,9 +325,13 @@ def export():
     options_section = {}
 
     options_section.update({"grid": options["grid"]})
-    options_section.update({"chemistry time step ["+ options["chem_step.units"] + "]": options["chemistry_time_step"]})
-    options_section.update({"output time step ["+ options["output_step.units"] + "]": options["output_time_step"]})
-    options_section.update({"simulation length ["+ options["simulation_length.units"] + "]": options["simulation_length"]})
+    options_section.update({"grid": options["grid"]})
+    time_step = "chemistry time step [" + options["chem_step.units"] + "]"
+    options_section.update({time_step: options["chemistry_time_step"]})
+    out_time = "output time step [" + options["output_step.units"] + "]"
+    options_section.update({out_time: options["output_time_step"]})
+    sim = "simulation length [" + options["simulation_length.units"] + "]"
+    options_section.update({sim: options["simulation_length"]})
 
     # write chemical species section
 
@@ -325,7 +360,6 @@ def export():
 
         init_section.update({name: {string: value}})
 
-
     # write sections to main dict
 
     config.update({"box model options": options_section})
@@ -336,17 +370,17 @@ def export():
 
     config.update({
         "model components": [
-        {
-            "type": "CAMP",
-            "configuration file" : "camp_data/config.json",
-            "override species" : {
-            "M" : { "mixing ratio mol mol-1" : 1.0 }
-        },
-            "suppress output" : {
-            "M" : { }
-        }
-      }
-    ]
+            {
+                "type": "CAMP",
+                "configuration file": "camp_data/config.json",
+                "override species": {
+                    "M": {"mixing ratio mol mol-1": 1.0}
+                },
+                "suppress output": {
+                    "M": {}
+                }
+            }
+        ]
     })
 
     # write dict as json
@@ -361,7 +395,6 @@ def save(type):
     species = open_json('species.json')
     options = open_json('options.json')
     initials = open_json('initials.json')
-
 
  # Saves the formulas for chemical species
 
@@ -440,8 +473,8 @@ def review_json():
     return config
 
 
-# export to path for session_id
 def export_to_user_config_files(jsonPath):
+    # {session_id}/my_config.json
     config = direct_open_json(jsonPath+'/my_config.json')
 
     species_dict = {
@@ -488,8 +521,8 @@ def export_to_user_config_files(jsonPath):
     for condition in config['environmental conditions']:
         unit = ''
         for entry in config['environmental conditions'][condition]:
-            env_cond = config['environmental conditions'][condition][entry]
-            initial_dict['values'].update({condition: env_cond})
+            tmp = config['environmental conditions'][condition][entry]
+            initial_dict['values'].update({condition: tmp})
             unit = entry.split('[')[1]
             unit = unit.split(']')[0]
             initial_dict['units'].update({condition: unit})
@@ -498,8 +531,9 @@ def export_to_user_config_files(jsonPath):
     direct_dump_json(jsonPath+'/options.json', option_dict)
     direct_dump_json(jsonPath+'/species.json', species_dict)
 
-
 # fills form json files with info from my_config file
+
+
 def reverse_export():
     config = open_json('my_config.json')
 
@@ -521,7 +555,7 @@ def reverse_export():
             species_dict['unit'].update({name: unit})
             species_dict['value'].update({name: iv})
         i = i+1
-    
+
     option_dict = {}
     for key in config['box model options']:
         if '[' in key:
@@ -540,7 +574,6 @@ def reverse_export():
             fixedname = key.replace(' ', "_")
             option_dict.update({fixedname: config['box model options'][key]})
 
-
     initial_dict = {
         'values': {},
         'units': {}
@@ -548,7 +581,8 @@ def reverse_export():
     for condition in config['environmental conditions']:
         unit = ''
         for entry in config['environmental conditions'][condition]:
-            initial_dict['values'].update({condition: config['environmental conditions'][condition][entry]})
+            tmp = config['environmental conditions'][condition][entry]
+            initial_dict['values'].update({condition: tmp})
             unit = entry.split('[')[1]
             unit = unit.split(']')[0]
             initial_dict['units'].update({condition: unit})
@@ -583,7 +617,6 @@ def uploaded_to_config(uploaded_dict):
             "pressure": "atm"
         }
     }
-    
 
     i = 1
     for species in conc:
@@ -592,17 +625,18 @@ def uploaded_to_config(uploaded_dict):
         species_dict['value'].update({name: conc[species]})
         species_dict['unit'].update({name: 'mol m-3'})
         i = i+1
-    
+
     for condition in env:
         initial_dict['values'].update({condition: env['condition']})
-    
+
     if len(initial_dict['values']) > 0:
         dump_json('initials.json', initial_dict)
 
     if len(species_dict['formula']) > 0:
         dump_json('species.json', species_dict)
 
-    add_to_initial_conditions_file(os.path.join(config_path, 'initial_reaction_rates.csv'), ',', uploaded_dict)
+    add_to_initial_conditions_file(os.path.join(
+        config_path, 'initial_reaction_rates.csv'), ',', uploaded_dict)
 
     export()
 
@@ -623,18 +657,20 @@ def display_evolves():
     e = config['evolving conditions']
     evolving_conditions_list = e.keys()
 
-    file_header_dict = {} #contains a dictionary w/ key as filename and value as header of file
+    # contains a dictionary w/ key as filename and value as header of file
+    file_header_dict = {}
     for i in evolving_conditions_list:
         if '.csv' in i or '.txt' in i:
-            path = os.path.join(os.path.join(settings.BASE_DIR, "dashboard/static/config"), i)
+            path = os.path.join(os.path.join(
+                settings.BASE_DIR, "dashboard/static/config"), i)
             with open(path, 'r') as read_obj:
                 csv_reader = reader(read_obj)
                 list_of_rows = list(csv_reader)
 
             try:
-                file_header_dict.update({i:list_of_rows[0]})
+                file_header_dict.update({i: list_of_rows[0]})
             except IndexError:
-                file_header_dict.update({i:['EMPTY FILE']})
+                file_header_dict.update({i: ['EMPTY FILE']})
         elif '.nc' in i:
             netcdf_dims = netcdf_header(i)
             file_header_dict.update({i: netcdf_dims})
@@ -642,8 +678,8 @@ def display_evolves():
         for key in file_header_dict:
             val = file_header_dict[key]
             newval = [x.replace('.', "-") for x in val]
-            new.update({key.replace('.', '-'): newval})  
-        file_header_dict = new          
+            new.update({key.replace('.', '-'): newval})
+        file_header_dict = new
     return file_header_dict
 
 
@@ -651,7 +687,7 @@ def save_linear_combo(filename, combo, scale_factor):
     combo = [x.replace('CONC-', 'CONC.') for x in combo]
     combodict = {'properties': {}, 'scale factor': scale_factor}
     for i in combo:
-        combodict['properties'].update({i:{}})
+        combodict['properties'].update({i: {}})
     config = open_json('my_config.json')
     evolving = config['evolving conditions']
     f = evolving[filename]
@@ -662,8 +698,6 @@ def save_linear_combo(filename, combo, scale_factor):
     evolving.update({filename: f})
     config.update({'evolving conditions': evolving})
     dump_json('my_config.json', config)
-
-
 
 
 def display_linear_combinations():
@@ -677,11 +711,12 @@ def display_linear_combinations():
 
     for f in filelist:
         if config['evolving conditions'][f]['linear combinations']:
-            for key in config['evolving conditions'][f]['linear combinations']:
-                combo = config['evolving conditions'][f]['linear combinations'][key]['properties']
+            comb = config['evolving conditions'][f]['linear combinations']
+            for key in comb:
+                combo = comb[key]['properties']
                 c = [key for key in combo]
-                linear_combo_dict.update({f.replace('.','-'): c})
-    
+                linear_combo_dict.update({f.replace('.', '-'): c})
+
     return linear_combo_dict
 
 
@@ -699,26 +734,26 @@ def display_photo_start_time():
         return config['box model options']['simulation start']
     else:
         return {}
-    
 
-def clear_e_files():
-    config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+
+def clear_e_files(config_path=def_config):
+
     with open(os.path.join(config_path, 'my_config.json')) as f:
         config = json.loads(f.read())
 
     e = config['evolving conditions']
-    evolving_conditions_list = e.keys()    
+    evolving_conditions_list = e.keys()
 
     for i in evolving_conditions_list:
         file_path = os.path.join(config_path, i)
         try:
             os.remove(file_path)
         except:
-            print('file not found')
+            logging.error('file not found')
     config.update({'evolving conditions': {}})
-    dump_json('my_config.json', config)
+    direct_dump_json(config_path+'/my_config.json', config)
 
-    print('ev_conditions files cleared')
+    logging.info('ev_conditions files cleared')
     return
 
 
@@ -732,7 +767,8 @@ def copyConfigFile(source, destination):
 
 
 def load_example_configuration(name):
-    examples_path = os.path.join(settings.BASE_DIR, 'dashboard/static/examples')
+    examples_path = os.path.join(
+        settings.BASE_DIR, 'dashboard/static/examples')
     example_folder_path = os.path.join(examples_path, name)
     config_path = os.path.join(settings.BASE_DIR, "dashboard/static/config")
     shutil.rmtree(config_path)

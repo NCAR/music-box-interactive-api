@@ -6,12 +6,17 @@ from interactive.tools import *
 from mechanism.reactions import reactions_are_valid
 from shutil import rmtree
 import json
+import logging
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
     interface_solo = False
 else:
-    print(os.environ)
+    logging.debug(os.environ)
     mb_dir = ''
     interface_solo = True
 
@@ -126,7 +131,7 @@ def setup_run():
         os.mkdir(newpath)
     filelist = create_file_list()
     filelist.append('my_config.json')
-    print(filelist)
+    logging.info(filelist)
     for f in filelist:
         copyConfigFile(os.path.join(config_folder_path, f), os.path.join(newpath, f))
 

@@ -21,3 +21,4 @@ venv/pyvenv.cfg
 .idea/music-box-interactive.iml
 .idea/vcs.xml
 .idea/workspace.xml
+.vscode

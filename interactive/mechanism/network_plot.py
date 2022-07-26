@@ -2,16 +2,21 @@ from pyvis.network import Network
 import os
 import json
 from django.conf import settings
+import logging
 
-temp_default = os.path.join(settings.BASE_DIR,
-                            "dashboard/templates/network_plot/plot.html")
-reac = os.path.join(settings.BASE_DIR,
-                    "dashboard/static/config/camp_data/reactions.json")
+reaction_j = "dashboard/static/config/camp_data/reactions.json"
+path = os.path.join(settings.BASE_DIR, reaction_j)
+plot = "dashboard/templates/network_plot/plot.html"
+template = os.path.join(settings.BASE_DIR, plot)
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
-
-def generate_network_plot(species, pathz=temp_default,  pr=reac):
+def generate_network_plot(species,
+                          path_to_template=template,
+                          path_to_reactions=path):
     net = Network(directed=True)
-    with open(pr, 'r') as f:
+    with open(path_to_reactions, 'r') as f:
         reactions_data = json.load(f)
 
     contained_reactions = {}
@@ -24,7 +29,7 @@ def generate_network_plot(species, pathz=temp_default,  pr=reac):
             if species in r['products']:
                 contained_reactions.update({tmp.index(r): {}})
 
-    print(contained_reactions)
+    logging.debug(contained_reactions)
     nodes = {}
     edges = []
 
@@ -56,4 +61,4 @@ def generate_network_plot(species, pathz=temp_default,  pr=reac):
     for e in edges:
         net.add_edge(e[0], e[1])
     net.force_atlas_2based(gravity=-100, overlap=1)
-    net.show(str(pathz))
+    net.show(str(path_to_template))

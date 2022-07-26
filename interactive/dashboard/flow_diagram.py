@@ -8,26 +8,43 @@ import json
 from django.conf import settings
 import pandas as pd
 import math
+
+import logging
+from bisect import bisect_left
+
 # paths to mechansim files
 path_to_reactions = os.path.join(
     settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
-path_to_species = os.path.join(
-    settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
-
+csv_results_path_default = os.path.join(
+    os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+csv_def = csv_results_path_default
 # path to output html file
 path_to_template = os.path.join(
     settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+class User():
+    userSelectedMinMax = [999999999999, -1]
+    previous_vals = [0, 1]
+    minAndMaxOfTimeFrame = [999999999999, -1]
+    def __init__(self, userSelectedMinMaxz, previous_valsz):
+        global userSelectedMinMax
+        global previous_vals
+        self.userSelectedMinMax = userSelectedMinMaxz
+        self.previous_vals = previous_valsz
+    def setMinAndMaxOfTimeFrame(self, minAndMaxOfTimeFramez):
+        global minAndMaxOfTimeFrame
+        self.minAndMaxOfTimeFrame = minAndMaxOfTimeFramez
 
 minAndMaxOfSelectedTimeFrame = [999999999999, -1]
 userSelectedMinMax = [999999999999, -1]
 
 previous_vals = [0, 1]
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 
 # returns species in csv
-def get_species():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def get_species(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
     concs = [x for x in csv.columns if 'CONC' in x]
     clean_concs = [x.split('.')[1] for x in concs if 'myrate' not in x]
@@ -35,19 +52,13 @@ def get_species():
 
 
 # returns length of csv
-def get_simulation_length():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def get_simulation_length(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
-    print("* got simulation length: ", (csv.shape[0] - 1))
-    print("* got final time:", csv['time'].iloc[-1])
     return int(csv['time'].iloc[-1])
 
 
 # get user inputted step length
-def get_step_length():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def get_step_length(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
     if csv.shape[0] - 1 > 2:
         return int(csv['time'].iloc[1])
@@ -56,9 +67,7 @@ def get_step_length():
 
 
 # get entire time column from results
-def time_column_list():
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+def time_column_list(csv_results_path=csv_results_path_default):
     csv = pd.read_csv(csv_results_path)
     return csv['time'].tolist()
 
@@ -79,8 +88,6 @@ def find_reactions(list_of_species, reactions_json):
         for species in list_of_species:
             if (species in products) or (species in reactants):
                 included.update({r_list.index(reaction): {}})
-                # print('prod,react', products, reactants, species)
-    # print('included', list(included))
     return list(included)
 
 
@@ -103,14 +110,6 @@ def name_included_reactions(included_reactions, reactions_json):
     return names_dict
 
 
-# check if element is in 'blocked' elements list
-def isBlocked(blocked, element_or_reaction):
-    for bl in blocked:
-        if bl == element_or_reaction and len(blocked) != 0:
-            return True
-    return False
-
-
 # make reaction hot hot hot by adding some nicer arrows and cleaning it up
 def beautifyReaction(reaction):
     if '->' in reaction:
@@ -131,9 +130,6 @@ def unbeautifyReaction(reaction):
 
 # return list of species, reactions, species size and colors.
 def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
-    global minAndMaxOfSelectedTimeFrame
-    global userSelectedMinMax
-    global previous_vals
     contained_reactions = {}
     species_nodes = {}
     reactions_nodes = {}
@@ -161,10 +157,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
                     for product in r['products']:
                         species_nodes.update({product: {}})
                         reaction_string = reaction_string + product + "_"
-                    if r['products'] == [] or len(r['products']) == 0:
-                        # reaction_string = reaction_string[:-2]
-                        print("* reaction w/ no products")
-                    else:
+                    if r['products'] != [] and len(r['products']) != 0:
                         reaction_string = reaction_string[:-1]
                     reactions_nodes.update({reaction_string: {}})
                 if species in r['products']:
@@ -190,19 +183,43 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
             reactions_nodes, species_colors, species_sizes)
 
 
+# used to get closest value for time_column_list
+def take_closest(myList, myNumber):
+    """
+    Assumes myList is sorted. Returns closest value to myNumber.
+
+    If two numbers are equally close, return the smallest number.
+    """
+    pos = bisect_left(myList, myNumber)
+    if pos == 0:
+        return myList[0]
+    if pos == len(myList):
+        return myList[-1]
+    before = myList[pos - 1]
+    after = myList[pos]
+    if after - myNumber < myNumber - before:
+        return after
+    else:
+        return before
+
+
 # return list of raw widths for arrows. Also set new minAndMax
-def findReactionRates(reactions_nodes, df, start, end):
-    global minAndMaxOfSelectedTimeFrame
-    global userSelectedMinMax
-    global previous_vals
+def findReactionRates(reactions_nodes, df, start, end,
+                      csv_results_path_default=csv_results_path_default):
     rates_cols = [x for x in df.columns if 'myrate' in x]
     reactionsToAdd = []
     for re in reactions_nodes:
         # convert index of reaction into actual reaction name
         reactionsToAdd.append(re)
     rates = df[rates_cols]
-    first = time_column_list().index(start)
-    last = time_column_list().index(end)
+    first = 0
+    last = len(time_column_list(csv_results_path_default))-1
+    # find closest time value to start, NOT USED RN
+    closest_val = take_closest(time_column_list(csv_results_path_default), start)
+    (" [DEBUG] closest_val: " + str(closest_val))
+    if start != 1:
+        first = time_column_list(csv_results_path_default).index(start)
+        last = time_column_list(csv_results_path_default).index(end)
     first_and_last = rates.iloc[[first, last]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
@@ -219,22 +236,27 @@ def minAndmax(reaction_nodes, quantities, widths):
     min_val = 999999999999
     max_val = 0
     for reaction in reaction_nodes:
-
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
             edge = reaction + "__TO__" + product
-            val = quantities[edge]*widths[reaction]
-            if val < min_val:
-                min_val = val
-            if val > max_val:
-                max_val = val
+            try:
+                val = quantities[edge]*widths[reaction]
+                if val < min_val:
+                    min_val = val
+                if val > max_val:
+                    max_val = val
+            except KeyError:
+                logging.info("reaction with no product")
         for reactant in reactants_data:
             edge = reactant + "__TO__" + reaction
-            val = quantities[edge]*widths[reaction]
-            if val < min_val:
-                min_val = val
-            if val > max_val:
-                max_val = val
+            try:
+                val = quantities[edge]*widths[reaction]
+                if val < min_val:
+                    min_val = val
+                if val > max_val:
+                    max_val = val
+            except KeyError:
+                logging.info("reaction with no reactant")
     return (min_val*0.999), (max_val*1.001)
 
 
@@ -250,25 +272,20 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     edgeColors = {}
     quantities, total_quantites, reaction_names_on_hover = findQuantities(
         reactions_nodes, reactions_data)
-    print("|_ finished getting quantities:", quantities)
-    print("|_ got widths:", widths)
     newmin, newmax = minAndmax(reactions_nodes, quantities, widths)
-    print("|_ comparing to preivous vals:", previous_vals)
-    print("|_ calculated new min max:", newmin, newmax)
     minAndMaxOfSelectedTimeFrame = [newmin, newmax]
-    stnewmin = str('{:0.3e}'.format(newmin))
-    stnewmax = str('{:0.3e}'.format(newmax))
-    if (stnewmin != str('{:0.3e}'.format(previous_vals[0]))
-            or stnewmax != str('{:0.3e}'.format(previous_vals[1]))):
-        print("|_ detected new graph, set min max:", newmin, newmax)
+    newMin = str('{:0.3e}'.format(newmin))
+    prev0 = str('{:0.3e}'.format(previous_vals[0]))
+    newMax = str('{:0.3e}'.format(newmax))
+    prev1 = str('{:0.3e}'.format(previous_vals[1]))
+    if (newMin != prev0 or newMax != prev1):
         userSelectedMinMax = [newmin, newmax]
     userMM = userSelectedMinMax  # short version to clean up code
     for reaction in reactions_nodes:
+
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
         for product in products_data:
             if product != "NO_PRODUCTS":
-                print("|_ added interaction:", beautifyReaction(
-                      reaction), " ==> ", product)
                 name = reaction+"__TO__"+product
                 tmp = widths[reaction]*quantities[name]
                 if (tmp <= userMM[1]
@@ -277,10 +294,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 else:
                     # for grey lines, we wanna make their value the min/max
                     if tmp > userMM[1]:
-                        print("|_ setting edge color to max:", userMM[1])
                         tmp = userMM[1]
                     elif tmp < userMM[0]:
-                        print("|_ setting edge color to min:", userMM[0])
                         tmp = userMM[0]
                     edgeColors.update({name: "#e0e0e0"})
                 if (reaction not in blockedSpecies
@@ -291,13 +306,10 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                 print("|_ found no products for reaction:", reaction)
         for reactant in reactants_data:
             tmp_reaction = reaction
-            tmp = "==> " + beautifyReaction(reaction)
-            print("|_ added interaction:", reactant, tmp)
             name = reactant+"__TO__"+reaction
             if products_data == ['']:
                 name = name.replace("->", "-")
                 tmp_reaction = tmp_reaction.replace("->", "-")
-                print("     |_ modified name:", name)
             qt = quantities[reactant+"__TO__"+tmp_reaction]
             tmp = widths[reaction]*qt
             if (tmp <= userMM[1]
@@ -308,10 +320,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
                     edgeColors.update({name: "#94b8f8"})
             else:
                 if tmp > userMM[1]:
-                    print("|_ setting edge color to max:", userMM[1])
                     tmp = userMM[1]
                 elif tmp < userMM[0]:
-                    print("|_ setting edge color to min:", userMM[0])
                     tmp = userMM[0]
                 edgeColors.update({name: "#e0e0e0"})
             if (reactant not in blockedSpecies
@@ -330,7 +340,6 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
     rawVal = {}
     numOfInvalids = 0
     if scale_type == 'log':
-        print("[5/7] logarithmically scaling weights...")
         if species_yields != {}:
 
             li = species_yields
@@ -354,31 +363,28 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
                             minVal = abs(species_yields[i])
                         if abs(species_yields[i]) > maxVal:
                             maxVal = abs(species_yields[i])
+
             vals = [i[1] for i in logged]
-            min_val = abs(min(vals))
-            range = max(vals) - min(vals)
-            if max(vals) == min(vals):
+            min_val = abs(min(vals, default="EMPTY"))
+            range = max(vals) - min(vals, default="EMPTY")
+            if max(vals) == min(vals, default="EMPTY"):
                 range = 1
             scaled = [(x[0], (float(((x[1] + min_val)/range))
                        * float(maxWidth)) + 1) for x in logged]
-            print("|_ found", numOfInvalids,
-                  "invalid values, reversed the lines for them")
-            print("[6/7] got logarithmically scaled weights")
             return list(scaled), minVal, maxVal, rawVal
         else:
-            print("[7/7] no species selected, returning empty list")
             return list([]), -1, 999999999, {}
     else:
-        print("[5/7] linearly scaling weights...")
         li = species_yields
         vals = [species_yields[i] for i in li]
-        min_val = abs(min(vals))
+        min_val = abs(min(vals, default="EMPTY"))
+
         minVal = min_val
-        maxVal = abs(max(vals))
-        range = max(vals) - min(vals)
+        maxVal = abs(max(vals, default="EMPTY"))
+
+        range = max(vals) - min(vals, default="EMPTY")
         scaled = [(x, (((species_yields[x] + min_val)/range)
                    * int(maxWidth)) + 1) for x in li]
-        print("[6/7] got linearly scaled weights")
         return list(scaled), minVal, maxVal, {}
 
 
@@ -388,50 +394,49 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
 # 4) create nodes and edges for graph
 def new_find_reactions_and_species(list_of_species, reactions_data,
                                    blockedSpecies, df, start,
-                                   end, max_width, scale_type):
+                                   end, max_width, scale_type,
+                                   cs=csv_def):
 
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
     global previous_vals
-    print(" ***************************************")
-    print("*= [1/6] FINDING REACTIONS AND SPECIES =*")
-    print(" ***************************************")
+    logging.info(" ***************************************")
+    logging.info("*= [1/6] FINDING REACTIONS AND SPECIES =*")
+    logging.info(" ***************************************")
 
     (contained_reactions, species_nodes,
      reactions_nodes, species_colors,
      species_sizes) = findReactionsAndSpecies(
         list_of_species, reactions_data, blockedSpecies)
 
-    print("|_ got species nodes: ", species_nodes)
-    print("|_ got reactions nodes: ", reactions_nodes)
-    print(" *******************************************")
-    print("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
-    print(" *******************************************")
+    logging.info("|_ got species nodes: " + str(species_nodes))
+    logging.info("|_ got reactions nodes: " + str(reactions_nodes))
+    logging.info(" *******************************************")
+    logging.info("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
+    logging.info(" *******************************************")
 
-    widths = findReactionRates(reactions_nodes, df, start, end)
+    widths = findReactionRates(reactions_nodes, df, start, end, cs)
 
-    print("|_ got raw widths:", widths)
-    print(" *************************************")
-    print("*= [3/6] sorting yields from species =*")
-    print(" *************************************")
+    logging.info(" *************************************")
+    logging.info("*= [3/6] sorting yields from species =*")
+    logging.info(" *************************************")
 
     (raw_yields, edgeColors, quantities,
      total_quantites, reaction_names_on_hover) = sortYieldsAndEdgeColors(
         reactions_nodes, reactions_data, widths,
         blockedSpecies, list_of_species)
 
-    print("|_ got calculated yields:", raw_yields)
-    print(" *********************************")
-    print("*= [4/6] calculating line widths =*")
-    print(" *********************************")
+    logging.info(" *********************************")
+    logging.info("*= [4/6] calculating line widths =*")
+    logging.info(" *********************************")
     (scaledLineWeights, minVal, maxVal,
      raw_yield_values) = calculateLineWeights(
         max_width, raw_yields, scale_type)
-    print("|_ got scaled line weights:", scaledLineWeights)
-    print("|_ got min and max:", minVal, "and", maxVal)
-    print(" ********************************* ")
-    print("*= [6/6] calculating line colors =*")
-    print(" ********************************* ")
+    # print("|_ got scaled line weights:", scaledLineWeights)
+    logging.info("|_ got min and max: " + str(minVal) + " and " + str(maxVal))
+    logging.info(" ********************************* ")
+    logging.info("*= [6/6] calculating line colors =*")
+    logging.info(" ********************************* ")
     re_no = reactions_nodes
     sp_no = species_nodes
     sp_no = scaledLineWeights
@@ -456,7 +461,7 @@ def getProductsAndReactionsFrom(reaction):
     else:
         # if no products, set to NO_PRODUCTS
         products.append('NO_PRODUCTS')
-        print("|_ no products found for reaction:", reaction)
+        logging.info("|_ no products found for reaction:" + reaction)
         no_products.append(reaction)
     return products, reactants
 
@@ -477,6 +482,7 @@ def reactionNameFromDictionary(r):
     for product in r['products']:
         reaction_string = reaction_string + product + "_"
     reaction_string = reaction_string[:-1]
+
     return reaction_string
 
 
@@ -526,7 +532,6 @@ def findQuantities(reactions_nodes, reactions_json):
                 elif (isSpeciesInReaction(reaction_data, reactant_name)
                       or isSpeciesInReaction(reactant_data, reactant_name)):
                     reactant_yield = reactant_yield['qty']
-                    
                     quantities.update(
                         {name: reactant_yield})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -540,7 +545,6 @@ def findQuantities(reactions_nodes, reactions_json):
                         reactants_string = reactants_string.replace(rep, rep1)
             reactants_string = reactants_string[:-1]
             if len(reaction_data) == 0:
-                print("|_ found no products:", reactant_data, reaction_data)
                 products_string = "NO_PRODUCTS-"
             for product in reaction_data:
                 product_name = product
@@ -583,7 +587,7 @@ def findQuantities(reactions_nodes, reactions_json):
 
 def CalculateEdgesAndNodes(reactions, species, scaledLineWeights,
                            blockedSpecies):
-    print("[7/7] Creating edges and nodes...")
+    logging.info("[7/7] Creating edges and nodes...")
     species = {}
     edges = {}
     reactions = {}
@@ -644,7 +648,7 @@ def generate_flow_diagram(request_dict):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        print("new user selected min and max: ", userSelectedMinMax)
+        logging.info("new user selected min and max: " + str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -698,7 +702,6 @@ def generate_flow_diagram(request_dict):
         net.force_atlas_2based()
     else:
         net.force_atlas_2based(gravity=-200, overlap=1)
-    
     reac_nodes = network_content['reaction_nodes']
     hover_names = reaction_names_on_hover
     names = [getReactName(hover_names, x) for x in reac_nodes]
@@ -719,13 +722,10 @@ def generate_flow_diagram(request_dict):
     # add edges individually so we can modify contents
     i = 0
     values = edgeColors
-    print("color values:", values)
-    print("reaction names on hover:", reaction_names_on_hover)
     for edge in network_content['edges']:
         unbeu1 = unbeautifyReaction(edge[0])
         unbeu2 = unbeautifyReaction(edge[1])
         val = unbeu1+"__TO__"+unbeu2
-        print("* loaded edge: ", edge)
 
         flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
         colorVal = ""
@@ -770,8 +770,6 @@ def generate_flow_diagram(request_dict):
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
-    print("* is physics enabled: ", isPhysicsEnabled)
-
     net.show(path_to_template)
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]
@@ -784,9 +782,6 @@ def generate_flow_diagram(request_dict):
             network.setOptions( { physics: false } );
         });
         </script>"""
-        print("((DEBUG)) [min,max] of selected time frame:",
-              minAndMaxOfSelectedTimeFrame)
-        print("((DEBUG)) [min,max] given by user:", userSelectedMinMax)
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -799,8 +794,7 @@ def generate_flow_diagram(request_dict):
                 or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
             a = """<script>
         parent.document.getElementById("flow-start-range2").value = "NULL";
-        parent.document.getElementById("flow-end-range2").value = "NULL";
-        console.log("inputting NULL");"""
+        parent.document.getElementById("flow-end-range2").value = "NULL";"""
 
         else:
             a = '<script>\
@@ -810,20 +804,12 @@ def generate_flow_diagram(request_dict):
                 "'+str(
                 formattedMaxOfSelected)+'";'
         a += """
-            console.log("ALRIGHTY WE're SETTING NEW CURRENT MIN AND MAX");
         currentMinValOfGraph = """+formattedPrevMin+""";
         currentMaxValOfGraph = """+formattedPrevMax+""";
-        console.log("we got:", currentMinValOfGraph, currentMaxValOfGraph);
         """
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            print("previousMin:", formattedPrevMin,
-                  "does not equal", formattedMinOfSelected)
-            print("previousMax:", formattedPrevMax,
-                  "does not equal", formattedMaxOfSelected)
-            print("previousMin:", previousMin, "equals", 0)
-            print("previousMax:", previousMax, "equals", 1)
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
@@ -833,7 +819,7 @@ def generate_flow_diagram(request_dict):
                   formattedMinOfSelected)+'", "'
                   + str(formattedMaxOfSelected)+'");</script>')
         else:
-            print("looks like min and max are the same")
+            logging.info("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
             block1 = 'parent.document.getElementById("flow-start-range2")'
@@ -876,3 +862,255 @@ def generate_flow_diagram(request_dict):
         f.seek(0)  # rewrite into the file
         for line in lines:
             f.write(line)
+
+
+# function that returns HTML code for iframe network (used for new api)
+def create_and_return_flow_diagram(request_dict,
+                                   path_to_reactions=path_to_reactions,
+                                   path_to_template=path_to_template,
+                                   csv_results_path=csv_results_path_default):
+    global userSelectedMinMax
+    global minAndMaxOfSelectedTimeFrame
+    global previous_vals
+    global csv_results_path_default
+    
+    logging.info("using csv_results_path: " + csv_results_path)
+    csv_results_path_default = csv_results_path
+
+    if (('maxMolval' in request_dict and 'minMolval' in request_dict)
+        and (request_dict['maxMolval'] != ''
+        and request_dict['minMolval'] != '')
+        and (request_dict['maxMolval'] != 'NULL'
+             and request_dict['minMolval'] != 'NULL')):
+        userSelectedMinMax = [
+            float(request_dict["minMolval"]),
+            float(request_dict["maxMolval"])]
+        logging.info("new user selected min and max: " + str(userSelectedMinMax))
+    if 'startStep' not in request_dict:
+        request_dict.update({'startStep': 1})
+
+    if 'maxArrowWidth' not in request_dict:
+        request_dict.update({'maxArrowWidth': 10})
+    minAndMaxOfSelectedTimeFrame = [999999999999, -1]
+    # load csv file
+    
+    csv = pd.read_csv(csv_results_path)
+
+    start_step = int(request_dict['startStep'])
+    end_step = int(request_dict['endStep'])
+
+    # scale with correct scaling function
+    scale_type = request_dict['arrowScalingType']
+    max_width = request_dict['maxArrowWidth']
+
+    previousMin = float(request_dict["currentMinValOfGraph"])
+    previousMax = float(request_dict["currentMaxValOfGraph"])
+    previous_vals = [previousMin, previousMax]
+
+    isPhysicsEnabled = request_dict['isPhysicsEnabled']
+    if isPhysicsEnabled == 'true':
+        max_width = 2  # change for max width with optimized performance
+
+    # load species json and reactions json
+
+    with open(path_to_reactions, 'r') as f:
+        reactions_data = json.load(f)
+
+    # completely new method of creating nodes and filtering elements
+    selected_species = request_dict['includedSpecies'].split(',')
+    blockedSpecies = request_dict['blockedSpecies'].split(',')
+
+    (network_content, raw_yields, edgeColors, quantities, minVal, maxVal,
+     raw_yield_values, species_colors, species_sizes,
+     total_quantites,
+     reaction_names_on_hover) = new_find_reactions_and_species(
+        selected_species, reactions_data, blockedSpecies,
+        csv, start_step, end_step, max_width, scale_type,
+        csv_results_path)
+
+    # add edges and nodes
+    # force network to be 100% width and height before it's sent to page
+    net = Network(height='100%', width='100%', directed=True)
+    # make it so we can manually change arrow colors
+    net.inherit_edge_colors(False)
+    shouldMakeSmallNode = False
+    if isPhysicsEnabled == "true":
+        net.toggle_physics(False)
+        net.force_atlas_2based()
+    else:
+        net.force_atlas_2based(gravity=-200, overlap=1)
+    
+    reac_nodes = network_content['reaction_nodes']
+    hover_names = reaction_names_on_hover
+    names = [getReactName(hover_names, x) for x in reac_nodes]
+    colors = [species_colors[x] for x in network_content['species_nodes']]
+    if shouldMakeSmallNode:
+        net.add_nodes(names, color=["#FF7F7F" for x in reac_nodes], size=[
+                      10 for x in list(reac_nodes)], title=names)
+        net.add_nodes(network_content['species_nodes'], color=colors,
+                      size=[
+                        10 for x in list(network_content['species_nodes'])])
+    else:
+        net.add_nodes(names, color=[
+                      "#FF7F7F" for x in reac_nodes], title=names)
+        net.add_nodes(network_content['species_nodes'], color=colors,
+                      size=[species_sizes[x] for x in list(
+                        network_content['species_nodes'])])
+    net.set_edge_smooth('dynamic')
+    # add edges individually so we can modify contents
+    i = 0
+    values = edgeColors
+    for edge in network_content['edges']:
+        unbeu1 = unbeautifyReaction(edge[0])
+        unbeu2 = unbeautifyReaction(edge[1])
+        val = unbeu1+"__TO__"+unbeu2
+
+        flux = str(raw_yields[unbeu1+"__TO__"+unbeu2])
+        colorVal = ""
+        try:
+            colorVal = values[val]
+        except KeyError:
+            colorVal = values[val.replace('->', '-')]
+        if colorVal == "#e0e0e0":
+            # don't allow blocked edge to show value on hover
+            if "→" in edge[0]:
+                be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
+                net.add_edge(be1, edge[1], color=colorVal, width=edge[2])
+            elif "→" in edge[1]:
+                try:
+                    be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
+                    net.add_edge(edge[0], be2, color=colorVal, width=edge[2])
+                except KeyError:
+                    be2 = beautifyReaction(unbeu2)
+                    net.add_edge(edge[0], be2, color=colorVal, width=edge[2])
+            else:
+                net.add_edge(edge[0], edge[1],
+                             color=colorVal, width=edge[2])
+        else:
+            # hover over arrow to show value for arrows within range
+
+            # check if value is reaction by looking for arrow
+            if "→" in edge[0]:
+                be1 = beautifyReaction(reaction_names_on_hover[unbeu1])
+                net.add_edge(be1, edge[1], color=colorVal, width=float(
+                             edge[2]), title="flux: "+flux)
+            elif "→" in edge[1]:
+                try:
+                    be2 = beautifyReaction(reaction_names_on_hover[unbeu2])
+                    net.add_edge(edge[0], be2, color=colorVal, width=float(
+                        edge[2]), title="flux: "+flux)
+                except KeyError:
+                    be2 = beautifyReaction(unbeu2)
+                    net.add_edge(edge[0], be2, color=colorVal, width=float(
+                        edge[2]), title="flux: "+flux)
+            else:
+                net.add_edge(edge[0], edge[1], color=colorVal,
+                             width=float(edge[2]), title="flux: "+flux)
+        i = i+1
+    net.show(path_to_template)
+    if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
+        minAndMaxOfSelectedTimeFrame = [0, maxVal]
+    with open(path_to_template, 'r+') as f:
+        #############################################
+        # here we are going to replace the contents #
+        #############################################
+        a = """<script>
+        network.on("stabilizationIterationsDone", function () {
+            network.setOptions( { physics: false } );
+        });
+        </script>"""
+        logging.debug("((DEBUG)) [min,max] of selected time frame: " +
+              str(minAndMaxOfSelectedTimeFrame))
+        logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
+        formattedPrevMin = str('{:0.3e}'.format(previousMin))
+        formattedPrevMax = str('{:0.3e}'.format(previousMax))
+        formattedMinOfSelected = str(
+            '{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[0]))
+        formattedMaxOfSelected = str(
+            '{:0.3e}'.format(minAndMaxOfSelectedTimeFrame[1]))
+        formattedUserMin = str('{:0.3e}'.format(userSelectedMinMax[0]))
+        formattedUserMax = str('{:0.3e}'.format(userSelectedMinMax[1]))
+        if (int(minAndMaxOfSelectedTimeFrame[1]) == -1
+                or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
+            a = """<script>
+        parent.document.getElementById("flow-start-range2").value = "NULL";
+        parent.document.getElementById("flow-end-range2").value = "NULL";
+        console.log("inputting NULL");"""
+
+        else:
+            a = '<script>\
+            parent.document.getElementById("flow-start-range2").value = \
+            "'+formattedMinOfSelected+'";'
+            a += 'parent.document.getElementById("flow-end-range2").value = \
+                "'+str(
+                formattedMaxOfSelected)+'";'
+        a += """
+        currentMinValOfGraph = """+formattedPrevMin+""";
+        currentMaxValOfGraph = """+formattedPrevMax+""";
+        """
+        if (str(formattedPrevMin) != str(formattedMinOfSelected)
+            or str(formattedPrevMax) != str(formattedMaxOfSelected)
+                or previousMax == 1):
+            logging.debug("previousMin:" + str(formattedPrevMin) + 
+                  "does not equal " + str(formattedMinOfSelected))
+            logging.debug("previousMax: " + str(formattedPrevMax) +
+                  " does not equal " + str(formattedMaxOfSelected))
+            logging.debug("previousMin: " + str(previousMin) + " equals 0")
+            logging.debug("previousMax: " + str(previousMax) + " equals 1")
+            a += 'parent.document.getElementById("flow-start-range2").value =\
+                "'+str(formattedMinOfSelected)+'";\
+                    parent.document.getElementById("flow-end-range2").value =\
+                "'+str(formattedMaxOfSelected)+'";'
+            a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
+                  + str(formattedMaxOfSelected)+'", "'+str(
+                  formattedMinOfSelected)+'", "'
+                  + str(formattedMaxOfSelected)+'", '+str(get_step_length(csv_results_path))+');</script>')
+        else:
+            logging.debug("looks like min and max are the same")
+            isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
+            isNotDefaultmax = int(userSelectedMinMax[1]) != -1
+            block1 = 'parent.document.getElementById("flow-start-range2")'
+            rangeId = block1+'.value = '
+            if isNotDefaultmax or isNotDefaultMin:
+                a += (rangeId+str(
+                    formattedUserMin)+'"; \
+                        '+rangeId+'"'+formattedUserMax+'";')
+                block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
+                fmos = str(formattedMinOfSelected)
+                block2 = formattedUserMax + '", "' + fmos
+                block3 = '", "' + formattedMaxOfSelected + '", '+str(get_step_length(csv_results_path))+');\
+                         </script>'
+                a += block1 + block2 + block3
+            else:
+                fmos = formattedMinOfSelected
+                block1 = 'parent.reloadSlider("' + fmos + '", "'
+                block2 = formattedMaxOfSelected + '", "' + str(fmos)
+                a += block1 + '", "' + formattedMaxOfSelected + '", '+str(get_step_length(csv_results_path))+');</script>'
+        if isPhysicsEnabled == 'true':
+            # add options to reduce text size
+            a += \
+                """<script>
+                var container = document.getElementById("mynetwork");
+                var options = {physics: false,
+                                nodes: {
+                                    shape: "dot",
+                                    size: 10,
+                                    font: {size: 5}
+                                    }
+                                };
+                var network = new vis.Network(container, data, options);
+                </script>"""
+
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            # find a pattern so that we can add next to that line
+            if line.startswith('</script>'):
+                lines[i] = lines[i]+a
+        f.truncate()
+        f.seek(0)  # rewrite into the file
+        for line in lines:
+            f.write(line)
+        f.close()
+    # read from file and return the contents
+    with open(path_to_template, 'r') as f:
+        return f.read()

@@ -11,7 +11,10 @@ from shutil import copy
 from .run_setup import setup_run
 from .run_logging import *
 from datetime import datetime
-
+import logging
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
@@ -20,7 +23,7 @@ else:
     mb_dir = ''
     interface_solo = True
 
-print("interface_solo:", interface_solo)
+logging.debug("interface_solo:", interface_solo)
 
 out_path = os.path.join(mb_dir, 'output.csv')
 error_path = os.path.join(mb_dir, 'error.json')
@@ -31,7 +34,7 @@ config_dest = os.path.join(settings.BASE_DIR, 'dashboard/static/past_run/config.
 
 def run(request):
     run = setup_run()
-    print(run)
+    logging.info(run)
     save_run()
     return JsonResponse(run)
 
@@ -79,7 +82,7 @@ def check(request):
     # check if output file exists
     t = 0
     while status == 'checking':
-        print(status)
+        logging.debug(status)
         time.sleep(.2)
         if os.path.isfile(error_path): # check if error file exists
             if os.path.getsize(error_path) != 0:  # check if error has been output
