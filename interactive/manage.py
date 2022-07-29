@@ -15,7 +15,8 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     # remove start-unit-test from command line arguments
-    sys.argv.remove('start-unit-test')
+    if 'start-unit-test' in sys.argv:
+        sys.argv.remove('start-unit-test')
     execute_from_command_line(sys.argv)
 
 
