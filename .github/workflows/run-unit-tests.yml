@@ -50,3 +50,6 @@ jobs:
         pip install pandas
         pip install requests numpy scipy matplotlib ipython jupyter nose Django pillow django-crispy-forms pyvis celery django-cors-headers
         pip install -U drf-yasg
+    - name: Start Server and Run Tests
+      run: |
+        python3 interactive/manage.py runserver 0.0.0.0:8000
