@@ -47,7 +47,12 @@ jobs:
         pip install pandas
         pip install requests numpy scipy matplotlib ipython jupyter nose Django pillow django-crispy-forms pyvis celery django-cors-headers
         pip install -U drf-yasg
-    - name: Start Server and Run Tests
+    - name: Coverage report
+      run: |
+        pip install coverage
+        coverage run interactive/manage.py test
+        coverage report
+    - name: Run Tests
       run: |
         export MUSIC_BOX_BUILD_DIR=/build
-        python3 django-unit-tests.py test
+        python3 interactive/manage.py test
