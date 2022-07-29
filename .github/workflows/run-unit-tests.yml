@@ -51,8 +51,8 @@ jobs:
       run: |
         export MUSIC_BOX_BUILD_DIR=/build
         pip install coverage
-        coverage run interactive/manage.py test
-        coverage report
+        # coverage run interactive/manage.py test
+        # coverage report
     - name: Run Tests
       run: |
         python3 interactive/manage.py test
