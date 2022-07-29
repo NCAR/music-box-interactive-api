@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        db: [sqlite, postgres, mysql]
-        python-version: [3.6, 3.7, 3.8]
+        db: [mysql]
+        python-version: [3.8]
         include:
           - db: postgres
             db_user: runner
