@@ -53,4 +53,4 @@ jobs:
     - name: Start Server and Run Tests
       run: |
         export MUSIC_BOX_BUILD_DIR=/build
-        python3 interactive/manage.py runserver start-unit-test 0.0.0.0:8000
+        python3 django-unit-tests.py test
