@@ -49,10 +49,10 @@ jobs:
         pip install -U drf-yasg
     - name: Coverage report
       run: |
+        export MUSIC_BOX_BUILD_DIR=/build
         pip install coverage
         coverage run interactive/manage.py test
         coverage report
     - name: Run Tests
       run: |
-        export MUSIC_BOX_BUILD_DIR=/build
         python3 interactive/manage.py test
