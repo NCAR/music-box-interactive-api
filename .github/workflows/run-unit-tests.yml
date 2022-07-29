@@ -47,8 +47,6 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        sudo apt update
-        sudo apt -y install dnf
-        dnf -y install python3-pandas
+        pip install pandas
         pip install requests numpy scipy matplotlib ipython jupyter nose Django pillow django-crispy-forms pyvis celery django-cors-headers
         pip install -U drf-yasg
