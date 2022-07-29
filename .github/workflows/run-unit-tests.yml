@@ -46,8 +46,8 @@ jobs:
         sudo -u postgres createuser -s runner
     - name: Install Dependencies
       run: |
-        python -m pip3 install --upgrade pip
+        python -m pip install --upgrade pip
         sudo apt -y install dnf
         dnf -y install python3-pandas
-        pip3 install requests numpy scipy matplotlib ipython jupyter nose Django pillow django-crispy-forms pyvis celery django-cors-headers
-        pip3 install -U drf-yasg
+        pip install requests numpy scipy matplotlib ipython jupyter nose Django pillow django-crispy-forms pyvis celery django-cors-headers
+        pip install -U drf-yasg
