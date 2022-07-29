@@ -15,7 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  test:
+  run-unit-tests:
 
     runs-on: ubuntu-20.04
     strategy:
@@ -52,4 +52,5 @@ jobs:
         pip install -U drf-yasg
     - name: Start Server and Run Tests
       run: |
+        export MUSIC_BOX_BUILD_DIR=/build
         python3 interactive/manage.py runserver start-unit-test 0.0.0.0:8000
