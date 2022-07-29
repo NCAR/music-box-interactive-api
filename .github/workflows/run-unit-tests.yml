@@ -23,9 +23,6 @@ jobs:
         db: [mysql]
         python-version: [3.8]
         include:
-          - db: postgres
-            db_user: runner
-            db_password: ''
           - db: mysql
             db_user: root
             db_password: root

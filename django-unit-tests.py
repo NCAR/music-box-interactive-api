@@ -1,13 +1,11 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+import json
+from rest_framework import status
+from django.test import TestCase, Client
 
-import django
-django.setup()
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
-from rest_framework.test import force_authenticate
-from rest_framework.test import RequestsClient
+# initialize the APIClient app
+client = Client()
+
 class APITestCase(TestCase):
 
     def test_config_files_checksums(self):
