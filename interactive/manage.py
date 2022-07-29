@@ -19,3 +19,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    #check for start-unit-test in args
+    if 'start-unit-test' in sys.argv:
+        print("*** Starting unit tests ***")

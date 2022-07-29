@@ -1,0 +1,44 @@
+FROM fedora:33
+
+RUN dnf -y update \
+    && dnf -y install \
+        gcc-gfortran \
+        gcc-c++ \
+        gcc \
+        netcdf-fortran-devel \
+        gsl-devel \
+        metis-devel \
+        lapack-devel \
+        openblas-devel \
+        cmake \
+        make \
+        wget \
+        python \
+        python3 \
+        python3-pip \
+        texlive-scheme-basic \
+        'tex(type1cm.sty)' \
+        'tex(type1ec.sty)' \
+        dvipng \
+        git \
+        nodejs \
+        ncview \
+    && dnf clean all
+
+# python modules needed in scripts
+RUN dnf -y install python3-pandas
+
+RUN pip3 install requests numpy scipy matplotlib ipython jupyter nose Django pillow django-crispy-forms pyvis celery django-cors-headers
+RUN pip3 install -U drf-yasg
+
+# command line arguments
+ARG TAG_ID=false
+
+# Prepare the music-box-interactive web server
+RUN mv music-box/libs/music-box-interactive .
+ENV MUSIC_BOX_BUILD_DIR=/build
+
+
+EXPOSE 8000
+
+CMD ["python3", "interactive/manage.py", "runserver", "0.0.0.0:8000" ]
