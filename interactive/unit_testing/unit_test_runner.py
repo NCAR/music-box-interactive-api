@@ -26,6 +26,7 @@ class UnitTestRunner(unittest.TestCase):
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
         example_1_checksum = calculate_checksum(example_1_path)
+        print("* got checksum for "+str(example_1_path)+": "+str(example_1_checksum))
         example_1_expected_checksum = "b3f3a80960f3826896d6f1f116e5f604"
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("|_ example_1 checksum good ✓")
