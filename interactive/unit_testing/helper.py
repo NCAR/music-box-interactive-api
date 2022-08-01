@@ -1,9 +1,6 @@
 # helper file that contains functions for unit testing
 # helper function getting all files for user session
 from tabnanny import check
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.conf import settings
 import json
 import os
 import subprocess
