@@ -43,6 +43,6 @@ def calculate_checksum(dir_to_check):
         if os.path.isfile(fn):
             fe = open(fn, "rb")
             hash.update(fe.read())
-            print("* hash update: ", hash.hexdigest())
+            print("* file read: ", fe.read())
             fe.close()
     return hash.hexdigest()
