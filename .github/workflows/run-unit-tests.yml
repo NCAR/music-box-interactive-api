@@ -56,4 +56,4 @@ jobs:
     - name: Run Tests
       run: |
         python3 interactive/manage.py &
-        python3 interactive/unit_test_runner.py 
+        python3 interactive/unit_testing/unit_test_runner.py 
