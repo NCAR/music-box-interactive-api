@@ -41,7 +41,7 @@ def calculate_checksum(dir_to_check):
     hash = hashlib.md5()
     for fn in filenames:
         if os.path.isfile(fn):
-            fe = open(fn)
+            fe = open(fn, 'rb')
             content = fe.read()
             hash.update(content)
             print("* file read: ", content)
