@@ -55,6 +55,5 @@ jobs:
         # coverage report
     - name: Run Tests
       run: |
-        # python3 interactive/manage.py test --testrunner="unit_test_runner.UnitTestRunner"
         python3 interactive/manage.py &
         python3 interactive/unit_test_runner.py 
