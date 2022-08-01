@@ -67,7 +67,7 @@ class ExampleView(views.APIView):
 
         logging.debug("loading example for user " + request.session.session_key+" *")
         logging.debug("|_ loading example #" + str(request.GET.dict()['example']))
-        logging.debug("|_ example folder path: " + example_folder_path)
+        logging.info("|_ example folder path: " + example_folder_path)
 
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):

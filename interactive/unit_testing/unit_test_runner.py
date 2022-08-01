@@ -12,15 +12,17 @@ from helper import *
 
 # initialize the APIClient app
 client = Client()
+base_dir = '/music-box-interactive/interactive'
+
 
 class UnitTestRunner(unittest.TestCase):
-
+    
     def test_config_files_checksums(self):
+        global base_dir
         """check checksums for config files"""
         # first lets check that all example files have the right checksums
         
-        examples_path = os.path.join(
-            settings.BASE_DIR, 'dashboard/static/examples')
+        examples_path = os.path.join(base_dir, 'dashboard/static/examples')
         print("* testing config files checksums in: %s" % examples_path)
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
