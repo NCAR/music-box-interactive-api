@@ -43,7 +43,12 @@ class UnitTestRunner(unittest.TestCase):
 
         example_3_path = os.path.join(examples_path, 'example_3')
         files3 = getListOfFiles(example_3_path)
-        expected_files_3 = []
+        expected_files_3 = ['interactive/dashboard/static/examples/example_3/camp_data/species.json',
+        'interactive/dashboard/static/examples/example_3/camp_data/tolerance.json',
+        'interactive/dashboard/static/examples/example_3/camp_data/reactions.json',
+        'interactive/dashboard/static/examples/example_3/camp_data/config.json',
+        'interactive/dashboard/static/examples/example_3/my_config.json',
+        'interactive/dashboard/static/examples/example_3/initial_reaction_rates.csv']
         self.assertEqual(files3, expected_files_3)
         print("\t - example_3 files look good ✓")
 
