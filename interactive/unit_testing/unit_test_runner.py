@@ -11,7 +11,7 @@ from helper import *
 
 # initialize the APIClient app
 # client = Client()
-base_dir = '../'
+base_dir = 'interactive'
 
 
 class UnitTestRunner(unittest.TestCase):
