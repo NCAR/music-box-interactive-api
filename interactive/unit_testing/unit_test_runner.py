@@ -23,6 +23,7 @@ class UnitTestRunner(unittest.TestCase):
         
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
         print("* testing config files checksums in: %s" % examples_path)
+
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
         example_1_checksum = calculate_checksum(example_1_path)
@@ -30,12 +31,14 @@ class UnitTestRunner(unittest.TestCase):
         example_1_expected_checksum = "17158dd0c38c409e58fa8020eb049381" # b3f3a80960f3826896d6f1f116e5f604
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("|_ example_1 checksum good ✓")
+
         # get check sum from example_2
         example_2_path = os.path.join(examples_path, 'example_2')
         example_2_checksum = calculate_checksum(example_2_path)
-        example_2_expected_checksum = "e659ad1a567c09dc2c16e32a8f475748"
+        example_2_expected_checksum = "e0b89901696a3779ad6b910e24eaeb4c" # e659ad1a567c09dc2c16e32a8f475748
         self.assertEqual(example_2_checksum, example_2_expected_checksum)
         print("|_ example_2 checksum good ✓")
+
         # get check sum from example_3
         example_3_path = os.path.join(examples_path, 'example_3')
         example_3_checksum = calculate_checksum(example_3_path)
