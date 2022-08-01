@@ -22,6 +22,7 @@ def main():
 
 if __name__ == '__main__':
     args = sys.argv
+    print("* starting up API server")
     main()
 
     #check for start-unit-test in args

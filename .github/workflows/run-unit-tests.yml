@@ -57,4 +57,4 @@ jobs:
       run: |
         # python3 interactive/manage.py test --testrunner="unit_test_runner.UnitTestRunner"
         python3 interactive/manage.py &
-        python3 unit_test_runner.py 
+        python3 interactive/unit_test_runner.py 
