@@ -1,6 +1,6 @@
 import os
 import json
-from rest_framework import status
+# from rest_framework import status
 # from django.test import TestCase, Client
 # from django.test import TransactionTestCase
 # from django.test.runner import DiscoverRunner
@@ -10,7 +10,7 @@ import unittest
 from helper import *
 
 # initialize the APIClient app
-client = Client()
+# client = Client()
 base_dir = '/music-box-interactive/interactive'
 
 
