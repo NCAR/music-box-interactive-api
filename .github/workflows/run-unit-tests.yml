@@ -56,4 +56,4 @@ jobs:
     - name: Run Tests
       run: |
         python3 interactive/manage.py &
-        sudo python3 interactive/unit_testing/unit_test_runner.py 
+        sleep 1 && sudo python3 interactive/unit_testing/unit_test_runner.py 
