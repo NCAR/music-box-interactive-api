@@ -6,7 +6,7 @@ from django.test import TestCase, Client
 # initialize the APIClient app
 client = Client()
 
-class APITestCase(TestCase):
+class UnitTestRunner(TestCase):
 
     def test_config_files_checksums(self):
         """check checksums for config files"""
