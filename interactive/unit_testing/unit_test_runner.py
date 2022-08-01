@@ -15,14 +15,36 @@ base_dir = 'interactive'
 
 
 class UnitTestRunner(unittest.TestCase):
-    
+    def test_all_config_files(self):
+        # look for all config files
+        examples_path = os.path.join(base_dir, 'dashboard/static/examples')
+        print("Test Case #1: check that all config files are present")
+
+        # fetch all files in each examples directories
+        example_1_path = os.path.join(examples_path, 'example_1')
+        files1 = getListOfFiles(example_1_path)
+        expected_files_1 = ['interactive/dashboard/static/examples/example_1/camp_data/species.json', 'interactive/dashboard/static/examples/example_1/camp_data/tolerance.json', 'interactive/dashboard/static/examples/example_1/camp_data/reactions.json', 'interactive/dashboard/static/examples/example_1/camp_data/config.json', 'interactive/dashboard/static/examples/example_1/my_config.json', 'interactive/dashboard/static/examples/example_1/MusicBox_1_60hPa.csv']
+        self.assertEqual(files1, expected_files_1)
+        print("\t - example_1 files look good ✓")
+
+        example_2_path = os.path.join(examples_path, 'example_2')
+        files2 = getListOfFiles(example_2_path)
+        expected_files_2 = []
+        self.assertEqual(files2, expected_files_2)
+        print("\t - example_2 files look good ✓")
+
+        example_3_path = os.path.join(examples_path, 'example_3')
+        files3 = getListOfFiles(example_3_path)
+        expected_files_3 = []
+        self.assertEqual(files3, expected_files_3)
+        print("\t - example_3 files look good ✓")
     def test_config_files_checksums(self):
         global base_dir
         """check checksums for config files"""
         # first lets check that all example files have the right checksums
         
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
-        print("Test Case #1: check file checksums in directory: %s" % examples_path)
+        print("Test Case #2: verify file checksums")
 
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
