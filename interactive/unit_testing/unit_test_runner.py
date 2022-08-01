@@ -1,13 +1,12 @@
 import os
 import json
 from rest_framework import status
-from django.test import TestCase, Client
-from django.test import TransactionTestCase
-from django.test.runner import DiscoverRunner
+# from django.test import TestCase, Client
+# from django.test import TransactionTestCase
+# from django.test.runner import DiscoverRunner
 from unittest.suite import TestSuite
 import subprocess
 import unittest
-from django.conf import settings
 from helper import *
 
 # initialize the APIClient app
