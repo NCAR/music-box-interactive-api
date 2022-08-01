@@ -8,10 +8,13 @@ from unittest.suite import TestSuite
 import subprocess
 import unittest
 from helper import *
-
+import requests
+s = requests.session()
+s.cookies.set("sessionid", "testsessionid", domain="127.0.0.1")
 # initialize the APIClient app
 # client = Client()
 base_dir = 'interactive'
+
 
 
 class UnitTestRunner(unittest.TestCase):
@@ -80,7 +83,23 @@ class UnitTestRunner(unittest.TestCase):
         example_3_checksum = calculate_checksum(example_3_path)
         example_3_expected_checksum = "f25600931179b57fccdee625e2983d7b" # 47ae9f6212cddb7a079119a57aceac9b
         self.assertEqual(example_3_checksum, example_3_expected_checksum)
-        print("\t - example_3 checksum good ✓")  
+        print("\t - example_3 checksum good ✓")
+
+    def test_changed_config_file(self):
+        # edit a config file and check that the checksum changes
+        print("Test Case #3: check that checksum changes when config file changes")
+        # set output time step to 500 seconds in my_config.json for first example
+
+        # select example_1 for current user
+        select_example = s.get(url='http://127.0.0.1:8000/api/load-example/?example=1')
+        # make api request to server hosted at localhost:8000
+        change_time_step = s.post(
+            url='http://127.0.0.1:8000/api/model-options/',
+            data={"chem_step.units":"min","output_step.units":"sec","simulation_length.units":"day","grid":"box","chemistry_time_step":"1","output_time_step":"500","simulation_length":"5"}
+        )
+        fetch_time_step = s.get(url='http://127.0.0.1:8000/api/model-options/')
+        print("* time step resposne: ", fetch_time_step)
+        print("\t - time step changed to 500 seconds ✓")
 # stop all processes (including running django server)
 def stopAllProcesses():
     print("* stopping all processes")
