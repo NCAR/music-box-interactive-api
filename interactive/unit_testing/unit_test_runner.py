@@ -11,7 +11,7 @@ from helper import *
 
 # initialize the APIClient app
 # client = Client()
-base_dir = '/music-box-interactive/interactive'
+base_dir = '../'
 
 
 class UnitTestRunner(unittest.TestCase):
