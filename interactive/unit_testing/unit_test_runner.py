@@ -15,6 +15,8 @@ base_dir = 'interactive'
 
 
 class UnitTestRunner(unittest.TestCase):
+
+
     def test_all_config_files(self):
         # look for all config files
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
@@ -29,7 +31,13 @@ class UnitTestRunner(unittest.TestCase):
 
         example_2_path = os.path.join(examples_path, 'example_2')
         files2 = getListOfFiles(example_2_path)
-        expected_files_2 = []
+        expected_files_2 = ['interactive/dashboard/static/examples/example_2/camp_data/species.json',
+        'interactive/dashboard/static/examples/example_2/camp_data/tolerance.json',
+        'interactive/dashboard/static/examples/example_2/camp_data/reactions.json',
+        'interactive/dashboard/static/examples/example_2/camp_data/config.json',
+        'interactive/dashboard/static/examples/example_2/my_config.json',
+        'interactive/dashboard/static/examples/example_2/initial_reaction_rates.csv']
+
         self.assertEqual(files2, expected_files_2)
         print("\t - example_2 files look good ✓")
 
@@ -38,6 +46,8 @@ class UnitTestRunner(unittest.TestCase):
         expected_files_3 = []
         self.assertEqual(files3, expected_files_3)
         print("\t - example_3 files look good ✓")
+
+
     def test_config_files_checksums(self):
         global base_dir
         """check checksums for config files"""
