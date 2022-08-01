@@ -6,13 +6,14 @@ from django.test import TransactionTestCase
 from django.test.runner import DiscoverRunner
 from unittest.suite import TestSuite
 import subprocess
+import unittest
 
 # initialize the APIClient app
 client = Client()
 
-class UnitTestRunner(TestCase):
+class UnitTestRunner(unittest.TestCase):
 
-    def test_config_files_checksums(self):
+    def test_config_files_checksums(self, **kwargs):
         """check checksums for config files"""
         # first lets check that all example files have the right checksums
         config_dir = os.path.join(os.path.dirname(__file__), 'interactive/dashboard/static/examples')
@@ -27,6 +28,7 @@ def stopAllProcesses():
 #check if main
 if __name__ == '__main__':
     # run tests
-    runner = UnitTestRunner()
-    runner.test_config_files_checksums()
-    stopAllProcesses()
+    # runner = UnitTestRunner()
+    # runner.test_config_files_checksums()
+    # stopAllProcesses()
+    unittest.main() # run   all tests
