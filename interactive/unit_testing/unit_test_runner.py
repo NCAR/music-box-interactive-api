@@ -9,8 +9,8 @@ import subprocess
 import unittest
 from helper import *
 import requests
-from interactive.mechanism.reactions import *
-from interactive.mechanism.species import *
+from interactive.mechanism import reactions
+from interactive.mechanism import species
 
 s = requests.session()
 s.cookies.set("sessionid", "testsessionid", domain="127.0.0.1")
