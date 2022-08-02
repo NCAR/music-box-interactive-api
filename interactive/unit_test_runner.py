@@ -102,14 +102,47 @@ class UnitTestRunner(unittest.TestCase):
         my_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/my_config.json')
         remove_reactions_with_species(species_to_remove, reac_path,
                                         my_path)
-        example_1_expected_checksum = "17158dd0c38c409e58fa8020eb049381"
+        example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be"
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
 
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
         example_1_checksum = calculate_checksum(example_1_path)
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
-        print("\t - time step changed to 500 seconds ✓")
+        print("\t - removed N2 ✓")
+    def test_changed_reactions_config_file(self):
+        print("Test Case #4: check that checksum changes when reactions config file changes")
+        # remove reaction @ index 0
+        config_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/camp_data/reactions.json')
+        reaction_remove(0, config_path)
+
+        example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be"
+        examples_path = os.path.join(base_dir, 'dashboard/static/examples')
+
+        # get check sum from example_1
+        example_1_path = os.path.join(examples_path, 'example_1')
+        example_1_checksum = calculate_checksum(example_1_path)
+
+        self.assertEqual(example_1_checksum, example_1_expected_checksum)
+        print("\t - removed first reaction ✓")
+    def test_changed_conditions_file(self):
+        print("Test Case #5: check that checksum changes when conditions file changes")
+        new_json = '{"chem_step.units":"min","output_step.units":"sec","simulation_length.units":"day","grid":"box","chemistry_time_step":"1","output_time_step":"500","simulation_length":"5"}'
+        newOptions = json.loads(new_json)
+        # path = os.path.join(settings.BASE_DIR, 'configs/' +
+        #                     request.session.session_key)+"/options.json"
+        # options = {}
+        # for key in newOptions:
+        #     options.update({key: newOptions[key]})
+        # with open(path, 'w') as f:
+        #     json.dump(options, f, indent=4)
+        # logging.info('box model options updated')
+        # config_path = os.path.join(
+        #     settings.BASE_DIR, 'configs/' + request.session.session_key)
+        # options = option_setup(config_path)
+        # logging.info("returning options:" + str(options))
+        # export_to_path(os.path.join(settings.BASE_DIR,
+        #                'configs/' + request.session.session_key) + "/")
 # stop all processes (including running django server)
 def stopAllProcesses():
     print("* stopping all processes")
@@ -128,3 +161,5 @@ if __name__ == '__main__':
     runner.test_all_config_files()
     runner.test_config_files_checksums()
     runner.test_changed_species_config_file()
+    runner.test_changed_reactions_config_file()
+    # runner.test_changed_conditions_file()
