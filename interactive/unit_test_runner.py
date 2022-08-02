@@ -123,4 +123,8 @@ if __name__ == '__main__':
     # stopAllProcesses()
     print("* running test cases")
     print("----------------------------------------------------------------------")
-    unittest.main() # run   all tests
+    # unittest.main() # run   all tests
+    runner = UnitTestRunner()
+    runner.test_all_config_files()
+    runner.test_config_files_checksums()
+    runner.test_changed_species_config_file()
