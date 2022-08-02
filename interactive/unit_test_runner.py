@@ -70,7 +70,7 @@ class UnitTestRunner(unittest.TestCase):
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
         example_1_checksum = calculate_checksum(example_1_path)
-        example_1_expected_checksum = "17158dd0c38c409e58fa8020eb049381" # b3f3a80960f3826896d6f1f116e5f604
+        example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be" # b3f3a80960f3826896d6f1f116e5f604
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("\t - example_1 checksum good ✓")
 
