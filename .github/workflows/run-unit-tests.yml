@@ -58,5 +58,5 @@ jobs:
         export MUSIC_BOX_BUILD_DIR="/build/"
 
         # python3 interactive/manage.py runserver 8000 &
-        cd interactive
-        sudo python3 unit_test_runner.py 
+        # cd interactive
+        sudo python3 interactive/unit_test_runner.py 
