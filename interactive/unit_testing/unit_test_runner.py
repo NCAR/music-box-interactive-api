@@ -9,6 +9,9 @@ import subprocess
 import unittest
 from helper import *
 import requests
+from mechanism.reactions import *
+from mechanism.species import *
+
 s = requests.session()
 s.cookies.set("sessionid", "testsessionid", domain="127.0.0.1")
 # initialize the APIClient app
@@ -85,20 +88,27 @@ class UnitTestRunner(unittest.TestCase):
         self.assertEqual(example_3_checksum, example_3_expected_checksum)
         print("\t - example_3 checksum good ✓")
 
-    def test_changed_config_file(self):
+    def test_changed_species_config_file(self):
         # edit a config file and check that the checksum changes
-        print("Test Case #3: check that checksum changes when config file changes")
+        print("Test Case #3: check that checksum changes when species config file changes")
         # set output time step to 500 seconds in my_config.json for first example
 
-        # select example_1 for current user
-        select_example = s.get(url='http://127.0.0.1:8000/api/load-example/?example=1')
-        # make api request to server hosted at localhost:8000
-        change_time_step = s.post(
-            url='http://127.0.0.1:8000/api/model-options/',
-            data={"chem_step.units":"min","output_step.units":"sec","simulation_length.units":"day","grid":"box","chemistry_time_step":"1","output_time_step":"500","simulation_length":"5"}
-        )
-        fetch_time_step = s.get(url='http://127.0.0.1:8000/api/model-options/')
-        print("* time step resposne: ", fetch_time_step)
+        # example_1 species location
+        config_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/camp_data/species.json')
+        species_to_remove = "N2"
+        species_remove(species_to_remove, config_path)
+
+        reac_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/camp_data/reactions.json')
+        my_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/my_config.json')
+        remove_reactions_with_species(species_to_remove, reac_path,
+                                        my_path)
+        example_1_expected_checksum = "17158dd0c38c409e58fa8020eb049381"
+        examples_path = os.path.join(base_dir, 'dashboard/static/examples')
+
+        # get check sum from example_1
+        example_1_path = os.path.join(examples_path, 'example_1')
+        example_1_checksum = calculate_checksum(example_1_path)
+        self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("\t - time step changed to 500 seconds ✓")
 # stop all processes (including running django server)
 def stopAllProcesses():
