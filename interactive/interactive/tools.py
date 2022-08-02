@@ -1,12 +1,13 @@
 import os
 import json
-from django.conf import settings
-from django.http import HttpResponse
+# from django.conf import settings
+# from django.http import HttpResponse
 from .unit_dict import *
 from .conversion_dict import *
 from .converter_class import Unit
 
 
+base_dir = '/music-box-interactive/interactive'
 # get path for filename
 def file_path(filename):
     locations = {
@@ -32,13 +33,13 @@ def file_path(filename):
     }
     file_loc = locations[filename]
     if file_loc == "config":
-        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/config")
+        cfg = os.path.join(base_dir, "dashboard/static/config")
         return os.path.join(cfg, filename)
     elif file_loc == "mechanism":
-        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/mechanism")
+        cfg = os.path.join(base_dir, "dashboard/static/mechanism")
         return os.path.join(cfg, filename)
     elif file_loc == "log":
-        cfg = os.path.join(settings.BASE_DIR, "dashboard/static/log")
+        cfg = os.path.join(base_dir, "dashboard/static/log")
         return os.path.join(cfg, filename)
 
 
