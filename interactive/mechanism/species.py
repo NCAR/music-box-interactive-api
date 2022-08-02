@@ -1,5 +1,5 @@
 import json
-from django.conf import settings
+# from django.conf import settings
 import logging
 import os
 import time
@@ -7,7 +7,8 @@ from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 species = "dashboard/static/config/camp_data/species.json"
-species_default = os.path.join(settings.BASE_DIR, species)
+# species_default = os.path.join(settings.BASE_DIR, species)
+species_default = os.path.join('/music-box-interactive/interactive', species)
 
 
 # returns the full set of json objects from the species file
