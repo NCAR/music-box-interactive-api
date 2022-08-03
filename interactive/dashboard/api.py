@@ -1002,15 +1002,3 @@ class LoadFromConfigJsonView(views.APIView):
             request.session.create()
         logging.info("saving model options for user: "+request.session.session_key)
         uploaded = request.FILES['file']
-# checks server by trying to connect to default port
-def checkForRabbitMQServer():
-    """
-    Checks if RabbitMQ server is running.
-    """
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('localhost', 5672))
-        s.close()
-        return True
-    except socket.error:
-        return False
