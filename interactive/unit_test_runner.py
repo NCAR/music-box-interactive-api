@@ -30,13 +30,13 @@ class UnitTestRunner(unittest.TestCase):
 
         # fetch all files in each examples directories
         example_1_path = os.path.join(examples_path, 'example_1')
-        files1 = getListOfFiles(example_1_path)
+        files1 = get_list_of_files(example_1_path)
         expected_files_1 = ['interactive/dashboard/static/examples/example_1/camp_data/species.json', 'interactive/dashboard/static/examples/example_1/camp_data/tolerance.json', 'interactive/dashboard/static/examples/example_1/camp_data/reactions.json', 'interactive/dashboard/static/examples/example_1/camp_data/config.json', 'interactive/dashboard/static/examples/example_1/my_config.json', 'interactive/dashboard/static/examples/example_1/MusicBox_1_60hPa.csv']
         self.assertEqual(files1, expected_files_1)
         print("\t - example_1 files look good ✓")
 
         example_2_path = os.path.join(examples_path, 'example_2')
-        files2 = getListOfFiles(example_2_path)
+        files2 = get_list_of_files(example_2_path)
         expected_files_2 = ['interactive/dashboard/static/examples/example_2/camp_data/species.json',
         'interactive/dashboard/static/examples/example_2/camp_data/tolerance.json',
         'interactive/dashboard/static/examples/example_2/camp_data/reactions.json',
@@ -48,7 +48,7 @@ class UnitTestRunner(unittest.TestCase):
         print("\t - example_2 files look good ✓")
 
         example_3_path = os.path.join(examples_path, 'example_3')
-        files3 = getListOfFiles(example_3_path)
+        files3 = get_list_of_files(example_3_path)
         expected_files_3 = ['interactive/dashboard/static/examples/example_3/camp_data/species.json',
         'interactive/dashboard/static/examples/example_3/camp_data/tolerance.json',
         'interactive/dashboard/static/examples/example_3/camp_data/reactions.json',
