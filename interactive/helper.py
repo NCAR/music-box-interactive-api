@@ -17,7 +17,7 @@ import hashlib
 '''
 For the given path, get the List of all files in the directory tree 
 '''
-def getListOfFiles(dirName):
+def get_list_of_files(dirName):
     # create a list of file and sub directories 
     # names in the given directory 
     listOfFile = os.listdir(dirName)
@@ -37,7 +37,7 @@ def getListOfFiles(dirName):
 
 # calculate checksum for config/model so we can check if it's run before
 def calculate_checksum(dir_to_check):
-    filenames = getListOfFiles(dir_to_check)
+    filenames = get_list_of_files(dir_to_check)
     hash = hashlib.md5()
     for fn in filenames:
         if os.path.isfile(fn):
