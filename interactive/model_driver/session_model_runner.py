@@ -12,7 +12,7 @@ import mimetypes
 import pandas as pd
 import time
 import shutil
-from .run_setup import setup_run
+# from .run_setup import setup_run
 # from .run_logging import *
 from datetime import datetime
 from mechanism.reactions import reactions_are_valid
@@ -20,8 +20,43 @@ from interactive.tools import *
 from pathlib import Path
 import logging
 import hashlib
+import pika
+import json
 
+RABBIT_HOST = 'host.docker.internal' # access parent host from outside of docker container
+RABBIT_PORT = 5672
 
+BASE_DIR = '/music-box-interactive/interactive'
+
+# disable propagation
+logging.getLogger("pika").propagate = False
+
+# checks server by trying to connect
+def check_for_rabbit_mq(host, port):
+    """
+    Checks if RabbitMQ server is running.
+    """
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+        if connection.is_open:
+            connection.close()
+            return True
+        else:
+            connection.close()
+            return False
+    except:
+        return False
+# add session_id to queue model_finished
+def add_status_to_queue(session_id, host, port, status):
+    """
+    Adds session_id to queue model_finished.
+    """
+    message = {'session_id': session_id, "model_status": status}
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+    channel = connection.channel()
+    channel.queue_declare(queue='model_finished_queue')
+    channel.basic_publish(exchange='', routing_key='model_finished_queue', body=json.dumps(message))
+    connection.close()
 class SessionModelRunner():
     def __init__(self, session_id):
         self.setPathsForSessionID(session_id)
@@ -37,26 +72,26 @@ class SessionModelRunner():
     out_path = os.path.join(mb_dir, 'output.csv')
     error_path = os.path.join(mb_dir, 'error.json')
     copy_path = os.path.join(
-        settings.BASE_DIR, 'dashboard/static/past_run/past.csv')
+        BASE_DIR, 'dashboard/static/past_run/past.csv')
     config_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/my_config.json")
+        BASE_DIR, "dashboard/static/config/my_config.json")
     old_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/old_config.json")
+        BASE_DIR, "dashboard/static/config/old_config.json")
     complete_path = os.path.join(mb_dir, 'MODEL_RUN_COMPLETE')
 
     config_dest = os.path.join(
-        settings.BASE_DIR, 'dashboard/static/past_run/config.json')
+        BASE_DIR, 'dashboard/static/past_run/config.json')
 
     config_folder_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config")
-    log_path = os.path.join(settings.BASE_DIR, 'dashboard/static/log/log')
+        BASE_DIR, "dashboard/static/config")
+    log_path = os.path.join(BASE_DIR, 'dashboard/static/log/log')
     camp_folder_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/camp_data")
+        BASE_DIR, "dashboard/static/config/camp_data")
 
     reactions_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
+        BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
     species_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+        BASE_DIR, "dashboard/static/config/camp_data/species.json")
 
     sessionid = ""
 
@@ -82,24 +117,24 @@ class SessionModelRunner():
         self.out_path = os.path.join(self.mb_dir, 'output.csv')
         self.error_path = os.path.join(self.mb_dir, 'error.json')
         self.copy_path = os.path.join(
-            settings.BASE_DIR, 'past_run/'+session_id+'/past.csv')
+            BASE_DIR, 'past_run/'+session_id+'/past.csv')
         self.config_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/my_config.json")
+            BASE_DIR, "configs/"+session_id+"/my_config.json")
         self.old_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/old_config.json")
+            BASE_DIR, "configs/"+session_id+"/old_config.json")
         self.complete_path = os.path.join(self.mb_dir, 'MODEL_RUN_COMPLETE')
         self.config_dest = os.path.join(
-            settings.BASE_DIR, 'past_run/'+session_id+'/config.json')
+            BASE_DIR, 'past_run/'+session_id+'/config.json')
         self.config_folder_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id)
-        self.log_path = os.path.join(settings.BASE_DIR, 'logs/'+session_id)
+            BASE_DIR, "configs/"+session_id)
+        self.log_path = os.path.join(BASE_DIR, 'logs/'+session_id)
         self.camp_folder_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/camp_data")
+            BASE_DIR, "configs/"+session_id+"/camp_data")
         reac = "/camp_data/reactions.json"
         self.reactions_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+reac)
+            BASE_DIR, "configs/"+session_id+reac)
         self.species_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
+            BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
         self.sessionid = session_id
 
     def add_integrated_rates(self):
@@ -201,7 +236,7 @@ class SessionModelRunner():
         if not os.path.exists(self.log_path):
             os.makedirs(self.log_path)
         originalPath = os.path.join(
-            settings.BASE_DIR, 'dashboard/static/log/log_config.json')
+            BASE_DIR, 'dashboard/static/log/log_config.json')
         self.copyAFile(originalPath, os.path.join(
             self.log_path, "log_config.json"))
         time.sleep(0.1)
@@ -298,6 +333,8 @@ class SessionModelRunner():
                         response_message.update({'spec_ID': key + '.Formula'})
             response_message.update({'e_code': errorfile['code']})
             response_message.update({'e_message': errorfile['message']})
+        # if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT) and (status == 'done' or status == 'error'):
+        #     add_status_to_queue(self.sessionid, RABBIT_HOST, RABBIT_PORT, response_message)
         return JsonResponse(response_message)
 
     def check_load(self, request):
@@ -316,9 +353,11 @@ class SessionModelRunner():
                 status = 'done'
 
         response_message.update({'status': status, 'session_id': request.session.session_key})
+        # if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT) and (status == 'done' or status == 'error'):
+        #     add_status_to_queue(self.sessionid, RABBIT_HOST, RABBIT_PORT, response_message)
         return JsonResponse(response_message)
-
-    def run(self, request):
+    
+    def run(self):
         logging.info("running...")
         run = self.setup_run()
         self.save_run()
@@ -403,3 +442,4 @@ class SessionModelRunner():
         direct_dump_json(os.path.join(self.log_path,
                                       'log_config.json'), lc)
         logging.info('log cleared')
+    

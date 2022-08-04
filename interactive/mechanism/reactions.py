@@ -9,7 +9,7 @@ from interactive.tools import *
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 react = "dashboard/static/config/camp_data/reactions.json"
-reactions_default = os.path.join(settings.BASE_DIR, react)
+reactions_default = os.path.join('/music-box-interactive/interactive', react)
 
 
 # returns the full set of reaction json objects from the reactions file

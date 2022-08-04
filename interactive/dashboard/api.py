@@ -34,12 +34,17 @@ from os.path import exists
 from model_driver.session_model_runner import *
 from dashboard.flow_diagram import *
 import logging
+import socket
+import pika
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
 #       - request.session.session_key is a string representation of this value
 #       - request.session.session_key is used to access documents from DJANGO
 
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 def beautifyReaction(reaction):
     if '->' in reaction:
@@ -52,22 +57,6 @@ def beautifyReaction(reaction):
     return reaction
 
 
-# log, string2 is optional argument only for convenience
-def log(string, string2="", string3=""):
-    complete_string = str(string) + " " + str(string2) + " " + str(string3)
-    logging.info(complete_string)
-
-
-def debug(string, string2="", string3=""):
-    complete_string = str(string) + " " + str(string2) + " " + str(string3)
-    logging.debug(complete_string)
-
-
-def error(string, string2="", string3=""):
-    complete_string = str(string) + " " + str(string2) + " " + str(string3)
-    logging.error(complete_string)
-
-
 class ExampleView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
@@ -78,9 +67,9 @@ class ExampleView(views.APIView):
             settings.BASE_DIR, 'dashboard/static/examples')
         example_folder_path = os.path.join(examples_path, example_name)
 
-        debug("loading example for user " + request.session.session_key+" *")
-        debug("|_ loading example #" + str(request.GET.dict()['example']))
-        debug("|_ example folder path: " + example_folder_path)
+        logging.debug("loading example for user " + request.session.session_key+" *")
+        logging.debug("|_ loading example #" + str(request.GET.dict()['example']))
+        logging.info("|_ example folder path: " + example_folder_path)
 
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):
@@ -89,7 +78,7 @@ class ExampleView(views.APIView):
         # path to save data for user
         config_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
-        debug("|_ putting data into path: " + config_path)
+        logging.debug("|_ putting data into path: " + config_path)
 
         shutil.rmtree(config_path)
         shutil.copytree(example_folder_path, config_path)
@@ -97,20 +86,20 @@ class ExampleView(views.APIView):
 
         menu_names = api_species_menu_names(
             config_path + "/camp_data/species.json")
-        log("|_ pushing menu names to user: " + str(menu_names))
+        logging.info("|_ pushing menu names to user: " + str(menu_names))
         response = Response(menu_names, status=status.HTTP_200_OK)
         return response
 
 
 class SpeciesView(views.APIView):
     def get(self, request):
-        log("****** GET request received SPECIES_VIEW ******")
+        logging.info("****** GET request received SPECIES_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        debug("fetching species for session: " + request.session.session_key)
+        logging.debug("fetching species for session: " + request.session.session_key)
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             # path to save data for user
@@ -119,21 +108,21 @@ class SpeciesView(views.APIView):
             configz_path = os.path.join(
                 settings.BASE_DIR, conf)
             menu_names = api_species_menu_names(configz_path)
-            log("|_ pushing menu names to user:" + str(menu_names))
+            logging.info("|_ pushing menu names to user:" + str(menu_names))
             response = Response(menu_names, status=status.HTTP_200_OK)
             return response
 
 
 class SpeciesDetailView(views.APIView):
     def get(self, request):
-        log("****** GET request received SPECIES_DETAIL ******")
+        logging.info("****** GET request received SPECIES_DETAIL ******")
         if not request.session.session_key:
             request.session.create()
         if 'name' not in request.GET:
             return JsonResponse({"error": "missing species name"})
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             conf = ('configs/' + request.session.session_key
@@ -151,7 +140,7 @@ class SpeciesDetailView(views.APIView):
 
 class RemoveSpeciesView(views.APIView):
     def get(self, request):
-        log("****** GET request received REMOVE_SPECIES ******")
+        logging.info("****** GET request received REMOVE_SPECIES ******")
         if not request.session.session_key:
             request.session.create()
         if 'name' not in request.GET:
@@ -160,7 +149,7 @@ class RemoveSpeciesView(views.APIView):
         # check for config dir
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/'+request.session.session_key)):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             conf = ('configs/' + request.session.session_key
@@ -181,7 +170,7 @@ class RemoveSpeciesView(views.APIView):
 
 class AddSpeciesView(views.APIView):
     def post(self, request):
-        log("****** POST request received ADD_SPECIES ******")
+        logging.info("****** POST request received ADD_SPECIES ******")
         species_data = json.loads(request.body)
         if 'name' not in species_data:
             return JsonResponse({"error": "missing species name"})
@@ -189,7 +178,7 @@ class AddSpeciesView(views.APIView):
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             conf = ('configs/' + request.session.session_key
@@ -212,10 +201,10 @@ class PlotSpeciesView(views.APIView):
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
-            debug("loading plot info for species: " + str(species))
+            logging.debug("loading plot info for species: " + str(species))
             config_path = os.path.join(
                 settings.BASE_DIR,
                 'configs/' + request.session.session_key +
@@ -227,7 +216,7 @@ class PlotSpeciesView(views.APIView):
                 settings.BASE_DIR,
                 "dashboard/templates/network_plot/plot.html")
             if not os.path.isdir(network_plot_dir):
-                debug("making dir:" + str(network_plot_dir))
+                logging.debug("making dir:" + str(network_plot_dir))
                 os.makedirs(network_plot_dir)
             # use copyfile()
             if exists(os.path.join(network_plot_dir, "plot.html")) is False:
@@ -245,15 +234,15 @@ class PlotSpeciesView(views.APIView):
 
 class ReactionsView(views.APIView):
     def get(self, request):
-        log("****** GET request received REACTIONS_VIEW ******")
+        logging.info("****** GET request received REACTIONS_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        debug("fetching reactions for session id: " +
+        logging.debug("fetching reactions for session id: " +
               request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             # path to save data for user
@@ -261,7 +250,7 @@ class ReactionsView(views.APIView):
                     + "/camp_data/reactions.json")
             config_path = os.path.join(settings.BASE_DIR, conf)
             menu_names = reaction_menu_names(config_path)
-            debug("|_ pushing menu names to user:", str(menu_names))
+            logging.debug("|_ pushing menu names to user:" + str(menu_names))
             response = Response(menu_names, status=status.HTTP_200_OK)
             return response
 
@@ -270,12 +259,12 @@ class ReactionsDetailView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
-        log("fetching reactions for session id: " +
+        logging.info("fetching reactions for session id: " +
             request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/'+request.session.session_key)
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             # path to save data for user
@@ -293,7 +282,7 @@ class ReactionsDetailView(views.APIView):
 
 class RemoveReactionView(views.APIView):
     def get(self, request):
-        log("****** GET request received REMOVE_REACTION ******")
+        logging.info("****** GET request received REMOVE_REACTION ******")
         if not request.session.session_key:
             request.session.create()
         if 'index' not in request.GET:
@@ -302,7 +291,7 @@ class RemoveReactionView(views.APIView):
                              'configs/'+request.session.session_key)
         # check for config dir
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             conf = ('configs/' + request.session.session_key
@@ -329,7 +318,7 @@ class SaveReactionView(views.APIView):
 
 class ReactionTypeSchemaView(views.APIView):
     def get(self, request):
-        log("****** GET request received SCHEMATYPEVIEW ******")
+        logging.info("****** GET request received SCHEMATYPEVIEW ******")
         if not request.session.session_key:
             request.session.create()
         if 'type' not in request.GET:
@@ -338,7 +327,7 @@ class ReactionTypeSchemaView(views.APIView):
                              'configs/'+request.session.session_key)
         # check for config dir
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             conf = ('configs/' + request.session.session_key
@@ -351,43 +340,43 @@ class ReactionTypeSchemaView(views.APIView):
 
 class ModelOptionsView(views.APIView):
     def get(self, request):
-        log("****** GET request received GET_MODEL_VIEW ******")
+        logging.info("****** GET request received GET_MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        debug("fetching model options for: " + request.session.session_key)
+        logging.debug("fetching model options for: " + request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         # check for config dir
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return Response(status=status.HTTP_200_OK)
         else:
             config_path = os.path.join(
                 settings.BASE_DIR, 'configs/' + request.session.session_key)
             options = option_setup(config_path)
-            log("returning options:", str(options))
+            logging.info("returning options:" + str(options))
             return JsonResponse(options)
 
     def post(self, request):
-        log("****** POST request received MODEL_VIEW ******")
+        logging.info("****** POST request received MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        debug("saving model options for user: " + request.session.session_key)
-        debug("received options: " + str(request.body))
+        logging.debug("saving model options for user: " + request.session.session_key)
+        print("received options: ",request.body)
         newOptions = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR, 'configs/' +
                             request.session.session_key)+"/options.json"
-        debug("saving to path: "+str(path))
+        logging.debug("saving to path: "+str(path))
         options = {}
         for key in newOptions:
             options.update({key: newOptions[key]})
         with open(path, 'w') as f:
             json.dump(options, f, indent=4)
-        log('box model options updated')
+        logging.info('box model options updated')
         config_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         options = option_setup(config_path)
-        log("returning options:", str(options))
+        logging.info("returning options:" + str(options))
         export_to_path(os.path.join(settings.BASE_DIR,
                        'configs/' + request.session.session_key) + "/")
         return JsonResponse(options)
@@ -395,16 +384,16 @@ class ModelOptionsView(views.APIView):
 
 class InitialConditionsFiles(views.APIView):
     def get(self, request):
-        log("****** GET request received INITIAL CONDITIONS FILE ******")
+        logging.info("****** GET request received INITIAL CONDITIONS FILE ******")
         if not request.session.session_key:
             request.session.create()
 
-        debug("fetching conditions files for session id: " +
+        logging.debug("fetching conditions files for session id: " +
               request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         if not os.path.isfile(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return JsonResponse({})
         else:
             conf = ('configs/' + request.session.session_key
@@ -412,113 +401,113 @@ class InitialConditionsFiles(views.APIView):
             config_path = os.path.join(
                 settings.BASE_DIR, conf)
             values = initial_conditions_files(config_path)
-            log("returning values [icf]:", str(values))
+            logging.info("returning values [icf]:" + str(values))
             return JsonResponse(values)
 
 
 class ConditionsSpeciesList(views.APIView):
     def get(self, request):
-        log("****** GET request received INITIAL SPECIES LIST ******")
+        logging.info("****** GET request received INITIAL SPECIES LIST ******")
         if not request.session.session_key:
             request.session.create()
-        debug("fetching species list for session id: " +
+        logging.debug("fetching species list for session id: " +
               request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)
         if not os.path.isdir(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return JsonResponse({})
         else:
             conf = ('configs/' + request.session.session_key
                     + "/camp_data/species.json")
             conf = os.path.join(
                 settings.BASE_DIR, conf)
-            debug("fetching species list:", str(conf))
+            logging.debug("fetching species list:" + str(conf))
             species = {"species": conditions_species_list(conf)}
-            log("returning species [csl]:", str(species))
+            logging.info("returning species [csl]:" + str(species))
             return JsonResponse(species)
 
 
 class InitialConditionsSetup(views.APIView):
     def get(self, request):
-        log("****** GET request received INITIAL CONDITIONS SETUP ******")
+        logging.info("****** GET request received INITIAL CONDITIONS SETUP ******")
         if not request.session.session_key:
             request.session.create()
 
-        debug("fetching initial conditions setup for session id: " +
+        logging.debug("fetching initial conditions setup for session id: " +
               request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/'
                              + request.session.session_key
                              + "/initials.json")
         if not os.path.isfile(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return JsonResponse({})
         else:
             data = ""
             with open(direc) as f:
                 data = json.loads(f.read())
-            log("returning initial conditions setup:", str(data))
+            logging.info("returning initial conditions setup:" + str(data))
             return JsonResponse(data)
 
     def post(self, request):
-        log("****** POST request received INITIAL CONDITIONS SETUP ******")
+        logging.info("****** POST request received INITIAL CONDITIONS SETUP ******")
         if not request.session.session_key:
             request.session.create()
-        debug("saving initial conditions setup for session id: " +
+        logging.debug("saving initial conditions setup for session id: " +
               request.session.session_key)
-        debug("received initial conditions setup: " + str(request.body))
+        logging.debug("received initial conditions setup: " + str(request.body))
         newData = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR,
                             'configs/'
                             + request.session.session_key
                             + "/initials.json")
-        debug("saving to path: " + path)
+        logging.debug("saving to path: " + path)
         with open(path, 'w') as f:
             json.dump(newData, f, indent=4)
-        log('initial conditions setup updated')
+        logging.info('initial conditions setup updated')
         return JsonResponse({})
 
 
 class InitialSpeciesConcentrations(views.APIView):
     def get(self, request):
 
-        log("****** GET request received INIT_SPECIES_CONC ******")
+        logging.info("****** GET request received INIT_SPECIES_CONC ******")
         if not request.session.session_key:
             request.session.create()
 
-        debug("fetching initial species conc. for session id: " +
+        logging.debug("fetching initial species conc. for session id: " +
               request.session.session_key)
         direc = os.path.join(settings.BASE_DIR,
                              'configs/'
                              + request.session.session_key
                              + "/species.json")
         if not os.path.isfile(direc):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return JsonResponse({})
         else:
 
             path = os.path.join(settings.BASE_DIR, 'configs/' +
                                 request.session.session_key + "/species.json")
-            debug("getting initial species concentrations:", path)
+            logging.debug("getting initial species concentrations:" + path)
             values = initial_species_concentrations(path)
-            log("returning species [isc]:", str(values))
+            logging.info("returning species [isc]:" + str(values))
             return JsonResponse(values)
 
     def post(self, request):
-        log("****** POST request received INITIAL SPECIES CONC. ******")
+        logging.info("****** POST request received INITIAL SPECIES CONC. ******")
         if not request.session.session_key:
             request.session.create()
-        debug("received options:", str(request.body))
+        logging.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR, 'configs/' +
                             request.session.session_key + "/species.json")
-        debug("saving to path: "+path)
+        logging.debug("saving to path: "+path)
         if not os.path.isfile(path):
-            error("* detected no species this user")
+            logging.error("* detected no species this user")
             return Response(status=status.HTTP_200_OK)
         else:
-            log("* pushing new options:", str(initial_values))
+            logging.info("* pushing new options:" + str(initial_values))
             formulas = {}
             units = {}
             values = {}
@@ -543,38 +532,38 @@ class InitialSpeciesConcentrations(views.APIView):
 
 class InitialReactionRates(views.APIView):
     def get(self, request):
-        log("****** GET request received INITIAL REACTION RATES ******")
+        logging.info("****** GET request received INITIAL REACTION RATES ******")
         if not request.session.session_key:
             request.session.create()
 
-        debug("fetching initial species conc. for session id: " +
+        logging.debug("fetching initial species conc. for session id: " +
               request.session.session_key)
         initial_rates = {}
         path = os.path.join(settings.BASE_DIR, 'configs/' +
                             request.session.session_key
                             + "/initial_reaction_rates.csv")
         if not os.path.isfile(path):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return JsonResponse({})
         else:
             initial_reaction_rates_file_path = path
             with open(initial_reaction_rates_file_path, 'r') as f:
                 initial_rates = initial_conditions_file_to_dictionary(f, ',')
-            log("returning rates [irr]:", initial_rates)
+            logging.info("returning rates [irr]:" + initial_rates)
             return JsonResponse(initial_rates)
 
     def post(self, request):
-        log("****** POST request received INITIAL REACTION RATES ******")
+        logging.info("****** POST request received INITIAL REACTION RATES ******")
         if not request.session.session_key:
             request.session.create()
-        debug("received options:", request.body)
+        logging.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR, 'configs/' +
                             request.session.session_key
                             + "/initial_reaction_rates.csv")
-        debug("saving to path: " + path)
+        logging.debug("saving to path: " + path)
 
-        debug("pushing new options:", str(initial_values))
+        logging.debug("pushing new options:" + str(initial_values))
         config_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key
             + "/camp_data/reactions.json")
@@ -582,7 +571,7 @@ class InitialReactionRates(views.APIView):
         with open(initial_reaction_rates_file_path, 'w+') as f:
             dictionary_to_initial_conditions_file(
                 initial_values, f, ',', config_path)
-        log("done pushing new options")
+        logging.info("done pushing new options")
         export_to_path(os.path.join(settings.BASE_DIR,
                        'configs/' + request.session.session_key) + "/")
         return JsonResponse({})
@@ -603,7 +592,7 @@ class ConvertValues(views.APIView):
 
 class UnitConversionArguments(views.APIView):
     def get(self, request):
-        log("****** GET request received UNIT CONVERSION ARGUMENTS ******")
+        logging.info("****** GET request received UNIT CONVERSION ARGUMENTS ******")
         if not request.session.session_key:
             request.session.create()
         initial = request.GET['initialUnit']
@@ -646,35 +635,35 @@ class ConversionCalculator(views.APIView):
 
 class MusicaReactionsList(views.APIView):
     def get(self, request):
-        log("****** GET request received MUSICA REACTIONS LIST ******")
+        logging.info("****** GET request received MUSICA REACTIONS LIST ******")
         if not request.session.session_key:
             request.session.create()
 
-        debug("* fetching species list for session id: " +
+        logging.debug("* fetching species list for session id: " +
               request.session.session_key)
         reactions = {}
         path = os.path.join(settings.BASE_DIR, 'configs/'
                             + request.session.session_key)
         if not os.path.isdir(path):
-            error("detected no data from this user")
+            logging.error("detected no data from this user")
             return JsonResponse({})
         else:
             reactions = {"reactions": reaction_musica_names(os.path.join(
                 settings.BASE_DIR, 'configs/' + request.session.session_key)
                 + "/camp_data/reactions.json")}
-            log("returning reactions [mrl]:", str(reactions))
+            logging.info("returning reactions [mrl]:" + str(reactions))
             return JsonResponse(reactions)
 
 
 class EvolvingConditions(views.APIView):
     def get(self, request):
-        log("****** GET request received EVOLVING CONDITIONS ******")
+        logging.info("****** GET request received EVOLVING CONDITIONS ******")
         if not request.session.session_key:
             request.session.create()
         config_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key
             + "/my_config.json")
-        debug("config path: " + config_path)
+        logging.debug("config path: " + config_path)
         with open(config_path) as f:
             config = json.loads(f.read())
 
@@ -685,7 +674,7 @@ class EvolvingConditions(views.APIView):
         file_header_dict = {}
         for i in evolving_conditions_list:
             if '.csv' in i or '.txt' in i:
-                log("adding file: " + i)
+                logging.info("adding file: " + i)
                 path = os.path.join(os.path.join(
                     settings.BASE_DIR, 'configs/'
                     + request.session.session_key), i)
@@ -704,13 +693,13 @@ class EvolvingConditions(views.APIView):
 
 class LinearCombinations(views.APIView):
     def get(self, request):
-        log("****** GET request received LINEAR COMBINATIONS ******")
+        logging.info("****** GET request received LINEAR COMBINATIONS ******")
         if not request.session.session_key:
             request.session.create()
         config_path = os.path.join(settings.BASE_DIR,
                                    'configs/' + request.session.session_key +
                                    "/my_config.json")
-        debug("config path: " + config_path)
+        logging.debug("config path: " + config_path)
         config = direct_open_json(config_path)
 
         if 'evolving conditions' not in config:
@@ -734,7 +723,7 @@ class LinearCombinations(views.APIView):
 
 class CheckLoadView(views.APIView):
     def get(self, request):
-        log("****** GET request received RUN_STATUS_VIEW ******")
+        logging.info("****** GET request received RUN_STATUS_VIEW ******")
         if not request.session.session_key:
             request.session.create()
         runner = SessionModelRunner(request.session.session_key)
@@ -743,7 +732,7 @@ class CheckLoadView(views.APIView):
 
 class CheckView(views.APIView):
     def get(self, request):
-        log("****** GET request received RUN_STATUS_VIEW ******")
+        logging.info("****** GET request received RUN_STATUS_VIEW ******")
         if not request.session.session_key:
             request.session.create()
         runner = SessionModelRunner(request.session.session_key)
@@ -754,16 +743,42 @@ class RunView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
-        log("****** Running simulation for user session:",
-            request.session.session_key, "******")
+        logging.info("****** Running simulation for user session: " + request.session.session_key + "******")
         runner = SessionModelRunner(request.session.session_key)
+        
+        # TODO: check if the session is already running
+        # TODO: create checksum of config files
 
-        return runner.run(request)
+        rabbit_host = 'host.docker.internal' # access parent host from outside of docker container
+        rabbit_port = 5672
+        # print base_dir for debugging
+        print("base_dir: " + settings.BASE_DIR)
+        # disable pika logging because it's annoying
+        logging.getLogger("pika").propagate = False
+        isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
+        if isRabbitUp:
+            logging.info("rabbit is up, adding simulation to queue")
+            connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host, rabbit_port))
+            channel = connection.channel()
+            channel.queue_declare(queue='run_queue')
+
+            
+            channel.basic_publish(exchange='',
+                      routing_key='run_queue',
+                      body=request.session.session_key)
+
+            # close connection
+            connection.close()
+            logging.info("published message to run_queue")
+            return JsonResponse({'status': 'queued', 'model_running': True})
+        else:
+            logging.info("rabbit is down, simulation will be run on API server")
+            return runner.run()
 
 
 class GetPlotContents(views.APIView):
     def get(self, request):
-        log("****** GET request received GET_PLOT_CONTENTS ******")
+        logging.info("****** GET request received GET_PLOT_CONTENTS ******")
         if not request.session.session_key:
             request.session.create()
         get = request.GET
@@ -771,7 +786,7 @@ class GetPlotContents(views.APIView):
         csv_results_path = os.path.join(
             os.environ['MUSIC_BOX_BUILD_DIR'],
             request.session.session_key+"/output.csv")
-        debug("searching for file: "+csv_results_path)
+        logging.debug("searching for file: "+csv_results_path)
         response = HttpResponse()
         response.write(plots_unit_select(prop))
         subs = sub_props(prop, csv_results_path)
@@ -793,41 +808,40 @@ class GetPlotContents(views.APIView):
 
 class GetPlot(views.APIView):
     def get(self, request):
-        log("****** GET request received GET_PLOT ******")
-        if not request.session.session_key:
-            request.session.create()
+        logging.info("****** GET request received GET_PLOT ******")
+        sessid = request.GET.get('sess_id')
+        logging.info("sessid: "+sessid)
         csv_path = os.path.join(
             os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key+"/output.csv")
-        debug("csv path: "+csv_path)
+            sessid+"/output.csv")
+        logging.debug("csv path: "+csv_path)
         if request.method == 'GET':
             props = request.GET['type']
-            debug("grabbing props: "+str(props))
+            logging.debug("grabbing props: "+str(props))
+            buffer = io.BytesIO()
             species_p = (os.path.join(
                     settings.BASE_DIR,
-                    'configs/' + request.session.session_key)
+                    'configs/' + sessid)
                     + "/camp_data/species.json")
             if request.GET['unit'] == 'n/a':
                 buffer = output_plot(str(props), False, csv_path, species_p)
             else:
                 buffer = output_plot(str(props), request.GET['unit'],
                                      csv_path, species_p)
-
-            # return HttpResponse(buffer.getvalue(), content_type="image/png")
-            return HttpResponse(buffer, content_type="image/png")
+            return HttpResponse(buffer.getvalue(), content_type="image/png")
         return HttpResponseBadRequest('Bad format for plot request',
                                       status=405)
 
 
 class GetBasicDetails(views.APIView):
     def get(self, request):
-        log("****** GET request received GET_BASIC_DETAILS ******")
+        logging.info("****** GET request received GET_BASIC_DETAILS ******")
         if not request.session.session_key:
             request.session.create()
         csv_results_path = os.path.join(
             os.environ['MUSIC_BOX_BUILD_DIR'],
             request.session.session_key + "/output.csv")
-        debug("fetching details from: " + csv_results_path)
+        logging.debug("fetching details from: " + csv_results_path)
         csv = pandas.read_csv(csv_results_path)
         plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
         plot_property_list = [x.strip() for x in plot_property_list]
@@ -837,13 +851,13 @@ class GetBasicDetails(views.APIView):
         context = {
             'plots_list': plot_property_list
         }
-        log("plots list: ", str(context))
+        logging.info("plots list: " + str(context))
         return JsonResponse(context)
 
 
 class GetFlowDetails(views.APIView):
     def get(self, request):
-        log("****** GET request received GET_FLOW_DETAILS ******")
+        logging.info("****** GET request received GET_FLOW_DETAILS ******")
         if not request.session.session_key:
             request.session.create()
         csv_results_path = os.path.join(
@@ -851,22 +865,23 @@ class GetFlowDetails(views.APIView):
             request.session.session_key + "/output.csv")
         context = {
             "species": get_species(csv_results_path),
+            "stepVal": get_step_length(csv_results_path),
             "simulation_length": get_simulation_length(csv_results_path)
         }
-        log("returning basic info:", str(context))
+        logging.debug("returning basic info:" + str(context))
         return JsonResponse(context)
 
 
 class GetFlow(views.APIView):
     def get(self, request):
-        log("****** GET request received GET_FLOW ******")
+        logging.info("****** GET request received GET_FLOW ******")
         if not request.session.session_key:
             request.session.create()
         csv_results_path = os.path.join(
             os.environ['MUSIC_BOX_BUILD_DIR'],
             request.session.session_key + "/output.csv")
-        debug("fetching flow from: " + csv_results_path)
-        debug("using data:", str(request.GET.dict()))
+        logging.debug("fetching flow from: " + csv_results_path)
+        logging.debug("using data:" + str(request.GET.dict()))
         csv_results_path = os.path.join(
             os.environ['MUSIC_BOX_BUILD_DIR'],
             request.session.session_key + "/output.csv")
@@ -884,9 +899,9 @@ class GetFlow(views.APIView):
 
 class DownloadConfig(views.APIView):
     def get(self, request):
-        log("****** GET request received DOWNLOAD_CONFIG ******")
+        logging.info("****** GET request received DOWNLOAD_CONFIG ******")
         sessid = request.GET.get('sess_id')
-        log("sessid: "+sessid)
+        logging.info("sessid: "+sessid)
         destination_path = os.path.join(
             settings.BASE_DIR,
             "dashboard/static/zip/"
@@ -898,9 +913,9 @@ class DownloadConfig(views.APIView):
             + "/config.zip")
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + sessid)
-        debug("destination path: " + destination_path)
-        debug("zip path: " + zip_path)
-        debug("conf path: " + conf_path)
+        logging.debug("destination path: " + destination_path)
+        logging.debug("zip path: " + zip_path)
+        logging.debug("conf path: " + conf_path)
         create_config_zip(destination_path, zip_path, conf_path)
         fl_path = zip_path
         zip_file = open(fl_path, 'rb')
@@ -912,10 +927,10 @@ class DownloadConfig(views.APIView):
 
 class DownloadResults(views.APIView):
     def get(self, request):
-        log("****** GET request received DOWNLOAD_RESULTS ******")
+        logging.info("****** GET request received DOWNLOAD_RESULTS ******")
         if not request.session.session_key:
             request.session.create()
-        debug("session key: " + request.session.session_key)
+        logging.debug("session key: " + request.session.session_key)
         fl_path = os.path.join(
             os.environ['MUSIC_BOX_BUILD_DIR'],
             request.session.session_key + "/output.csv")
@@ -934,10 +949,10 @@ class DownloadResults(views.APIView):
 
 class ConfigJsonUpload(views.APIView):
     def post(self, request):
-        log("****** GET request received CONFIG_UPLOAD ******")
+        logging.info("****** GET request received CONFIG_UPLOAD ******")
         if not request.session.session_key:
             request.session.create()
-        debug("session key: " + request.session.session_key)
+        logging.debug("session key: " + request.session.session_key)
         uploaded = request.FILES['file']
         configs_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
@@ -950,14 +965,14 @@ class ConfigJsonUpload(views.APIView):
 
 class RemoveInitialConditionsFile(views.APIView):
     def post(self, request):
-        log("****** GET request received REMOVE_INIT_COND_FILE ******")
+        logging.info("****** GET request received REMOVE_INIT_COND_FILE ******")
         if not request.session.session_key:
             request.session.create()
-        debug("session key: " + request.session.session_key)
+        logging.debug("session key: " + request.session.session_key)
         configs_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         remove_request = json.loads(request.body)
-        debug("removing file:", str(remove_request))
+        logging.debug("removing file:" + str(remove_request))
         initial_conditions_file_remove(remove_request, configs_path)
         return JsonResponse({})
 
@@ -965,48 +980,48 @@ class RemoveInitialConditionsFile(views.APIView):
 # upload on conditions/intial page
 class InitCSV(views.APIView):
     def post(self, request):
-        log("****** POST request received INIT_CSV ******")
+        logging.info("****** POST request received INIT_CSV ******")
         if not request.session.session_key:
             request.session.create()
-        debug("session key: " + request.session.session_key)
+        logging.debug("session key: " + request.session.session_key)
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
         conf_path = os.path.join(
             settings.BASE_DIR,
             'configs/' + request.session.session_key)
-        debug("uploaded file: " + filename)
-        debug("saving to conf_path: " + conf_path)
+        logging.debug("uploaded file: " + filename)
+        logging.debug("saving to conf_path: " + conf_path)
         manage_initial_conditions_files(uploaded, filename, conf_path)
         return JsonResponse({})
 
 
 class ClearEvolutionFiles(views.APIView):
     def get(self, request):
-        log("****** POST request received INIT_CSV ******")
+        logging.info("****** POST request received INIT_CSV ******")
         if not request.session.session_key:
             request.session.create()
-        debug("session key: " + request.session.session_key)
+        logging.debug("session key: " + request.session.session_key)
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
-        debug("clearing evolution files:", conf_path)
+        logging.debug("clearing evolution files:" + conf_path)
         clear_e_files(conf_path)
         return JsonResponse({})
 
 
 class EvolvFileUpload(views.APIView):
     def post(self, request):
-        log("****** POST request received EVOLV_FILE_UPLOAD ******")
+        logging.info("****** POST request received EVOLV_FILE_UPLOAD ******")
         if not request.session.session_key:
             request.session.create()
-        debug("session key: " + request.session.session_key)
+        logging.debug("session key: " + request.session.session_key)
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
-        debug("uploading file: " + filename)
+        logging.debug("uploading file: " + filename)
         manage_uploaded_evolving_conditions_files(
             uploaded, filename, conf_path)
-        log("uploaded evolving file: " + filename)
+        logging.info("uploaded evolving file: " + filename)
         return JsonResponse({})
 
 
@@ -1014,5 +1029,62 @@ class LoadFromConfigJsonView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.create()
-        log("saving model options for user: "+request.session.session_key)
+        logging.info("saving model options for user: "+request.session.session_key)
         uploaded = request.FILES['file']
+
+
+# checks server by trying to connect
+def check_for_rabbit_mq(host, port):
+    """
+    Checks if RabbitMQ server is running.
+    """
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+        if connection.is_open:
+            connection.close()
+            return True
+        else:
+            connection.close()
+            return False
+    except:
+        return False
+
+
+# puts zip file as message into queue
+# NOT USED YET, FOR USE LATER
+def put_zip_file_into_queue(runner, session_id, queue_name):
+    rabbit_host = 'host.docker.internal' # access parent host from outside of docker container
+    rabbit_port = 5672
+
+    # disable pika logging because it's annoying
+    logging.getLogger("pika").propagate = False
+    isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
+    if isRabbitUp:
+        logging.info("rabbit is up, adding simulation to queue")
+        connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_host, rabbit_port))
+        channel = connection.channel()
+        channel.queue_declare(queue=queue_name)
+
+        # create zipfile of config files for user
+        archive_from = os.path.join(
+            settings.BASE_DIR, 'configs/' + session_id)
+        archive_to = os.path.join(settings.BASE_DIR, 'configs/')
+        zipname = session_id+'_tmp'
+        # shutil.make_archive(zipname, 'zip', archive_from, archive_to)
+        shutil.make_archive(zipname, 'zip', archive_from)
+        logging.info("grabbing from "+archive_to+zipname+'.zip')
+        byte_rep = open(zipname+'.zip', 'rb').read()
+        bod = json.dump({'file-name': zipname+'.zip', 'file-content': byte_rep})
+        channel.basic_publish(exchange='',
+                    routing_key=queue_name,
+                    body=bod)
+        # delete zipfile
+        os.remove(zipname+'.zip')
+
+        # close connection
+        connection.close()
+        logging.info("published message to run_queue")
+        return JsonResponse({'status': 'queued', 'model_running': False})
+    else:
+        logging.info("rabbit is down, simulation will be run on API server")
+        return runner.run(request)
