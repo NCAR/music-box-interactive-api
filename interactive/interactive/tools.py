@@ -1,13 +1,12 @@
 import os
 import json
-# from django.conf import settings
-# from django.http import HttpResponse
+from django.conf import settings
 from .unit_dict import *
 from .conversion_dict import *
 from .converter_class import Unit
 
-
-base_dir = '/music-box-interactive/interactive'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+base_dir = settings.BASE_DIR
 # get path for filename
 def file_path(filename):
     locations = {
