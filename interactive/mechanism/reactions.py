@@ -83,7 +83,6 @@ def reaction_menu_names(reactions_path=reactions_default):
 
 # removes a reaction from the mechanism
 def reaction_remove(reaction_index, reactions_path=reactions_default):
-    # logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     camp_data['camp-data'][0]['reactions'].pop(reaction_index)
@@ -93,7 +92,6 @@ def reaction_remove(reaction_index, reactions_path=reactions_default):
 
 def remove_reactions_with_species(species, reactions_path=reactions_default,
                                   my_config_path=""):
-    # logging.info('removing reactions with species ' + species)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     camp_data['camp-data'][0]['reactions'] = [r for r in camp_data['camp-data'][0]['reactions'] if not species in r['reactants'].keys() and not species in r['products'].keys()]
@@ -118,7 +116,6 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
 
 # saves a reaction to the mechanism
 def reaction_save(reaction_data, reactions_path=reactions_default):
-    # logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     if 'index' in reaction_data:
@@ -134,7 +131,6 @@ def reaction_save(reaction_data, reactions_path=reactions_default):
 # returns the set of reactions with MUSICA names including the
 # units for their rates or rate constants
 def reaction_musica_names(reactions_path=reactions_default):
-    # logging.info('getting reactions with MUSICA names')
     reactions = {}
     for reaction in reactions_info(reactions_path):
         if 'MUSICA name' in reaction:
@@ -154,7 +150,6 @@ def reaction_musica_names(reactions_path=reactions_default):
 
 # returns the json schema for a particular reaction type
 def reaction_type_schema(reaction_type, reactions_path=reactions_default):
-    # logging.info('getting schema for ' + reaction_type)
     species = ""
     rea = reactions_path.replace('reactions.json', 'species.json')
     for idx, entry in enumerate(species_list(rea)):
