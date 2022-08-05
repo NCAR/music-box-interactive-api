@@ -1,12 +1,18 @@
 import os
 import json
-from django.conf import settings
+base_dir = '/music-box-interactive/interactive'
+try:
+    from django.conf import settings
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+    base_dir = settings.BASE_DIR
+except ModuleNotFoundError:
+    # Error handling
+    pass
 from .unit_dict import *
 from .conversion_dict import *
 from .converter_class import Unit
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-base_dir = settings.BASE_DIR
+
 # get path for filename
 def file_path(filename):
     locations = {
