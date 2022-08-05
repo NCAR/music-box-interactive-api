@@ -1,5 +1,12 @@
 import json
-from django.conf import settings
+BASE_DIR = '/music-box-interactive/interactive'
+try:
+    from django.conf import settings
+    BASE_DIR = settings.BASE_DIR
+except ModuleNotFoundError:
+    # Error handling
+    pass
+
 import logging
 import os
 import time
@@ -9,8 +16,8 @@ from interactive.tools import *
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 react = "dashboard/static/config/camp_data/reactions.json"
-# reactions_default = os.path.join(settings.BASE_DIR, react)
-reactions_default = os.path.join(settings.BASE_DIR, react)
+# reactions_default = os.path.join(BASE_DIR, react)
+reactions_default = os.path.join(BASE_DIR, react)
 
 
 # returns the full set of reaction json objects from the reactions file
