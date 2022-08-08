@@ -18,15 +18,19 @@ from datetime import datetime
 from mechanism.reactions import reactions_are_valid
 from interactive.tools import *
 from pathlib import Path
+from django.conf import settings
 import logging
 import hashlib
 import pika
 import json
+from update_environment_variables import update_environment_variables
+update_environment_variables()
+RABBIT_HOST = os.environ["rabbit-mq-host"]
+RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
-RABBIT_HOST = 'host.docker.internal' # access parent host from outside of docker container
-RABBIT_PORT = 5672
-
-BASE_DIR = '/music-box-interactive/interactive'
+# BASE_DIR = '/music-box-interactive/interactive'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+BASE_DIR = settings.BASE_DIR
 
 # disable propagation
 logging.getLogger("pika").propagate = False

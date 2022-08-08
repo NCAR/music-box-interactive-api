@@ -2,7 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+from update_environment_variables import update_environment_variables
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
@@ -18,4 +18,5 @@ def main():
 
 
 if __name__ == '__main__':
+    update_environment_variables()
     main()

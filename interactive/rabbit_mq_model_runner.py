@@ -9,9 +9,10 @@ import pika
 import sys
 import os
 from model_driver.session_model_runner import SessionModelRunner
-
-RABBIT_HOST = 'host.docker.internal' # access parent host from outside of docker container
-RABBIT_PORT = 5672
+from update_environment_variables import update_environment_variables
+update_environment_variables()
+RABBIT_HOST = os.environ["rabbit-mq-host"]
+RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
@@ -58,7 +59,7 @@ if __name__ == '__main__':
         if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
             main()
         else:
-            print('[ERR!] RabbitMQ server is not running. Exiting...')
+            print('[ERR!] RabbitMQ server is not running.')
             sys.exit(1)
     except KeyboardInterrupt:
         print('Interrupted')

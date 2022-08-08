@@ -42,9 +42,9 @@ import pika
 #       - request.session.session_key is a string representation of this value
 #       - request.session.session_key is used to access documents from DJANGO
 
-logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+# logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+# logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+# logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
 def beautifyReaction(reaction):
     if '->' in reaction:
@@ -744,6 +744,11 @@ class RunView(views.APIView):
         if not request.session.session_key:
             request.session.create()
         logging.info("****** Running simulation for user session: " + request.session.session_key + "******")
+        # 1) calculate checksum of config files
+        # 2) check if checksum is in database
+        # 3) if not, run simulation and save checksum in database + return simulation status
+        # 4) if yes, check if simulation is finished + return results
+
         runner = SessionModelRunner(request.session.session_key)
         
         # TODO: check if the session is already running
@@ -751,8 +756,7 @@ class RunView(views.APIView):
 
         rabbit_host = 'host.docker.internal' # access parent host from outside of docker container
         rabbit_port = 5672
-        # print base_dir for debugging
-        print("base_dir: " + settings.BASE_DIR)
+
         # disable pika logging because it's annoying
         logging.getLogger("pika").propagate = False
         isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)

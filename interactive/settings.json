@@ -1,0 +1,7 @@
+{
+    "rabbit-mq-host" : "host.docker.internal",
+    "rabbit-mq-port" : "5672",
+    "queue_for_requested_model_runs" : "run_queue",
+    "queue_for_model_run_results" : "model_finished_queue",
+    "log_level" : "debug"
+}
