@@ -15,8 +15,6 @@ example_base = 'interactive/dashboard/static/examples'
 
 
 class UnitTestRunner(unittest.TestCase):
-
-
     def test_all_config_files(self):
         # look for all config files
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
@@ -62,8 +60,6 @@ class UnitTestRunner(unittest.TestCase):
                             example_base + ez3 + 'initial_reaction_rates.csv']
         self.assertEqual(files3, expected_files_3)
         print("\t - example_3 files look good ✓")
-
-
     def test_config_files_checksums(self):
         global base_dir
         """check checksums for config files"""
