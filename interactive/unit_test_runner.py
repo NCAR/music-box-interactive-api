@@ -1,9 +1,5 @@
 import os
 import json
-# from rest_framework import status
-# from django.test import TestCase, Client
-# from django.test import TransactionTestCase
-# from django.test.runner import DiscoverRunner
 from unittest.suite import TestSuite
 import subprocess
 import unittest
@@ -18,7 +14,7 @@ s.cookies.set("sessionid", "testsessionid", domain="127.0.0.1")
 # client = Client()
 base_dir = 'interactive'
 
-
+example_base = 'interactive/dashboard/static/examples'
 
 class UnitTestRunner(unittest.TestCase):
 
@@ -31,30 +27,35 @@ class UnitTestRunner(unittest.TestCase):
         # fetch all files in each examples directories
         example_1_path = os.path.join(examples_path, 'example_1')
         files1 = get_list_of_files(example_1_path)
-        expected_files_1 = ['interactive/dashboard/static/examples/example_1/camp_data/species.json', 'interactive/dashboard/static/examples/example_1/camp_data/tolerance.json', 'interactive/dashboard/static/examples/example_1/camp_data/reactions.json', 'interactive/dashboard/static/examples/example_1/camp_data/config.json', 'interactive/dashboard/static/examples/example_1/my_config.json', 'interactive/dashboard/static/examples/example_1/MusicBox_1_60hPa.csv']
+        expected_files_1 = [example_base + '/example_1/camp_data/species.json',
+                            example_base + '/example_1/camp_data/tolerance.json',
+                            example_base + '/example_1/camp_data/reactions.json',
+                            example_base + '/example_1/camp_data/config.json',
+                            example_base + '/example_1/my_config.json',
+                            example_base + '/example_1/MusicBox_1_60hPa.csv']
         self.assertEqual(files1, expected_files_1)
         print("\t - example_1 files look good ✓")
 
         example_2_path = os.path.join(examples_path, 'example_2')
         files2 = get_list_of_files(example_2_path)
-        expected_files_2 = ['interactive/dashboard/static/examples/example_2/camp_data/species.json',
-        'interactive/dashboard/static/examples/example_2/camp_data/tolerance.json',
-        'interactive/dashboard/static/examples/example_2/camp_data/reactions.json',
-        'interactive/dashboard/static/examples/example_2/camp_data/config.json',
-        'interactive/dashboard/static/examples/example_2/my_config.json',
-        'interactive/dashboard/static/examples/example_2/initial_reaction_rates.csv']
+        expected_files_2 = [example_base + '/example_2/camp_data/species.json',
+                            example_base + '/example_2/camp_data/tolerance.json',
+                            example_base + '/example_2/camp_data/reactions.json',
+                            example_base + '/example_2/camp_data/config.json',
+                            example_base + '/example_2/my_config.json',
+                            example_base + '/example_2/initial_reaction_rates.csv']
 
         self.assertEqual(files2, expected_files_2)
         print("\t - example_2 files look good ✓")
 
         example_3_path = os.path.join(examples_path, 'example_3')
         files3 = get_list_of_files(example_3_path)
-        expected_files_3 = ['interactive/dashboard/static/examples/example_3/camp_data/species.json',
-        'interactive/dashboard/static/examples/example_3/camp_data/tolerance.json',
-        'interactive/dashboard/static/examples/example_3/camp_data/reactions.json',
-        'interactive/dashboard/static/examples/example_3/camp_data/config.json',
-        'interactive/dashboard/static/examples/example_3/my_config.json',
-        'interactive/dashboard/static/examples/example_3/initial_reaction_rates.csv']
+        expected_files_3 = [example_base + '/example_3/camp_data/species.json',
+                            example_base + '/example_3/camp_data/tolerance.json',
+                            example_base + '/example_3/camp_data/reactions.json',
+                            example_base + '/example_3/camp_data/config.json',
+                            example_base + '/example_3/my_config.json',
+                            example_base + '/example_3/initial_reaction_rates.csv']
         self.assertEqual(files3, expected_files_3)
         print("\t - example_3 files look good ✓")
 
@@ -70,21 +71,21 @@ class UnitTestRunner(unittest.TestCase):
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
         example_1_checksum = calculate_checksum(example_1_path)
-        example_1_expected_checksum = "17158dd0c38c409e58fa8020eb049381" # b3f3a80960f3826896d6f1f116e5f604
+        example_1_expected_checksum = "17158dd0c38c409e58fa8020eb049381"
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("\t - example_1 checksum good ✓")
 
         # get check sum from example_2
         example_2_path = os.path.join(examples_path, 'example_2')
         example_2_checksum = calculate_checksum(example_2_path)
-        example_2_expected_checksum = "e0b89901696a3779ad6b910e24eaeb4c" # e659ad1a567c09dc2c16e32a8f475748
+        example_2_expected_checksum = "e0b89901696a3779ad6b910e24eaeb4c"
         self.assertEqual(example_2_checksum, example_2_expected_checksum)
         print("\t - example_2 checksum good ✓")
 
         # get check sum from example_3
         example_3_path = os.path.join(examples_path, 'example_3')
         example_3_checksum = calculate_checksum(example_3_path)
-        example_3_expected_checksum = "f25600931179b57fccdee625e2983d7b" # 47ae9f6212cddb7a079119a57aceac9b
+        example_3_expected_checksum = "f25600931179b57fccdee625e2983d7b"
         self.assertEqual(example_3_checksum, example_3_expected_checksum)
         print("\t - example_3 checksum good ✓")
 
@@ -94,16 +95,16 @@ class UnitTestRunner(unittest.TestCase):
         # set output time step to 500 seconds in my_config.json for first example
 
         # example_1 species location
-        config_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/camp_data/species.json')
+        config_path = example_base + '/example_1/camp_data/species.json'
         species_to_remove = "N2"
         species_remove(species_to_remove, config_path)
 
-        reac_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/camp_data/reactions.json')
-        my_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/my_config.json')
+        reac_path = example_base + '/example_1/camp_data/reactions.json'
+        my_path = example_base + '/example_1/my_config.json'
         remove_reactions_with_species(species_to_remove, reac_path,
                                         my_path)
         example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be"
-        examples_path = os.path.join(base_dir, 'dashboard/static/examples')
+        examples_path = example_path
 
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
@@ -111,9 +112,9 @@ class UnitTestRunner(unittest.TestCase):
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("\t - removed N2 ✓")
     def test_changed_reactions_config_file(self):
-        print("Test Case #4: check that checksum changes when reactions config file changes")
+        print("Test Case #4: change reactions config file")
         # remove reaction @ index 0
-        config_path = os.path.join(base_dir, 'dashboard/static/examples/example_1/camp_data/reactions.json')
+        config_path = example_base + '/example_1/camp_data/reactions.json'
         reaction_remove(0, config_path)
 
         example_1_expected_checksum = "6f14589d8058644358dd26f764487716"
@@ -129,20 +130,6 @@ class UnitTestRunner(unittest.TestCase):
         print("Test Case #5: check that checksum changes when conditions file changes")
         new_json = '{"chem_step.units":"min","output_step.units":"sec","simulation_length.units":"day","grid":"box","chemistry_time_step":"1","output_time_step":"500","simulation_length":"5"}'
         newOptions = json.loads(new_json)
-        # path = os.path.join(settings.BASE_DIR, 'configs/' +
-        #                     request.session.session_key)+"/options.json"
-        # options = {}
-        # for key in newOptions:
-        #     options.update({key: newOptions[key]})
-        # with open(path, 'w') as f:
-        #     json.dump(options, f, indent=4)
-        # logging.info('box model options updated')
-        # config_path = os.path.join(
-        #     settings.BASE_DIR, 'configs/' + request.session.session_key)
-        # options = option_setup(config_path)
-        # logging.info("returning options:" + str(options))
-        # export_to_path(os.path.join(settings.BASE_DIR,
-        #                'configs/' + request.session.session_key) + "/")
 # stop all processes (including running django server)
 def stopAllProcesses():
     print("* stopping all processes")
