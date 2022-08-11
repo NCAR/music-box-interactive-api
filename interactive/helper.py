@@ -30,7 +30,7 @@ def get_list_of_files(dirName):
         if os.path.isdir(fullPath):
             allFiles = allFiles + get_list_of_files(fullPath)
         else:
-            allFiles.append(fullPath)     
+            allFiles.append(fullPath)
     return allFiles
 
 
