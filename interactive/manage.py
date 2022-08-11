@@ -25,7 +25,7 @@ if __name__ == '__main__':
     print("* starting up API server")
     main()
 
-    #check for start-unit-test in args
+    # check for start-unit-test in args
     if 'start-unit-test' in sys.argv:
         print("*** Starting unit tests ***")
         sys.exit(0)
