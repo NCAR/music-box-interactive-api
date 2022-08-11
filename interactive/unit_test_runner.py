@@ -27,35 +27,41 @@ class UnitTestRunner(unittest.TestCase):
         # fetch all files in each examples directories
         example_1_path = os.path.join(examples_path, 'example_1')
         files1 = get_list_of_files(example_1_path)
-        expected_files_1 = [example_base + '/example_1/camp_data/species.json',
-                            example_base + '/example_1/camp_data/tolerance.json',
-                            example_base + '/example_1/camp_data/reactions.json',
-                            example_base + '/example_1/camp_data/config.json',
-                            example_base + '/example_1/my_config.json',
-                            example_base + '/example_1/MusicBox_1_60hPa.csv']
+        eg1 = '/example_1/camp_data/'
+        ez = '/example_1/'
+        expected_files_1 = [example_base + eg1 + 'species.json',
+                            example_base + eg1 + 'tolerance.json',
+                            example_base + eg1 + 'reactions.json',
+                            example_base + eg1 + 'config.json',
+                            example_base + ez + 'my_config.json',
+                            example_base + ez + 'MusicBox_1_60hPa.csv']
         self.assertEqual(files1, expected_files_1)
         print("\t - example_1 files look good ✓")
 
         example_2_path = os.path.join(examples_path, 'example_2')
         files2 = get_list_of_files(example_2_path)
-        expected_files_2 = [example_base + '/example_2/camp_data/species.json',
-                            example_base + '/example_2/camp_data/tolerance.json',
-                            example_base + '/example_2/camp_data/reactions.json',
-                            example_base + '/example_2/camp_data/config.json',
-                            example_base + '/example_2/my_config.json',
-                            example_base + '/example_2/initial_reaction_rates.csv']
+        eg2 = '/example_2/camp_data/'
+        ez2 = '/example_2/'
+        expected_files_2 = [example_base + eg2 + 'species.json',
+                            example_base + eg2 + 'tolerance.json',
+                            example_base + eg2 + 'reactions.json',
+                            example_base + eg2 + 'config.json',
+                            example_base + ez2 + 'my_config.json',
+                            example_base + ez2 + 'initial_reaction_rates.csv']
 
         self.assertEqual(files2, expected_files_2)
         print("\t - example_2 files look good ✓")
 
         example_3_path = os.path.join(examples_path, 'example_3')
         files3 = get_list_of_files(example_3_path)
-        expected_files_3 = [example_base + '/example_3/camp_data/species.json',
-                            example_base + '/example_3/camp_data/tolerance.json',
-                            example_base + '/example_3/camp_data/reactions.json',
-                            example_base + '/example_3/camp_data/config.json',
-                            example_base + '/example_3/my_config.json',
-                            example_base + '/example_3/initial_reaction_rates.csv']
+        eg3 = '/example_3/camp_data/'
+        ez3 = '/example_3/'
+        expected_files_3 = [example_base + eg3 + 'species.json',
+                            example_base + eg3 + 'tolerance.json',
+                            example_base + eg3 + 'reactions.json',
+                            example_base + eg3 + 'config.json',
+                            example_base + ez3 + 'my_config.json',
+                            example_base + ez3 + 'initial_reaction_rates.csv']
         self.assertEqual(files3, expected_files_3)
         print("\t - example_3 files look good ✓")
 
@@ -91,8 +97,8 @@ class UnitTestRunner(unittest.TestCase):
 
     def test_changed_species_config_file(self):
         # edit a config file and check that the checksum changes
-        print("Test Case #3: check that checksum changes when species config file changes")
-        # set output time step to 500 seconds in my_config.json for first example
+        print("Test Case #3: change species file")
+        # set output time step to 500 seconds in my_config.json
 
         # example_1 species location
         config_path = example_base + '/example_1/camp_data/species.json'
@@ -104,7 +110,7 @@ class UnitTestRunner(unittest.TestCase):
         remove_reactions_with_species(species_to_remove, reac_path,
                                         my_path)
         example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be"
-        examples_path = example_path
+        examples_path = example_base
 
         # get check sum from example_1
         example_1_path = os.path.join(examples_path, 'example_1')
@@ -142,7 +148,7 @@ if __name__ == '__main__':
     # runner.test_config_files_checksums()
     # stopAllProcesses()
     print("* running test cases")
-    print("----------------------------------------------------------------------")
+    print("--------------------------------------------------")
     # unittest.main() # run   all tests
     runner = UnitTestRunner()
     runner.test_all_config_files()
