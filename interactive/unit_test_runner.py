@@ -10,11 +10,9 @@ from mechanism.species import *
 
 s = requests.session()
 s.cookies.set("sessionid", "testsessionid", domain="127.0.0.1")
-# initialize the APIClient app
-# client = Client()
 base_dir = 'interactive'
-
 example_base = 'interactive/dashboard/static/examples'
+
 
 class UnitTestRunner(unittest.TestCase):
 
@@ -70,7 +68,6 @@ class UnitTestRunner(unittest.TestCase):
         global base_dir
         """check checksums for config files"""
         # first lets check that all example files have the right checksums
-        
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
         print("Test Case #2: verify file checksums")
 
@@ -108,7 +105,7 @@ class UnitTestRunner(unittest.TestCase):
         reac_path = example_base + '/example_1/camp_data/reactions.json'
         my_path = example_base + '/example_1/my_config.json'
         remove_reactions_with_species(species_to_remove, reac_path,
-                                        my_path)
+                                      my_path)
         example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be"
         examples_path = example_base
 
@@ -117,6 +114,7 @@ class UnitTestRunner(unittest.TestCase):
         example_1_checksum = calculate_checksum(example_1_path)
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("\t - removed N2 ✓")
+
     def test_changed_reactions_config_file(self):
         print("Test Case #4: change reactions config file")
         # remove reaction @ index 0
@@ -132,16 +130,20 @@ class UnitTestRunner(unittest.TestCase):
 
         self.assertEqual(example_1_checksum, example_1_expected_checksum)
         print("\t - removed first reaction ✓")
+
     def test_changed_conditions_file(self):
-        print("Test Case #5: check that checksum changes when conditions file changes")
+        print("Test Case #5: change conditions file")
         new_json = '{"chem_step.units":"min","output_step.units":"sec","simulation_length.units":"day","grid":"box","chemistry_time_step":"1","output_time_step":"500","simulation_length":"5"}'
         newOptions = json.loads(new_json)
+
+
 # stop all processes (including running django server)
 def stopAllProcesses():
     print("* stopping all processes")
     subprocess.run(["pkill", "python"])
-     
-#check if main
+
+
+# check if main
 if __name__ == '__main__':
     # run tests
     # runner = UnitTestRunner()
