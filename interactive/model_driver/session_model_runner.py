@@ -216,7 +216,7 @@ class SessionModelRunner():
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
         checksum = self.calculate_checksum()
-        logging.debug("calculated checksum: " + checksum)
+        logging.info("calculated checksum: " + checksum)
         logging.info("running model from base directory: " + self.mb_dir)
         process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],

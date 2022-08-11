@@ -67,7 +67,7 @@ class ExampleView(views.APIView):
 
         logging.debug("loading example for user " + request.session.session_key+" *")
         logging.debug("|_ loading example #" + str(request.GET.dict()['example']))
-        logging.debug("|_ example folder path: " + example_folder_path)
+        logging.info("|_ example folder path: " + example_folder_path)
 
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):
@@ -360,7 +360,6 @@ class ModelOptionsView(views.APIView):
         if not request.session.session_key:
             request.session.create()
         logging.debug("saving model options for user: " + request.session.session_key)
-        logging.debug("received options: " + str(request.body))
         newOptions = json.loads(request.body)
         path = os.path.join(settings.BASE_DIR, 'configs/' +
                             request.session.session_key)+"/options.json"

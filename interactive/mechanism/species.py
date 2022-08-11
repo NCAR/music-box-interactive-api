@@ -1,18 +1,25 @@
 import json
-from django.conf import settings
+BASE_DIR = '/music-box-interactive/interactive'
+try:
+    from django.conf import settings
+    BASE_DIR = settings.BASE_DIR
+except ModuleNotFoundError:
+    # Error handling
+    pass
 import logging
 import os
 import time
 from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 species = "dashboard/static/config/camp_data/species.json"
-species_default = os.path.join(settings.BASE_DIR, species)
+# species_default = os.path.join(BASE_DIR, species)
+species_default = os.path.join(BASE_DIR, species)
 
 
 # returns the full set of json objects from the species file
 def species_info(species_path=species_default):
-    logging.info('getting chemical species data from file')
     with open(species_path) as f:
         camp_data = json.loads(f.read())
         f.close()
@@ -37,7 +44,7 @@ def conditions_species_list(species_path=species_default):
 
 # returns a modified list
 def api_species_menu_names(species_path=species_default):
-    logging.info('getting list of species names')
+    # logging.info('getting list of species names')
     m_list = species_list(species_path)
     newlist = []
     for name in m_list:
@@ -51,7 +58,6 @@ def api_species_menu_names(species_path=species_default):
 
 # returns a list of chemical species names from the species file for use
 def species_menu_names(species_path=species_default):
-    logging.info('getting list of species names')
     m_list = species_list(species_path)
     newlist = []
     for name in m_list:
@@ -66,7 +72,6 @@ def species_menu_names(species_path=species_default):
 
 # removes a chemical species from the mechanism
 def species_remove(species_name, species_path=species_default):
-    logging.info("removing species '" + species_name + "'")
     species = species_info(species_path)
     index = 0
     for entry in species:
@@ -83,7 +88,6 @@ def species_remove(species_name, species_path=species_default):
 
 # saves a chemical species to the mechanism
 def species_save(species_data, species_path=species_default):
-    logging.info("saving species '" + species_data['name'] + "'")
     json_data = {}
     species_convert_from_SI(species_data)
     json_data['camp-data'] = species_info(species_path)

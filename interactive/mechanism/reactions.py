@@ -1,5 +1,12 @@
 import json
-from django.conf import settings
+BASE_DIR = '/music-box-interactive/interactive'
+try:
+    from django.conf import settings
+    BASE_DIR = settings.BASE_DIR
+except ModuleNotFoundError:
+    # Error handling
+    pass
+
 import logging
 import os
 import time
@@ -7,14 +14,14 @@ from .species import species_list
 from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
-
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 react = "dashboard/static/config/camp_data/reactions.json"
-reactions_default = os.path.join(settings.BASE_DIR, react)
+# reactions_default = os.path.join(BASE_DIR, react)
+reactions_default = os.path.join(BASE_DIR, react)
 
 
 # returns the full set of reaction json objects from the reactions file
 def reactions_info(reactions_path=reactions_default):
-    logging.info('getting reaction data from file')
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     return camp_data['camp-data'][0]['reactions']
@@ -83,7 +90,6 @@ def reaction_menu_names(reactions_path=reactions_default):
 
 # removes a reaction from the mechanism
 def reaction_remove(reaction_index, reactions_path=reactions_default):
-    logging.info('removing reaction ' + str(reaction_index))
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     camp_data['camp-data'][0]['reactions'].pop(reaction_index)
@@ -93,7 +99,6 @@ def reaction_remove(reaction_index, reactions_path=reactions_default):
 
 def remove_reactions_with_species(species, reactions_path=reactions_default,
                                   my_config_path=""):
-    logging.info('removing reactions with species ' + species)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     camp_data['camp-data'][0]['reactions'] = [r for r in camp_data['camp-data'][0]['reactions'] if not species in r['reactants'].keys() and not species in r['products'].keys()]
@@ -106,19 +111,15 @@ def remove_reactions_with_species(species, reactions_path=reactions_default,
         return
     with open(my_config_path) as f:
         chem_species = json.loads(f.read())
-    print("chem_species: ", chem_species.keys())
     if 'chemical species' in chem_species.keys():
         if species in chem_species['chemical species']:
-            print("* found species in chemical species")
             del chem_species['chemical species'][species]
-    print("* returning chem_species: ", chem_species)
     with open(my_config_path, 'w') as f:
         json.dump(chem_species, f)
 
 
 # saves a reaction to the mechanism
 def reaction_save(reaction_data, reactions_path=reactions_default):
-    logging.info('adding reaction: ', reaction_data)
     with open(reactions_path) as f:
         camp_data = json.loads(f.read())
     if 'index' in reaction_data:
@@ -134,7 +135,6 @@ def reaction_save(reaction_data, reactions_path=reactions_default):
 # returns the set of reactions with MUSICA names including the
 # units for their rates or rate constants
 def reaction_musica_names(reactions_path=reactions_default):
-    logging.info('getting reactions with MUSICA names')
     reactions = {}
     for reaction in reactions_info(reactions_path):
         if 'MUSICA name' in reaction:
@@ -154,7 +154,6 @@ def reaction_musica_names(reactions_path=reactions_default):
 
 # returns the json schema for a particular reaction type
 def reaction_type_schema(reaction_type, reactions_path=reactions_default):
-    logging.info('getting schema for ' + reaction_type)
     species = ""
     rea = reactions_path.replace('reactions.json', 'species.json')
     for idx, entry in enumerate(species_list(rea)):
