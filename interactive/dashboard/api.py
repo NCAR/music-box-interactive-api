@@ -36,6 +36,7 @@ from dashboard.flow_diagram import *
 import logging
 import socket
 import pika
+import pymongo
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
@@ -61,6 +62,17 @@ class ExampleView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
+        
+        # check for mongodb
+        print("* Checking for mongodb on address "+os.environ["mongo-db-host"]+":"+os.environ["mongo-db-port"])
+        is_mongo_up = check_for_mongo_db(os.environ["mongo-db-host"], int(os.environ["mongo-db-port"]))
+        if is_mongo_up:
+            print("* MongoDB is up")
+        else:
+            response = Response(menu_names, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return response
+
+        # print("* result:"+str(check_for_mongo_db('172.17.0.2', 27017)))
         # set example conditions and species/reactions
         example_name = 'example_' + str(request.GET.dict()['example'])
         examples_path = os.path.join(
@@ -1053,7 +1065,20 @@ def check_for_rabbit_mq(host, port):
     except:
         return False
 
-
+# checks for mongo server by trying to connect
+def check_for_mongo_db(host, port):
+    """
+    Checks if MongoDB server is running.
+    """
+    try:
+        client = pymongo.MongoClient(host, port)
+        if client.server_info()['ok'] == 1:
+            print("* successfully connected to mongo server!")
+            return True
+        else:
+            return False
+    except:
+        return False
 # puts zip file as message into queue
 # NOT USED YET, FOR USE LATER
 def put_zip_file_into_queue(runner, session_id, queue_name):

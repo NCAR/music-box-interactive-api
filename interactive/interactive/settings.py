@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import pymongo
+from pymongo import MongoClient
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,7 +45,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders'
 ]
-
+# ,
+#     'mbapp'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -81,6 +84,7 @@ WSGI_APPLICATION = 'interactive.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# UNCOMMENT THIS LINE TO USE SQLITE DATABASE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -88,6 +92,15 @@ DATABASES = {
     }
 }
 
+# MONGO DATABASE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'mb_mongo_db',
+#         'HOST': os.environ["mongo-db-host"],
+#         'PORT': os.environ["mongo-db-port"],
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -122,6 +135,7 @@ USE_L10N = True
 USE_TZ = True
 # SESSION_ENGINE = "django.contrib.sessions.backends.file"
 # SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# SESSION_ENGINE = 'mongo_sessions.session'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

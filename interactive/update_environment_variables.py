@@ -15,6 +15,8 @@ def update_environment_variables():
         os.environ["queue_for_requested_model_runs"] = settings["queue_for_requested_model_runs"]
         os.environ["queue_for_model_run_results"] = settings["queue_for_model_run_results"]
         os.environ["log_level"] = settings["log_level"]
+        os.environ["mongo-db-host"] = settings["mongo-db-host"]
+        os.environ["mongo-db-port"] = settings["mongo-db-port"]
         # set log level
         if os.environ["log_level"] == "DEBUG":
             logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
