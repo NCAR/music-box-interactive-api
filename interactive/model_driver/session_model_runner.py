@@ -41,7 +41,8 @@ def check_for_rabbit_mq(host, port):
     Checks if RabbitMQ server is running.
     """
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+        conn_params = pika.ConnectionParameters(host, port)
+        connection = pika.BlockingConnection(conn_params)
         if connection.is_open:
             connection.close()
             return True
@@ -56,10 +57,13 @@ def add_status_to_queue(session_id, host, port, status):
     Adds session_id to queue model_finished.
     """
     message = {'session_id': session_id, "model_status": status}
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+    conn_params = pika.ConnectionParameters(host, port)
+    connection = pika.BlockingConnection(conn_params)
     channel = connection.channel()
     channel.queue_declare(queue='model_finished_queue')
-    channel.basic_publish(exchange='', routing_key='model_finished_queue', body=json.dumps(message))
+    channel.basic_publish(exchange='',
+                          routing_key='model_finished_queue',
+                          body=json.dumps(message))
     connection.close()
 class SessionModelRunner():
     def __init__(self, session_id):
@@ -277,7 +281,7 @@ class SessionModelRunner():
         for entry in listOfFile:
             # Create full path
             fullPath = os.path.join(dirName, entry)
-            # If entry is a directory then get the list of files in this directory 
+            # If entry is a directory then get the list of files in this directory
             if os.path.isdir(fullPath):
                 allFiles = allFiles + self.getListOfFiles(fullPath)
             else:

@@ -12,29 +12,35 @@ from django.db import connection
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
-logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
-# disable propagation
-# logging.getLogger("pika").propagate = False
-
+logging.basicConfig(filename='logs.log', filemode='w',
+                    format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
+                    level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w',
+                    format='%(asctime)s - [ERROR!!] %(message)s',
+                    level=logging.ERROR)
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT))
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
+    connection = pika.BlockingConnection(connParam)
     channel = connection.channel()
 
     channel.queue_declare(queue='model_finished_queue')
 
     def run_model_finished_callback(ch, method, properties, body):
         logging.info('received model_finished message -- extracting results')
-        # TODO: once we have seperated the rabbit_mq_model_runner server from the api server, we would move files
+        # TODO: once we have seperated the rabbit_mq_model_runner
+        # server from the api server, we would move files
         decoded_body = json.loads(body.decode())
         if type(decoded_body) is dict:
             logging.info('decoded_body is properly formatted as a dict')
-
-            session_id = decoded_body['session_id'] # get session_id from message
-            model_checksum = decoded_body['model_checksum'] # checksum of config files
-            results_name = decoded_body['results_name'] # name for results file
-            results_binary_data = decoded_body['results_binary_data'] # binary data of csv results
+            # get session_id from message
+            session_id = decoded_body['session_id']
+            # checksum of config files
+            model_checksum = decoded_body['model_checksum']
+            # name for results file
+            results_name = decoded_body['results_name']
+            # binary data of csv results
+            results_binary_data = decoded_body['results_binary_data']
 
             # step 1: save results to file
             logging.info('saving results to file')

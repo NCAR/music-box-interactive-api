@@ -754,7 +754,6 @@ class RunView(views.APIView):
         # 4) if yes, check if simulation is finished + return results
 
         runner = SessionModelRunner(request.session.session_key)
-        
         # TODO: check if the session is already running
         # TODO: create checksum of config files
 
@@ -770,18 +769,16 @@ class RunView(views.APIView):
             connection = pika.BlockingConnection(con_params)
             channel = connection.channel()
             channel.queue_declare(queue='run_queue')
-
-            
             channel.basic_publish(exchange='',
-                      routing_key='run_queue',
-                      body=request.session.session_key)
+                                  routing_key='run_queue',
+                                  body=request.session.session_key)
 
             # close connection
             connection.close()
             logging.info("published message to run_queue")
             return JsonResponse({'status': 'queued', 'model_running': True})
         else:
-            logging.info("rabbit is down, simulation will be run on API server")
+            logging.info("rabbit is down, sim. will be run on API server")
             return runner.run()
 
 
