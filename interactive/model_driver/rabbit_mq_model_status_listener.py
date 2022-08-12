@@ -1,6 +1,3 @@
-# listener to be hosted on main API server
-# listens for messages from rabbitmq that indicate finished models
-
 import logging
 import pika
 import sys
@@ -8,6 +5,9 @@ import os
 import json
 from session_model_runner import SessionModelRunner
 from django.db import connection
+
+# listener to be hosted on main API server
+# listens for messages from rabbitmq that indicate finished models
 
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])

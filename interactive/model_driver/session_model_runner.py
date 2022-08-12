@@ -272,9 +272,7 @@ class SessionModelRunner():
         return {'model_running': True}
 
 
-    '''
-    For the given path, get the List of all files in the directory tree
-    '''
+    # get files/dirs inside of dirName
     def getListOfFiles(self, dirName):
         # create a list of file and sub directories
         # names in the given directory
@@ -300,6 +298,8 @@ class SessionModelRunner():
             if os.path.isfile(fn):
                 hash.update(open(fn, "rb").read())
         return hash.hexdigest()
+
+
     # copy inital config file on first model run
     def setup_config_check(self):
         self.copyAFile(self.config_path, self.old_path)
@@ -446,4 +446,3 @@ class SessionModelRunner():
         direct_dump_json(os.path.join(self.log_path,
                                       'log_config.json'), lc)
         logging.info('log cleared')
-    
