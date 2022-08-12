@@ -50,7 +50,7 @@ def check_for_rabbit_mq(host, port):
         else:
             connection.close()
             return False
-    except:
+    except pika.exceptions.AMQPConnectionError:
         return False
 
 
@@ -272,13 +272,12 @@ class SessionModelRunner():
         return {'model_running': True}
 
 
-     # helper function getting all files for user session
     '''
     For the given path, get the List of all files in the directory tree
     '''
     def getListOfFiles(self, dirName):
-        # create a list of file and sub directories 
-        # names in the given directory 
+        # create a list of file and sub directories
+        # names in the given directory
         listOfFile = os.listdir(dirName)
         allFiles = list()
         # Iterate over all the entries
@@ -290,7 +289,6 @@ class SessionModelRunner():
                 allFiles = allFiles + self.getListOfFiles(fullPath)
             else:
                 allFiles.append(fullPath)
-                    
         return allFiles
 
 
@@ -325,10 +323,8 @@ class SessionModelRunner():
                 if os.path.getsize(self.out_path) != 0:  # model has finished?
                     logging.info("output file found")
                     status = 'done'
-
         # update_with_result(status)
         response_message.update({'status': status})
-
         if status == 'error':
             with open(self.error_path) as g:
                 errorfile = json.loads(g.read())
@@ -350,7 +346,6 @@ class SessionModelRunner():
     def check_load(self, request):
         logging.info("checking via check_load...")
         response_message = {}
-
         status = 'checking'
         # check if error file exists
         if os.path.isfile(self.error_path):
@@ -365,7 +360,7 @@ class SessionModelRunner():
         response_message.update({'status': status,
                                  'session_id': request.session.session_key})
         return JsonResponse(response_message)
-    
+
     def run(self):
         logging.info("running...")
         run = self.setup_run()

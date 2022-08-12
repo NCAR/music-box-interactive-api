@@ -85,7 +85,7 @@ def check_for_rabbit_mq(host, port):
         else:
             connection.close()
             return False
-    except:
+    except pika.exceptions.AMQPConnectionError:
         return False
 
 

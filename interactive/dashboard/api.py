@@ -1036,7 +1036,7 @@ class LoadFromConfigJsonView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.create()
-        logging.info("saving model options for user: "+request.session.session_key)
+        logging.info("saving model options for user")
         uploaded = request.FILES['file']
 
 
@@ -1046,12 +1046,13 @@ def check_for_rabbit_mq(host, port):
     Checks if RabbitMQ server is running.
     """
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+        conn_params = pika.ConnectionParameters(host, port)
+        connection = pika.BlockingConnection(conn_params)
         if connection.is_open:
             connection.close()
             return True
         else:
             connection.close()
             return False
-    except:
+    except pika.exceptions.AMQPConnectionError:
         return False
