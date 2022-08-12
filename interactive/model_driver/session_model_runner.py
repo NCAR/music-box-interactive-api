@@ -271,11 +271,8 @@ class SessionModelRunner():
             json.dump(species_data, z)
         return {'model_running': True}
 
-
-    # get files/dirs inside of dirName
     def getListOfFiles(self, dirName):
         # create a list of file and sub directories
-        # names in the given directory
         listOfFile = os.listdir(dirName)
         allFiles = list()
         # Iterate over all the entries
@@ -290,7 +287,7 @@ class SessionModelRunner():
         return allFiles
 
 
-    # calculate checksum for config/model so we can check if it's run before
+    # calculate checksum for config/model
     def calculate_checksum(self):
         filenames = self.getListOfFiles(self.mb_dir)
         hash = hashlib.md5()
