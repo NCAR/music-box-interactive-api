@@ -19,6 +19,8 @@ logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
 logging.basicConfig(filename='errors.log', filemode='w',
                     format='%(asctime)s - [ERROR!!] %(message)s',
                     level=logging.ERROR)
+
+
 def main():
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
     connection = pika.BlockingConnection(connParam)
@@ -44,24 +46,28 @@ def main():
 
             # step 1: save results to file
             logging.info('saving results to file')
-            results_file_path = os.path.join('/build/'+session_id, results_name)
+            bld = '/build/' + session_id
+            results_file_path = os.path.join(bld, results_name)
             with open(results_file_path, 'wb') as f:
                 f.write(results_binary_data)
             logging.info('results saved to file')
 
             # step 2: save checksum to database
             logging.info('saving checksum to database')
-            
             cursor = connection.cursor()
-            cursor.execute("UPDATE config_checksums SET model_checksum = %s WHERE id = %s", [model_checksum, session_id])
+            update_s = 'UPDATE config_checksums SET model_checksum'
+            entire_query = update_s + ' = %s WHERE session_id = %s'
+            cursor.execute(entire_query, [model_checksum, session_id])
             connection.commit()
-            logging.info('checksum saved to database ('+str(model_checksum)+')')
+            logging.info('checksum saved (' + str(model_checksum) + ')')
         else:
             logging.info('decoded_body is not properly formatted as a dict')
             # return error?
-    channel.basic_consume(queue='model_finished_queue', on_message_callback=run_model_finished_callback, auto_ack=True)
+    channel.basic_consume(queue='model_finished_queue',
+                          on_message_callback=run_model_finished_callback,
+                          auto_ack=True)
 
-    print(' [*] Waiting for model_finished_queue messages. To exit press CTRL+C')
+    print(' [*] Waiting for model_finished_queue messages')
     channel.start_consuming()
 
 
@@ -71,7 +77,8 @@ def check_for_rabbit_mq(host, port):
     Checks if RabbitMQ server is running.
     """
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host, port))
+        conn_params = pika.ConnectionParameters(host, port)
+        connection = pika.BlockingConnection(conn_params)
         if connection.is_open:
             connection.close()
             return True

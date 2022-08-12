@@ -35,6 +35,7 @@ BASE_DIR = settings.BASE_DIR
 # disable propagation
 logging.getLogger("pika").propagate = False
 
+
 # checks server by trying to connect
 def check_for_rabbit_mq(host, port):
     """
@@ -51,6 +52,8 @@ def check_for_rabbit_mq(host, port):
             return False
     except:
         return False
+
+
 # add session_id to queue model_finished
 def add_status_to_queue(session_id, host, port, status):
     """
@@ -266,11 +269,12 @@ class SessionModelRunner():
 
         with open(self.species_path, 'w') as z:
             json.dump(species_data, z)
-
         return {'model_running': True}
+
+
      # helper function getting all files for user session
     '''
-    For the given path, get the List of all files in the directory tree 
+    For the given path, get the List of all files in the directory tree
     '''
     def getListOfFiles(self, dirName):
         # create a list of file and sub directories 
@@ -281,7 +285,7 @@ class SessionModelRunner():
         for entry in listOfFile:
             # Create full path
             fullPath = os.path.join(dirName, entry)
-            # If entry is a directory then get the list of files in this directory
+            # If entry is a directory then get the list of files in this dir
             if os.path.isdir(fullPath):
                 allFiles = allFiles + self.getListOfFiles(fullPath)
             else:
@@ -341,8 +345,6 @@ class SessionModelRunner():
                         response_message.update({'spec_ID': key + '.Formula'})
             response_message.update({'e_code': errorfile['code']})
             response_message.update({'e_message': errorfile['message']})
-        # if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT) and (status == 'done' or status == 'error'):
-        #     add_status_to_queue(self.sessionid, RABBIT_HOST, RABBIT_PORT, response_message)
         return JsonResponse(response_message)
 
     def check_load(self, request):
@@ -360,9 +362,8 @@ class SessionModelRunner():
             if os.path.getsize(self.out_path) != 0:
                 status = 'done'
 
-        response_message.update({'status': status, 'session_id': request.session.session_key})
-        # if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT) and (status == 'done' or status == 'error'):
-        #     add_status_to_queue(self.sessionid, RABBIT_HOST, RABBIT_PORT, response_message)
+        response_message.update({'status': status,
+                                 'session_id': request.session.session_key})
         return JsonResponse(response_message)
     
     def run(self):

@@ -2,10 +2,11 @@ import os
 import logging
 import json
 
+
 # open settings.json and set environment variables
 def update_environment_variables():
-    __location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+    ff = os.path.dirname(__file__)
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), ff))
 
     settings_location = os.path.join(__location__, 'settings.json')
     with open(settings_location) as f:
