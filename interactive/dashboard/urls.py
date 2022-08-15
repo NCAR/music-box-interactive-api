@@ -7,6 +7,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from models import User
 # Root url tree
 # Dashboard.urls contains landing and getting started pages
 schema_view = get_schema_view(

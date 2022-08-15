@@ -34,6 +34,7 @@ from os.path import exists
 from model_driver.session_model_runner import *
 from dashboard.flow_diagram import *
 import logging
+from models import *
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
