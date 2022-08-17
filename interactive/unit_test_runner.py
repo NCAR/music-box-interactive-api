@@ -22,15 +22,15 @@ class UnitTestRunner(unittest.TestCase):
 
         # fetch all files in each examples directories
         example_1_path = os.path.join(examples_path, 'example_1')
-        files1 = get_list_of_files(example_1_path)
+        files1 = sorted(get_list_of_files(example_1_path))
         eg1 = '/example_1/camp_data/'
         ez = '/example_1/'
-        expected_files_1 = [example_base + eg1 + 'species.json',
+        expected_files_1 = sorted([example_base + eg1 + 'species.json',
                             example_base + eg1 + 'tolerance.json',
                             example_base + eg1 + 'reactions.json',
                             example_base + eg1 + 'config.json',
                             example_base + ez + 'my_config.json',
-                            example_base + ez + 'MusicBox_1_60hPa.csv']
+                            example_base + ez + 'MusicBox_1_60hPa.csv'])
         print("* got files:", files1)
         print("* compared to expected:", expected_files_1)
         self.assertEqual(files1, expected_files_1)
