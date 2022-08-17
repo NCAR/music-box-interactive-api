@@ -271,7 +271,7 @@ class SessionModelRunner():
             json.dump(species_data, z)
         return {'model_running': True}
 
-    def getListOfFiles(self, dirName):
+    def get_list_of_files(self, dirName):
         # create a list of file and sub directories
         listOfFile = os.listdir(dirName)
         allFiles = list()
@@ -281,7 +281,7 @@ class SessionModelRunner():
             fullPath = os.path.join(dirName, entry)
             # If entry is a directory then get the list of files in this dir
             if os.path.isdir(fullPath):
-                allFiles = allFiles + self.getListOfFiles(fullPath)
+                allFiles = allFiles + self.get_list_of_files(fullPath)
             else:
                 allFiles.append(fullPath)
         return allFiles
@@ -289,7 +289,7 @@ class SessionModelRunner():
 
     # calculate checksum for config/model
     def calculate_checksum(self):
-        filenames = self.getListOfFiles(self.mb_dir)
+        filenames = self.get_list_of_files(self.mb_dir)
         hash = hashlib.md5()
         for fn in filenames:
             if os.path.isfile(fn):
