@@ -34,6 +34,10 @@ from os.path import exists
 from model_driver.session_model_runner import *
 from dashboard.flow_diagram import *
 import logging
+import socket
+import pika
+# import pymongo
+
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
@@ -94,7 +98,8 @@ class SpeciesView(views.APIView):
         logging.info("****** GET request received SPECIES_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        logging.debug("fetching species for session: " + request.session.session_key)
+        ses = request.session.session_key
+        logging.debug("fetching species for session: " + ses)
         if not os.path.isdir(os.path.join(settings.BASE_DIR,
                              'configs/' + request.session.session_key)):
             logging.error("detected no data from this user")
@@ -529,7 +534,7 @@ class InitialSpeciesConcentrations(views.APIView):
 
 class InitialReactionRates(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received INITIAL REACTION RATES ******")
+        logging.info("****** GET request received IRR ******")
         if not request.session.session_key:
             request.session.create()
 
@@ -550,7 +555,7 @@ class InitialReactionRates(views.APIView):
             return JsonResponse(initial_rates)
 
     def post(self, request):
-        logging.info("****** POST request received INITIAL REACTION RATES ******")
+        logging.info("****** POST request received IRR ******")
         if not request.session.session_key:
             request.session.create()
         logging.debug("received options:" + str(request.body))
@@ -589,7 +594,7 @@ class ConvertValues(views.APIView):
 
 class UnitConversionArguments(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received UNIT CONVERSION ARGUMENTS ******")
+        logging.info("***** GET request received UNIT CONVERSION ARGS *****")
         if not request.session.session_key:
             request.session.create()
         initial = request.GET['initialUnit']
@@ -632,7 +637,7 @@ class ConversionCalculator(views.APIView):
 
 class MusicaReactionsList(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received MUSICA REACTIONS LIST ******")
+        logging.info("**** GET request received MUSICA REACTIONS LIST ****")
         if not request.session.session_key:
             request.session.create()
 
@@ -740,10 +745,42 @@ class RunView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
-        logging.info("****** Running simulation for user session: " + request.session.session_key + "******")
-        runner = SessionModelRunner(request.session.session_key)
+        sess = request.session.session_key
+        logging.info("**** Running simulation for user: " + sess + "****")
+        # 1) calculate checksum of config files
+        # 2) check if checksum is in database
+        # 3) if not, run simulation and save checksum in database
+        #    + return simulation status
+        # 4) if yes, check if simulation is finished + return results
 
-        return runner.run(request)
+        runner = SessionModelRunner(request.session.session_key)
+        # TODO: check if the session is already running
+        # TODO: create checksum of config files
+
+        rabbit_host = os.environ['rabbit-mq-host']
+        rabbit_port = int(os.environ['rabbit-mq-port'])
+
+        # disable pika logging because it's annoying
+        logging.getLogger("pika").propagate = False
+        isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
+        if isRabbitUp:
+            logging.info("rabbit is up, adding simulation to queue")
+            con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
+            connection = pika.BlockingConnection(con_params)
+            channel = connection.channel()
+            channel.queue_declare(queue='run_queue')
+            channel.basic_publish(exchange='',
+                                  routing_key='run_queue',
+                                  body=request.session.session_key)
+
+            # close connection
+            connection.close()
+            logging.info("published message to run_queue")
+            return JsonResponse({'status': 'queued', 'model_running': True})
+        else:
+            logging.info("rabbit is down, sim. will be run on API server")
+            return runner.run()
+
 
 
 class GetPlotContents(views.APIView):
@@ -999,5 +1036,23 @@ class LoadFromConfigJsonView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.create()
-        logging.info("saving model options for user: "+request.session.session_key)
+        logging.info("saving model options for user")
         uploaded = request.FILES['file']
+
+
+# checks server by trying to connect
+def check_for_rabbit_mq(host, port):
+    """
+    Checks if RabbitMQ server is running.
+    """
+    try:
+        conn_params = pika.ConnectionParameters(host, port)
+        connection = pika.BlockingConnection(conn_params)
+        if connection.is_open:
+            connection.close()
+            return True
+        else:
+            connection.close()
+            return False
+    except pika.exceptions.AMQPConnectionError:
+        return False

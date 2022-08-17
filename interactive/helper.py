@@ -36,7 +36,7 @@ def get_list_of_files(dirName):
 
 # calculate checksum for config/model so we can check if it's run before
 def calculate_checksum(dir_to_check):
-    filenames = get_list_of_files(dir_to_check)
+    filenames = sorted(get_list_of_files(dir_to_check))
     hash = hashlib.md5()
     for fn in filenames:
         if os.path.isfile(fn):

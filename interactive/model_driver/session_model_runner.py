@@ -12,19 +12,62 @@ import mimetypes
 import pandas as pd
 import time
 import shutil
-from .run_setup import setup_run
+# from .run_setup import setup_run
 # from .run_logging import *
 from datetime import datetime
 from mechanism.reactions import reactions_are_valid
 from interactive.tools import *
 from pathlib import Path
+from django.conf import settings
 import logging
 import hashlib
-logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+import pika
+import json
+from update_environment_variables import update_environment_variables
+update_environment_variables()
+RABBIT_HOST = os.environ["rabbit-mq-host"]
+RABBIT_PORT = int(os.environ["rabbit-mq-port"])
+
+# BASE_DIR = '/music-box-interactive/interactive'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+BASE_DIR = settings.BASE_DIR
+
+# disable propagation
+logging.getLogger("pika").propagate = False
 
 
+# checks server by trying to connect
+def check_for_rabbit_mq(host, port):
+    """
+    Checks if RabbitMQ server is running.
+    """
+    try:
+        conn_params = pika.ConnectionParameters(host, port)
+        connection = pika.BlockingConnection(conn_params)
+        if connection.is_open:
+            connection.close()
+            return True
+        else:
+            connection.close()
+            return False
+    except pika.exceptions.AMQPConnectionError:
+        return False
+
+
+# add session_id to queue model_finished
+def add_status_to_queue(session_id, host, port, status):
+    """
+    Adds session_id to queue model_finished.
+    """
+    message = {'session_id': session_id, "model_status": status}
+    conn_params = pika.ConnectionParameters(host, port)
+    connection = pika.BlockingConnection(conn_params)
+    channel = connection.channel()
+    channel.queue_declare(queue='model_finished_queue')
+    channel.basic_publish(exchange='',
+                          routing_key='model_finished_queue',
+                          body=json.dumps(message))
+    connection.close()
 class SessionModelRunner():
     def __init__(self, session_id):
         self.setPathsForSessionID(session_id)
@@ -33,33 +76,33 @@ class SessionModelRunner():
         mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])
         interface_solo = False
     else:
-        logging.debug(os.environ)
+        print(os.environ)
         mb_dir = ''
         interface_solo = True
 
     out_path = os.path.join(mb_dir, 'output.csv')
     error_path = os.path.join(mb_dir, 'error.json')
     copy_path = os.path.join(
-        settings.BASE_DIR, 'dashboard/static/past_run/past.csv')
+        BASE_DIR, 'dashboard/static/past_run/past.csv')
     config_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/my_config.json")
+        BASE_DIR, "dashboard/static/config/my_config.json")
     old_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/old_config.json")
+        BASE_DIR, "dashboard/static/config/old_config.json")
     complete_path = os.path.join(mb_dir, 'MODEL_RUN_COMPLETE')
 
     config_dest = os.path.join(
-        settings.BASE_DIR, 'dashboard/static/past_run/config.json')
+        BASE_DIR, 'dashboard/static/past_run/config.json')
 
     config_folder_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config")
-    log_path = os.path.join(settings.BASE_DIR, 'dashboard/static/log/log')
+        BASE_DIR, "dashboard/static/config")
+    log_path = os.path.join(BASE_DIR, 'dashboard/static/log/log')
     camp_folder_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/camp_data")
+        BASE_DIR, "dashboard/static/config/camp_data")
 
     reactions_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
+        BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
     species_path = os.path.join(
-        settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
+        BASE_DIR, "dashboard/static/config/camp_data/species.json")
 
     sessionid = ""
 
@@ -85,24 +128,24 @@ class SessionModelRunner():
         self.out_path = os.path.join(self.mb_dir, 'output.csv')
         self.error_path = os.path.join(self.mb_dir, 'error.json')
         self.copy_path = os.path.join(
-            settings.BASE_DIR, 'past_run/'+session_id+'/past.csv')
+            BASE_DIR, 'past_run/'+session_id+'/past.csv')
         self.config_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/my_config.json")
+            BASE_DIR, "configs/"+session_id+"/my_config.json")
         self.old_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/old_config.json")
+            BASE_DIR, "configs/"+session_id+"/old_config.json")
         self.complete_path = os.path.join(self.mb_dir, 'MODEL_RUN_COMPLETE')
         self.config_dest = os.path.join(
-            settings.BASE_DIR, 'past_run/'+session_id+'/config.json')
+            BASE_DIR, 'past_run/'+session_id+'/config.json')
         self.config_folder_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id)
-        self.log_path = os.path.join(settings.BASE_DIR, 'logs/'+session_id)
+            BASE_DIR, "configs/"+session_id)
+        self.log_path = os.path.join(BASE_DIR, 'logs/'+session_id)
         self.camp_folder_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/camp_data")
+            BASE_DIR, "configs/"+session_id+"/camp_data")
         reac = "/camp_data/reactions.json"
         self.reactions_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+reac)
+            BASE_DIR, "configs/"+session_id+reac)
         self.species_path = os.path.join(
-            settings.BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
+            BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
         self.sessionid = session_id
 
     def add_integrated_rates(self):
@@ -204,7 +247,7 @@ class SessionModelRunner():
         if not os.path.exists(self.log_path):
             os.makedirs(self.log_path)
         originalPath = os.path.join(
-            settings.BASE_DIR, 'dashboard/static/log/log_config.json')
+            BASE_DIR, 'dashboard/static/log/log_config.json')
         self.copyAFile(originalPath, os.path.join(
             self.log_path, "log_config.json"))
         time.sleep(0.1)
@@ -216,7 +259,7 @@ class SessionModelRunner():
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
         checksum = self.calculate_checksum()
-        logging.info("calculated checksum: " + checksum)
+        print("calculated checksum: ", checksum)
         logging.info("running model from base directory: " + self.mb_dir)
         process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],
@@ -226,8 +269,33 @@ class SessionModelRunner():
 
         with open(self.species_path, 'w') as z:
             json.dump(species_data, z)
-
         return {'model_running': True}
+
+    def get_list_of_files(self, dirName):
+        # create a list of file and sub directories
+        listOfFile = os.listdir(dirName)
+        allFiles = list()
+        # Iterate over all the entries
+        for entry in listOfFile:
+            # Create full path
+            fullPath = os.path.join(dirName, entry)
+            # If entry is a directory then get the list of files in this dir
+            if os.path.isdir(fullPath):
+                allFiles = allFiles + self.get_list_of_files(fullPath)
+            else:
+                allFiles.append(fullPath)
+        return allFiles
+
+
+    # calculate checksum for config/model
+    def calculate_checksum(self):
+        filenames = self.get_list_of_files(self.mb_dir)
+        hash = hashlib.md5()
+        for fn in filenames:
+            if os.path.isfile(fn):
+                hash.update(open(fn, "rb").read())
+        return hash.hexdigest()
+
 
     # copy inital config file on first model run
     def setup_config_check(self):
@@ -252,10 +320,8 @@ class SessionModelRunner():
                 if os.path.getsize(self.out_path) != 0:  # model has finished?
                     logging.info("output file found")
                     status = 'done'
-
         # update_with_result(status)
         response_message.update({'status': status})
-
         if status == 'error':
             with open(self.error_path) as g:
                 errorfile = json.loads(g.read())
@@ -277,7 +343,6 @@ class SessionModelRunner():
     def check_load(self, request):
         logging.info("checking via check_load...")
         response_message = {}
-
         status = 'checking'
         # check if error file exists
         if os.path.isfile(self.error_path):
@@ -289,10 +354,11 @@ class SessionModelRunner():
             if os.path.getsize(self.out_path) != 0:
                 status = 'done'
 
-        response_message.update({'status': status, 'session_id': request.session.session_key})
+        response_message.update({'status': status,
+                                 'session_id': request.session.session_key})
         return JsonResponse(response_message)
 
-    def run(self, request):
+    def run(self):
         logging.info("running...")
         run = self.setup_run()
         self.save_run()
@@ -377,35 +443,3 @@ class SessionModelRunner():
         direct_dump_json(os.path.join(self.log_path,
                                       'log_config.json'), lc)
         logging.info('log cleared')
-    
-
-    # helper function getting all files for user session
-    '''
-    For the given path, get the List of all files in the directory tree 
-    '''
-    def getListOfFiles(self, dirName):
-        # create a list of file and sub directories 
-        # names in the given directory 
-        listOfFile = os.listdir(dirName)
-        allFiles = list()
-        # Iterate over all the entries
-        for entry in listOfFile:
-            # Create full path
-            fullPath = os.path.join(dirName, entry)
-            # If entry is a directory then get the list of files in this directory 
-            if os.path.isdir(fullPath):
-                allFiles = allFiles + self.getListOfFiles(fullPath)
-            else:
-                allFiles.append(fullPath)
-                    
-        return allFiles
-
-
-    # calculate checksum for config/model so we can check if it's run before
-    def calculate_checksum(self):
-        filenames = self.getListOfFiles(self.mb_dir)
-        hash = hashlib.md5()
-        for fn in filenames:
-            if os.path.isfile(fn):
-                hash.update(open(fn, "rb").read())
-        return hash.hexdigest()
