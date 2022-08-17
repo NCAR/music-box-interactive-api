@@ -31,6 +31,8 @@ class UnitTestRunner(unittest.TestCase):
                             example_base + eg1 + 'config.json',
                             example_base + ez + 'my_config.json',
                             example_base + ez + 'MusicBox_1_60hPa.csv']
+        print("* got files:", files1)
+        print("* compared to expected:", expected_files_1)
         self.assertEqual(files1, expected_files_1)
         print("\t - example_1 files look good ✓")
 
