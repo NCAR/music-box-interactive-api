@@ -31,35 +31,33 @@ class UnitTestRunner(unittest.TestCase):
                             example_base + eg1 + 'config.json',
                             example_base + ez + 'my_config.json',
                             example_base + ez + 'MusicBox_1_60hPa.csv'])
-        print("* got files:", files1)
-        print("* compared to expected:", expected_files_1)
         self.assertEqual(files1, expected_files_1)
         print("\t - example_1 files look good ✓")
 
         example_2_path = os.path.join(examples_path, 'example_2')
-        files2 = get_list_of_files(example_2_path)
+        files2 = sorted(get_list_of_files(example_2_path))
         eg2 = '/example_2/camp_data/'
         ez2 = '/example_2/'
-        expected_files_2 = [example_base + eg2 + 'species.json',
+        expected_files_2 = sorted([example_base + eg2 + 'species.json',
                             example_base + eg2 + 'tolerance.json',
                             example_base + eg2 + 'reactions.json',
                             example_base + eg2 + 'config.json',
                             example_base + ez2 + 'my_config.json',
-                            example_base + ez2 + 'initial_reaction_rates.csv']
+                            example_base + ez2 + 'initial_reaction_rates.csv'])
 
         self.assertEqual(files2, expected_files_2)
         print("\t - example_2 files look good ✓")
 
         example_3_path = os.path.join(examples_path, 'example_3')
-        files3 = get_list_of_files(example_3_path)
+        files3 = sorted(get_list_of_files(example_3_path))
         eg3 = '/example_3/camp_data/'
         ez3 = '/example_3/'
-        expected_files_3 = [example_base + eg3 + 'species.json',
+        expected_files_3 = sorted([example_base + eg3 + 'species.json',
                             example_base + eg3 + 'tolerance.json',
                             example_base + eg3 + 'reactions.json',
                             example_base + eg3 + 'config.json',
                             example_base + ez3 + 'my_config.json',
-                            example_base + ez3 + 'initial_reaction_rates.csv']
+                            example_base + ez3 + 'initial_reaction_rates.csv'])
         self.assertEqual(files3, expected_files_3)
         print("\t - example_3 files look good ✓")
     def test_config_files_checksums(self):
