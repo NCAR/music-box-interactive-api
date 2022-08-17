@@ -117,7 +117,7 @@ class UnitTestRunner(unittest.TestCase):
         config_path = example_base + '/example_1/camp_data/reactions.json'
         reaction_remove(0, config_path)
 
-        example_1_expected_checksum = "6f14589d8058644358dd26f764487716"
+        example_1_expected_checksum = "f0a73918971c2824fa8cc1d4bb88ea0b"
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
 
         # get check sum from example_1
