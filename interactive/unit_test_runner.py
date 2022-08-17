@@ -102,7 +102,7 @@ class UnitTestRunner(unittest.TestCase):
         my_path = example_base + '/example_1/my_config.json'
         remove_reactions_with_species(species_to_remove, reac_path,
                                       my_path)
-        example_1_expected_checksum = "b56eb7dcc51e29bb6dc71fb9caa076be"
+        example_1_expected_checksum = "cacbd4a662dcdf78b0f22951dccb9207"
         examples_path = example_base
 
         # get check sum from example_1
