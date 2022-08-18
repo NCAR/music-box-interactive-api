@@ -554,12 +554,38 @@ class RunView(views.APIView):
         if get_run_status(request.session.session_key) == 'running':
             return JsonResponse({'status': 'running'})
         else:
+            runner = SessionModelRunner(request.session.session_key)
             # start model run by adding job to queue via pika
-            
-        logging.info("****** Running simulation for user session: " + request.session.session_key + "******")
-        runner = SessionModelRunner(request.session.session_key)
+            rabbit_host = os.environ['rabbit-mq-host']
+            rabbit_port = int(os.environ['rabbit-mq-port'])
 
-        return runner.run(request)
+            # disable pika logging because it's annoying
+            logging.getLogger("pika").propagate = False
+            isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
+            if isRabbitUp:
+                logging.info("rabbit is up, adding simulation to queue")
+                con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
+                connection = pika.BlockingConnection(con_params)
+                channel = connection.channel()
+                channel.queue_declare(queue='run_queue')
+                body = {}
+                body.update({'session_id': request.session.session_key})
+                # put all config files in body
+                body.update({'config_files': get_user(request.session.session_key).config_files})
+                # put all binary files in body
+                body.update({'binary_files': get_user(request.session.session_key).binary_files})
+                print("****** body: ", body)
+                channel.basic_publish(exchange='',
+                                    routing_key='run_queue',
+                                    body=body)
+
+                # close connection
+                connection.close()
+                logging.info("published message to run_queue")
+                return JsonResponse({'status': 'queued', 'model_running': True})
+            else:
+                logging.info("rabbit is down, sim. will be run on API server")
+                return runner.run()
 
 
 class GetPlotContents(views.APIView):
@@ -817,3 +843,21 @@ class LoadFromConfigJsonView(views.APIView):
             request.session.create()
         logging.info("saving model options for user: "+request.session.session_key)
         uploaded = request.FILES['file']
+
+
+# checks server by trying to connect
+def check_for_rabbit_mq(host, port):
+    """
+    Checks if RabbitMQ server is running.
+    """
+    try:
+        conn_params = pika.ConnectionParameters(host, port)
+        connection = pika.BlockingConnection(conn_params)
+        if connection.is_open:
+            connection.close()
+            return True
+        else:
+            connection.close()
+            return False
+    except pika.exceptions.AMQPConnectionError:
+        return False
