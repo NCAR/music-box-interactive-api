@@ -34,7 +34,9 @@ from os.path import exists
 from model_driver.session_model_runner import *
 from dashboard.flow_diagram import *
 import logging
-from models import *
+from .models import *
+from .database_tools import *
+import pika
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
@@ -66,26 +68,45 @@ class ExampleView(views.APIView):
             settings.BASE_DIR, 'dashboard/static/examples')
         example_folder_path = os.path.join(examples_path, example_name)
 
-        logging.debug("loading example for user " + request.session.session_key+" *")
         logging.debug("|_ loading example #" + str(request.GET.dict()['example']))
         logging.info("|_ example folder path: " + example_folder_path)
 
-        if not os.path.isdir(os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)):
-            os.makedirs(os.path.join(settings.BASE_DIR,
-                        'configs/' + request.session.session_key))
-        # path to save data for user
-        config_path = os.path.join(
-            settings.BASE_DIR, 'configs/' + request.session.session_key)
-        logging.debug("|_ putting data into path: " + config_path)
+        user = get_user(request.session.session_key) # get user via sessionkey
 
-        shutil.rmtree(config_path)
-        shutil.copytree(example_folder_path, config_path)
-        export_to_user_config_files(config_path)
+        # get files in example_folder_path
+        files = get_files(example_folder_path)
+        
+        # loop through files and remove example_folder_path from file path
+        for i in range(len(files)):
+            files[i] = files[i].replace(example_folder_path, '')
+        print("|_ files: ", str(files))
+        # check if files exist
+        if not files:
+            raise Http404("No files in example folder")
+        # loop through files and load them into database
+        for file in files:
+            # check if json
+            if file.endswith('.json'):
+                # get json from file
+                with open(example_folder_path + file) as f:
+                    data = json.load(f)
+                    # put json into user.config_files
+                    user.config_files.update({file: data})
+                    f.close()
+            # check if other file type
+            elif file.endswith('.csv'):
+                # get string representation of  file
+                with open(example_folder_path + file) as f:
+                    data = f.read()
+                    # put string representation into user.config_files
+                    user.binary_files.update({file: data})
+                    f.close()
+        #save user
+        user.save()
+        export_to_database(request.session.session_key)
+        menu_names = get_species_menu_list(request.session.session_key)
 
-        menu_names = api_species_menu_names(
-            config_path + "/camp_data/species.json")
-        logging.info("|_ pushing menu names to user: " + str(menu_names))
+        print("* menu names: " + str(menu_names))
         response = Response(menu_names, status=status.HTTP_200_OK)
         return response
 
@@ -95,22 +116,11 @@ class SpeciesView(views.APIView):
         logging.info("****** GET request received SPECIES_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        logging.debug("fetching species for session: " + request.session.session_key)
-        if not os.path.isdir(os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            # path to save data for user
-            conf = ('configs/'+request.session.session_key
-                    + "/camp_data/species.json")
-            configz_path = os.path.join(
-                settings.BASE_DIR, conf)
-            menu_names = api_species_menu_names(configz_path)
-            logging.info("|_ pushing menu names to user:" + str(menu_names))
-            response = Response(menu_names, status=status.HTTP_200_OK)
-            return response
+        logging.info("fetching species for session: " + request.session.session_key)
 
+        menu_names = get_species_menu_list(request.session.session_key)
+        response = Response(menu_names, status=status.HTTP_200_OK)
+        return response
 
 class SpeciesDetailView(views.APIView):
     def get(self, request):
@@ -119,22 +129,11 @@ class SpeciesDetailView(views.APIView):
             request.session.create()
         if 'name' not in request.GET:
             return JsonResponse({"error": "missing species name"})
-        if not os.path.isdir(os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/species.json")
-            # path to save data for user
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            for entry in species_info(config_path):
-                if (entry['type'] == 'CHEM_SPEC' and
-                        entry['name'] == request.GET['name']):
-                    species_convert_to_SI(entry)
-                    return JsonResponse(entry)
-        return JsonResponse({})
+        species_name = request.GET['name']
+        logging.info("fetching species: " + species_name)
+        species = get_species_detail(request.session.session_key, species_name)
+        response = JsonResponse(species)
+        return response
 
 
 class RemoveSpeciesView(views.APIView):
@@ -144,27 +143,10 @@ class RemoveSpeciesView(views.APIView):
             request.session.create()
         if 'name' not in request.GET:
             return HttpResponseBadRequest("missing species name")
-
-        # check for config dir
-        if not os.path.isdir(os.path.join(settings.BASE_DIR,
-                             'configs/'+request.session.session_key)):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/species.json")
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            species_remove(request.GET['name'], config_path)
-            reac = ('configs/' + request.session.session_key
-                    + "/camp_data/reactions.json")
-            reac_path = os.path.join(settings.BASE_DIR, reac)
-            my_conf = ('configs/' + request.session.session_key
-                    + "/my_config.json")
-            my_path = os.path.join(settings.BASE_DIR, my_conf)
-            remove_reactions_with_species(request.GET['name'], reac_path,
-                                          my_path)
-            return HttpResponse('')
+        species_name = request.GET['name']
+        logging.info("removing species: " + species_name)
+        remove_species(request.session.session_key, species_name)
+        return HttpResponse(status=status.HTTP_200_OK)
 
 
 class AddSpeciesView(views.APIView):
@@ -174,19 +156,9 @@ class AddSpeciesView(views.APIView):
         if 'name' not in species_data:
             return JsonResponse({"error": "missing species name"})
         species_data['type'] = "CHEM_SPEC"
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/species.json")
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            species_remove(species_data['name'], config_path)
-            species_save(species_data, config_path)
-            return JsonResponse({})
+        # add species to database
+        add_species(request.session.session_key, species_data)
+        return HttpResponse(status=status.HTTP_200_OK)
 
 
 class PlotSpeciesView(views.APIView):
@@ -196,39 +168,27 @@ class PlotSpeciesView(views.APIView):
         if 'name' not in request.GET:
             return HttpResponseBadRequest("missing species name")
         species = request.GET['name']
-        # check for config dir
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            logging.debug("loading plot info for species: " + str(species))
-            config_path = os.path.join(
-                settings.BASE_DIR,
-                'configs/' + request.session.session_key +
-                "/camp_data/reactions.json")
-            network_plot_dir = os.path.join(
+        network_plot_dir = os.path.join(
                 settings.BASE_DIR, "dashboard/templates/network_plot/" +
                 request.session.session_key)
-            template_plot = os.path.join(
-                settings.BASE_DIR,
-                "dashboard/templates/network_plot/plot.html")
-            if not os.path.isdir(network_plot_dir):
-                logging.debug("making dir:" + str(network_plot_dir))
-                os.makedirs(network_plot_dir)
-            # use copyfile()
-            if exists(os.path.join(network_plot_dir, "plot.html")) is False:
-                # create plot.html file if doesn't exist
-                f = open(os.path.join(network_plot_dir, "plot.html"), "w")
-            shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
-            # generate network plot and place it in unique directory for user
-            generate_network_plot(
-                species, network_plot_dir + "/plot.html", config_path)
-            plot = ('network_plot/'
-                    + request.session.session_key
-                    + '/plot.html')
-            return render(request, plot)
+        template_plot = os.path.join(
+            settings.BASE_DIR,
+            "dashboard/templates/network_plot/plot.html")
+        if not os.path.isdir(network_plot_dir):
+            os.makedirs(network_plot_dir)
+        # use copyfile()
+        if exists(os.path.join(network_plot_dir, "plot.html")) is False:
+            # create plot.html file if doesn't exist
+            f = open(os.path.join(network_plot_dir, "plot.html"), "w")
+        shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
+        # generate network plot and place it in unique directory for user
+        generate_database_network_plot(request.session.session_key,
+                                       species,
+                                       network_plot_dir + "/plot.html")
+        plot = ('network_plot/'
+                + request.session.session_key
+                + '/plot.html')
+        return render(request, plot)
 
 
 class ReactionsView(views.APIView):
@@ -236,47 +196,19 @@ class ReactionsView(views.APIView):
         logging.info("****** GET request received REACTIONS_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        logging.debug("fetching reactions for session id: " +
-              request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            # path to save data for user
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/reactions.json")
-            config_path = os.path.join(settings.BASE_DIR, conf)
-            menu_names = reaction_menu_names(config_path)
-            logging.debug("|_ pushing menu names to user:" + str(menu_names))
-            response = Response(menu_names, status=status.HTTP_200_OK)
-            return response
-
+        reactions = get_reactions_menu_list(request.session.session_key)
+        response = Response(reactions, status=status.HTTP_200_OK)
+        return response
 
 class ReactionsDetailView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
-        logging.info("fetching reactions for session id: " +
-            request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/'+request.session.session_key)
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            # path to save data for user
-            if 'index' not in request.GET:
-                return JsonResponse({"error": "missing reaction index"})
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/reactions.json")
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            reaction_detail = reactions_info(
-                config_path)[int(request.GET['index'])]
-            reaction_detail['index'] = int(request.GET['index'])
-            return JsonResponse(reaction_detail)
+        if 'index' not in request.GET:
+            return JsonResponse({"error": "missing reaction index"})
+        reaction_detail = get_reactions_info(request.session.session_key)[int(request.GET['index'])]
+        reaction_detail['index'] = int(request.GET['index'])
+        return JsonResponse(reaction_detail)
 
 
 class RemoveReactionView(views.APIView):
@@ -286,19 +218,9 @@ class RemoveReactionView(views.APIView):
             request.session.create()
         if 'index' not in request.GET:
             return HttpResponseBadRequest("missing reaction index")
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/'+request.session.session_key)
-        # check for config dir
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/reactions.json")
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            reaction_remove(int(request.GET['index']), config_path)
-            return HttpResponse('')
+        reaction_index = int(request.GET['index'])
+        remove_reaction(request.session.session_key, reaction_index)
+        return Response(status=status.HTTP_200_OK)
 
 
 class SaveReactionView(views.APIView):
@@ -307,12 +229,17 @@ class SaveReactionView(views.APIView):
             request.session.create()
 
         reaction_data = json.loads(request.body)
-        conf = ('configs/' + request.session.session_key
-                + "/camp_data/reactions.json")
-        config_path = os.path.join(
-            settings.BASE_DIR, conf)
-        reaction_save(reaction_data, config_path)
-        return JsonResponse({})
+        if 'index' not in reaction_data:
+            return JsonResponse({"error": "missing reaction index"})
+        if 'name' not in reaction_data:
+            return JsonResponse({"error": "missing reaction name"})
+        if 'reactants' not in reaction_data:
+            return JsonResponse({"error": "missing reaction reactants"})
+        if 'products' not in reaction_data:
+            return JsonResponse({"error": "missing reaction products"})
+
+        save_reaction(request.session.session_key, reaction_data)
+        return Response(status=status.HTTP_200_OK)
 
 
 class ReactionTypeSchemaView(views.APIView):
@@ -322,19 +249,9 @@ class ReactionTypeSchemaView(views.APIView):
             request.session.create()
         if 'type' not in request.GET:
             return JsonResponse({"error": "missing reaction type"})
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/'+request.session.session_key)
-        # check for config dir
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/reactions.json")
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            schema = reaction_type_schema(request.GET['type'], config_path)
-            return JsonResponse(schema)
+        reaction_type = request.GET['type']
+        reaction_schema = get_reaction_type_schema(request.session.session_key, reaction_type)
+        return JsonResponse(reaction_schema)
 
 
 class ModelOptionsView(views.APIView):
@@ -343,40 +260,26 @@ class ModelOptionsView(views.APIView):
         if not request.session.session_key:
             request.session.create()
         logging.debug("fetching model options for: " + request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)
-        # check for config dir
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            config_path = os.path.join(
-                settings.BASE_DIR, 'configs/' + request.session.session_key)
-            options = option_setup(config_path)
-            logging.info("returning options:" + str(options))
-            return JsonResponse(options)
-
+        model_options = get_model_options(request.session.session_key)
+        return JsonResponse(model_options)
+       
     def post(self, request):
         logging.info("****** POST request received MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.create()
         logging.debug("saving model options for user: " + request.session.session_key)
         newOptions = json.loads(request.body)
-        path = os.path.join(settings.BASE_DIR, 'configs/' +
-                            request.session.session_key)+"/options.json"
-        logging.debug("saving to path: "+str(path))
         options = {}
         for key in newOptions:
             options.update({key: newOptions[key]})
-        with open(path, 'w') as f:
-            json.dump(options, f, indent=4)
+        user = get_user(request.session.session_key)
+        # dump options into options.json
+        user.config_files['/options.json'] = options
+        user.save()
+        
         logging.info('box model options updated')
-        config_path = os.path.join(
-            settings.BASE_DIR, 'configs/' + request.session.session_key)
-        options = option_setup(config_path)
-        logging.info("returning options:" + str(options))
-        export_to_path(os.path.join(settings.BASE_DIR,
-                       'configs/' + request.session.session_key) + "/")
+        options = get_model_options(request.session.session_key)
+        export_to_database_path(request.session.session_key) # equivalent of export_to_path()
         return JsonResponse(options)
 
 
@@ -388,19 +291,8 @@ class InitialConditionsFiles(views.APIView):
 
         logging.debug("fetching conditions files for session id: " +
               request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)
-        if not os.path.isfile(direc):
-            logging.error("detected no data from this user")
-            return JsonResponse({})
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/my_config.json")
-            config_path = os.path.join(
-                settings.BASE_DIR, conf)
-            values = initial_conditions_files(config_path)
-            logging.info("returning values [icf]:" + str(values))
-            return JsonResponse(values)
+        conditions_files = get_initial_conditions_files(request.session.session_key)
+        return JsonResponse(conditions_files)
 
 
 class ConditionsSpeciesList(views.APIView):
@@ -410,20 +302,10 @@ class ConditionsSpeciesList(views.APIView):
             request.session.create()
         logging.debug("fetching species list for session id: " +
               request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/' + request.session.session_key)
-        if not os.path.isdir(direc):
-            logging.error("detected no data from this user")
-            return JsonResponse({})
-        else:
-            conf = ('configs/' + request.session.session_key
-                    + "/camp_data/species.json")
-            conf = os.path.join(
-                settings.BASE_DIR, conf)
-            logging.debug("fetching species list:" + str(conf))
-            species = {"species": conditions_species_list(conf)}
-            logging.info("returning species [csl]:" + str(species))
-            return JsonResponse(species)
+        
+        species = {"species": get_condition_species(request.session.session_key)}
+        logging.info("returning species [csl]:" + str(species))
+        return JsonResponse(species)
 
 
 class InitialConditionsSetup(views.APIView):
@@ -434,19 +316,9 @@ class InitialConditionsSetup(views.APIView):
 
         logging.debug("fetching initial conditions setup for session id: " +
               request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/'
-                             + request.session.session_key
-                             + "/initials.json")
-        if not os.path.isfile(direc):
-            logging.error("detected no data from this user")
-            return JsonResponse({})
-        else:
-            data = ""
-            with open(direc) as f:
-                data = json.loads(f.read())
-            logging.info("returning initial conditions setup:" + str(data))
-            return JsonResponse(data)
+        data = get_user(request.session.session_key).config_files['/initials.json']
+        return JsonResponse(data)
+       
 
     def post(self, request):
         logging.info("****** POST request received INITIAL CONDITIONS SETUP ******")
@@ -456,14 +328,9 @@ class InitialConditionsSetup(views.APIView):
               request.session.session_key)
         logging.debug("received initial conditions setup: " + str(request.body))
         newData = json.loads(request.body)
-        path = os.path.join(settings.BASE_DIR,
-                            'configs/'
-                            + request.session.session_key
-                            + "/initials.json")
-        logging.debug("saving to path: " + path)
-        with open(path, 'w') as f:
-            json.dump(newData, f, indent=4)
-        logging.info('initial conditions setup updated')
+        user = get_user(request.session.session_key)
+        user.config_files['/initials.json'] = newData
+        user.save()
         return JsonResponse({})
 
 
@@ -473,24 +340,8 @@ class InitialSpeciesConcentrations(views.APIView):
         logging.info("****** GET request received INIT_SPECIES_CONC ******")
         if not request.session.session_key:
             request.session.create()
-
-        logging.debug("fetching initial species conc. for session id: " +
-              request.session.session_key)
-        direc = os.path.join(settings.BASE_DIR,
-                             'configs/'
-                             + request.session.session_key
-                             + "/species.json")
-        if not os.path.isfile(direc):
-            logging.error("detected no data from this user")
-            return JsonResponse({})
-        else:
-
-            path = os.path.join(settings.BASE_DIR, 'configs/' +
-                                request.session.session_key + "/species.json")
-            logging.debug("getting initial species concentrations:" + path)
-            values = initial_species_concentrations(path)
-            logging.info("returning species [isc]:" + str(values))
-            return JsonResponse(values)
+        values = get_initial_species_concentrations(request.session.session_key)
+        return JsonResponse(values)
 
     def post(self, request):
         logging.info("****** POST request received INITIAL SPECIES CONC. ******")
@@ -498,34 +349,29 @@ class InitialSpeciesConcentrations(views.APIView):
             request.session.create()
         logging.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
-        path = os.path.join(settings.BASE_DIR, 'configs/' +
-                            request.session.session_key + "/species.json")
-        logging.debug("saving to path: "+path)
-        if not os.path.isfile(path):
-            logging.error("* detected no species this user")
-            return Response(status=status.HTTP_200_OK)
-        else:
-            logging.info("* pushing new options:" + str(initial_values))
-            formulas = {}
-            units = {}
-            values = {}
-            i = 0
-            for key, value in initial_values.items():
-                name = "Species " + str(i)
-                formulas[name] = key
-                units[name] = value["units"]
-                values[name] = value["value"]
-                i += 1
-            file_data = {}
-            file_data["formula"] = formulas
-            file_data["unit"] = units
-            file_data["value"] = values
-            with open(path, 'w') as f:
-                json.dump(file_data, f, indent=4)
-            # run export next?
-            export_to_path(os.path.join(settings.BASE_DIR,
-                           'configs/' + request.session.session_key) + "/")
-            return JsonResponse({})
+
+        logging.info("* pushing new options:" + str(initial_values))
+        formulas = {}
+        units = {}
+        values = {}
+        i = 0
+        for key, value in initial_values.items():
+            name = "Species " + str(i)
+            formulas[name] = key
+            units[name] = value["units"]
+            values[name] = value["value"]
+            i += 1
+        file_data = {}
+        file_data["formula"] = formulas
+        file_data["unit"] = units
+        file_data["value"] = values
+        # dump file_data into species.json
+        user = get_user(request.session.session_key)
+        user.config_files['/species.json'] = file_data
+        user.save()
+        # run export
+        export_to_database_path(request.session.session_key)
+        return JsonResponse({})
 
 
 class InitialReactionRates(views.APIView):
@@ -537,18 +383,8 @@ class InitialReactionRates(views.APIView):
         logging.debug("fetching initial species conc. for session id: " +
               request.session.session_key)
         initial_rates = {}
-        path = os.path.join(settings.BASE_DIR, 'configs/' +
-                            request.session.session_key
-                            + "/initial_reaction_rates.csv")
-        if not os.path.isfile(path):
-            logging.error("detected no data from this user")
-            return JsonResponse({})
-        else:
-            initial_reaction_rates_file_path = path
-            with open(initial_reaction_rates_file_path, 'r') as f:
-                initial_rates = initial_conditions_file_to_dictionary(f, ',')
-            logging.info("returning rates [irr]:" + initial_rates)
-            return JsonResponse(initial_rates)
+        initial_rates = convert_initial_conditions_file(request.session.session_key, ',')
+        return JsonResponse(initial_rates)
 
     def post(self, request):
         logging.info("****** POST request received INITIAL REACTION RATES ******")
@@ -556,22 +392,10 @@ class InitialReactionRates(views.APIView):
             request.session.create()
         logging.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
-        path = os.path.join(settings.BASE_DIR, 'configs/' +
-                            request.session.session_key
-                            + "/initial_reaction_rates.csv")
-        logging.debug("saving to path: " + path)
 
-        logging.debug("pushing new options:" + str(initial_values))
-        config_path = os.path.join(
-            settings.BASE_DIR, 'configs/' + request.session.session_key
-            + "/camp_data/reactions.json")
-        initial_reaction_rates_file_path = path
-        with open(initial_reaction_rates_file_path, 'w+') as f:
-            dictionary_to_initial_conditions_file(
-                initial_values, f, ',', config_path)
-        logging.info("done pushing new options")
-        export_to_path(os.path.join(settings.BASE_DIR,
-                       'configs/' + request.session.session_key) + "/")
+        initial_reaction_rates_file_path = '/initial_reaction_rates.csv'
+        convert_initial_conditions_dict(request.session.session_key, initial_values, initial_reaction_rates_file_path, ',')
+        export_to_database_path(request.session.session_key)
         return JsonResponse({})
 
 
@@ -640,17 +464,9 @@ class MusicaReactionsList(views.APIView):
         logging.debug("* fetching species list for session id: " +
               request.session.session_key)
         reactions = {}
-        path = os.path.join(settings.BASE_DIR, 'configs/'
-                            + request.session.session_key)
-        if not os.path.isdir(path):
-            logging.error("detected no data from this user")
-            return JsonResponse({})
-        else:
-            reactions = {"reactions": reaction_musica_names(os.path.join(
-                settings.BASE_DIR, 'configs/' + request.session.session_key)
-                + "/camp_data/reactions.json")}
-            logging.info("returning reactions [mrl]:" + str(reactions))
-            return JsonResponse(reactions)
+        reactions = {"reactions": get_reaction_musica_names(request.session.session_key)}
+        return JsonResponse(reactions)
+            
 
 
 class EvolvingConditions(views.APIView):
@@ -658,12 +474,7 @@ class EvolvingConditions(views.APIView):
         logging.info("****** GET request received EVOLVING CONDITIONS ******")
         if not request.session.session_key:
             request.session.create()
-        config_path = os.path.join(
-            settings.BASE_DIR, 'configs/' + request.session.session_key
-            + "/my_config.json")
-        logging.debug("config path: " + config_path)
-        with open(config_path) as f:
-            config = json.loads(f.read())
+        config = get_user(request.session.session_key).config_files['/my_config.json']
 
         e = config['evolving conditions']
         evolving_conditions_list = e.keys()
@@ -673,12 +484,9 @@ class EvolvingConditions(views.APIView):
         for i in evolving_conditions_list:
             if '.csv' in i or '.txt' in i:
                 logging.info("adding file: " + i)
-                path = os.path.join(os.path.join(
-                    settings.BASE_DIR, 'configs/'
-                    + request.session.session_key), i)
-                with open(path, 'r') as read_obj:
-                    csv_reader = reader(read_obj)
-                    list_of_rows = list(csv_reader)
+                read_obj = get_user(request.session.session_key).binary_files['/'+i]
+                csv_reader = reader(read_obj)
+                list_of_rows = list(csv_reader)
 
                 try:
                     file_header_dict.update({i: list_of_rows[0]})
@@ -724,23 +532,30 @@ class CheckLoadView(views.APIView):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        runner = SessionModelRunner(request.session.session_key)
-        return runner.check_load(request)
-
+        response_message = get_run_status(request.session.session_key)
+        print("status: ", response_message)
+        return JsonResponse(response_message)
 
 class CheckView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-        runner = SessionModelRunner(request.session.session_key)
-        return runner.check(request)
+        response_message = get_run_status(request.session.session_key)
+        print("status: ", response_message)
+        return JsonResponse(response_message)
 
 
 class RunView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.create()
+        # check if model is already running
+        if get_run_status(request.session.session_key) == 'running':
+            return JsonResponse({'status': 'running'})
+        else:
+            # start model run by adding job to queue via pika
+            
         logging.info("****** Running simulation for user session: " + request.session.session_key + "******")
         runner = SessionModelRunner(request.session.session_key)
 
