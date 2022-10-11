@@ -62,7 +62,7 @@ class SessionModelRunner():
         settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")
 
     sessionid = ""
-
+    isRabbit = False
     def setPathsForSessionID(self, session_id):
         global mb_dir
         global out_path
@@ -104,6 +104,9 @@ class SessionModelRunner():
         self.species_path = os.path.join(
             settings.BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
         self.sessionid = session_id
+    def set_run_as_rabbit(self, isRabbit):
+        self.isRabbit = isRabbit
+
 
     def add_integrated_rates(self):
         with open(self.reactions_path) as f:
@@ -216,18 +219,20 @@ class SessionModelRunner():
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
         checksum = self.calculate_checksum()
-        logging.debug("calculated checksum: " + checksum)
         logging.info("running model from base directory: " + self.mb_dir)
-        process = subprocess.Popen(
+        if self.isRabbit == False:
+            # run on api server
+            process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],
             cwd=self.mb_dir)
-        with open(self.reactions_path, 'w') as k:
-            json.dump(reactions_data, k)
+            with open(self.reactions_path, 'w') as k:
+                json.dump(reactions_data, k)
 
-        with open(self.species_path, 'w') as z:
-            json.dump(species_data, z)
+            with open(self.species_path, 'w') as z:
+                json.dump(species_data, z)
 
-        return {'model_running': True}
+            return {'model_running': True}
+
 
     # copy inital config file on first model run
     def setup_config_check(self):
@@ -292,11 +297,13 @@ class SessionModelRunner():
         response_message.update({'status': status, 'session_id': request.session.session_key})
         return JsonResponse(response_message)
 
-    def run(self, request):
+    def run(self):
         logging.info("running...")
         run = self.setup_run()
         self.save_run()
-        return JsonResponse(run)
+        # do response if not running on rabbit
+        if self.isRabbit == False:
+            return JsonResponse(run)
 
     def copyAFile(self, source, destination):
         configFile = open(source, 'rb')

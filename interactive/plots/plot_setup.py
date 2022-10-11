@@ -53,6 +53,34 @@ def sub_props(prop, csvz=csv_results_path):
         return runs
 
 
+def direct_sub_props(prop, csv):
+    titles = csv.columns.tolist()
+    spec = list([])
+    rate = list([])
+    env = list([])
+    for i in titles:
+        if 'CONC' in i:
+            if 'myrate__' not in i:
+                spec.append(str(i).split('.')[1].rstrip())
+            else:
+                rate.append(str(i).split('myrate__')[1].rstrip())
+        elif 'ENV' in i:
+            env.append(str(i).split('.')[1].rstrip())
+    if prop == 'species':
+        logging.info('getting concentrations')
+        return spec
+    if prop == 'rates':
+        logging.info('getting rates')
+        return rate
+    if prop == 'env':
+        logging.info('getting conditions')
+        return env
+    if prop == 'compare':
+        logging.info('getting runs')
+        runs = get_valid_runs()
+        return runs
+
+
 def sub_props_names(subprop):
     namedict = {
         'temperature': "Temperature",

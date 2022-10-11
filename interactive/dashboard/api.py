@@ -9,7 +9,7 @@ from .flow_diagram import get_simulation_length, get_species
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
-from .models import Document
+# from .models import Document
 from django.http import HttpResponse, HttpResponsePermanentRedirect, Http404
 from django.http import JsonResponse, HttpResponseBadRequest, HttpRequest
 import os
@@ -37,6 +37,7 @@ import logging
 from .models import *
 from .database_tools import *
 import pika
+from io import StringIO
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
@@ -569,19 +570,22 @@ class RunView(views.APIView):
                 channel = connection.channel()
                 channel.queue_declare(queue='run_queue')
                 body = {}
-                body.update({'session_id': request.session.session_key})
+                body.update({"session_id": request.session.session_key})
                 # put all config files in body
-                body.update({'config_files': get_user(request.session.session_key).config_files})
+                body.update({"config_files": get_user(request.session.session_key).config_files})
                 # put all binary files in body
-                body.update({'binary_files': get_user(request.session.session_key).binary_files})
-                print("****** body: ", body)
+                body.update({"binary_files": get_user(request.session.session_key).binary_files})
+                # print("****** body: ", body)
                 channel.basic_publish(exchange='',
                                     routing_key='run_queue',
-                                    body=body)
+                                    body=json.dumps(body))
 
                 # close connection
                 connection.close()
                 logging.info("published message to run_queue")
+                # get ModelRun object and set status to true
+                set_is_running(request.session.session_key, True)
+
                 return JsonResponse({'status': 'queued', 'model_running': True})
             else:
                 logging.info("rabbit is down, sim. will be run on API server")
@@ -595,13 +599,22 @@ class GetPlotContents(views.APIView):
             request.session.create()
         get = request.GET
         prop = get['type']
-        csv_results_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key+"/output.csv")
-        logging.debug("searching for file: "+csv_results_path)
+        # csv_results_path = os.path.join(
+            # os.environ['MUSIC_BOX_BUILD_DIR'],
+            # request.session.session_key+"/output.csv")
+        # logging.debug("searching for file: "+csv_results_path)
         response = HttpResponse()
         response.write(plots_unit_select(prop))
-        subs = sub_props(prop, csv_results_path)
+        # get model run from session
+        model_run = get_model_run(request.session.session_key)
+
+        if '/output.csv' not in model_run.results:
+            return response
+        # get /output.csv file from model run
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        output_csv = StringIO(model.results['/output.csv'])
+        csv = pd.read_csv(output_csv, encoding='latin1')
+        subs = direct_sub_props(prop, csv)
         subs.sort()
         if prop != 'compare':
             for i in subs:
@@ -623,23 +636,22 @@ class GetPlot(views.APIView):
         logging.info("****** GET request received GET_PLOT ******")
         sessid = request.GET.get('sess_id')
         logging.info("sessid: "+sessid)
-        csv_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            sessid+"/output.csv")
-        logging.debug("csv path: "+csv_path)
+        # csv_path = os.path.join(
+        #     os.environ['MUSIC_BOX_BUILD_DIR'],
+        #     sessid+"/output.csv")
+        model_run = get_model_run(request.session.session_key)
+        if '/output.csv' not in model_run.results:
+            return HttpResponseBadRequest('Bad format for plot request',
+                                      status=405)
         if request.method == 'GET':
             props = request.GET['type']
-            logging.debug("grabbing props: "+str(props))
+            # logging.debug("grabbing props: "+str(props))
             buffer = io.BytesIO()
-            species_p = (os.path.join(
-                    settings.BASE_DIR,
-                    'configs/' + sessid)
-                    + "/camp_data/species.json")
+            # run get_plot function
             if request.GET['unit'] == 'n/a':
-                buffer = output_plot(str(props), False, csv_path, species_p)
+                buffer = get_plot(request.session.session_key, props, False)
             else:
-                buffer = output_plot(str(props), request.GET['unit'],
-                                     csv_path, species_p)
+                buffer = get_plot(request.session.session_key, props, request.GET['unit'])
             return HttpResponse(buffer.getvalue(), content_type="image/png")
         return HttpResponseBadRequest('Bad format for plot request',
                                       status=405)
@@ -650,11 +662,9 @@ class GetBasicDetails(views.APIView):
         logging.info("****** GET request received GET_BASIC_DETAILS ******")
         if not request.session.session_key:
             request.session.create()
-        csv_results_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key + "/output.csv")
-        logging.debug("fetching details from: " + csv_results_path)
-        csv = pandas.read_csv(csv_results_path)
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        output_csv = StringIO(model.results['/output.csv'])
+        csv = pd.read_csv(output_csv, encoding='latin1')
         plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
         plot_property_list = [x.strip() for x in plot_property_list]
         for x in csv.columns.tolist():
@@ -672,13 +682,19 @@ class GetFlowDetails(views.APIView):
         logging.info("****** GET request received GET_FLOW_DETAILS ******")
         if not request.session.session_key:
             request.session.create()
-        csv_results_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key + "/output.csv")
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        output_csv = StringIO(model.results['/output.csv'])
+        csv = pd.read_csv(output_csv, encoding='latin1')
+        concs = [x for x in csv.columns if 'CONC' in x]
+        species = [x.split('.')[1] for x in concs if 'myrate' not in x]
+
+        step_length = 0
+        if csv.shape[0] - 1 > 2:
+            step_length = int(csv['time'].iloc[1])
         context = {
-            "species": get_species(csv_results_path),
-            "stepVal": get_step_length(csv_results_path),
-            "simulation_length": get_simulation_length(csv_results_path)
+            "species": species,
+            "stepVal": step_length,
+            "simulation_length": int(csv['time'].iloc[-1])
         }
         logging.debug("returning basic info:" + str(context))
         return JsonResponse(context)
@@ -694,18 +710,20 @@ class GetFlow(views.APIView):
             request.session.session_key + "/output.csv")
         logging.debug("fetching flow from: " + csv_results_path)
         logging.debug("using data:" + str(request.GET.dict()))
-        csv_results_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key + "/output.csv")
-        react_path = (os.path.join(
-            settings.BASE_DIR, 'configs/' + request.session.session_key)
-            + "/camp_data/reactions.json")
+        # csv_results_path = os.path.join(
+        #     os.environ['MUSIC_BOX_BUILD_DIR'],
+        #     request.session.session_key + "/output.csv")
+        # react_path = (os.path.join(
+        #     settings.BASE_DIR, 'configs/' + request.session.session_key)
+        #     + "/camp_data/reactions.json")
         path_to_template = os.path.join(
             settings.BASE_DIR,
             "dashboard/templates/network_plot/flow_plot.html")
-        flow = create_and_return_flow_diagram(request.GET.dict(),
-                                              react_path, path_to_template,
-                                              csv_results_path)
+        # flow = create_and_return_flow_diagram(request.GET.dict(),
+        #                                       react_path, path_to_template,
+        #                                       csv_results_path)
+
+        flow = generate_flow_diagram(request.GET.dict(), request.session.session_key, path_to_template)
         return HttpResponse(flow)
 
 

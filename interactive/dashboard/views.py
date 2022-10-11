@@ -8,7 +8,7 @@ from .flow_diagram import get_species, get_step_length
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
-from .models import Document
+# from .models import Document
 from django.http import HttpResponse, HttpRequest
 from django.http import HttpResponseRedirect, JsonResponse
 import os
