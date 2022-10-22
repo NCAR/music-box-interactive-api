@@ -73,10 +73,8 @@ class ExampleView(views.APIView):
         logging.info("|_ example folder path: " + example_folder_path)
 
         user = get_user(request.session.session_key) # get user via sessionkey
-
         # get files in example_folder_path
         files = get_files(example_folder_path)
-        
         # loop through files and remove example_folder_path from file path
         for i in range(len(files)):
             files[i] = files[i].replace(example_folder_path, '')
@@ -564,6 +562,27 @@ class RunView(views.APIView):
             logging.getLogger("pika").propagate = False
             isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
             if isRabbitUp:
+                # check if we should save checksum
+                if get_user(request.session.session_key).should_cache:
+                    logging.info("saving checksum")
+                    # get checksum and save to session
+                    checksum = calculate_checksum(request.session.session_key)
+                    logging.info("got checksum for current user config files: " + str(checksum))
+                    # try to find user with same checksum and should_cache = True
+                    user = get_user_by_checksum(checksum)
+                    set_current_checksum(request.session.session_key, checksum)
+                    
+                    if user:
+                        # if found, copy results from that user to current user
+                        logging.info("found user with same checksum, copying results")
+                        copy_results(user.uid, request.session.session_key)
+                        # set is_running to false
+                        set_is_running(request.session.session_key, False)
+                        # return status of done
+                        return JsonResponse({'status': 'done',
+                                             'session_id': request.session.session_key,
+                                             'running': False})
+                # if we get here, we need to run the model
                 logging.info("rabbit is up, adding simulation to queue")
                 con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
                 connection = pika.BlockingConnection(con_params)
@@ -575,7 +594,6 @@ class RunView(views.APIView):
                 body.update({"config_files": get_user(request.session.session_key).config_files})
                 # put all binary files in body
                 body.update({"binary_files": get_user(request.session.session_key).binary_files})
-                # print("****** body: ", body)
                 channel.basic_publish(exchange='',
                                     routing_key='run_queue',
                                     body=json.dumps(body))
@@ -585,7 +603,7 @@ class RunView(views.APIView):
                 logging.info("published message to run_queue")
                 # get ModelRun object and set status to true
                 set_is_running(request.session.session_key, True)
-
+                
                 return JsonResponse({'status': 'queued', 'model_running': True})
             else:
                 logging.info("rabbit is down, sim. will be run on API server")
@@ -710,19 +728,9 @@ class GetFlow(views.APIView):
             request.session.session_key + "/output.csv")
         logging.debug("fetching flow from: " + csv_results_path)
         logging.debug("using data:" + str(request.GET.dict()))
-        # csv_results_path = os.path.join(
-        #     os.environ['MUSIC_BOX_BUILD_DIR'],
-        #     request.session.session_key + "/output.csv")
-        # react_path = (os.path.join(
-        #     settings.BASE_DIR, 'configs/' + request.session.session_key)
-        #     + "/camp_data/reactions.json")
         path_to_template = os.path.join(
             settings.BASE_DIR,
             "dashboard/templates/network_plot/flow_plot.html")
-        # flow = create_and_return_flow_diagram(request.GET.dict(),
-        #                                       react_path, path_to_template,
-        #                                       csv_results_path)
-
         flow = generate_flow_diagram(request.GET.dict(), request.session.session_key, path_to_template)
         return HttpResponse(flow)
 
@@ -746,12 +754,35 @@ class DownloadConfig(views.APIView):
         logging.debug("destination path: " + destination_path)
         logging.debug("zip path: " + zip_path)
         logging.debug("conf path: " + conf_path)
+        # get config files for this session
+        config_files = get_config_files(sessid)
+        # temporarily copy config files to static folder
+        if not os.path.exists(destination_path):
+            os.makedirs(destination_path)
+        for file in config_files:
+            config_file_string = config_files[file]
+            with open(conf_path + file, "w") as f:
+                f.write(json.dumps(config_file_string))
+        # now do the same for binary files
+        binary_files = models.User.objects.get(
+            uid=sessid).binary_files
+        for file in binary_files:
+            binary_file_string = binary_files[file]
+            with open(conf_path + file, "wb") as f:
+                f.write(binary_file_string.encode('utf-8'))
+        
+        # zip up config files
         create_config_zip(destination_path, zip_path, conf_path)
         fl_path = zip_path
         zip_file = open(fl_path, 'rb')
         response = HttpResponse(zip_file, content_type='application/zip')
         attach_string = 'attachment; filename="%s"' % 'config.zip'
         response['Content-Disposition'] = attach_string
+
+        # delete temporary files
+        shutil.rmtree(destination_path)
+        os.remove(zip_path)
+
         return response
 
 
@@ -761,20 +792,24 @@ class DownloadResults(views.APIView):
         if not request.session.session_key:
             request.session.create()
         logging.debug("session key: " + request.session.session_key)
-        fl_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key + "/output.csv")
+        # fl_path = os.path.join(
+        #     os.environ['MUSIC_BOX_BUILD_DIR'],
+        #     request.session.session_key + "/output.csv")
         now = datetime.now()
         filename = str(now) + '_model_output.csv'
-        fl = open(fl_path, 'r')
-        mime_type, _ = mimetypes.guess_type(fl_path)
-        if os.path.exists(fl_path):
-            with open(fl_path, 'rb') as fh:
-                response = HttpResponse(fh.read(), content_type=mime_type)
-                attach_string = 'inline; filename=' + filename
-                response['Content-Disposition'] = attach_string
-                return response
-        raise Http404
+        # fl = open(fl_path, 'r')
+        # mime_type, _ = mimetypes.guess_type(fl_path)
+        # get output csv from database
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        # check if output csv exists
+        if model.results['/output.csv'] is None:
+            return HttpResponse("No output file available", status=404)
+        output_csv = StringIO(model.results['/output.csv'])
+        # put csv in response
+        response = HttpResponse(output_csv, content_type='text/csv')
+        attach_string = 'inline; filename=' + filename
+        response['Content-Disposition'] = attach_string
+        return response
 
 
 class ConfigJsonUpload(views.APIView):
@@ -790,6 +825,31 @@ class ConfigJsonUpload(views.APIView):
             uploaded, "dashboard/static/zip/" + request.session.session_key,
             configs_path)
         export_to_path(configs_path+"/")
+        # now copy files from export_to_path into database and delete from file system 
+        user = models.User.objects.get(uid=request.session.session_key)
+        # start with species.json
+        with open(configs_path+"/species.json", "r") as f:
+            species_json = f.read()
+            # set user.config_files['species.json'] to species_json
+            user.config_files['/species.json'] = species_json
+        # now do the same for the other files
+        with open(configs_path+"/reactions.json", "r") as f:
+            reactions_json = f.read()
+            user.config_files['/reactions.json'] = reactions_json
+        with open(configs_path+"/options.json", "r") as f:
+            options_json = f.read()
+            user.config_files['/options.json'] = options_json
+        with open(configs_path+"/initials.json", "r") as f:
+            initials_json = f.read()
+            user.config_files['/initials.json'] = initials_json
+        with open(configs_path+"/my_config.json", "r") as f:
+            my_config_json = f.read()
+            user.config_files['/my_config.json'] = my_config_json
+        # save user, delete files from file system
+        user.save()
+
+        shutil.rmtree(configs_path)
+        
         return JsonResponse({})
 
 
@@ -803,7 +863,17 @@ class RemoveInitialConditionsFile(views.APIView):
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         remove_request = json.loads(request.body)
         logging.debug("removing file:" + str(remove_request))
-        initial_conditions_file_remove(remove_request, configs_path)
+
+        # remove 'file name' from user.binary_files
+        user = models.User.objects.get(uid=request.session.session_key)
+        user.binary_files.remove(remove_request['file name'])
+        # update my_config
+        my_config = json.loads(user.config_files['/my_config.json'])
+        del my_config['initial conditions'][remove_request['file name']]
+        user.config_files['/my_config.json'] = my_config
+        user.save()
+
+        
         return JsonResponse({})
 
 
@@ -821,7 +891,21 @@ class InitCSV(views.APIView):
             'configs/' + request.session.session_key)
         logging.debug("uploaded file: " + filename)
         logging.debug("saving to conf_path: " + conf_path)
-        manage_initial_conditions_files(uploaded, filename, conf_path)
+        # manage_initial_conditions_files(uploaded, filename, conf_path)
+        # save file to database
+        user = models.User.objects.get(uid=request.session.session_key)
+        # save file to user.binary_files
+        user.binary_files[filename] = uploaded.read()
+        # update my_config
+        my_config = user.config_files['/my_config.json']
+        if 'initial conditions' in my_config:
+            initials = my_config['initial conditions']
+        else:
+            initials = {}
+        initials.update({filename: {}})
+        my_config.update({'initial conditions': initials})
+        user.config_files['/my_config.json'] = my_config
+        user.save()
         return JsonResponse({})
 
 
@@ -834,7 +918,20 @@ class ClearEvolutionFiles(views.APIView):
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         logging.debug("clearing evolution files:" + conf_path)
-        clear_e_files(conf_path)
+        # clear_e_files(conf_path)
+        # clear files from database
+        user = models.User.objects.get(uid=request.session.session_key)
+        binary_files = user.binary_files
+        config = user.config_files['/my_config.json']
+        # clear user.binary_files
+        e = config['evolving conditions']
+        # delete files from user.binary_files
+        for file in e:
+            del binary_files['/'+file]
+        config.update({'evolving conditions': {}})
+        user.config_files['/my_config.json'] = config
+        user.save()
+        logging.info('finished clearing evolution files')
         return JsonResponse({})
 
 
@@ -849,8 +946,23 @@ class EvolvFileUpload(views.APIView):
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         logging.debug("uploading file: " + filename)
-        manage_uploaded_evolving_conditions_files(
-            uploaded, filename, conf_path)
+        # manage_uploaded_evolving_conditions_files(
+            # uploaded, filename, conf_path)
+        # save file to database
+        user = models.User.objects.get(uid=request.session.session_key)
+        # save file to user.binary_files
+        user.binary_files[filename] = uploaded.read()
+        # update my_config
+        my_config = user.config_files['/my_config.json']
+        if 'evolving conditions' in my_config:
+            evolving = my_config['evolving conditions']
+        else:
+            evolving = {}
+        evolving.update({filename: {}})
+        my_config.update({'evolving conditions': evolving})
+        user.config_files['/my_config.json'] = my_config
+        user.save()
+
         logging.info("uploaded evolving file: " + filename)
         return JsonResponse({})
 

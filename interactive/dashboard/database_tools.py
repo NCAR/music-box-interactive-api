@@ -20,6 +20,7 @@ from unicodedata import decimal
 from urllib import request
 import math
 from bisect import bisect_left
+import hashlib
 # get user based on uid
 def get_user(uid):
     # check if user exists
@@ -257,11 +258,28 @@ def remove_species(uid, species_name):
                 break
     user.config_files['/camp_data/species.json']["camp-data"] = camp_data
     # find any reactions that use this species and remove them
-    camp_data = user.config_files['/camp_data/reactions.json']["camp-data"]
-    for entry in camp_data:
+    reaction_data = user.config_files['/camp_data/reactions.json']["camp-data"]
+    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions'] if not species_name in r['reactants'].keys() and not species_name in r['products'].keys()]
+    for entry in reaction_data:
         if entry['type'] == "CHEM_REACTION":
             if species_name in entry['species']:
-                camp_data.remove(entry)
+                reaction_data.remove(entry)
+    user.config_files['/camp_data/reactions.json']["camp-data"] = reaction_data
+    
+    user.save()
+
+
+    # now remove the species from my_config.json
+    # check if my_config_path exists
+    if not user.config_files['/my_config.json']:
+        return
+    chem_species = user.config_files['/my_config.json']
+    if 'chemical species' in chem_species.keys():
+        if species_name in chem_species['chemical species']:
+            del chem_species['chemical species'][species_name]
+    user.config_files['/my_config.json'] = chem_species
+    
+    
     user.save()
 
 
@@ -477,6 +495,9 @@ def default_units(prefix, name):
 def convert_initial_conditions_file(uid, delimiter):
     user = get_user(uid)
     input_file = '/initial_reaction_rates.csv'
+    # check if input_file exists
+    if input_file not in user.config_files:
+        return {}
     content = user.config_files[input_file]
     lines = content.split('\n')
     keys = [lines[0]]
@@ -2019,3 +2040,72 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
     # read from file and return the contents
     with open(path_to_template, 'r') as f:
         return f.read()
+
+# function that returns checksum of config + binary files for a given uid
+def calculate_checksum(uid):
+    # get user
+    user = get_user(uid)
+    # get all config files and their checksums
+    config_files = get_config_files(user)
+    # binary files
+    binary_files = user.binary_files
+    # get checksums
+    checksums = []
+    for config_file in config_files:
+        # encoded string
+        encoded_string = json.dumps(config_files[config_file]).encode('utf-8')
+        # create checksum of config file contents
+        checksum = hashlib.md5(encoded_string).hexdigest()
+        checksums.append(checksum.strip())
+    
+    # checksum of binary files
+    for binary_file in binary_files:
+        # encoded string from binary file
+        encoded_string = binary_files[binary_file].encode('utf-8')
+        # create checksum of config file contents
+        checksum = hashlib.md5(encoded_string).hexdigest()
+        checksums.append(checksum.strip())
+
+    # create one checksum of all checksums
+    checksum = hashlib.md5(''.join(checksums).encode('utf-8')).hexdigest()
+    # return checksums
+    return checksum
+
+# function to return current checksum for user
+def get_current_checksum(uid):
+    # get user
+    user = get_user(uid)
+    # get current checksum
+    current_checksum = user.config_checksum
+    # return current checksum
+    return current_checksum
+
+# set current checksum for user
+def set_current_checksum(uid, checksum):
+    # get user
+    user = get_user(uid)
+    # set current checksum
+    user.config_checksum = checksum
+    # save user
+    user.save()
+
+# function to search for user given checksum
+def get_user_by_checksum(checksum):
+    # query for user with checksum and should_cache = True
+    user = models.User.objects.filter(config_checksum=checksum, should_cache=True).first()
+    # return user
+    return user
+
+# function to copy results from one user to another
+def copy_results(from_uid, to_uid):
+    logging.info("copying results from " + str(from_uid) + " to " + str(to_uid))
+    # get ModelRun object from from_uid
+    model_run = get_model_run(from_uid)
+    # check if running = False, results aren't empty, and we aren't copying to the same user
+    if model_run.is_running == False and model_run.results != {} and from_uid != to_uid:
+        # get ModelRun object from to_uid
+        model_run_to = get_model_run(to_uid)
+        # copy results from from_uid to to_uid
+        model_run_to.results = model_run.results
+        # save model run
+        model_run_to.save()

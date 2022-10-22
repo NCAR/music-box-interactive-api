@@ -26,7 +26,7 @@ RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 # this will run as many threads as there are cores (and will be faster but very cpu intensive)
 # set this number to 1 if you want to run everything in one thread -- if you are running on a server
 # without much cpu power/want to reduce energy usage you should probably set this to 1
-pool = Pool(max_workers=cpu_count()) # sets max number of cpu cores to use
+pool = Pool(max_workers=cpu_count()) # sets max number of workers to add to pool
 
 rabbit_host = os.environ['rabbit-mq-host']
 rabbit_port = int(os.environ['rabbit-mq-port'])
@@ -39,9 +39,9 @@ def callback(session_id, config_files_dict, future):
     connection = pika.BlockingConnection(con_params)
 
     if future.exception() is not None:
-        logging.info("Got exception: %s" % future.exception())
+        logging.info("["+session_id+"] Got exception: %s" % future.exception())
     else:
-        logging.info("Model finished.")
+        logging.info("["+session_id+"] Model finished.")
         # 1) check for output files (in /build)
         # 2) send output files to model_finished_queue
         # 3) delete config files and binary files from file system
@@ -50,7 +50,7 @@ def callback(session_id, config_files_dict, future):
         build_dir = os.path.join('/build', session_id)
         output_files = getListOfFiles(build_dir)
         if len(output_files) == 0:
-            logging.info("No output files found")
+            logging.info("["+session_id+"] No output files found, exiting")
             return
         # body to send to model_finished_queue
         body = {'session_id': session_id}
@@ -77,7 +77,7 @@ def callback(session_id, config_files_dict, future):
         channel.basic_publish(exchange='',
                                 routing_key='model_finished_queue',
                                 body=json.dumps(body))
-        logging.info("Sent output files to model_finished_queue")
+        logging.info("["+session_id+"] Sent output files to model_finished_queue")
 
 
 
@@ -129,18 +129,25 @@ def main():
         runner = SessionModelRunner(session_id)
         runner.set_run_as_rabbit(True) # set to true if running as rabbitmq
         runner.run() # sets up everything
+
         new_callback_function = functools.partial(callback, session_id, files_array) # pass session_id and files_array to callback function
         f = pool.submit(subprocess.call, "../music_box ./mb_configuration/my_config.json", shell=True, cwd=runner.mb_dir, stdout=subprocess.DEVNULL) # run model in separate thread, remove stdout=subprocess.DEVNULL if you want to see output
         f.add_done_callback(new_callback_function) # calls callback when model is finished
-        pool.shutdown(wait=False) # no .submit() calls after that point
 
+        
+        # pool.shutdown(wait=False) # no .submit() calls after that point
+        
 
     channel.basic_consume(queue='run_queue',
                           on_message_callback=run_queue_callback,
                           auto_ack=True)
 
     print(' [*] Waiting for run_queue messages. To exit press CTRL+C')
-    channel.start_consuming()
+    try:
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        print("Stopping consuming")
+        channel.stop_consuming()
 
 
 # checks server by trying to connect

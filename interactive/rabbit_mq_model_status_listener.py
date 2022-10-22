@@ -32,7 +32,6 @@ def main():
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
     connection = pika.BlockingConnection(connParam)
     channel = connection.channel()
-
     channel.queue_declare(queue='model_finished_queue')
 
     def run_model_finished_callback(ch, method, properties, body):
@@ -64,7 +63,11 @@ def main():
                           auto_ack=True)
 
     print(' [*] Waiting for model_finished_queue messages')
-    channel.start_consuming()
+    try:
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        channel.stop_consuming()
+    connection.close()
 
 
 # checks server by trying to connect
@@ -74,6 +77,7 @@ def check_for_rabbit_mq(host, port):
     """
     try:
         conn_params = pika.ConnectionParameters(host, port)
+       
         connection = pika.BlockingConnection(conn_params)
         if connection.is_open:
             connection.close()
