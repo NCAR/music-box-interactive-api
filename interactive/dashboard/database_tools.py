@@ -3,7 +3,8 @@ from django.db import models
 # import models from interactive/dashboard
 from dashboard import models
 # from interactive.mechanism.species import species_list
-import jsonfield
+# import jsonfield
+from django.contrib.postgres.fields import JSONField
 import os
 import json
 from pyvis.network import Network
@@ -88,6 +89,7 @@ def set_results(uid, results):
 def set_is_running(uid, is_running):
     model_run = get_model_run(uid)
     model_run.is_running = is_running
+    logging.info("["+str(uid)+"] set running to: "+str(is_running))
     model_run.save()
 
 
@@ -345,9 +347,18 @@ def generate_database_network_plot(uid, species, path_to_template):
         net.add_node(n, label=n, borderWidthSelected=3, size=40)
     for e in edges:
         net.add_edge(e[0], e[1])
+    # manually create temp file for pyvis to use
+    # on this production server, pyvis doesn't have perms. to create it
+    # if not os.path.exists('./'+str(path_to_template)):
+        # tmp = open(str(path_to_template), 'w')
+        # logging.info('manually created template file ./'+str(path_to_template))
     net.force_atlas_2based(gravity=-100, overlap=1)
-    net.show(str(path_to_template))
-
+    # generate the plot, return html code and delete the file
+    net.write_html(uid + '_network.html')
+    with open(uid + '_network.html', 'r') as f:
+        html = f.read()
+    os.remove(uid + '_network.html')
+    return html
 # get reactions menu of user
 def get_reactions_menu_list(uid):
     user = get_user(uid)
@@ -582,8 +593,13 @@ def get_run_status(uid):
     status = 'checking'
     running = False
     try:
-        model = models.ModelRun.objects.get(uid=uid)
+        model = models.ModelRun.objects.filter(uid=uid).first()
+        if model is None:
+            status = 'not_started'
+            logging.info("[ERR!] ["+str(uid)+"] model run not found for user")
+            return {'status': "not_started", 'session_id': uid, 'running': False}
         current_status = model.is_running
+        logging.info("["+str(uid)+"] run_status is running? [true/false] ==> "+str(current_status))
         if current_status is True:
             running = True
             status = 'running'
@@ -597,6 +613,7 @@ def get_run_status(uid):
                 status = 'done'
     except models.ModelRun.DoesNotExist:
         status = 'not_started'
+        logging.info("[ERR!] ["+str(uid)+"] model run not found for user")
     response_message.update({'status': status, 'session_id': uid, 'running': running})
 
     if status == 'error':
@@ -634,6 +651,19 @@ def tolerance(uid):
 
     species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
     return species_dict
+
+# returns sub prop names
+def sub_props_names(subprop):
+    namedict = {
+        'temperature': "Temperature",
+        'pressure': "Pressure",
+        'number_density_air': "Density",
+    }
+    if subprop in namedict:
+        return namedict[subprop]
+    else:
+        return subprop
+
 
 # get plot from model run
 def get_plot(uid, prop, plot_units):
@@ -1933,10 +1963,11 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
-    net.show(path_to_template)
+    # net.show(path_to_template)
+    net.show(uid+"_flow_network.html") # tmp file to put html at
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]
-    with open(path_to_template, 'r+') as f:
+    with open(uid+"_flow_network.html", 'r+') as f:
         #############################################
         # here we are going to replace the contents #
         #############################################
@@ -1944,7 +1975,10 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         network.on("stabilizationIterationsDone", function () {
             network.setOptions( { physics: false } );
         });
-        </script>"""
+    
+        </script>
+        
+        """
         logging.debug("((DEBUG)) [min,max] of selected time frame: " +
             str(minAndMaxOfSelectedTimeFrame))
         logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
@@ -2037,9 +2071,13 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         for line in lines:
             f.write(line)
         f.close()
-    # read from file and return the contents
-    with open(path_to_template, 'r') as f:
-        return f.read()
+
+    # read from file, delete the file, and return the contents
+    f = open(uid+"_flow_network.html", 'r')
+    contents = f.read()
+    f.close()
+    os.remove(uid+"_flow_network.html")
+    return contents
 
 # function that returns checksum of config + binary files for a given uid
 def calculate_checksum(uid):

@@ -179,17 +179,22 @@ class PlotSpeciesView(views.APIView):
         if exists(os.path.join(network_plot_dir, "plot.html")) is False:
             # create plot.html file if doesn't exist
             f = open(os.path.join(network_plot_dir, "plot.html"), "w")
+            logging.info("putting plot into file " + str(os.path.join(network_plot_dir, "plot.html")))
         shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
+        logging.info("generating plot and exporting to " + str(network_plot_dir + "/plot.html"))
         # generate network plot and place it in unique directory for user
-        generate_database_network_plot(request.session.session_key,
+        html = generate_database_network_plot(request.session.session_key,
                                        species,
                                        network_plot_dir + "/plot.html")
-        plot = ('network_plot/'
-                + request.session.session_key
-                + '/plot.html')
-        return render(request, plot)
-
-
+        #plot = ('network_plot/'
+        #        + request.session.session_key
+        #        + '/plot.html')
+        plot = str(network_plot_dir + "/plot.html")[1:]
+        #logging.info("[debug] rendering from " + plot)
+        #return render(request, plot)
+        #logging.info("returning html: " + str(html))
+        return HttpResponse(html)
+        
 class ReactionsView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received REACTIONS_VIEW ******")
@@ -557,6 +562,8 @@ class RunView(views.APIView):
             # start model run by adding job to queue via pika
             rabbit_host = os.environ['rabbit-mq-host']
             rabbit_port = int(os.environ['rabbit-mq-port'])
+            # get ModelRun object and set status to true
+            set_is_running(request.session.session_key, True)
 
             # disable pika logging because it's annoying
             logging.getLogger("pika").propagate = False
@@ -582,29 +589,32 @@ class RunView(views.APIView):
                         return JsonResponse({'status': 'done',
                                              'session_id': request.session.session_key,
                                              'running': False})
-                # if we get here, we need to run the model
-                logging.info("rabbit is up, adding simulation to queue")
-                con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
-                connection = pika.BlockingConnection(con_params)
-                channel = connection.channel()
-                channel.queue_declare(queue='run_queue')
-                body = {}
-                body.update({"session_id": request.session.session_key})
-                # put all config files in body
-                body.update({"config_files": get_user(request.session.session_key).config_files})
-                # put all binary files in body
-                body.update({"binary_files": get_user(request.session.session_key).binary_files})
-                channel.basic_publish(exchange='',
+                # check to make sure we have a model to run by
+                # checking if config and binary files exist
+                if get_user(request.session.session_key).config_files is not {} and get_user(request.session.session_key).binary_files is not {}:
+                    # if we get here, we need to run the model
+                    logging.info("rabbit is up, adding simulation to queue")
+                    con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
+                    connection = pika.BlockingConnection(con_params)
+                    channel = connection.channel()
+                    channel.queue_declare(queue='run_queue')
+                    body = {}
+                    body.update({"session_id": request.session.session_key})
+                    # put all config files in body
+                    body.update({"config_files": get_user(request.session.session_key).config_files})
+                    # put all binary files in body
+                    body.update({"binary_files": get_user(request.session.session_key).binary_files})
+                    channel.basic_publish(exchange='',
                                     routing_key='run_queue',
                                     body=json.dumps(body))
 
-                # close connection
-                connection.close()
-                logging.info("published message to run_queue")
-                # get ModelRun object and set status to true
-                set_is_running(request.session.session_key, True)
-                
-                return JsonResponse({'status': 'queued', 'model_running': True})
+                    # close connection
+                    connection.close()
+                    logging.info("published message to run_queue")
+                    return JsonResponse({'status': 'queued', 'model_running': True})
+                else:
+                    logging.info("no config or binary files found for user " + request.session.session_key + ", not running model")
+                    return JsonResponse({'status': 'error', 'model_running': False})
             else:
                 logging.info("rabbit is down, sim. will be run on API server")
                 return runner.run()

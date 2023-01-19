@@ -218,7 +218,7 @@ class SessionModelRunner():
             self.copyAFile(os.path.join(
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
-        checksum = self.calculate_checksum()
+        # checksum = self.calculate_checksum()
         logging.info("running model from base directory: " + self.mb_dir)
         if self.isRabbit == False:
             # run on api server
