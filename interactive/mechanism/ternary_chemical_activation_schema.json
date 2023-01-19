@@ -1,0 +1,87 @@
+{
+    "schema": {
+        "reactants": {
+            "type": "array",
+            "as-object": true,
+            "description": "Use the 'qty' property when a species appears more than once as a reactant.",
+            "children": {
+                "type": "object",
+                "key": "",
+                "children": {
+                    "qty": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                }
+            }
+        },
+        "products": {
+            "type": "array",
+            "as-object": true,
+            "children": {
+                "type": "object",
+                "key": "",
+                "children": {
+                    "yield": {
+                        "type": "real",
+                        "default": 1.0,
+                        "units": "unitless"
+                    }
+                }
+            }
+        },
+        "equation k_0": {
+            "type": "math",
+            "value": "k_0 = k_{0A}e^{(\\frac{k_{0C}}{T})}(\\frac{T}{300.0})^{k_{0B}}"
+        },
+        "equation k_inf": {
+            "type": "math",
+            "value": "k_{inf} = k_{infA}e^{(\\frac{k_{infC}}{T})}(\\frac{T}{300.0})^{k_{infB}}"
+        },
+        "equation k": {
+            "type": "math",
+            "value": "k = \\frac{k_0}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{(1+1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}",
+            "description": "T: temperature (K); M: number density of air (# cm<sup>-3</sup>)"
+        },
+        "k0_A": {
+            "type": "real",
+            "default": 1.0,
+            "units": "(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>"
+        },
+        "k0_B": {
+            "type": "real",
+            "default": 0.0,
+            "units": "unitless"
+        },
+        "k0_C": {
+            "type": "real",
+            "default": 0.0,
+            "units": "K<sup>-1</sup>"
+        },
+        "kinf_A": {
+            "type": "real",
+            "default": 1.0,
+            "units": "(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>"
+        },
+        "kinf_B": {
+            "type": "real",
+            "default": 0.0,
+            "units": "unitless"
+        },
+        "kinf_C": {
+            "type": "real",
+            "default": 0.0,
+            "units": "K<sup>-1</sup>"
+        },
+        "Fc": {
+            "type": "real",
+            "default": 0.6,
+            "units": "unitless"
+        },
+        "N": {
+            "type": "real",
+            "default": 1.0,
+            "units": "unitless"
+        }
+    }
+}

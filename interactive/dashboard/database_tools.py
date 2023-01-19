@@ -13,15 +13,17 @@ from plots import mpl_helper
 import pandas as pd
 from io import StringIO
 from numpy import vectorize
-from interactive.tools import *
+from interactive.tools import is_density_needed, create_unit_converter
 import io
 import matplotlib.pyplot as plt
-from unicodedata import decimal
-from urllib import request
+# from unicodedata import decimal
+# from urllib import request
 import math
 from bisect import bisect_left
 import hashlib
 # get user based on uid
+
+
 def get_user(uid):
     # check if user exists
     try:
@@ -78,6 +80,8 @@ def set_csv_files(uid, csv_files):
     user.save()
 
 # set results of model run
+
+
 def set_results(uid, results):
     model_run = get_model_run(uid)
     model_run.results = results
@@ -199,7 +203,7 @@ def get_files(dirName):
     for entry in listOfFile:
         # Create full path
         fullPath = os.path.join(dirName, entry)
-        # If entry is a directory then get the list of files in this directory 
+        # If entry is a directory then get the list of files in this directory
         if os.path.isdir(fullPath):
             allFiles = allFiles + get_files(fullPath)
         else:
@@ -259,15 +263,18 @@ def remove_species(uid, species_name):
     user.config_files['/camp_data/species.json']["camp-data"] = camp_data
     # find any reactions that use this species and remove them
     reaction_data = user.config_files['/camp_data/reactions.json']["camp-data"]
-    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions'] if not species_name in r['reactants'].keys() and not species_name in r['products'].keys()]
+    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions']
+                                     if species_name
+                                     not in r['reactants'].keys()
+                                     and species_name
+                                     not in r['products'].keys()]
     for entry in reaction_data:
         if entry['type'] == "CHEM_REACTION":
             if species_name in entry['species']:
                 reaction_data.remove(entry)
     user.config_files['/camp_data/reactions.json']["camp-data"] = reaction_data
-    
-    user.save()
 
+    user.save()
 
     # now remove the species from my_config.json
     # check if my_config_path exists
@@ -278,8 +285,7 @@ def remove_species(uid, species_name):
         if species_name in chem_species['chemical species']:
             del chem_species['chemical species'][species_name]
     user.config_files['/my_config.json'] = chem_species
-    
-    
+
     user.save()
 
 
@@ -349,18 +355,22 @@ def generate_database_network_plot(uid, species, path_to_template):
     net.show(str(path_to_template))
 
 # get reactions menu of user
+
+
 def get_reactions_menu_list(uid):
     user = get_user(uid)
-    camp_data = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
+    camp_data = (user.config_files['/camp_data/reactions.json']
+                 ["camp-data"][0]['reactions'])
     names = []
 
     for reaction in camp_data:
         name = ''
         if 'reactants' in reaction.keys() and 'products' in reaction.keys():
             first_item_printed = False
-            for reactant,count_dict in reaction['reactants'].items():
+            for reactant, count_dict in reaction['reactants'].items():
                 if count_dict and count_dict['qty'] != 1:
-                    name += (' + ' if first_item_printed else '') + str(count_dict['qty']) + ' ' + reactant
+                    name += (' + ' if first_item_printed else '') + \
+                        str(count_dict['qty']) + ' ' + reactant
                     first_item_printed = True
                 else:
                     name += (' + ' if first_item_printed else '') + reactant
@@ -369,7 +379,8 @@ def get_reactions_menu_list(uid):
             first_item_printed = False
             for product, yield_dict in reaction['products'].items():
                 if yield_dict and yield_dict['yield'] != 1.0:
-                    name += (' + ' if first_item_printed else ' ') + str(yield_dict['yield']) + ' ' + product
+                    name += (' + ' if first_item_printed else ' ') + \
+                        str(yield_dict['yield']) + ' ' + product
                     first_item_printed = True
                 else:
                     name += (' + ' if first_item_printed else ' ') + product
@@ -389,7 +400,8 @@ def get_reactions_menu_list(uid):
 # get reactions details of user
 def get_reactions_info(uid):
     user = get_user(uid)
-    camp_data = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
+    camp_data = (user.config_files['/camp_data/reactions.json']
+                 ["camp-data"][0]['reactions'])
     return camp_data
 
 
@@ -400,6 +412,8 @@ def is_reactions_valid(uid):
         return True
     return False
 # remove reaction for user
+
+
 def remove_reaction(uid, index):
     user = get_user(uid)
     camp_data = user.config_files['/camp_data/reactions.json']["camp-data"]
@@ -529,7 +543,8 @@ def convert_initial_conditions_dict(uid, dictionary, output_file, delimiter):
             column_names += key_label + '.' + value["units"] + delimiter
             column_values += str(value["value"]) + delimiter
     user = get_user(uid)
-    user.config_files[output_file] = column_names[:-1] + '\n' + column_values[:-1]
+    user.config_files[output_file] = column_names[:-1] + \
+        '\n' + column_values[:-1]
     user.save()
 
 
@@ -544,7 +559,7 @@ def is_musica_reaction(uid, name):
     if not MUSICA_name:
         return False
     for reaction in reactions:
-        if not "MUSICA name" in reaction:
+        if "MUSICA name" not in reaction:
             continue
         if MUSICA_name == reaction["MUSICA name"]:
             if prefix == "EMIS" and reaction["type"] == "EMISSION":
@@ -566,13 +581,13 @@ def get_reaction_musica_names(uid):
                 continue
             if reaction['type'] == "EMISSION":
                 reactions['EMIS.' + reaction['MUSICA name']] = \
-                    { 'units': 'ppm s-1' }
+                    {'units': 'ppm s-1'}
             elif reaction['type'] == "FIRST_ORDER_LOSS":
                 reactions['LOSS.' + reaction['MUSICA name']] = \
-                    { 'units': 's-1' }
+                    {'units': 's-1'}
             elif reaction['type'] == "PHOTOLYSIS":
                 reactions['PHOT.' + reaction['MUSICA name']] = \
-                    { 'units' : 's-1' }
+                    {'units': 's-1'}
     return reactions
 
 
@@ -597,7 +612,8 @@ def get_run_status(uid):
                 status = 'done'
     except models.ModelRun.DoesNotExist:
         status = 'not_started'
-    response_message.update({'status': status, 'session_id': uid, 'running': running})
+    response_message.update(
+        {'status': status, 'session_id': uid, 'running': running})
 
     if status == 'error':
         errorfile = models.ModelRun.objects.get(uid=uid).results['/error.json']
@@ -614,6 +630,7 @@ def get_run_status(uid):
         response_message.update({'e_message': errorfile['message']})
     return response_message
 
+
 def beautifyReaction(reaction):
     if '->' in reaction:
         reaction = reaction.replace('->', ' → ')
@@ -623,6 +640,8 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
+
+
 def tolerance(uid):
     # grab camp_data/species.json
     species_file = get_user(uid).config_files['/camp_data/species.json']
@@ -632,27 +651,32 @@ def tolerance(uid):
         if 'absolute tolerance' not in spec:
             spec.update({'absolute tolerance': default_tolerance})
 
-    species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
+    species_dict = {j['name']: j['absolute tolerance'] for j in species_list}
     return species_dict
 
 # get plot from model run
+
+
 def get_plot(uid, prop, plot_units):
     # get output.csv from model run
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
     matplotlib.use('agg')
-        
+
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
     csv = pd.read_csv(output_csv, encoding='latin1')
-    titles = csv.columns.tolist()
+    # titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
     model_output_units = 'mol/m-3'
-    #make unit conversion if needed
+    # make unit conversion if needed
     if plot_units:
-        converter = vectorize(create_unit_converter(model_output_units, plot_units))
+        converter = vectorize(create_unit_converter(
+            model_output_units, plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol/m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {
+                'density': csv['ENV.number_density_air'].iloc[[-1]],
+                'density units': 'mol/m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -665,11 +689,12 @@ def get_plot(uid, prop, plot_units):
         if 'myrate__' not in prop.split('.')[1]:
             axes.set_ylabel("("+plot_units+")")
             axes.set_title(beautifyReaction(name))
-            #unit converter for tolerance      
+            # unit converter for tolerance
             if plot_units:
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
             else:
-                ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
+                ppm_to_plot_units = create_unit_converter(
+                    'ppm', model_output_units)
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
@@ -682,7 +707,8 @@ def get_plot(uid, prop, plot_units):
                 pp = float(tolerance(uid)[name])
                 tolerance_tmp = ppm_to_plot_units(pp)
 
-            #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
+            # this determines the minimum value of the y axis range. minimum 
+            # value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
             ymax_minimum = tolerance_yrange_factor * tolerance_tmp
             property_maximum = subset[str(prop.strip())].max()
@@ -710,6 +736,8 @@ def get_plot(uid, prop, plot_units):
     plt.close(figure)
     return buffer
 # convert to/from model config format
+
+
 def export_to_database_path(uid):
     user = get_user(uid)
     species = user.config_files['/species.json']
@@ -876,320 +904,75 @@ def get_reaction_type_schema(uid, reaction_type):
         species += entry
     schema = {}
     if reaction_type == "ARRHENIUS":
-        schema = {
-            'reactants' : {
-                'type' : 'array',
-                'as-object' : True,
-                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'qty' : {
-                            'type' : 'integer',
-                            'default' : 1
-                        }
-                    }
-                }
-            },
-            'products' : {
-                'type' : 'array',
-                'as-object' : True,
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'yield' : {
-                            'type' : 'real',
-                            'default' : 1.0,
-                            'units' : 'unitless'
-                        }
-                    }
-                }
-            },
-            'equation' : {
-                'type' : 'math',
-                'value' : 'k = Ae^{(\\frac{-E_a}{k_bT})}(\\frac{T}{D})^B(1.0+E*P)',
-                'description' : 'k<sub>B</sub>: Boltzmann constant (J K<sup>-1</sup>); T: temperature (K); P: pressure (Pa)'
-            },
-            'A' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : '(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
-            },
-            'Ea' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'J'
-            },
-            'B' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'unitless'
-            },
-            'D' : {
-                'type' : 'real',
-                'default' : 300.0,
-                'units' : 'K'
-            },
-            'E' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'Pa<sup>-1</sup>'
-            }
-        }
+        arrhenius_schema = ('/music-box-interactive/interactive/mechanism/'
+                            'arrhenius_schema.json')
+        # arrhenius_schema = os.path.join(
+        #     BASE_DIR, '/mechanism/arrhenius_schema.json')
+        with open(arrhenius_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['reactants']['children']['key'] = species
+            schema['products']['children']['key'] = species
+
     elif reaction_type == 'EMISSION':
-        schema = {
-            'species' : {
-                'type' : 'string-list',
-                'values' : species
-            },
-            'scaling factor' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'description' : 'Use the scaling factor to adjust emission rates from input data. A scaling factor of 1.0 results in no adjustment.',
-                'units' : 'unitless'
-            },
-            'MUSICA name' : {
-                'type' : 'string',
-                'description' : 'Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like.'
-            }
-        }
+        emission_schema = ('/music-box-interactive/interactive/mechanism/'
+                           'emission_schema.json')
+        # emission_schema_schema = os.path.join(
+        #     BASE_DIR, '/mechanism/emission_schema.json')
+        with open(emission_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['species']['values'] = species
+
     elif reaction_type == 'FIRST_ORDER_LOSS':
-        schema = {
-            'species' : {
-                'type' : 'string-list',
-                'values' : species
-            },
-            'scaling factor' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'description' : 'Use the scaling factor to adjust first order loss rate constants from input data. A scaling factor of 1.0 results in no adjustment.',
-                'units' : 'unitless'
-            },
-            'MUSICA name' : {
-                'type' : 'string',
-                'description' : 'Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like.'
-            }
-        }
+        first_order_loss_schema = ('/music-box-interactive/interactive/'
+                                   'mechanism/first_order_loss_schema.json')
+        # first_order_loss_schema = os.path.join(
+        #     BASE_DIR, '/mechanism/first_order_loss_schema.json')
+        with open(first_order_loss_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['species']['values'] = species
+
     elif reaction_type == 'PHOTOLYSIS':
-        schema = {
-            'reactants' : {
-                'type' : 'array',
-                'as-object' : True,
-                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'qty' : {
-                            'type' : 'integer',
-                            'default' : 1
-                        }
-                    }
-                }
-            },
-            'products' : {
-                'type' : 'array',
-                'as-object' : True,
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'yield' : {
-                            'type' : 'real',
-                            'default' : 1.0,
-                            'units' : 'unitless'
-                        }
-                    }
-                }
-            },
-            'scaling factor' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'description' : 'Use the scaling factor to adjust photolysis rate constants from input data. A scaling factor of 1.0 results in no adjustment.',
-                'units' : 'unitless'
-            },
-            'MUSICA name' : {
-                'type' : 'string',
-                'description' : 'Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like.'
-            }
-        }
+        photolysis_schema = ('/music-box-interactive/interactive/mechanism/'
+                             'photolysis_schema.json')
+        # photolysis_schema.json = os.path.join(
+        #     BASE_DIR, '/mechanism/photolysis_schema.json')
+        with open(photolysis_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['reactants']['children']['key'] = species
+            schema['products']['children']['key'] = species
+
     elif reaction_type == 'TERNARY_CHEMICAL_ACTIVATION':
-        schema = {
-            'reactants' : {
-                'type' : 'array',
-                'as-object' : True,
-                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'qty' : {
-                            'type' : 'integer',
-                            'default' : 1
-                        }
-                    }
-                }
-            },
-            'products' : {
-                'type' : 'array',
-                'as-object' : True,
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'yield' : {
-                            'type' : 'real',
-                            'default' : 1.0,
-                            'units' : 'unitless'
-                        }
-                    }
-                }
-            },
-            'equation k_0' : {
-                'type' : 'math',
-                'value' : 'k_0 = k_{0A}e^{(\\frac{k_{0C}}{T})}(\\frac{T}{300.0})^{k_{0B}}'
-            },
-            'equation k_inf' : {
-                'type' : 'math',
-                'value' : 'k_{inf} = k_{infA}e^{(\\frac{k_{infC}}{T})}(\\frac{T}{300.0})^{k_{infB}}'
-            },
-            'equation k' : {
-                'type' : 'math',
-                'value' : 'k = \\frac{k_0}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{(1+1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
-                'description' : 'T: temperature (K); M: number density of air (# cm<sup>-3</sup>)'
-            },
-            'k0_A' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : '(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
-            },
-            'k0_B' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'unitless'
-            },
-            'k0_C' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'K<sup>-1</sup>'
-            },
-            'kinf_A' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : '(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
-            },
-            'kinf_B' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'unitless'
-            },
-            'kinf_C' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'K<sup>-1</sup>'
-            },
-            "Fc" : {
-                'type' : 'real',
-                'default' : 0.6,
-                'units' : 'unitless'
-            },
-            'N' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : 'unitless'
-            }
-        }
+        ternary_chemical_activation_schema = ('/music-box-interactive/'
+                                              'interactive/mechanism/'
+                                              'ternary_chemical_'
+                                              'activation_schema.json')
+        # ternary_chemical_activation_schema.json = os.path.join(
+        #     BASE_DIR, '/mechanism/ternary_chemical_activation_schema.json')
+        with open(ternary_chemical_activation_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['reactants']['children']['key'] = species
+            schema['products']['children']['key'] = species
+
     elif reaction_type == 'TROE':
-        schema = {
-            'reactants' : {
-                'type' : 'array',
-                'as-object' : True,
-                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'qty' : {
-                            'type' : 'integer',
-                            'default' : 1
-                        }
-                    }
-                }
-            },
-            'products' : {
-                'type' : 'array',
-                'as-object' : True,
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'yield' : {
-                            'type' : 'real',
-                            'default' : 1.0,
-                            'units' : 'unitless'
-                        }
-                    }
-                }
-            },
-            'equation k_0' : {
-                'type' : 'math',
-                'value' : 'k_0 = k_{0A}e^{(\\frac{k_{0C}}{T})}(\\frac{T}{300.0})^{k_{0B}}'
-            },
-            'equation k_inf' : {
-                'type' : 'math',
-                'value' : 'k_{inf} = k_{infA}e^{(\\frac{k_{infC}}{T})}(\\frac{T}{300.0})^{k_{infB}}'
-            },
-            'equation k' : {
-                'type' : 'math',
-                'value' : 'k = \\frac{k_0[\\mbox{M}]}{1+k_0[\\mbox{M}]/k_{\\inf}}F_C^{(1+1/N[log_{10}(k_0[\\mbox{M}]/k_{\\inf})]^2)^{-1}}',
-                'description' : 'T: temperature (K); M: number density of air (# cm<sup>-3</sup>)'
-            },
-            'k0_A' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : '(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
-            },
-            'k0_B' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'unitless'
-            },
-            'k0_C' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'K<sup>-1</sup>'
-            },
-            'kinf_A' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : '(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
-            },
-            'kinf_B' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'unitless'
-            },
-            'kinf_C' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'K<sup>-1</sup>'
-            },
-            "Fc" : {
-                'type' : 'real',
-                'default' : 0.6,
-                'units' : 'unitless'
-            },
-            'N' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : 'unitless'
-            }
-        }
+        troe_schema = ('/music-box-interactive/interactive/mechanism/'
+                       'troe_schema.json')
+        # troe_schema.json = os.path.join(
+        #     BASE_DIR, '/mechanism/troe_schema_schema.json')
+        with open(troe_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['reactants']['children']['key'] = species
+            schema['products']['children']['key'] = species
     return schema
 
 # returns species in csv
+
+
 def get_species(uid):
     # read csv for uid
     model = models.ModelRun.objects.get(uid=uid)
@@ -1383,7 +1166,8 @@ def findReactionRates(reactions_nodes, df, start, end,
         if end in time_column_list(uid):
             last = time_column_list(uid).index(end)
         else:
-            last = time_column_list(uid).index(take_closest(time_column_list(uid), end))
+            last = time_column_list(uid).index(
+                take_closest(time_column_list(uid), end))
     first_and_last = rates.iloc[[first, last]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
@@ -1781,8 +1565,8 @@ def CalculateEdgesAndNodes(reactions, species, scaledLineWeights,
 
 
 def createLegend():
-    x = -300
-    y = -250
+    # x = -300
+    # y = -250
     legend_nodes = [
         'Element', 'Reaction'
     ]
@@ -1799,6 +1583,8 @@ def getReactName(reaction_names_on_hover, x):
     return name
 
 # function called from API to get data for graph (AKA the main function)
+
+
 def generate_flow_diagram(request_dict, uid, path_to_template):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
@@ -1812,7 +1598,8 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        logging.info("new user selected min and max: " + str(userSelectedMinMax))
+        logging.info("new user selected min and max: " +
+                     str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -1874,13 +1661,13 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                       10 for x in list(reac_nodes)], title=names)
         net.add_nodes(network_content['species_nodes'], color=colors,
                       size=[
-                        10 for x in list(network_content['species_nodes'])])
+            10 for x in list(network_content['species_nodes'])])
     else:
         net.add_nodes(names, color=[
                       "#FF7F7F" for x in reac_nodes], title=names)
         net.add_nodes(network_content['species_nodes'], color=colors,
                       size=[species_sizes[x] for x in list(
-                        network_content['species_nodes'])])
+                          network_content['species_nodes'])])
     net.set_edge_smooth('dynamic')
     # add edges individually so we can modify contents
     i = 0
@@ -1946,8 +1733,9 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         });
         </script>"""
         logging.debug("((DEBUG)) [min,max] of selected time frame: " +
-            str(minAndMaxOfSelectedTimeFrame))
-        logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
+                      str(minAndMaxOfSelectedTimeFrame))
+        logging.debug(
+            "((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -1977,10 +1765,10 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            logging.debug("previousMin:" + str(formattedPrevMin) + 
-                "does not equal " + str(formattedMinOfSelected))
+            logging.debug("previousMin:" + str(formattedPrevMin) +
+                          "does not equal " + str(formattedMinOfSelected))
             logging.debug("previousMax: " + str(formattedPrevMax) +
-                " does not equal " + str(formattedMaxOfSelected))
+                          " does not equal " + str(formattedMaxOfSelected))
             logging.debug("previousMin: " + str(previousMin) + " equals 0")
             logging.debug("previousMax: " + str(previousMax) + " equals 1")
             a += 'parent.document.getElementById("flow-start-range2").value =\
@@ -1988,9 +1776,10 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                     parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
             a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
-                + str(formattedMaxOfSelected)+'", "'+str(
+                  + str(formattedMaxOfSelected)+'", "'+str(
                 formattedMinOfSelected)+'", "'
-                + str(formattedMaxOfSelected)+'", '+str(get_step_length(uid))+');</script>')
+                + str(formattedMaxOfSelected)+'",'+str(
+                    get_step_length(uid))+');</script>')
         else:
             logging.debug("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
@@ -2004,14 +1793,16 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                 block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
                 fmos = str(formattedMinOfSelected)
                 block2 = formattedUserMax + '", "' + fmos
-                block3 = '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');\
+                block3 = '", "' + formattedMaxOfSelected + '", '+str(
+                    get_step_length(uid))+');\
                         </script>'
                 a += block1 + block2 + block3
             else:
                 fmos = formattedMinOfSelected
                 block1 = 'parent.reloadSlider("' + fmos + '", "'
                 block2 = formattedMaxOfSelected + '", "' + str(fmos)
-                a += block1 + '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');</script>'
+                a += block1 + '", "' + formattedMaxOfSelected + \
+                    '", '+str(get_step_length(uid))+');</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \
@@ -2042,6 +1833,8 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         return f.read()
 
 # function that returns checksum of config + binary files for a given uid
+
+
 def calculate_checksum(uid):
     # get user
     user = get_user(uid)
@@ -2057,7 +1850,7 @@ def calculate_checksum(uid):
         # create checksum of config file contents
         checksum = hashlib.md5(encoded_string).hexdigest()
         checksums.append(checksum.strip())
-    
+
     # checksum of binary files
     for binary_file in binary_files:
         # encoded string from binary file
@@ -2072,6 +1865,8 @@ def calculate_checksum(uid):
     return checksum
 
 # function to return current checksum for user
+
+
 def get_current_checksum(uid):
     # get user
     user = get_user(uid)
@@ -2081,6 +1876,8 @@ def get_current_checksum(uid):
     return current_checksum
 
 # set current checksum for user
+
+
 def set_current_checksum(uid, checksum):
     # get user
     user = get_user(uid)
@@ -2090,19 +1887,27 @@ def set_current_checksum(uid, checksum):
     user.save()
 
 # function to search for user given checksum
+
+
 def get_user_by_checksum(checksum):
     # query for user with checksum and should_cache = True
-    user = models.User.objects.filter(config_checksum=checksum, should_cache=True).first()
+    user = models.User.objects.filter(
+        config_checksum=checksum, should_cache=True).first()
     # return user
     return user
 
 # function to copy results from one user to another
+
+
 def copy_results(from_uid, to_uid):
-    logging.info("copying results from " + str(from_uid) + " to " + str(to_uid))
+    logging.info("copying results from " +
+                 str(from_uid) + " to " + str(to_uid))
     # get ModelRun object from from_uid
     model_run = get_model_run(from_uid)
-    # check if running = False, results aren't empty, and we aren't copying to the same user
-    if model_run.is_running == False and model_run.results != {} and from_uid != to_uid:
+    # check if running = False, results aren't empty,
+    # and we aren't copying to the same user
+    if (model_run.is_running is False
+            and model_run.results != {} and from_uid != to_uid):
         # get ModelRun object from to_uid
         model_run_to = get_model_run(to_uid)
         # copy results from from_uid to to_uid
