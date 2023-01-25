@@ -23,4 +23,3 @@ def update_environment_variables():
                                 level=logging.INFO)
             logging.getLogger().setLevel(logging.INFO)
         f.close()
-

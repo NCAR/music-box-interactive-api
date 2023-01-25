@@ -30,8 +30,8 @@ logging.basicConfig(filename='errors.log', filemode='w',
 
 def main():
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
-    connection = pika.BlockingConnection(connParam)
-    channel = connection.channel()
+    conn = pika.BlockingConnection(connParam)
+    channel = conn.channel()
     channel.queue_declare(queue='model_finished_queue')
 
     def run_model_finished_callback(ch, method, properties, body):
@@ -67,7 +67,7 @@ def main():
         channel.start_consuming()
     except KeyboardInterrupt:
         channel.stop_consuming()
-    connection.close()
+   # connection.close()
 
 
 # checks server by trying to connect
