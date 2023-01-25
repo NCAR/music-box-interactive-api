@@ -77,18 +77,10 @@ class ExampleView(views.APIView):
             settings.BASE_DIR, 'dashboard/static/examples')
         example_folder_path = os.path.join(examples_path, example_name)
 
-<<<<<<< HEAD
-        logging.debug(
-            "|_ loading example #" + str(request.GET.dict()['example']))
-        logging.info("|_ example folder path: " + example_folder_path)
-
-        user = get_user(request.session.session_key)  # get user via sessionkey
-=======
         logging.debug("|_ loading example #" + str(request.GET.dict()['example']))
         logging.info("|_ example folder path: " + example_folder_path)
 
         user = get_user(request.session.session_key) # get user via sessionkey
->>>>>>> origin/production-config
         # get files in example_folder_path
         files = get_files(example_folder_path)
         # loop through files and remove example_folder_path from file path
@@ -116,11 +108,7 @@ class ExampleView(views.APIView):
                     # put string representation into user.config_files
                     user.binary_files.update({file: data})
                     f.close()
-<<<<<<< HEAD
-        # save user
-=======
         #save user
->>>>>>> origin/production-config
         user.save()
         export_to_database(request.session.session_key)
         menu_names = get_species_menu_list(request.session.session_key)
@@ -135,16 +123,7 @@ class SpeciesView(views.APIView):
         logging.info("****** GET request received SPECIES_VIEW ******")
         if not request.session.session_key:
             request.session.create()
-<<<<<<< HEAD
-        logging.info(
-            "fetching species for session: " + request.session.session_key)
-
-        menu_names = get_species_menu_list(request.session.session_key)
-        response = Response(menu_names, status=status.HTTP_200_OK)
-        return response
-=======
         logging.info("fetching species for session: " + request.session.session_key)
->>>>>>> origin/production-config
 
         menu_names = get_species_menu_list(request.session.session_key)
         response = Response(menu_names, status=status.HTTP_200_OK)
