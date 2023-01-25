@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = '/music-box-interactive/interactive' # manually set BASE_DIR for production
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -25,9 +25,9 @@ SECRET_KEY = 'c93n(kwho=^&)@=%pkka8vy4du#ua_e(s-*(0d33y%2l^#1gdt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
-
+ALLOWED_HOSTS = ["musicbox.acom.ucar.edu"]
+# SESSION_COOKIE_DOMAIN=".musicbox.acom.ucar.edu"
+SESSION_COOKIE_DOMAIN="ncar.github.io"
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'plots',
     'crispy_forms',
     'drf_yasg',
-    'corsheaders'
+    'corsheaders',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -150,10 +151,26 @@ SESSION_COOKIE_SAMESITE = 'None'
 # this allows possibly overriding another users session/csrf flags
 # look into a better way to do this
 # SESSION_COOKIE_SAMESITE = 'None'
+# 
 # SESSION_COOKIE_DOMAIN = 'None'
+SESSION_COOKIE_DOMAIN = 'musicbox.acom.ucar.edu'
 # SESSION_COOKIE_NAME = 'sessionid'
 
 # so that we can show plots in iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
+
+# ONLY FOR PRODUCTION USE
+# SECURE_SSL_REDIRECT = True
+CORS_REPLACE_HTTPS_REFERER      = False
+HOST_SCHEME                     = "https://"
+SECURE_PROXY_SSL_HEADER         = None
+SECURE_SSL_REDIRECT             = False
+SESSION_COOKIE_SECURE           = True
+CSRF_COOKIE_SECURE              = False
+SECURE_HSTS_SECONDS             = None
+SECURE_HSTS_INCLUDE_SUBDOMAINS  = False
+SECURE_FRAME_DENY               = False
+
+# CORS_ALLOW_CREDENTIALS = True
 
 XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']

@@ -1,5 +1,5 @@
 {
-    "rabbit-mq-host" : "host.docker.internal",
+    "rabbit-mq-host" : "localhost",
     "rabbit-mq-port" : "5672",
     "mongo-db-host" : "172.17.0.2",
     "mongo-db-port" : "27017",

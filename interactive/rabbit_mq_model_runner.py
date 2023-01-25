@@ -191,7 +191,6 @@ if __name__ == '__main__':
         level=logging.INFO,
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
-
     try:
         if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
             main()

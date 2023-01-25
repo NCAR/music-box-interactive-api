@@ -3,7 +3,8 @@ from django.db import models
 # import models from interactive/dashboard
 from dashboard import models
 # from interactive.mechanism.species import species_list
-import jsonfield
+# import jsonfield
+from django.contrib.postgres.fields import JSONField
 import os
 import json
 from pyvis.network import Network
@@ -13,17 +14,15 @@ from plots import mpl_helper
 import pandas as pd
 from io import StringIO
 from numpy import vectorize
-from interactive.tools import is_density_needed, create_unit_converter
+from interactive.tools import *
 import io
 import matplotlib.pyplot as plt
-# from unicodedata import decimal
-# from urllib import request
+from unicodedata import decimal
+from urllib import request
 import math
 from bisect import bisect_left
 import hashlib
 # get user based on uid
-
-
 def get_user(uid):
     # check if user exists
     try:
@@ -80,8 +79,6 @@ def set_csv_files(uid, csv_files):
     user.save()
 
 # set results of model run
-
-
 def set_results(uid, results):
     model_run = get_model_run(uid)
     model_run.results = results
@@ -92,6 +89,7 @@ def set_results(uid, results):
 def set_is_running(uid, is_running):
     model_run = get_model_run(uid)
     model_run.is_running = is_running
+    logging.info("["+str(uid)+"] set running to: "+str(is_running))
     model_run.save()
 
 
@@ -203,7 +201,7 @@ def get_files(dirName):
     for entry in listOfFile:
         # Create full path
         fullPath = os.path.join(dirName, entry)
-        # If entry is a directory then get the list of files in this directory
+        # If entry is a directory then get the list of files in this directory 
         if os.path.isdir(fullPath):
             allFiles = allFiles + get_files(fullPath)
         else:
@@ -263,18 +261,15 @@ def remove_species(uid, species_name):
     user.config_files['/camp_data/species.json']["camp-data"] = camp_data
     # find any reactions that use this species and remove them
     reaction_data = user.config_files['/camp_data/reactions.json']["camp-data"]
-    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions']
-                                     if species_name
-                                     not in r['reactants'].keys()
-                                     and species_name
-                                     not in r['products'].keys()]
+    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions'] if not species_name in r['reactants'].keys() and not species_name in r['products'].keys()]
     for entry in reaction_data:
         if entry['type'] == "CHEM_REACTION":
             if species_name in entry['species']:
                 reaction_data.remove(entry)
     user.config_files['/camp_data/reactions.json']["camp-data"] = reaction_data
-
+    
     user.save()
+
 
     # now remove the species from my_config.json
     # check if my_config_path exists
@@ -285,7 +280,8 @@ def remove_species(uid, species_name):
         if species_name in chem_species['chemical species']:
             del chem_species['chemical species'][species_name]
     user.config_files['/my_config.json'] = chem_species
-
+    
+    
     user.save()
 
 
@@ -351,26 +347,31 @@ def generate_database_network_plot(uid, species, path_to_template):
         net.add_node(n, label=n, borderWidthSelected=3, size=40)
     for e in edges:
         net.add_edge(e[0], e[1])
+    # manually create temp file for pyvis to use
+    # on this production server, pyvis doesn't have perms. to create it
+    # if not os.path.exists('./'+str(path_to_template)):
+        # tmp = open(str(path_to_template), 'w')
+        # logging.info('manually created template file ./'+str(path_to_template))
     net.force_atlas_2based(gravity=-100, overlap=1)
-    net.show(str(path_to_template))
-
+    # generate the plot, return html code and delete the file
+    net.write_html(uid + '_network.html')
+    with open(uid + '_network.html', 'r') as f:
+        html = f.read()
+    os.remove(uid + '_network.html')
+    return html
 # get reactions menu of user
-
-
 def get_reactions_menu_list(uid):
     user = get_user(uid)
-    camp_data = (user.config_files['/camp_data/reactions.json']
-                 ["camp-data"][0]['reactions'])
+    camp_data = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
     names = []
 
     for reaction in camp_data:
         name = ''
         if 'reactants' in reaction.keys() and 'products' in reaction.keys():
             first_item_printed = False
-            for reactant, count_dict in reaction['reactants'].items():
+            for reactant,count_dict in reaction['reactants'].items():
                 if count_dict and count_dict['qty'] != 1:
-                    name += (' + ' if first_item_printed else '') + \
-                        str(count_dict['qty']) + ' ' + reactant
+                    name += (' + ' if first_item_printed else '') + str(count_dict['qty']) + ' ' + reactant
                     first_item_printed = True
                 else:
                     name += (' + ' if first_item_printed else '') + reactant
@@ -379,8 +380,7 @@ def get_reactions_menu_list(uid):
             first_item_printed = False
             for product, yield_dict in reaction['products'].items():
                 if yield_dict and yield_dict['yield'] != 1.0:
-                    name += (' + ' if first_item_printed else ' ') + \
-                        str(yield_dict['yield']) + ' ' + product
+                    name += (' + ' if first_item_printed else ' ') + str(yield_dict['yield']) + ' ' + product
                     first_item_printed = True
                 else:
                     name += (' + ' if first_item_printed else ' ') + product
@@ -400,8 +400,7 @@ def get_reactions_menu_list(uid):
 # get reactions details of user
 def get_reactions_info(uid):
     user = get_user(uid)
-    camp_data = (user.config_files['/camp_data/reactions.json']
-                 ["camp-data"][0]['reactions'])
+    camp_data = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
     return camp_data
 
 
@@ -412,8 +411,6 @@ def is_reactions_valid(uid):
         return True
     return False
 # remove reaction for user
-
-
 def remove_reaction(uid, index):
     user = get_user(uid)
     camp_data = user.config_files['/camp_data/reactions.json']["camp-data"]
@@ -543,8 +540,7 @@ def convert_initial_conditions_dict(uid, dictionary, output_file, delimiter):
             column_names += key_label + '.' + value["units"] + delimiter
             column_values += str(value["value"]) + delimiter
     user = get_user(uid)
-    user.config_files[output_file] = column_names[:-1] + \
-        '\n' + column_values[:-1]
+    user.config_files[output_file] = column_names[:-1] + '\n' + column_values[:-1]
     user.save()
 
 
@@ -559,7 +555,7 @@ def is_musica_reaction(uid, name):
     if not MUSICA_name:
         return False
     for reaction in reactions:
-        if "MUSICA name" not in reaction:
+        if not "MUSICA name" in reaction:
             continue
         if MUSICA_name == reaction["MUSICA name"]:
             if prefix == "EMIS" and reaction["type"] == "EMISSION":
@@ -581,13 +577,13 @@ def get_reaction_musica_names(uid):
                 continue
             if reaction['type'] == "EMISSION":
                 reactions['EMIS.' + reaction['MUSICA name']] = \
-                    {'units': 'ppm s-1'}
+                    { 'units': 'ppm s-1' }
             elif reaction['type'] == "FIRST_ORDER_LOSS":
                 reactions['LOSS.' + reaction['MUSICA name']] = \
-                    {'units': 's-1'}
+                    { 'units': 's-1' }
             elif reaction['type'] == "PHOTOLYSIS":
                 reactions['PHOT.' + reaction['MUSICA name']] = \
-                    {'units': 's-1'}
+                    { 'units' : 's-1' }
     return reactions
 
 
@@ -597,8 +593,13 @@ def get_run_status(uid):
     status = 'checking'
     running = False
     try:
-        model = models.ModelRun.objects.get(uid=uid)
+        model = models.ModelRun.objects.filter(uid=uid).first()
+        if model is None:
+            status = 'not_started'
+            logging.info("[ERR!] ["+str(uid)+"] model run not found for user")
+            return {'status': "not_started", 'session_id': uid, 'running': False}
         current_status = model.is_running
+        logging.info("["+str(uid)+"] run_status is running? [true/false] ==> "+str(current_status))
         if current_status is True:
             running = True
             status = 'running'
@@ -612,8 +613,8 @@ def get_run_status(uid):
                 status = 'done'
     except models.ModelRun.DoesNotExist:
         status = 'not_started'
-    response_message.update(
-        {'status': status, 'session_id': uid, 'running': running})
+        logging.info("[ERR!] ["+str(uid)+"] model run not found for user")
+    response_message.update({'status': status, 'session_id': uid, 'running': running})
 
     if status == 'error':
         errorfile = models.ModelRun.objects.get(uid=uid).results['/error.json']
@@ -630,7 +631,6 @@ def get_run_status(uid):
         response_message.update({'e_message': errorfile['message']})
     return response_message
 
-
 def beautifyReaction(reaction):
     if '->' in reaction:
         reaction = reaction.replace('->', ' → ')
@@ -640,8 +640,6 @@ def beautifyReaction(reaction):
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
-
-
 def tolerance(uid):
     # grab camp_data/species.json
     species_file = get_user(uid).config_files['/camp_data/species.json']
@@ -651,32 +649,40 @@ def tolerance(uid):
         if 'absolute tolerance' not in spec:
             spec.update({'absolute tolerance': default_tolerance})
 
-    species_dict = {j['name']: j['absolute tolerance'] for j in species_list}
+    species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
     return species_dict
 
+# returns sub prop names
+def sub_props_names(subprop):
+    namedict = {
+        'temperature': "Temperature",
+        'pressure': "Pressure",
+        'number_density_air': "Density",
+    }
+    if subprop in namedict:
+        return namedict[subprop]
+    else:
+        return subprop
+
+
 # get plot from model run
-
-
 def get_plot(uid, prop, plot_units):
     # get output.csv from model run
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
     matplotlib.use('agg')
-
+        
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
     csv = pd.read_csv(output_csv, encoding='latin1')
-    # titles = csv.columns.tolist()
+    titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
     model_output_units = 'mol/m-3'
-    # make unit conversion if needed
+    #make unit conversion if needed
     if plot_units:
-        converter = vectorize(create_unit_converter(
-            model_output_units, plot_units))
+        converter = vectorize(create_unit_converter(model_output_units, plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {
-                'density': csv['ENV.number_density_air'].iloc[[-1]],
-                'density units': 'mol/m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol/m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -689,12 +695,11 @@ def get_plot(uid, prop, plot_units):
         if 'myrate__' not in prop.split('.')[1]:
             axes.set_ylabel("("+plot_units+")")
             axes.set_title(beautifyReaction(name))
-            # unit converter for tolerance
+            #unit converter for tolerance      
             if plot_units:
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
             else:
-                ppm_to_plot_units = create_unit_converter(
-                    'ppm', model_output_units)
+                ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
@@ -707,8 +712,7 @@ def get_plot(uid, prop, plot_units):
                 pp = float(tolerance(uid)[name])
                 tolerance_tmp = ppm_to_plot_units(pp)
 
-            # this determines the minimum value of the y axis range. minimum 
-            # value of ymax = tolerance * tolerance_yrange_factor
+            #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
             ymax_minimum = tolerance_yrange_factor * tolerance_tmp
             property_maximum = subset[str(prop.strip())].max()
@@ -736,8 +740,6 @@ def get_plot(uid, prop, plot_units):
     plt.close(figure)
     return buffer
 # convert to/from model config format
-
-
 def export_to_database_path(uid):
     user = get_user(uid)
     species = user.config_files['/species.json']
@@ -1565,8 +1567,8 @@ def CalculateEdgesAndNodes(reactions, species, scaledLineWeights,
 
 
 def createLegend():
-    # x = -300
-    # y = -250
+    x = -300
+    y = -250
     legend_nodes = [
         'Element', 'Reaction'
     ]
@@ -1583,8 +1585,6 @@ def getReactName(reaction_names_on_hover, x):
     return name
 
 # function called from API to get data for graph (AKA the main function)
-
-
 def generate_flow_diagram(request_dict, uid, path_to_template):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
@@ -1598,8 +1598,7 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        logging.info("new user selected min and max: " +
-                     str(userSelectedMinMax))
+        logging.info("new user selected min and max: " + str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -1720,10 +1719,11 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
-    net.show(path_to_template)
+    # net.show(path_to_template)
+    net.show(uid+"_flow_network.html") # tmp file to put html at
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]
-    with open(path_to_template, 'r+') as f:
+    with open(uid+"_flow_network.html", 'r+') as f:
         #############################################
         # here we are going to replace the contents #
         #############################################
@@ -1731,11 +1731,13 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         network.on("stabilizationIterationsDone", function () {
             network.setOptions( { physics: false } );
         });
-        </script>"""
+    
+        </script>
+        
+        """
         logging.debug("((DEBUG)) [min,max] of selected time frame: " +
-                      str(minAndMaxOfSelectedTimeFrame))
-        logging.debug(
-            "((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
+            str(minAndMaxOfSelectedTimeFrame))
+        logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -1765,10 +1767,10 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            logging.debug("previousMin:" + str(formattedPrevMin) +
-                          "does not equal " + str(formattedMinOfSelected))
+            logging.debug("previousMin:" + str(formattedPrevMin) + 
+                "does not equal " + str(formattedMinOfSelected))
             logging.debug("previousMax: " + str(formattedPrevMax) +
-                          " does not equal " + str(formattedMaxOfSelected))
+                " does not equal " + str(formattedMaxOfSelected))
             logging.debug("previousMin: " + str(previousMin) + " equals 0")
             logging.debug("previousMax: " + str(previousMax) + " equals 1")
             a += 'parent.document.getElementById("flow-start-range2").value =\
@@ -1776,10 +1778,9 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                     parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
             a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
-                  + str(formattedMaxOfSelected)+'", "'+str(
+                + str(formattedMaxOfSelected)+'", "'+str(
                 formattedMinOfSelected)+'", "'
-                + str(formattedMaxOfSelected)+'",'+str(
-                    get_step_length(uid))+');</script>')
+                + str(formattedMaxOfSelected)+'", '+str(get_step_length(uid))+');</script>')
         else:
             logging.debug("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
@@ -1793,16 +1794,14 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
                 block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
                 fmos = str(formattedMinOfSelected)
                 block2 = formattedUserMax + '", "' + fmos
-                block3 = '", "' + formattedMaxOfSelected + '", '+str(
-                    get_step_length(uid))+');\
+                block3 = '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');\
                         </script>'
                 a += block1 + block2 + block3
             else:
                 fmos = formattedMinOfSelected
                 block1 = 'parent.reloadSlider("' + fmos + '", "'
                 block2 = formattedMaxOfSelected + '", "' + str(fmos)
-                a += block1 + '", "' + formattedMaxOfSelected + \
-                    '", '+str(get_step_length(uid))+');</script>'
+                a += block1 + '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \
@@ -1828,13 +1827,15 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         for line in lines:
             f.write(line)
         f.close()
-    # read from file and return the contents
-    with open(path_to_template, 'r') as f:
-        return f.read()
+
+    # read from file, delete the file, and return the contents
+    f = open(uid+"_flow_network.html", 'r')
+    contents = f.read()
+    f.close()
+    os.remove(uid+"_flow_network.html")
+    return contents
 
 # function that returns checksum of config + binary files for a given uid
-
-
 def calculate_checksum(uid):
     # get user
     user = get_user(uid)
@@ -1850,7 +1851,7 @@ def calculate_checksum(uid):
         # create checksum of config file contents
         checksum = hashlib.md5(encoded_string).hexdigest()
         checksums.append(checksum.strip())
-
+    
     # checksum of binary files
     for binary_file in binary_files:
         # encoded string from binary file
@@ -1865,8 +1866,6 @@ def calculate_checksum(uid):
     return checksum
 
 # function to return current checksum for user
-
-
 def get_current_checksum(uid):
     # get user
     user = get_user(uid)
@@ -1876,8 +1875,6 @@ def get_current_checksum(uid):
     return current_checksum
 
 # set current checksum for user
-
-
 def set_current_checksum(uid, checksum):
     # get user
     user = get_user(uid)
@@ -1887,27 +1884,19 @@ def set_current_checksum(uid, checksum):
     user.save()
 
 # function to search for user given checksum
-
-
 def get_user_by_checksum(checksum):
     # query for user with checksum and should_cache = True
-    user = models.User.objects.filter(
-        config_checksum=checksum, should_cache=True).first()
+    user = models.User.objects.filter(config_checksum=checksum, should_cache=True).first()
     # return user
     return user
 
 # function to copy results from one user to another
-
-
 def copy_results(from_uid, to_uid):
-    logging.info("copying results from " +
-                 str(from_uid) + " to " + str(to_uid))
+    logging.info("copying results from " + str(from_uid) + " to " + str(to_uid))
     # get ModelRun object from from_uid
     model_run = get_model_run(from_uid)
-    # check if running = False, results aren't empty,
-    # and we aren't copying to the same user
-    if (model_run.is_running is False
-            and model_run.results != {} and from_uid != to_uid):
+    # check if running = False, results aren't empty, and we aren't copying to the same user
+    if model_run.is_running == False and model_run.results != {} and from_uid != to_uid:
         # get ModelRun object from to_uid
         model_run_to = get_model_run(to_uid)
         # copy results from from_uid to to_uid

@@ -261,7 +261,7 @@ class SessionModelRunner():
             self.copyAFile(os.path.join(
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
-        checksum = self.calculate_checksum()
+        # checksum = self.calculate_checksum()
         logging.info("running model from base directory: " + self.mb_dir)
         if self.isRabbit == False:
             # run on api server
@@ -273,33 +273,8 @@ class SessionModelRunner():
 
             with open(self.species_path, 'w') as z:
                 json.dump(species_data, z)
+
             return {'model_running': True}
-
-
-    def get_list_of_files(self, dirName):
-        # create a list of file and sub directories
-        listOfFile = os.listdir(dirName)
-        allFiles = list()
-        # Iterate over all the entries
-        for entry in listOfFile:
-            # Create full path
-            fullPath = os.path.join(dirName, entry)
-            # If entry is a directory then get the list of files in this dir
-            if os.path.isdir(fullPath):
-                allFiles = allFiles + self.get_list_of_files(fullPath)
-            else:
-                allFiles.append(fullPath)
-        return allFiles
-
-
-    # calculate checksum for config/model
-    def calculate_checksum(self):
-        filenames = self.get_list_of_files(self.mb_dir)
-        hash = hashlib.md5()
-        for fn in filenames:
-            if os.path.isfile(fn):
-                hash.update(open(fn, "rb").read())
-        return hash.hexdigest()
 
 
     # copy inital config file on first model run
