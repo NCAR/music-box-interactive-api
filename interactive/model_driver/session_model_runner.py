@@ -105,7 +105,7 @@ class SessionModelRunner():
         BASE_DIR, "dashboard/static/config/camp_data/species.json")
 
     sessionid = ""
-
+    isRabbit = False
     def setPathsForSessionID(self, session_id):
         global mb_dir
         global out_path
@@ -147,6 +147,9 @@ class SessionModelRunner():
         self.species_path = os.path.join(
             BASE_DIR, "configs/"+session_id+"/camp_data/species.json")
         self.sessionid = session_id
+    def set_run_as_rabbit(self, isRabbit):
+        self.isRabbit = isRabbit
+
 
     def add_integrated_rates(self):
         with open(self.reactions_path) as f:
@@ -259,17 +262,19 @@ class SessionModelRunner():
                            self.mb_dir+'/mb_configuration', f),
                            os.path.join(self.mb_dir, f))
         checksum = self.calculate_checksum()
-        print("calculated checksum: ", checksum)
         logging.info("running model from base directory: " + self.mb_dir)
-        process = subprocess.Popen(
+        if self.isRabbit == False:
+            # run on api server
+            process = subprocess.Popen(
             [r'../music_box', r'./mb_configuration/my_config.json'],
             cwd=self.mb_dir)
-        with open(self.reactions_path, 'w') as k:
-            json.dump(reactions_data, k)
+            with open(self.reactions_path, 'w') as k:
+                json.dump(reactions_data, k)
 
-        with open(self.species_path, 'w') as z:
-            json.dump(species_data, z)
-        return {'model_running': True}
+            with open(self.species_path, 'w') as z:
+                json.dump(species_data, z)
+            return {'model_running': True}
+
 
     def get_list_of_files(self, dirName):
         # create a list of file and sub directories
@@ -362,7 +367,9 @@ class SessionModelRunner():
         logging.info("running...")
         run = self.setup_run()
         self.save_run()
-        return JsonResponse(run)
+        # do response if not running on rabbit
+        if self.isRabbit == False:
+            return JsonResponse(run)
 
     def copyAFile(self, source, destination):
         configFile = open(source, 'rb')

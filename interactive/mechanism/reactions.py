@@ -162,68 +162,15 @@ def reaction_type_schema(reaction_type, reactions_path=reactions_default):
         species += entry
     schema = {}
     if reaction_type == "ARRHENIUS":
-        schema = {
-            'reactants' : {
-                'type' : 'array',
-                'as-object' : True,
-                'description' : "Use the 'qty' property when a species appears more than once as a reactant.",
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'qty' : {
-                            'type' : 'integer',
-                            'default' : 1
-                        }
-                    }
-                }
-            },
-            'products' : {
-                'type' : 'array',
-                'as-object' : True,
-                'children' : {
-                    'type' : 'object',
-                    'key' : species,
-                    'children' : {
-                        'yield' : {
-                            'type' : 'real',
-                            'default' : 1.0,
-                            'units' : 'unitless'
-                        }
-                    }
-                }
-            },
-            'equation' : {
-                'type' : 'math',
-                'value' : 'k = Ae^{(\\frac{-E_a}{k_bT})}(\\frac{T}{D})^B(1.0+E*P)',
-                'description' : 'k<sub>B</sub>: Boltzmann constant (J K<sup>-1</sup>); T: temperature (K); P: pressure (Pa)'
-            },
-            'A' : {
-                'type' : 'real',
-                'default' : 1.0,
-                'units' : '(# cm<sup>-3</sup>)<sup>-(n-1)</sup> s<sup>-1</sup>'
-            },
-            'Ea' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'J'
-            },
-            'B' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'unitless'
-            },
-            'D' : {
-                'type' : 'real',
-                'default' : 300.0,
-                'units' : 'K'
-            },
-            'E' : {
-                'type' : 'real',
-                'default' : 0.0,
-                'units' : 'Pa<sup>-1</sup>'
-            }
-        }
+        arrhenius_schema = ('/music-box-interactive/interactive/mechanism/'
+                            'arrhenius_schema.json')
+        # arrhenius_schema = os.path.join(
+        #     BASE_DIR, '/mechanism/arrhenius_schema.json')
+        with open(arrhenius_schema) as file:
+            json_file = json.load(file)
+            schema = json_file["schema"]
+            schema['reactants']['children']['key'] = species
+            schema['products']['children']['key'] = species
     elif reaction_type == 'EMISSION':
         schema = {
             'species' : {
