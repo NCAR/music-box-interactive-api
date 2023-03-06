@@ -1,0 +1,21 @@
+services:
+  # api-server:
+  #   build: Dockerfile.api
+  #   ports:
+  #     - 3000:3000
+  #   container_name: 'api-server'
+  # model-runner:
+  #   build: Dockerfile.model-runner
+  #   container_name: 'model-runner'
+  # web:
+  #   build: Dockerfile.
+  #   container_name: 'web'
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
