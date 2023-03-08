@@ -1,9 +1,11 @@
 services:
-  # api-server:
-  #   build: Dockerfile.api
-  #   ports:
-  #     - 3000:3000
-  #   container_name: 'api-server'
+  api-server:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.api
+    ports:
+      - 8000:8000
+    container_name: 'api-server'
   # model-runner:
   #   build: Dockerfile.model-runner
   #   container_name: 'model-runner'

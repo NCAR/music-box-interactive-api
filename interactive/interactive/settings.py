@@ -25,7 +25,7 @@ SECRET_KEY = 'c93n(kwho=^&)@=%pkka8vy4du#ua_e(s-*(0d33y%2l^#1gdt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["musicbox.acom.ucar.edu"]
+ALLOWED_HOSTS = ["musicbox.acom.ucar.edu", "localhost"]
 # SESSION_COOKIE_DOMAIN=".musicbox.acom.ucar.edu"
 SESSION_COOKIE_DOMAIN="ncar.github.io"
 # Application definition

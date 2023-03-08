@@ -108,6 +108,8 @@ WORKDIR music-box-interactive
 RUN python3 interactive/manage.py makemigrations
 RUN python3 interactive/manage.py migrate
 
-# # Start the api server
-# RUN python3 interactive/manage.py runserver_plus --cert-file acom.ucar.edu.crt --key-file acom.ucar.edu.key 0.0.0.0:8000
-RUN python3 interactive/manage.py runserver_plus 0.0.0.0:8000
+EXPOSE 8000
+
+# # Start the api server on entry
+ENTRYPOINT ["python3", "interactive/manage.py"]
+CMD ["runserver_plus", "0.0.0.0:8000"]
