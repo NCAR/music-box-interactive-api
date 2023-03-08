@@ -12,6 +12,7 @@ services:
       dockerfile: ./Dockerfile.model_runner
     depends_on:
       - rabbitmq
+    command: sh -c '/wait-for-it/wait-for-it.sh rabbitmq:5672 --timeout=30 -- node consumer.js'
     container_name: 'model-runner'
     networks:
         - rabbitmq-network
