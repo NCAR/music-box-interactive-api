@@ -1,0 +1,9 @@
+FROM httpd:latest
+
+RUN apt-get update \
+    && apt-get -y install \
+        git
+
+RUN git clone https://github.com/NCAR/music-box-interactive-static
+
+RUN cp -r music-box-interactive-static/* /usr/local/apache2/htdocs/

@@ -9,9 +9,13 @@ services:
   # model-runner:
   #   build: Dockerfile.model-runner
   #   container_name: 'model-runner'
-  # web:
-  #   build: Dockerfile.
-  #   container_name: 'web'
+  web:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.web
+    ports:
+      - 8001:80
+    container_name: 'web'
   rabbitmq:
     image: rabbitmq:3.11-management
     container_name: 'rabbitmq'
