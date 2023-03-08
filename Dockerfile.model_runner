@@ -16,8 +16,8 @@ COPY . /music-box-interactive/
 RUN dnf -y install python3-pandas
 RUN pip3 install -r /music-box-interactive/requirements.txt
 
-RUN git clone https://github.com/vishnubob/wait-for-it
-RUN chmod +x wait-for-it/wait-for-it.sh
+# RUN git clone https://github.com/vishnubob/wait-for-it
+# RUN chmod +x wait-for-it/wait-for-it.sh
 
 # Start the model runner on entry
-CMD ["python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
+# CMD ["python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
