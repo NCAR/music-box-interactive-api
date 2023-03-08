@@ -6,9 +6,15 @@ services:
     ports:
       - 8000:8000
     container_name: 'api-server'
-  # model-runner:
-  #   build: Dockerfile.model-runner
-  #   container_name: 'model-runner'
+  model-runner:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.model_runner
+    depends_on:
+      - rabbitmq
+    container_name: 'model-runner'
+    networks:
+        - rabbitmq-network
   web:
     build: 
       context: .
@@ -25,3 +31,8 @@ services:
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - rabbitmq-network
+networks:
+  rabbitmq-network:
+    driver: bridge
