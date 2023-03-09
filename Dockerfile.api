@@ -25,6 +25,9 @@ RUN dnf -y update \
         libpq-devel \
     && dnf clean all
 
+# copy the interactive server code
+COPY . /music-box-interactive/
+
 # python modules needed in scripts
 RUN dnf -y install python3-pandas
 RUN pip3 install -r /music-box-interactive/requirements.txt
@@ -94,9 +97,6 @@ RUN cd music-box \
     && make -j 8
 
 # Prepare the music-box-interactive web server
-
-# copy the interactive server code
-COPY . /music-box-interactive/
 
 ENV MUSIC_BOX_BUILD_DIR=/music-box/build
 
