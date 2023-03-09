@@ -2,7 +2,6 @@ FROM httpd:latest
 
 # typically, this is set by the environment file as part of docker compose
 # this is here so that it is clear what variables this file needs
-# ENV BASE_API_URL=
 ARG BASE_API_URL
 ENV BASE_API_URL $BASE_API_URL
 
