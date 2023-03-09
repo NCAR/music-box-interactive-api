@@ -47,7 +47,7 @@ def callback(session_id, config_files_dict, future):
         # 3) delete config files and binary files from file system
 
         # check number of output files in /build
-        build_dir = os.path.join('/build', session_id)
+        build_dir = os.path.join('/music-box/build', session_id)
         output_files = getListOfFiles(build_dir)
         if len(output_files) == 0:
             logging.info("["+session_id+"] No output files found, exiting")

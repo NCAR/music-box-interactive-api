@@ -576,7 +576,6 @@ class RunView(views.APIView):
         if get_run_status(request.session.session_key) == 'running':
             return JsonResponse({'status': 'running'})
         else:
-            runner = SessionModelRunner(request.session.session_key)
             # start model run by adding job to queue via pika
             rabbit_host = os.environ['rabbit-mq-host']
             rabbit_port = int(os.environ['rabbit-mq-port'])
@@ -634,6 +633,7 @@ class RunView(views.APIView):
                     logging.info("no config or binary files found for user " + request.session.session_key + ", not running model")
                     return JsonResponse({'status': 'error', 'model_running': False})
             else:
+                runner = SessionModelRunner(request.session.session_key)
                 logging.info("rabbit is down, sim. will be run on API server")
                 return runner.run()
 

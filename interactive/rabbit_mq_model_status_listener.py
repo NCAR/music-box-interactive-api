@@ -19,15 +19,6 @@ from dashboard.database_tools import *
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
-logging.basicConfig(filename='logs.log', filemode='w',
-                    format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
-                    level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w',
-                    format='%(asctime)s - [ERROR!!] %(message)s',
-                    level=logging.ERROR)
-
-
 def main():
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
     conn = pika.BlockingConnection(connParam)
@@ -56,13 +47,14 @@ def main():
         model_run.results['/error.json'] = error_json
         model_run.is_running = False
         model_run.save()
+        logging.info("Model run saved to database")
 
         
     channel.basic_consume(queue='model_finished_queue',
                           on_message_callback=run_model_finished_callback,
                           auto_ack=True)
 
-    print(' [*] Waiting for model_finished_queue messages')
+    logging.info("Waiting for model_finished_queue messages")
     try:
         channel.start_consuming()
     except KeyboardInterrupt:

@@ -77,7 +77,7 @@ RUN mkdir camp_build \
              -D CMAKE_MODULE_LINKER_FLAGS="-pg" \
              -D ENABLE_GSL:BOOL=TRUE \
              /music-box/libs/camp \
-    && make -j 8
+    && make 
 
 # build music-box
 RUN cd music-box \
