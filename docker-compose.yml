@@ -13,9 +13,9 @@ services:
     depends_on:
       - rabbitmq
     restart: on-failure
-    environment:
-      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
-    container_name: 'model-runner'
+    deploy:
+      mode: replicated
+      replicas: 3
   web:
     build: 
       context: .
