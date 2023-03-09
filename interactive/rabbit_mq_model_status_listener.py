@@ -19,6 +19,13 @@ from dashboard.database_tools import *
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
+                    level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w',
+                    format='%(asctime)s - [ERROR!!] %(message)s',
+                    level=logging.ERROR)
+
+
 def main():
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
     conn = pika.BlockingConnection(connParam)
