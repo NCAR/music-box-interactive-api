@@ -16,8 +16,6 @@ services:
     environment:
       AMQP_URL: amqp://guest:guest@rabbitmq:5672/
     container_name: 'model-runner'
-    networks:
-        - rabbitmq-network
   web:
     build: 
       context: .
@@ -34,13 +32,8 @@ services:
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-        - rabbitmq-network
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 5s
       timeout: 15s
       retries: 1
-networks:
-  rabbitmq-network:
-    driver: bridge
