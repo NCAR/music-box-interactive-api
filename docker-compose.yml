@@ -35,6 +35,8 @@ services:
       dockerfile: ./Dockerfile.web
     ports:
       - 8001:80
+    env_file:
+      - development.env
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:3.11-management
