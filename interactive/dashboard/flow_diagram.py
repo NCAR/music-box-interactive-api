@@ -15,9 +15,7 @@ from bisect import bisect_left
 # paths to mechansim files
 path_to_reactions = os.path.join(
     settings.BASE_DIR, "dashboard/static/config/camp_data/reactions.json")
-csv_results_path_default = os.path.join(
-    os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-csv_def = csv_results_path_default
+
 # path to output html file
 path_to_template = os.path.join(
     settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
@@ -44,7 +42,7 @@ logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [
 
 
 # returns species in csv
-def get_species(csv_results_path=csv_results_path_default):
+def get_species(csv_results_path):
     csv = pd.read_csv(csv_results_path)
     concs = [x for x in csv.columns if 'CONC' in x]
     clean_concs = [x.split('.')[1] for x in concs if 'myrate' not in x]
@@ -52,13 +50,13 @@ def get_species(csv_results_path=csv_results_path_default):
 
 
 # returns length of csv
-def get_simulation_length(csv_results_path=csv_results_path_default):
+def get_simulation_length(csv_results_path):
     csv = pd.read_csv(csv_results_path)
     return int(csv['time'].iloc[-1])
 
 
 # get user inputted step length
-def get_step_length(csv_results_path=csv_results_path_default):
+def get_step_length(csv_results_path):
     csv = pd.read_csv(csv_results_path)
     if csv.shape[0] - 1 > 2:
         return int(csv['time'].iloc[1])
@@ -67,7 +65,7 @@ def get_step_length(csv_results_path=csv_results_path_default):
 
 
 # get entire time column from results
-def time_column_list(csv_results_path=csv_results_path_default):
+def time_column_list(csv_results_path):
     csv = pd.read_csv(csv_results_path)
     return csv['time'].tolist()
 
@@ -205,7 +203,7 @@ def take_closest(myList, myNumber):
 
 # return list of raw widths for arrows. Also set new minAndMax
 def findReactionRates(reactions_nodes, df, start, end,
-                      csv_results_path_default=csv_results_path_default):
+                      csv_results_path):
     rates_cols = [x for x in df.columns if 'myrate' in x]
     reactionsToAdd = []
     for re in reactions_nodes:
@@ -213,13 +211,13 @@ def findReactionRates(reactions_nodes, df, start, end,
         reactionsToAdd.append(re)
     rates = df[rates_cols]
     first = 0
-    last = len(time_column_list(csv_results_path_default))-1
+    last = len(time_column_list(csv_results_path))-1
     # find closest time value to start, NOT USED RN
-    closest_val = take_closest(time_column_list(csv_results_path_default), start)
+    closest_val = take_closest(time_column_list(csv_results_path), start)
     (" [DEBUG] closest_val: " + str(closest_val))
     if start != 1:
-        first = time_column_list(csv_results_path_default).index(start)
-        last = time_column_list(csv_results_path_default).index(end)
+        first = time_column_list(csv_results_path).index(start)
+        last = time_column_list(csv_results_path).index(end)
     first_and_last = rates.iloc[[first, last]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
@@ -395,7 +393,7 @@ def calculateLineWeights(maxWidth, species_yields, scale_type):
 def new_find_reactions_and_species(list_of_species, reactions_data,
                                    blockedSpecies, df, start,
                                    end, max_width, scale_type,
-                                   cs=csv_def):
+                                   cs):
 
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
@@ -866,16 +864,14 @@ def generate_flow_diagram(request_dict):
 
 # function that returns HTML code for iframe network (used for new api)
 def create_and_return_flow_diagram(request_dict,
-                                   path_to_reactions=path_to_reactions,
-                                   path_to_template=path_to_template,
-                                   csv_results_path=csv_results_path_default):
+                                   path_to_reactions,
+                                   path_to_template,
+                                   csv_results_path):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
     global previous_vals
-    global csv_results_path_default
     
     logging.info("using csv_results_path: " + csv_results_path)
-    csv_results_path_default = csv_results_path
 
     if (('maxMolval' in request_dict and 'minMolval' in request_dict)
         and (request_dict['maxMolval'] != ''

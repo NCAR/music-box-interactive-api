@@ -20,10 +20,8 @@ from numpy import vectorize
 
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
-
 model_output_units = 'mol/m-3'
-csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-def sub_props(prop, csvz=csv_results_path):
+def sub_props(prop, csvz):
     
     csv = pandas.read_csv(csvz)
     titles = csv.columns.tolist()
@@ -101,9 +99,8 @@ def beautifyReaction(reaction):
 
 
 def output_plot(prop, plot_units,
-                csb=os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv"),
-                spc=os.path.join(
-                    settings.BASE_DIR, "dashboard/static/config/camp_data/species.json")):
+                csb,
+                spc):
     matplotlib.use('agg')
         
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
