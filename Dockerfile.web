@@ -2,7 +2,9 @@ FROM httpd:latest
 
 # typically, this is set by the environment file as part of docker compose
 # this is here so that it is clear what variables this file needs
-ENV BASE_API_URL=
+# ENV BASE_API_URL=
+ARG BASE_API_URL
+ENV BASE_API_URL $BASE_API_URL
 
 RUN apt-get update \
     && apt-get -y install \
@@ -10,6 +12,7 @@ RUN apt-get update \
 
 RUN git clone https://github.com/NCAR/music-box-interactive-static
 
+RUN echo $BASE_API_URL
 # set the base url used by the web files
 RUN sed -i "1 s/^.*$/var globalBaseAPIUrl = \"$BASE_API_URL\";/" music-box-interactive-static/js/api.js
 
