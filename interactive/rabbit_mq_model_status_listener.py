@@ -19,8 +19,6 @@ from dashboard.database_tools import *
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
-logging.basicConfig(filename='logs.log', filemode='w',
-                    format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
                     level=logging.DEBUG)
 logging.basicConfig(filename='errors.log', filemode='w',
