@@ -37,7 +37,7 @@ services:
     networks:
         - rabbitmq-network
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      test: rabbitmq-diagnostics -q ping
       interval: 5s
       timeout: 15s
       retries: 1

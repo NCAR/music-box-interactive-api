@@ -37,7 +37,7 @@ logging.getLogger("pika").propagate = False
 def callback(session_id, config_files_dict, future):
     con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
     # connection = pika.BlockingConnection(con_params)
-    connection = pika.BlockingConnection(pika.URLParameters("amqp://guest:guest@rabbitmq:5672/"))
+    connection = pika.BlockingConnection(pika.URLParameters("amqp://guest:guest@rabbitmq:5672"))
 
     if future.exception() is not None:
         logging.info("["+session_id+"] Got exception: %s" % future.exception())
