@@ -1,11 +1,13 @@
 services:
   api-server:
+    container_name: 'api-server'
     build: 
       context: .
       dockerfile: ./Dockerfile.api
     ports:
       - 8000:8000
-    container_name: 'api-server'
+    volumes:
+      - db-data:/music-box-interactive/interactive
   model-runner:
     build: 
       context: .
@@ -16,16 +18,26 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+  status-listener:
+    container_name: 'status-listener'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.status_listener
+    volumes:
+      - db-data:/music-box-interactive/interactive
+    depends_on:
+      - rabbitmq
+    restart: on-failure
   web:
+    container_name: 'web'
     build: 
       context: .
       dockerfile: ./Dockerfile.web
     ports:
       - 8001:80
-    container_name: 'web'
   rabbitmq:
-    image: rabbitmq:3.11-management
     container_name: 'rabbitmq'
+    image: rabbitmq:3.11-management
     ports:
       - 5672:5672
       - 15672:15672
@@ -37,3 +49,5 @@ services:
       interval: 5s
       timeout: 15s
       retries: 1
+volumes:
+  db-data:
