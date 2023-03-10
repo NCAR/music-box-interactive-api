@@ -44,15 +44,11 @@ from io import StringIO
 #       - request.session.session_key is a string representation of this value
 #       - request.session.session_key is used to access documents from DJANGO
 
-logging.basicConfig(filename='logs.log',
-                    filemode='w',
-                    format='%(asctime)s - %(message)s',
+logging.basicConfig(format='%(asctime)s - %(message)s',
                     level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
                     level=logging.DEBUG)
-logging.basicConfig(filename='errors.log',
-                    filemode='w',
-                    format='%(asctime)s - [ERROR!!] %(message)s',
+logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
                     level=logging.ERROR)
 
 
@@ -552,6 +548,7 @@ class LinearCombinations(views.APIView):
 class CheckLoadView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
+        logging.info(request)
         if not request.session.session_key:
             request.session.create()
         response_message = get_run_status(request.session.session_key)
@@ -561,6 +558,7 @@ class CheckLoadView(views.APIView):
 class CheckView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
+        logging.info(request)
         if not request.session.session_key:
             request.session.create()
         response_message = get_run_status(request.session.session_key)
@@ -680,11 +678,6 @@ class GetPlotContents(views.APIView):
 class GetPlot(views.APIView):
     def get(self, request):
         logging.info("****** GET request received GET_PLOT ******")
-        sessid = request.GET.get('sess_id')
-        logging.info("sessid: "+sessid)
-        # csv_path = os.path.join(
-        #     os.environ['MUSIC_BOX_BUILD_DIR'],
-        #     sessid+"/output.csv")
         model_run = get_model_run(request.session.session_key)
         if '/output.csv' not in model_run.results:
             return HttpResponseBadRequest('Bad format for plot request',
@@ -751,11 +744,8 @@ class GetFlow(views.APIView):
         logging.info("****** GET request received GET_FLOW ******")
         if not request.session.session_key:
             request.session.create()
-        csv_results_path = os.path.join(
-            os.environ['MUSIC_BOX_BUILD_DIR'],
-            request.session.session_key + "/output.csv")
-        logging.debug("fetching flow from: " + csv_results_path)
-        logging.debug("using data:" + str(request.GET.dict()))
+        logging.info(f"session id: {request.session.session_key}")
+        logging.info("using data:" + str(request.GET.dict()))
         path_to_template = os.path.join(
             settings.BASE_DIR,
             "dashboard/templates/network_plot/flow_plot.html")
@@ -766,7 +756,9 @@ class GetFlow(views.APIView):
 class DownloadConfig(views.APIView):
     def get(self, request):
         logging.info("****** GET request received DOWNLOAD_CONFIG ******")
-        sessid = request.GET.get('sess_id')
+        if not request.session.session_key:
+            request.session.create()
+        sessid = request.session.session_key
         logging.info("sessid: "+sessid)
         destination_path = os.path.join(
             settings.BASE_DIR,
