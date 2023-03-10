@@ -141,8 +141,14 @@ CORS_ORIGIN_WHITELIST = [
 'http://localhost:8001',
 'https://musicbox.acom.ucar.edu',
 ]
+CORS_ALLOW_HEADERS = [
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Headers',
+    'Authorization',
+]
+
 # CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # cookie crap
 CSRF_COOKIE_SECURE = True
