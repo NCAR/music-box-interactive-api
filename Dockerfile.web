@@ -10,6 +10,7 @@ RUN apt-get update \
         git
 
 RUN git clone https://github.com/NCAR/music-box-interactive-static
+RUN cd music-box-interactive-static && git checkout web-fixes
 
 RUN echo $BASE_API_URL
 # set the base url used by the web files

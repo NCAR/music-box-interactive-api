@@ -136,12 +136,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
 # add any frontend URLs that can access the API here
-# CORS_ORIGIN_WHITELIST = [
-# 'http://localhost:80',
-# 'http://127.0.0.1:80'
-# ]
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [
+'http://localhost:8000',
+'http://localhost:8001',
+'https://musicbox.acom.ucar.edu',
+]
+# CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOW_CREDENTIALS = True
 
 # cookie crap
 CSRF_COOKIE_SECURE = True
