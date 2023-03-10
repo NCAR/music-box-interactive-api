@@ -26,8 +26,6 @@ SECRET_KEY = 'c93n(kwho=^&)@=%pkka8vy4du#ua_e(s-*(0d33y%2l^#1gdt'
 DEBUG = True
 
 ALLOWED_HOSTS = ["musicbox.acom.ucar.edu", "localhost"]
-# SESSION_COOKIE_DOMAIN=".musicbox.acom.ucar.edu"
-SESSION_COOKIE_DOMAIN="ncar.github.io"
 # Application definition
 
 INSTALLED_APPS = [
@@ -121,8 +119,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-# SESSION_ENGINE = "django.contrib.sessions.backends.file"
-# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -152,16 +148,15 @@ CORS_ALLOW_CREDENTIALS = True
 
 # cookie crap
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+
 # this allows possibly overriding another users session/csrf flags
 # look into a better way to do this
-# SESSION_COOKIE_SAMESITE = 'None'
 # 
-# SESSION_COOKIE_DOMAIN = 'None'
-SESSION_COOKIE_DOMAIN = 'musicbox.acom.ucar.edu'
-# SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_DOMAIN = 'None'
+SESSION_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SECURE = True
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # so that we can show plots in iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
@@ -172,7 +167,6 @@ CORS_REPLACE_HTTPS_REFERER      = False
 HOST_SCHEME                     = "https://"
 SECURE_PROXY_SSL_HEADER         = None
 SECURE_SSL_REDIRECT             = False
-SESSION_COOKIE_SECURE           = True
 CSRF_COOKIE_SECURE              = False
 SECURE_HSTS_SECONDS             = None
 SECURE_HSTS_INCLUDE_SUBDOMAINS  = False
