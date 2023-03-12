@@ -593,7 +593,7 @@ def get_run_status(uid):
     status = 'checking'
     running = False
     try:
-        model = models.ModelRun.objects.filter(uid=uid).first()
+        model = get_model_run(uid)
         if model is None:
             status = 'not_started'
             logging.info("["+str(uid)+"] model run not found for user")
