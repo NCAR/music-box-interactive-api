@@ -25,9 +25,7 @@ SECRET_KEY = 'c93n(kwho=^&)@=%pkka8vy4du#ua_e(s-*(0d33y%2l^#1gdt'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["musicbox.acom.ucar.edu"]
-# SESSION_COOKIE_DOMAIN=".musicbox.acom.ucar.edu"
-SESSION_COOKIE_DOMAIN="ncar.github.io"
+ALLOWED_HOSTS = ["musicbox.acom.ucar.edu", "localhost"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -121,8 +119,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-# SESSION_ENGINE = "django.contrib.sessions.backends.file"
-# SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -136,25 +132,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
 # add any frontend URLs that can access the API here
-# CORS_ORIGIN_WHITELIST = [
-# 'http://localhost:80',
-# 'http://127.0.0.1:80'
-# ]
+CORS_ORIGIN_WHITELIST = [
+'http://localhost:8000',
+'http://localhost:8001',
+'https://musicbox.acom.ucar.edu',
+]
+CORS_ALLOW_HEADERS = [
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Headers',
+    'Authorization',
+]
+
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 # cookie crap
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+
 # this allows possibly overriding another users session/csrf flags
 # look into a better way to do this
-# SESSION_COOKIE_SAMESITE = 'None'
 # 
-# SESSION_COOKIE_DOMAIN = 'None'
-SESSION_COOKIE_DOMAIN = 'musicbox.acom.ucar.edu'
-# SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_DOMAIN = 'None'
+SESSION_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SECURE = True
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # so that we can show plots in iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
@@ -165,7 +167,6 @@ CORS_REPLACE_HTTPS_REFERER      = False
 HOST_SCHEME                     = "https://"
 SECURE_PROXY_SSL_HEADER         = None
 SECURE_SSL_REDIRECT             = False
-SESSION_COOKIE_SECURE           = True
 CSRF_COOKIE_SECURE              = False
 SECURE_HSTS_SECONDS             = None
 SECURE_HSTS_INCLUDE_SUBDOMAINS  = False

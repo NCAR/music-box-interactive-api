@@ -596,7 +596,7 @@ def get_run_status(uid):
         model = models.ModelRun.objects.filter(uid=uid).first()
         if model is None:
             status = 'not_started'
-            logging.info("[ERR!] ["+str(uid)+"] model run not found for user")
+            logging.info("["+str(uid)+"] model run not found for user")
             return {'status': "not_started", 'session_id': uid, 'running': False}
         current_status = model.is_running
         logging.info("["+str(uid)+"] run_status is running? [true/false] ==> "+str(current_status))
@@ -613,7 +613,7 @@ def get_run_status(uid):
                 status = 'done'
     except models.ModelRun.DoesNotExist:
         status = 'not_started'
-        logging.info("[ERR!] ["+str(uid)+"] model run not found for user")
+        logging.info("["+str(uid)+"] model run not found for user")
     response_message.update({'status': status, 'session_id': uid, 'running': running})
 
     if status == 'error':

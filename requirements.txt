@@ -1,0 +1,17 @@
+Django
+Werkzeug
+django-cors-headers
+django-crispy-forms
+django-extensions
+drf-yasg
+matplotlib
+nose
+numpy
+pandas
+pika
+pillow
+psycopg2-binary
+pyOpenSSL
+pyvis
+requests
+scipy

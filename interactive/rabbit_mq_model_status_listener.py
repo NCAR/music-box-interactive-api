@@ -19,15 +19,8 @@ from dashboard.database_tools import *
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
-logging.basicConfig(filename='logs.log', filemode='w',
-                    format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
-                    level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w',
-                    format='%(asctime)s - [ERROR!!] %(message)s',
-                    level=logging.ERROR)
-
-
+# disable propagation
+logging.getLogger("pika").propagate = False
 def main():
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
     conn = pika.BlockingConnection(connParam)
@@ -47,22 +40,29 @@ def main():
         error_json = {}
         if "error.json" in json_body:
             error_json = json_body["error.json"]
+            logging.info(f"Model error for session {session_id}: {error_json}")
+        else:
+            logging.info(f"No errors for session {session_id}")
         if "output.csv" in json_body:
             output_csv = json_body["output.csv"]
             model_run.results['/output.csv'] = output_csv
+            logging.info(f"Output found for session {session_id}")
+        else:
+            logging.info(f"No output found for session {session_id}")
         
         # update model_run with MODEL_RUN_COMPLETE and error_json
         model_run.results['/MODEL_RUN_COMPLETE'] = MODEL_RUN_COMPLETE
         model_run.results['/error.json'] = error_json
         model_run.is_running = False
         model_run.save()
+        logging.info("Model run saved to database")
 
         
     channel.basic_consume(queue='model_finished_queue',
                           on_message_callback=run_model_finished_callback,
                           auto_ack=True)
 
-    print(' [*] Waiting for model_finished_queue messages')
+    logging.info("Waiting for model_finished_queue messages")
     try:
         channel.start_consuming()
     except KeyboardInterrupt:
@@ -90,6 +90,11 @@ def check_for_rabbit_mq(host, port):
 
 
 if __name__ == '__main__':
+    # config to easily see threads and process IDs
+    logging.basicConfig(
+        level=logging.INFO,
+        format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
+                "%(levelname)-5s %(msg)s"))
     try:
         if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
             main()
