@@ -1,0 +1,35 @@
+services:
+  api-server:
+    container_name: 'api-server'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.api
+    volumes:
+      - db-data:/music-box-interactive/interactive
+  model-runner:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.model_runner
+    restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 3
+  status-listener:
+    container_name: 'status-listener'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.status_listener
+    volumes:
+      - db-data:/music-box-interactive/interactive
+    restart: on-failure
+  web:
+    container_name: 'web'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.web
+      args:
+        - BASE_API_URL=${BASE_API_URL}
+    ports:
+      - 8001:80
+volumes:
+  db-data:
