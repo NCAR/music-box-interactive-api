@@ -4,7 +4,6 @@ import sys
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 from model_driver.session_model_runner import SessionModelRunner
-from update_environment_variables import update_environment_variables
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor as Pool
@@ -18,7 +17,6 @@ import shutil
 # 3) send message to model_finished_queue when model is finished
 
 
-update_environment_variables()
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 

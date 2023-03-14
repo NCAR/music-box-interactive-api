@@ -23,8 +23,6 @@ import logging
 import hashlib
 import pika
 import json
-from update_environment_variables import update_environment_variables
-update_environment_variables()
 RABBIT_HOST = os.environ["rabbit-mq-host"]
 RABBIT_PORT = int(os.environ["rabbit-mq-port"])
 
