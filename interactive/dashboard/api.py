@@ -31,7 +31,6 @@ from plots.plot_setup import *
 from dashboard.forms.formsetup import *
 from plots.plot_setup import *
 from os.path import exists
-from model_driver.session_model_runner import *
 from dashboard.flow_diagram import *
 import logging
 from .models import *
@@ -631,6 +630,7 @@ class RunView(views.APIView):
                     logging.info("no config or binary files found for user " + request.session.session_key + ", not running model")
                     return JsonResponse({'status': 'error', 'model_running': False})
             else:
+                from model_driver.session_model_runner import SessionModelRunner
                 runner = SessionModelRunner(request.session.session_key)
                 logging.info("rabbit is down, sim. will be run on API server")
                 return runner.run()

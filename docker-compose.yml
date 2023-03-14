@@ -6,12 +6,16 @@ services:
       dockerfile: ./Dockerfile.api
     ports:
       - 8000:8000
+    env_file:
+      - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
   model-runner:
     build: 
       context: .
       dockerfile: ./Dockerfile.model_runner
+    env_file:
+      - ./.env
     depends_on:
       - rabbitmq
     restart: on-failure
@@ -23,6 +27,8 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile.status_listener
+    env_file:
+      - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
     depends_on:

@@ -4,12 +4,16 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile.api
+    env_file:
+      - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
   model-runner:
     build: 
       context: .
       dockerfile: ./Dockerfile.model_runner
+    env_file:
+      - ./.env
     restart: on-failure
     deploy:
       mode: replicated
@@ -19,6 +23,8 @@ services:
     build: 
       context: .
       dockerfile: ./Dockerfile.status_listener
+    env_file:
+      - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure

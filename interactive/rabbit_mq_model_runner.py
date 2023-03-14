@@ -77,7 +77,7 @@ def callback(session_id, config_files_dict, future):
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-    conn_params = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
+    conn_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
     connection = pika.BlockingConnection(conn_params)
     channel = connection.channel()
 
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
-        if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
+        if check_for_rabbit_mq(rabbit_host, rabbit_port):
             main()
         else:
             print('[ERR!] RabbitMQ server is not running.')
