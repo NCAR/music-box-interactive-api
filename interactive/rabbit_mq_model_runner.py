@@ -136,7 +136,7 @@ def main():
                           on_message_callback=run_queue_callback,
                           auto_ack=True)
 
-    print(' [*] Waiting for run_queue messages. To exit press CTRL+C')
+    logging.info("Waiting for model_finished_queue messages")
     try:
         channel.start_consuming()
     except KeyboardInterrupt:

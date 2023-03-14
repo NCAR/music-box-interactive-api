@@ -3,11 +3,12 @@ services:
     container_name: 'api-server'
     build: 
       context: .
-      dockerfile: ./Dockerfile.api
+      dockerfile: ./Dockerfile.api-prod
     env_file:
       - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
+      -  /etc/pki/:/music-box-interactive
   model-runner:
     build: 
       context: .
