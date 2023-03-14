@@ -19,17 +19,14 @@ import shutil
 
 
 update_environment_variables()
-RABBIT_HOST = os.environ["rabbit-mq-host"]
-RABBIT_PORT = int(os.environ["rabbit-mq-port"])
-
 # cpu_count() returns number of cores on machine
 # this will run as many threads as there are cores (and will be faster but very cpu intensive)
 # set this number to 1 if you want to run everything in one thread -- if you are running on a server
 # without much cpu power/want to reduce energy usage you should probably set this to 1
 pool = Pool(max_workers=cpu_count()) # sets max number of workers to add to pool
 
-rabbit_host = os.environ['rabbit-mq-host']
-rabbit_port = int(os.environ['rabbit-mq-port'])
+rabbit_host = os.environ['RABBIT_MQ_HOST']
+rabbit_port = int(os.environ['RABBIT_MQ_PORT'])
 
 
 # disable propagation

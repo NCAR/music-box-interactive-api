@@ -16,8 +16,8 @@ from dashboard.database_tools import *
 # listens for messages from rabbitmq that indicate finished models
 
 
-RABBIT_HOST = os.environ["rabbit-mq-host"]
-RABBIT_PORT = int(os.environ["rabbit-mq-port"])
+RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
 
 # disable propagation
 logging.getLogger("pika").propagate = False

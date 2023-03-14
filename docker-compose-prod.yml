@@ -31,5 +31,6 @@ services:
         - BASE_API_URL=${BASE_API_URL}
     ports:
       - 8001:80
+    - /var/www/html:/usr/local/apache2/htdocs
 volumes:
   db-data:

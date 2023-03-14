@@ -575,8 +575,8 @@ class RunView(views.APIView):
             return JsonResponse({'status': 'running'})
         else:
             # start model run by adding job to queue via pika
-            rabbit_host = os.environ['rabbit-mq-host']
-            rabbit_port = int(os.environ['rabbit-mq-port'])
+            rabbit_host = os.environ['RABBIT_MQ_HOST']
+            rabbit_port = int(os.environ['RABBIT_MQ_PORT'])
             # get ModelRun object and set status to true
             set_is_running(request.session.session_key, True)
 

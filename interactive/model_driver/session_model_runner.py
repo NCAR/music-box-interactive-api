@@ -25,8 +25,8 @@ import pika
 import json
 from update_environment_variables import update_environment_variables
 update_environment_variables()
-RABBIT_HOST = os.environ["rabbit-mq-host"]
-RABBIT_PORT = int(os.environ["rabbit-mq-port"])
+RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
 
 # BASE_DIR = '/music-box-interactive/interactive'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
