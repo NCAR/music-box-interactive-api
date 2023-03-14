@@ -4,7 +4,6 @@ import sys
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 from model_driver.session_model_runner import SessionModelRunner
-from update_environment_variables import update_environment_variables
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor as Pool
@@ -17,8 +16,6 @@ import shutil
 # 2) run model when receive message
 # 3) send message to model_finished_queue when model is finished
 
-
-update_environment_variables()
 # cpu_count() returns number of cores on machine
 # this will run as many threads as there are cores (and will be faster but very cpu intensive)
 # set this number to 1 if you want to run everything in one thread -- if you are running on a server

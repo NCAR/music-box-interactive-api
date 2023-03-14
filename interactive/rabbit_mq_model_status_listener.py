@@ -3,14 +3,12 @@ import pika
 import sys
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-from update_environment_variables import update_environment_variables
 
 import json
 # from session_model_runner import SessionModelRunner
 import django
 django.setup()
 from django.db import connection
-update_environment_variables()
 from dashboard.database_tools import *
 # listener to be hosted on main API server
 # listens for messages from rabbitmq that indicate finished models
