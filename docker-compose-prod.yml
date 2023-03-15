@@ -36,8 +36,6 @@ services:
       dockerfile: ./Dockerfile.web
       args:
         - BASE_API_URL=${BASE_API_URL}
-    ports:
-      - 8001:80
     volumes:
       - /var/www/html:/usr/local/apache2/htdocs
 volumes:
