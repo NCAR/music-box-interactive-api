@@ -29,16 +29,15 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure
-  web:
-    container_name: 'web'
-    build: 
-      context: .
-      dockerfile: ./Dockerfile.web
-      args:
-        - BASE_API_URL=${BASE_API_URL}
-    ports:
-      - 8001:80
-    volumes:
-      - /var/www/html:/usr/local/apache2/htdocs
+  // Web files are cloned into /var/www/html by hand
+  # web:
+  #   container_name: 'web'
+  #   build: 
+  #     context: .
+  #     dockerfile: ./Dockerfile.web
+  #     args:
+  #       - BASE_API_URL=${BASE_API_URL}
+  #   ports:
+  #     - 8001:80
 volumes:
   db-data:
