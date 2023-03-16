@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.api-prod
     env_file:
-      - ./.env
+      - /usr/share/music-box/.env
     volumes:
       - db-data:/music-box-interactive/interactive
       -  /etc/pki/:/music-box-interactive
@@ -14,7 +14,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.model_runner
     env_file:
-      - ./.env
+      - /usr/share/music-box/.env
     restart: on-failure
     deploy:
       mode: replicated
@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.status_listener
     env_file:
-      - ./.env
+      - /usr/share/music-box/.env
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure
