@@ -29,7 +29,7 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure
-  // Web files are cloned into /var/www/html by hand
+  # Web files are cloned into /var/www/html by hand
   # web:
   #   container_name: 'web'
   #   build: 
