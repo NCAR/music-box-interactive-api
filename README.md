@@ -33,6 +33,18 @@ If you need to remove absolutely everything
 ```
 docker compose down -v --rmi all \
     && docker system prune \
-    && docker compose build \
+    && docker compose build --no-cache \
     && docker compose up --force-recreate
+```
+
+If you would like to run docker in a deteched state, add the `-d` flag like this
+
+```
+docker compose up -d
+```
+
+If you would like to view the logs after starting docker in a detach state, you can do so like this
+
+```
+docker compose logs -f
 ```

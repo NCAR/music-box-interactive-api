@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,11 +20,11 @@ BASE_DIR = '/music-box-interactive/interactive' # manually set BASE_DIR for prod
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c93n(kwho=^&)@=%pkka8vy4du#ua_e(s-*(0d33y%2l^#1gdt'
+SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
+print(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('IsDebug', False)
 
 ALLOWED_HOSTS = ["musicbox.acom.ucar.edu", "localhost"]
 # Application definition
