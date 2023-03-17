@@ -80,8 +80,9 @@ def callback(session_id, config_files_dict, future):
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-    conn_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
-    connection = pika.BlockingConnection(conn_params)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    connection = pika.BlockingConnection(connParam)
     channel = connection.channel()
 
     channel.queue_declare(queue='run_queue')
@@ -148,13 +149,14 @@ def main():
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn = pika.ConnectionParameters(host, port)
-        connection = pika.BlockingConnection(conn)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True
@@ -189,7 +191,7 @@ if __name__ == '__main__':
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
-        if check_for_rabbit_mq(rabbit_host, rabbit_port):
+        if check_for_rabbit_mq():
             main()
         else:
             print('[ERR!] RabbitMQ server is not running.')

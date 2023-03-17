@@ -38,11 +38,6 @@ from .database_tools import *
 import pika
 from io import StringIO
 
-RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
-
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
 #       - request.session.session_key is a string representation of this value
@@ -611,6 +606,10 @@ class RunView(views.APIView):
                 if get_user(request.session.session_key).config_files is not {} and get_user(request.session.session_key).binary_files is not {}:
                     # if we get here, we need to run the model
                     logging.info("rabbit is up, adding simulation to queue")
+                    RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+                    RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+                    RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+                    RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
                     credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
                     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
                     connection = pika.BlockingConnection(connParam)
@@ -1007,6 +1006,10 @@ def check_for_rabbit_mq():
     Checks if RabbitMQ server is running.
     """
     try:
+        RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+        RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+        RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+        RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
         credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
         connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
         connection = pika.BlockingConnection(connParam)

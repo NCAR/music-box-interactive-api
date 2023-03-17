@@ -6,6 +6,7 @@ services:
       dockerfile: ./Dockerfile.api-prod
     env_file:
       - /usr/share/music-box/.env
+    command: ["runserver_plus", "--cert-file", "acom.ucar.edu.crt", "--key-file", "acom.ucar.edu.key", "0.0.0.0:8000"]
     volumes:
       - db-data:/music-box-interactive/interactive
       -  /etc/pki/:/music-box-interactive

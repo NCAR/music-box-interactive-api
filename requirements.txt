@@ -10,7 +10,6 @@ numpy
 pandas
 pika
 pillow
-psycopg2-binary
 pyOpenSSL
 pyvis
 requests

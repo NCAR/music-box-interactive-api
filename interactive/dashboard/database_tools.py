@@ -1,10 +1,6 @@
 # import django models
 from django.db import models
-# import models from interactive/dashboard
 from dashboard import models
-# from interactive.mechanism.species import species_list
-# import jsonfield
-from django.contrib.postgres.fields import JSONField
 import os
 import json
 from pyvis.network import Network
