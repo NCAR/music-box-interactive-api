@@ -145,6 +145,7 @@ urlpatterns = [
     path('api/linear-combinations/', api.EvolvingConditions.as_view(),
          name='linear-combinations'),
 
+    path('api/health/', api.HealthView.as_view(), name='health'),
     path('api/check-load/', api.CheckLoadView.as_view(), name='check-load'),
     path('api/check/', api.CheckView.as_view(), name='check'),
     path('api/run/', api.RunView.as_view(), name='run'),

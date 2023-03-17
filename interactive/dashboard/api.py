@@ -62,6 +62,13 @@ def beautifyReaction(reaction):
     return reaction
 
 
+class HealthView(views.APIView):
+    def get(self, request):
+        logging.info("health")
+        response = JsonResponse({'data': 1})
+        return response
+
+
 class ExampleView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
