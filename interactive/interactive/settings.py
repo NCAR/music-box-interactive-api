@@ -21,7 +21,6 @@ BASE_DIR = '/music-box-interactive/interactive' # manually set BASE_DIR for prod
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
-print(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('IsDebug', False)
