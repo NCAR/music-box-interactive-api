@@ -38,6 +38,11 @@ from .database_tools import *
 import pika
 from io import StringIO
 
+RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
+
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
 #       - request.session.session_key is a string representation of this value
@@ -574,14 +579,12 @@ class RunView(views.APIView):
             return JsonResponse({'status': 'running'})
         else:
             # start model run by adding job to queue via pika
-            rabbit_host = os.environ['RABBIT_MQ_HOST']
-            rabbit_port = int(os.environ['RABBIT_MQ_PORT'])
             # get ModelRun object and set status to true
             set_is_running(request.session.session_key, True)
 
             # disable pika logging because it's annoying
             logging.getLogger("pika").propagate = False
-            isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
+            isRabbitUp = check_for_rabbit_mq()
             if isRabbitUp:
                 # check if we should save checksum
                 if get_user(request.session.session_key).should_cache:
@@ -608,8 +611,9 @@ class RunView(views.APIView):
                 if get_user(request.session.session_key).config_files is not {} and get_user(request.session.session_key).binary_files is not {}:
                     # if we get here, we need to run the model
                     logging.info("rabbit is up, adding simulation to queue")
-                    con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
-                    connection = pika.BlockingConnection(con_params)
+                    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+                    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+                    connection = pika.BlockingConnection(connParam)
                     channel = connection.channel()
                     channel.queue_declare(queue='run_queue')
                     body = {}
@@ -998,13 +1002,14 @@ class LoadFromConfigJsonView(views.APIView):
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn_params = pika.ConnectionParameters(host, port)
-        connection = pika.BlockingConnection(conn_params)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True

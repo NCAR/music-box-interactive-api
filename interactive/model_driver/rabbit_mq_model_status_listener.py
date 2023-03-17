@@ -11,6 +11,8 @@ from django.db import connection
 
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
 RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
 logging.basicConfig(filename='logs.log', filemode='w',
                     format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -22,7 +24,8 @@ logging.basicConfig(filename='errors.log', filemode='w',
 
 
 def main():
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
     connection = pika.BlockingConnection(connParam)
     channel = connection.channel()
 
@@ -72,13 +75,14 @@ def main():
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn_params = pika.ConnectionParameters(host, port)
-        connection = pika.BlockingConnection(conn_params)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True
@@ -91,7 +95,7 @@ def check_for_rabbit_mq(host, port):
 
 if __name__ == '__main__':
     try:
-        if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
+        if check_for_rabbit_mq():
             main()
         else:
             print('[ERR!] RabbitMQ server is not running. Exiting...')

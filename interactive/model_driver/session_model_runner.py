@@ -25,6 +25,8 @@ import pika
 import json
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
 RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
 # BASE_DIR = '/music-box-interactive/interactive'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
@@ -35,13 +37,14 @@ logging.getLogger("pika").propagate = False
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn_params = pika.ConnectionParameters(host, port)
-        connection = pika.BlockingConnection(conn_params)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True

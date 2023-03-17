@@ -22,15 +22,18 @@ import shutil
 # without much cpu power/want to reduce energy usage you should probably set this to 1
 pool = Pool(max_workers=cpu_count()) # sets max number of workers to add to pool
 
-rabbit_host = os.environ['RABBIT_MQ_HOST']
-rabbit_port = int(os.environ['RABBIT_MQ_PORT'])
+RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
 
 # disable propagation
 logging.getLogger("pika").propagate = False
 def callback(session_id, config_files_dict, future):
-    con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
-    connection = pika.BlockingConnection(con_params)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    connection = pika.BlockingConnection(connParam)
 
     if future.exception() is not None:
         logging.info("["+session_id+"] Got exception: %s" % future.exception())

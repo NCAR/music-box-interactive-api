@@ -16,11 +16,14 @@ from dashboard.database_tools import *
 
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
 RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
 # disable propagation
 logging.getLogger("pika").propagate = False
 def main():
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
     conn = pika.BlockingConnection(connParam)
     channel = conn.channel()
     channel.queue_declare(queue='model_finished_queue')
