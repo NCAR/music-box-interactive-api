@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.api-prod
     env_file:
-      - /usr/share/music-box/.env
+      - /home/shared/.env
     command: ["runserver_plus", "--cert-file", "acom.ucar.edu.crt", "--key-file", "acom.ucar.edu.key", "0.0.0.0:8000"]
     volumes:
       - db-data:/music-box-interactive/interactive
@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.model_runner
     env_file:
-      - /usr/share/music-box/.env
+      - /home/shared/.env
     restart: on-failure
     deploy:
       mode: replicated
@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.status_listener
     env_file:
-      - /usr/share/music-box/.env
+      - /home/shared/.env
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure
