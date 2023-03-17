@@ -33,8 +33,8 @@ def get_user(uid):
 # get model run based on uid
 def get_model_run(uid):
     try:
-        modekl = models.ModelRun.objects.get(uid=uid)
-        return modekl
+        model = models.ModelRun.objects.get(uid=uid)
+        return model
     except models.ModelRun.DoesNotExist:
         # if not, create new model run
         model_run = create_model_run(uid)
