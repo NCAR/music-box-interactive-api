@@ -3,7 +3,7 @@ services:
     container_name: 'api-server'
     build: 
       context: .
-      dockerfile: ./Dockerfile.api-prod
+      dockerfile: ./Dockerfile.api
     ports:
       - 8000:8000
     env_file:
