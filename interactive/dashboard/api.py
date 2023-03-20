@@ -556,8 +556,8 @@ class CheckLoadView(views.APIView):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
         logging.info(request)
         if not request.session.session_key:
-            request.session.save()
-        logging.info(f"session key: {request.session.session_key}")
+            request.session.create()
+        logging.debug(f"session key: {request.session.session_key}")
         response_message = get_run_status(request.session.session_key)
         logging.info(f"status: {response_message}")
         return JsonResponse(response_message)
@@ -568,7 +568,7 @@ class CheckView(views.APIView):
         logging.info(request)
         if not request.session.session_key:
             request.session.create()
-        logging.info(f"session key: {request.session.session_key}")
+        logging.debug(f"session key: {request.session.session_key}")
         response_message = get_run_status(request.session.session_key)
         print("status: ", response_message)
         return JsonResponse(response_message)
