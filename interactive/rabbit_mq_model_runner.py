@@ -4,7 +4,6 @@ import sys
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 from model_driver.session_model_runner import SessionModelRunner
-from update_environment_variables import update_environment_variables
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor as Pool
@@ -17,26 +16,24 @@ import shutil
 # 2) run model when receive message
 # 3) send message to model_finished_queue when model is finished
 
-
-update_environment_variables()
-RABBIT_HOST = os.environ["rabbit-mq-host"]
-RABBIT_PORT = int(os.environ["rabbit-mq-port"])
-
 # cpu_count() returns number of cores on machine
 # this will run as many threads as there are cores (and will be faster but very cpu intensive)
 # set this number to 1 if you want to run everything in one thread -- if you are running on a server
 # without much cpu power/want to reduce energy usage you should probably set this to 1
 pool = Pool(max_workers=cpu_count()) # sets max number of workers to add to pool
 
-rabbit_host = os.environ['rabbit-mq-host']
-rabbit_port = int(os.environ['rabbit-mq-port'])
+RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
 
 # disable propagation
 logging.getLogger("pika").propagate = False
 def callback(session_id, config_files_dict, future):
-    con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
-    connection = pika.BlockingConnection(con_params)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    connection = pika.BlockingConnection(connParam)
 
     if future.exception() is not None:
         logging.info("["+session_id+"] Got exception: %s" % future.exception())
@@ -83,8 +80,9 @@ def callback(session_id, config_files_dict, future):
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-    conn_params = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
-    connection = pika.BlockingConnection(conn_params)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    connection = pika.BlockingConnection(connParam)
     channel = connection.channel()
 
     channel.queue_declare(queue='run_queue')
@@ -142,7 +140,7 @@ def main():
                           on_message_callback=run_queue_callback,
                           auto_ack=True)
 
-    print(' [*] Waiting for run_queue messages. To exit press CTRL+C')
+    logging.info("Waiting for model_finished_queue messages")
     try:
         channel.start_consuming()
     except KeyboardInterrupt:
@@ -151,13 +149,14 @@ def main():
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn = pika.ConnectionParameters(host, port)
-        connection = pika.BlockingConnection(conn)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True
@@ -192,7 +191,7 @@ if __name__ == '__main__':
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
-        if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
+        if check_for_rabbit_mq():
             main()
         else:
             print('[ERR!] RabbitMQ server is not running.')

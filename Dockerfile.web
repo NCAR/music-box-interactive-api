@@ -10,10 +10,9 @@ RUN apt-get update \
         git
 
 RUN git clone https://github.com/NCAR/music-box-interactive-static
-RUN cd music-box-interactive-static && git checkout web-fixes
 
 RUN echo $BASE_API_URL
 # set the base url used by the web files
 RUN sed -i "1 s/^.*$/var globalBaseAPIUrl = \"$BASE_API_URL\";/" music-box-interactive-static/js/api.js
 
-RUN cp -r music-box-interactive-static/* /usr/local/apache2/htdocs/
+CMD cp -r /usr/local/apache2/music-box-interactive-static/* /usr/local/apache2/htdocs/ && httpd-foreground

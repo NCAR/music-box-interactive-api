@@ -1,10 +1,6 @@
 # import django models
 from django.db import models
-# import models from interactive/dashboard
 from dashboard import models
-# from interactive.mechanism.species import species_list
-# import jsonfield
-from django.contrib.postgres.fields import JSONField
 import os
 import json
 from pyvis.network import Network
@@ -37,8 +33,8 @@ def get_user(uid):
 # get model run based on uid
 def get_model_run(uid):
     try:
-        modekl = models.ModelRun.objects.get(uid=uid)
-        return modekl
+        model = models.ModelRun.objects.get(uid=uid)
+        return model
     except models.ModelRun.DoesNotExist:
         # if not, create new model run
         model_run = create_model_run(uid)

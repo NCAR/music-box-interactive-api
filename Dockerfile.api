@@ -14,17 +14,21 @@ RUN dnf -y update \
         'tex(type1ec.sty)' \
         dvipng \
         git \
+        python3-pandas \
         nodejs \
         ncview \
         libpq-devel \
     && dnf clean all
 
-# copy the interactive server code
-COPY . /music-box-interactive/
+# copy the python requirements
+# in an attempt to cache the pip install between server code edits
+COPY ./requirements.txt ./requirements.txt
 
 # python modules needed in scripts
-RUN dnf -y install python3-pandas
-RUN pip3 install -r /music-box-interactive/requirements.txt
+RUN pip3 install -r ./requirements.txt
+
+# copy the interactive server code
+COPY . /music-box-interactive/
 
 # Prepare the music-box-interactive web server
 WORKDIR music-box-interactive

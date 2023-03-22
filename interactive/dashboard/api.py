@@ -31,7 +31,6 @@ from plots.plot_setup import *
 from dashboard.forms.formsetup import *
 from plots.plot_setup import *
 from os.path import exists
-from model_driver.session_model_runner import *
 from dashboard.flow_diagram import *
 import logging
 from .models import *
@@ -63,10 +62,17 @@ def beautifyReaction(reaction):
     return reaction
 
 
+class HealthView(views.APIView):
+    def get(self, request):
+        logging.info("health")
+        response = JsonResponse({'data': 1})
+        return response
+
+
 class ExampleView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         # set example conditions and species/reactions
         example_name = 'example_' + str(request.GET.dict()['example'])
         examples_path = os.path.join(
@@ -118,7 +124,7 @@ class SpeciesView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received SPECIES_VIEW ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.info("fetching species for session: " + request.session.session_key)
 
         menu_names = get_species_menu_list(request.session.session_key)
@@ -129,7 +135,7 @@ class SpeciesDetailView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received SPECIES_DETAIL ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         if 'name' not in request.GET:
             return JsonResponse({"error": "missing species name"})
         species_name = request.GET['name']
@@ -143,7 +149,7 @@ class RemoveSpeciesView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received REMOVE_SPECIES ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         if 'name' not in request.GET:
             return HttpResponseBadRequest("missing species name")
         species_name = request.GET['name']
@@ -167,7 +173,7 @@ class AddSpeciesView(views.APIView):
 class PlotSpeciesView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         if 'name' not in request.GET:
             return HttpResponseBadRequest("missing species name")
         species = request.GET['name']
@@ -203,7 +209,7 @@ class ReactionsView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received REACTIONS_VIEW ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         reactions = get_reactions_menu_list(request.session.session_key)
         response = Response(reactions, status=status.HTTP_200_OK)
         return response
@@ -211,7 +217,7 @@ class ReactionsView(views.APIView):
 class ReactionsDetailView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         if 'index' not in request.GET:
             return JsonResponse({"error": "missing reaction index"})
         reaction_detail = get_reactions_info(request.session.session_key)[int(request.GET['index'])]
@@ -223,7 +229,7 @@ class RemoveReactionView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received REMOVE_REACTION ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         if 'index' not in request.GET:
             return HttpResponseBadRequest("missing reaction index")
         reaction_index = int(request.GET['index'])
@@ -234,7 +240,7 @@ class RemoveReactionView(views.APIView):
 class SaveReactionView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
 
         reaction_data = json.loads(request.body)
         if 'index' not in reaction_data:
@@ -254,7 +260,7 @@ class ReactionTypeSchemaView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received SCHEMATYPEVIEW ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         if 'type' not in request.GET:
             return JsonResponse({"error": "missing reaction type"})
         reaction_type = request.GET['type']
@@ -266,7 +272,7 @@ class ModelOptionsView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received GET_MODEL_VIEW ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("fetching model options for: " + request.session.session_key)
         model_options = get_model_options(request.session.session_key)
         return JsonResponse(model_options)
@@ -274,7 +280,7 @@ class ModelOptionsView(views.APIView):
     def post(self, request):
         logging.info("****** POST request received MODEL_VIEW ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("saving model options for user: "
                       + request.session.session_key)
         newOptions = json.loads(request.body)
@@ -297,7 +303,7 @@ class InitialConditionsFiles(views.APIView):
         logging.info(
             "****** GET request received INITIAL CONDITIONS FILE ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
 
         logging.debug("fetching conditions files for session id: " +
               request.session.session_key)
@@ -309,7 +315,7 @@ class ConditionsSpeciesList(views.APIView):
     def get(self, request):
         logging.info("****** GET request received INITIAL SPECIES LIST ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("fetching species list for session id: " +
               request.session.session_key)
         
@@ -323,7 +329,7 @@ class InitialConditionsSetup(views.APIView):
         logging.info(
             "****** GET request received INITIAL CONDITIONS SETUP ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
 
         logging.debug("fetching initial conditions setup for session id: " +
               request.session.session_key)
@@ -335,7 +341,7 @@ class InitialConditionsSetup(views.APIView):
         logging.info(
             "****** POST request received INITIAL CONDITIONS SETUP ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("saving initial conditions setup for session id: " +
                       request.session.session_key)
         logging.debug("received initial conditions setup: " +
@@ -352,7 +358,7 @@ class InitialSpeciesConcentrations(views.APIView):
 
         logging.info("****** GET request received INIT_SPECIES_CONC ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         values = get_initial_species_concentrations(request.session.session_key)
         return JsonResponse(values)
 
@@ -360,7 +366,7 @@ class InitialSpeciesConcentrations(views.APIView):
         logging.info(
             "****** POST request received INITIAL SPECIES CONC. ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
 
@@ -393,7 +399,7 @@ class InitialReactionRates(views.APIView):
         logging.info(
             "****** GET request received INITIAL REACTION RATES ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
 
         logging.debug("fetching initial species conc. for session id: " +
                       request.session.session_key)
@@ -405,7 +411,7 @@ class InitialReactionRates(views.APIView):
         logging.info(
             "****** POST request received INITIAL REACTION RATES ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
 
@@ -433,7 +439,7 @@ class UnitConversionArguments(views.APIView):
         logging.info(
             "****** GET request received UNIT CONVERSION ARGUMENTS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         initial = request.GET['initialUnit']
         final = request.GET['finalUnit']
         arguments = get_required_arguments(initial, final)
@@ -477,7 +483,7 @@ class MusicaReactionsList(views.APIView):
         logging.info(
             "****** GET request received MUSICA REACTIONS LIST ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
 
         logging.debug("* fetching species list for session id: " +
                       request.session.session_key)
@@ -491,7 +497,7 @@ class EvolvingConditions(views.APIView):
     def get(self, request):
         logging.info("****** GET request received EVOLVING CONDITIONS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         config = get_user(request.session.session_key).config_files['/my_config.json']
 
         e = config['evolving conditions']
@@ -519,7 +525,7 @@ class LinearCombinations(views.APIView):
     def get(self, request):
         logging.info("****** GET request received LINEAR COMBINATIONS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         config_path = os.path.join(settings.BASE_DIR,
                                    'configs/' + request.session.session_key +
                                    "/my_config.json")
@@ -550,9 +556,10 @@ class CheckLoadView(views.APIView):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
         logging.info(request)
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
+        logging.debug(f"session key: {request.session.session_key}")
         response_message = get_run_status(request.session.session_key)
-        print("status: ", response_message)
+        logging.info(f"status: {response_message}")
         return JsonResponse(response_message)
 
 class CheckView(views.APIView):
@@ -560,7 +567,8 @@ class CheckView(views.APIView):
         logging.info("****** GET request received RUN_STATUS_VIEW ******")
         logging.info(request)
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
+        logging.debug(f"session key: {request.session.session_key}")
         response_message = get_run_status(request.session.session_key)
         print("status: ", response_message)
         return JsonResponse(response_message)
@@ -569,20 +577,18 @@ class CheckView(views.APIView):
 class RunView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         # check if model is already running
         if get_run_status(request.session.session_key) == 'running':
             return JsonResponse({'status': 'running'})
         else:
             # start model run by adding job to queue via pika
-            rabbit_host = os.environ['rabbit-mq-host']
-            rabbit_port = int(os.environ['rabbit-mq-port'])
             # get ModelRun object and set status to true
             set_is_running(request.session.session_key, True)
 
             # disable pika logging because it's annoying
             logging.getLogger("pika").propagate = False
-            isRabbitUp = check_for_rabbit_mq(rabbit_host, rabbit_port)
+            isRabbitUp = check_for_rabbit_mq()
             if isRabbitUp:
                 # check if we should save checksum
                 if get_user(request.session.session_key).should_cache:
@@ -609,8 +615,13 @@ class RunView(views.APIView):
                 if get_user(request.session.session_key).config_files is not {} and get_user(request.session.session_key).binary_files is not {}:
                     # if we get here, we need to run the model
                     logging.info("rabbit is up, adding simulation to queue")
-                    con_params = pika.ConnectionParameters(rabbit_host, rabbit_port)
-                    connection = pika.BlockingConnection(con_params)
+                    RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+                    RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+                    RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+                    RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
+                    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+                    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+                    connection = pika.BlockingConnection(connParam)
                     channel = connection.channel()
                     channel.queue_declare(queue='run_queue')
                     body = {}
@@ -631,6 +642,7 @@ class RunView(views.APIView):
                     logging.info("no config or binary files found for user " + request.session.session_key + ", not running model")
                     return JsonResponse({'status': 'error', 'model_running': False})
             else:
+                from model_driver.session_model_runner import SessionModelRunner
                 runner = SessionModelRunner(request.session.session_key)
                 logging.info("rabbit is down, sim. will be run on API server")
                 return runner.run()
@@ -640,7 +652,7 @@ class GetPlotContents(views.APIView):
     def get(self, request):
         logging.info("****** GET request received GET_PLOT_CONTENTS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         get = request.GET
         prop = get['type']
         # csv_results_path = os.path.join(
@@ -700,7 +712,7 @@ class GetBasicDetails(views.APIView):
     def get(self, request):
         logging.info("****** GET request received GET_BASIC_DETAILS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         model = models.ModelRun.objects.get(uid=request.session.session_key)
         output_csv = StringIO(model.results['/output.csv'])
         csv = pd.read_csv(output_csv, encoding='latin1')
@@ -720,7 +732,7 @@ class GetFlowDetails(views.APIView):
     def get(self, request):
         logging.info("****** GET request received GET_FLOW_DETAILS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         model = models.ModelRun.objects.get(uid=request.session.session_key)
         output_csv = StringIO(model.results['/output.csv'])
         csv = pd.read_csv(output_csv, encoding='latin1')
@@ -743,7 +755,7 @@ class GetFlow(views.APIView):
     def get(self, request):
         logging.info("****** GET request received GET_FLOW ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.info(f"session id: {request.session.session_key}")
         logging.info("using data:" + str(request.GET.dict()))
         path_to_template = os.path.join(
@@ -757,7 +769,7 @@ class DownloadConfig(views.APIView):
     def get(self, request):
         logging.info("****** GET request received DOWNLOAD_CONFIG ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         sessid = request.session.session_key
         logging.info("sessid: "+sessid)
         destination_path = os.path.join(
@@ -810,7 +822,7 @@ class DownloadResults(views.APIView):
     def get(self, request):
         logging.info("****** GET request received DOWNLOAD_RESULTS ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("session key: " + request.session.session_key)
         # fl_path = os.path.join(
         #     os.environ['MUSIC_BOX_BUILD_DIR'],
@@ -836,7 +848,7 @@ class ConfigJsonUpload(views.APIView):
     def post(self, request):
         logging.info("****** GET request received CONFIG_UPLOAD ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("session key: " + request.session.session_key)
         uploaded = request.FILES['file']
         configs_path = os.path.join(
@@ -878,7 +890,7 @@ class RemoveInitialConditionsFile(views.APIView):
         logging.info(
             "****** GET request received REMOVE_INIT_COND_FILE ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("session key: " + request.session.session_key)
         configs_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
@@ -903,7 +915,7 @@ class InitCSV(views.APIView):
     def post(self, request):
         logging.info("****** POST request received INIT_CSV ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("session key: " + request.session.session_key)
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
@@ -934,7 +946,7 @@ class ClearEvolutionFiles(views.APIView):
     def get(self, request):
         logging.info("****** POST request received INIT_CSV ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("session key: " + request.session.session_key)
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
@@ -960,7 +972,7 @@ class EvolvFileUpload(views.APIView):
     def post(self, request):
         logging.info("****** POST request received EVOLV_FILE_UPLOAD ******")
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.debug("session key: " + request.session.session_key)
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
@@ -991,20 +1003,25 @@ class EvolvFileUpload(views.APIView):
 class LoadFromConfigJsonView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
-            request.session.create()
+            request.session.save()
         logging.info("saving model options for user: " +
                      request.session.session_key)
         uploaded = request.FILES['file']
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn_params = pika.ConnectionParameters(host, port)
-        connection = pika.BlockingConnection(conn_params)
+        RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+        RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+        RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+        RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True

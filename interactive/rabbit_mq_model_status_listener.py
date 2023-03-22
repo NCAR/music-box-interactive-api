@@ -3,26 +3,27 @@ import pika
 import sys
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-from update_environment_variables import update_environment_variables
 
 import json
 # from session_model_runner import SessionModelRunner
 import django
 django.setup()
 from django.db import connection
-update_environment_variables()
 from dashboard.database_tools import *
 # listener to be hosted on main API server
 # listens for messages from rabbitmq that indicate finished models
 
 
-RABBIT_HOST = os.environ["rabbit-mq-host"]
-RABBIT_PORT = int(os.environ["rabbit-mq-port"])
+RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
 # disable propagation
 logging.getLogger("pika").propagate = False
 def main():
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT)
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
     conn = pika.BlockingConnection(connParam)
     channel = conn.channel()
     channel.queue_declare(queue='model_finished_queue')
@@ -71,14 +72,14 @@ def main():
 
 
 # checks server by trying to connect
-def check_for_rabbit_mq(host, port):
+def check_for_rabbit_mq():
     """
     Checks if RabbitMQ server is running.
     """
     try:
-        conn_params = pika.ConnectionParameters(host, port)
-       
-        connection = pika.BlockingConnection(conn_params)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
         if connection.is_open:
             connection.close()
             return True
@@ -96,7 +97,7 @@ if __name__ == '__main__':
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
-        if check_for_rabbit_mq(RABBIT_HOST, RABBIT_PORT):
+        if check_for_rabbit_mq():
             main()
         else:
             print('[ERR!] RabbitMQ server is not running. Exiting...')
