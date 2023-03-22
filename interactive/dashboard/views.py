@@ -3,11 +3,14 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
+from .flow_diagram import generate_flow_diagram, get_simulation_length
+from .flow_diagram import get_species, get_step_length
 from .upload_handler import *
 from .build_unit_converter import *
 from .save import *
-from .models import Document
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+# from .models import Document
+from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponseRedirect, JsonResponse
 import os
 from django.conf import settings
 import mimetypes
@@ -15,6 +18,14 @@ from django.core.files import File
 from interactive.tools import *
 import pandas
 import platform
+import codecs
+import time
+from io import TextIOWrapper
+logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+
+
 
 def landing_page(request):
     context = {
@@ -75,6 +86,9 @@ def visualize(request):
     csv = pandas.read_csv(csv_results_path)
     plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
     plot_property_list = [x.strip() for x in plot_property_list]
+    for x in csv.columns.tolist():
+        if "myrate" in x:
+            plot_property_list.append('RATE')
     context = {
         'plots_list': plot_property_list
     }
@@ -86,6 +100,34 @@ def visualize(request):
     else:
         return HttpResponseRedirect('/')
 
+###############
+
+###   Flow diagram page
+
+#Base page render
+def flow(request):
+
+    context = {
+        "species": get_species(),
+        "simulation_length": get_simulation_length(),
+        "step_length": get_step_length()
+    }
+    return render(request, 'flow.html', context)
+
+#Flow diagram render
+def get_flow(request):
+    path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+    logging.info("get_flow called")
+    generate_flow_diagram(request.GET.dict())
+    return HttpResponse()
+
+
+def render_flow(request):
+    time.sleep(0.1)
+    path_to_diagram = os.path.join(settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
+    return render(request, 'network_plot/flow_plot.html')
+
+############
 
 def conditions(request):
     export()
@@ -138,6 +180,21 @@ def initial_conditions(request):
     return render(request, 'conditions/initial.html', context)
 
 
+# returns the list of initial conditions files
+def initial_conditions_files_handler(request):
+    values = initial_conditions_files()
+    return JsonResponse(values)
+
+
+# removes an initial conditions file
+def initial_conditions_file_remove_handler(request):
+    if request.method != "POST":
+        return JsonResponse({"error":"removing initial conditions files should be a POST request"})
+    remove_request = json.loads(request.body)
+    initial_conditions_file_remove(remove_request)
+    return JsonResponse({})
+
+
 # returns the initial species concentrations
 def initial_species_concentrations_handler(request):
     values = initial_species_concentrations()
@@ -171,8 +228,9 @@ def initial_reaction_rates_save_handler(request):
 # input file upload
 def init_csv(request):
     if request.method == 'POST':
+        filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
-        uploaded_to_config(handle_uploaded_csv(uploaded))
+        manage_initial_conditions_files(uploaded, filename)
     return HttpResponseRedirect('/conditions/initial')
 
 

@@ -1,3 +1,16 @@
+function beautifyReaction(reaction) {
+  reaction.replace('->', '→');
+  reaction.replace('_', ' + ');
+  
+  return reaction
+}
+function refreshTableNames() {
+  var children = document.getElementById('plotbar').children;
+  for (var i = 0; i < children.length; i++) {
+    var tableChild = children[i];
+    tableChild.innerHTML = beautifyReaction(tableChild.innerHTML);
+  }
+}
 $(document).ready(function(){
 
   // default plot sub-page
@@ -10,6 +23,7 @@ $(document).ready(function(){
       data: {"type": linkId},
       success: function(response){
         $("#plotbar").html(response);
+        refreshTableNames();
       }
     });
   }
@@ -34,11 +48,12 @@ $(document).ready(function(){
         data: {"type": linkId},
         success: function(response){
           $("#plotbar").html(response);
+          refreshTableNames();
         }
       });
     }
   });
-
+  refreshTableNames();
   //plot property buttons
   $(".prop").on('click', function(){
     var linkId = $(this).attr('id');
@@ -50,6 +65,7 @@ $(document).ready(function(){
       type: 'get',
       data: {"type": linkId},
       success: function(response){
+        refreshTableNames();
       }
     });
   });
@@ -57,19 +73,22 @@ $(document).ready(function(){
   // subproperty plot buttons
   $("body").on('click', "a.sub_p", function(){
     $("#plotmessage").html('')
-    var linkId = $(this).attr('id');
+    var linkId = $(this).attr('id')
     if ($(this).attr('clickStatus') == 'true'){
       $(this).attr('class', 'sub_p list-group-item list-group-item-action')
       $(this).attr('clickStatus', 'false')
-      $("#" + linkId +'plot').remove()
+      $(this).text($(this).text().replace("☑", "☐")); // change to empty checkbox
+
+
+      $("#" + linkId.replace(">", "") +'plot').remove(); // '>' is not valid for an id in html5
     } else {
       $(this).attr('class', 'sub_p list-group-item list-group-item-action active')
       $(this).attr('clickStatus','true');
-
+      $(this).text($(this).text().replace("☐", "☑"));  // change to ticked checkbox
     if ($('#species').hasClass('btn-ncar-active')){
       var propType = 'CONC.'
     } else if ($('#rates').hasClass('btn-ncar-active')){
-      var propType = 'RATE.'
+      var propType = 'CONC.myrate__'
     } else if ($('#env').hasClass('btn-ncar-active')){
       var propType = 'ENV.'
     }
@@ -80,10 +99,11 @@ $(document).ready(function(){
       var plotUnit = 'n/a'
     }
 
-    $('#plot').prepend('<img id="'+linkId+ 'plot"src="plots/get?type=' + prop + '&unit=' + plotUnit + '">');
+    $('#plot').prepend('<img id="'+linkId.replace(">", "")+ 'plot"src="plots/get?type=' + prop + '&unit=' + plotUnit + '">'); // replace '>' with '' to get rid of invalid id
+    refreshTableNames();
     }
   });
-
+ 
   //update plot units from select
   $(document).on('change', "#plotsUnitSelect", function() {
     var unitName = $(this).val();
@@ -99,4 +119,5 @@ $(document).ready(function(){
       $('#plot').append('<img id="'+ name + 'plot"src="plots/get?type=CONC.' + name + '&unit=' + unitName + '">');
     });
   });
+
 });

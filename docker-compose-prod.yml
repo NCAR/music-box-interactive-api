@@ -1,0 +1,36 @@
+services:
+  api-server:
+    container_name: 'api-server'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.api
+    ports:
+      - 8000:8000
+    env_file:
+      - /home/shared/.env
+    command: ["runserver_plus", "--cert-file", "acom.ucar.edu.crt", "--key-file", "acom.ucar.edu.key", "0.0.0.0:8000"]
+    volumes:
+      - db-data:/music-box-interactive/interactive
+      - /etc/pki/:/music-box-interactive
+  model-runner:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.model_runner
+    env_file:
+      - /home/shared/.env
+    restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 3
+  status-listener:
+    container_name: 'status-listener'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.status_listener
+    env_file:
+      - /home/shared/.env
+    volumes:
+      - db-data:/music-box-interactive/interactive
+    restart: on-failure
+volumes:
+  db-data:

@@ -134,9 +134,10 @@ $(document).ready(function(){
                   Add property
                 </a>
                 <div class="dropdown-menu new-property" aria-labelledby="new-property-dropdown">
-                  <a class="dropdown-item" href="#" property="descrition" data-type="string" default-value="">description</a>
+                  <a class="dropdown-item" href="#" property="description" data-type="string" default-value="">description</a>
                   <a class="dropdown-item" href="#" property="absolute convergence tolerance [mol mol-1]" data-type="number" default-value="1e-12">absolute convergence tolerance</a>
                   <a class="dropdown-item" href="#" property="molecular weight [kg mol-1]" data-type="number" default-value="0">molecular weight</a>
+                  <a class="dropdown-item" href="#" property="tracer type" data-type="string" default-value="CONSTANT">fixed concentration</a>
                 </div>
               </div>
               <p>
@@ -169,6 +170,7 @@ $(document).ready(function(){
 
   // show editable chemical species detail
   $(".species-detail-link").on('click', function(){
+    var speciesName =  $(this).attr('species');
     $.ajax({
       url: 'species-detail',
       type: 'get',
@@ -196,6 +198,8 @@ $(document).ready(function(){
               $('.species-detail .properties').append(property_input_html(key, "number", response[key]));
             }
           }
+          var url = 
+          $('#species-network-plot').html('<iframe style="width: 100%;height: 100%;" title="Network plot" src="/mechanism/species-detail-network?name=' + speciesName + '"></iframe>')
         }
       }
     });

@@ -186,8 +186,15 @@ code {
 
 footer {
     background-color: var(--ncar-color-text-light);
+    /* position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: auto; */
 }
-
+#mynetwork {
+    width: 100%;
+    height: 100%;
+}
 .footer-link{
     text-decoration:none;
     color: var(--ncar-color-text-dark);

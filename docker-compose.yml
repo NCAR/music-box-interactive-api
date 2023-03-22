@@ -1,0 +1,61 @@
+services:
+  api-server:
+    container_name: 'api-server'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.api
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env
+    volumes:
+      - db-data:/music-box-interactive/interactive
+  model-runner:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.model_runner
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 3
+  status-listener:
+    container_name: 'status-listener'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.status_listener
+    env_file:
+      - ./.env
+    volumes:
+      - db-data:/music-box-interactive/interactive
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+  web:
+    container_name: 'web'
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.web
+      args:
+        - BASE_API_URL=${BASE_API_URL}
+    ports:
+      - 8001:80
+  rabbitmq:
+    container_name: 'rabbitmq'
+    image: rabbitmq:3.11-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 15s
+      retries: 1
+volumes:
+  db-data:

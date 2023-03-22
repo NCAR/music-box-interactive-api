@@ -1,0 +1,18 @@
+{
+    "schema": {
+        "species": {
+            "type": "string-list",
+            "values": ""
+        },
+        "scaling factor": {
+            "type": "real",
+            "default": 1.0,
+            "description": "Use the scaling factor to adjust first order loss rate constants from input data. A scaling factor of 1.0 results in no adjustment.",
+            "units": "unitless"
+        },
+        "MUSICA name": {
+            "type": "string",
+            "description": "Set a MUSICA name for this reaction to identify it in other parts of the model (e.g., input conditions). You may choose any name you like."
+        }
+    }
+}

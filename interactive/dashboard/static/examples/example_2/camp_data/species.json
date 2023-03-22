@@ -1,5 +1,5 @@
 {
-  "pmc-data": [
+  "camp-data": [
     {
       "name": "M",
       "type": "CHEM_SPEC",
@@ -13,17 +13,17 @@
     {
       "type": "CHEM_SPEC",
       "name": "O3",
-      "descrition": "ozone"
+      "description": "ozone"
     },
     {
       "type": "CHEM_SPEC",
       "name": "SOA1",
-      "descrition": "moderate volatility SOA precursor from a-pinene oxidation"
+      "description": "moderate volatility SOA precursor from a-pinene oxidation"
     },
     {
       "type": "CHEM_SPEC",
       "name": "SOA2",
-      "descrition": "low volatility SOA precursor from a-pinene oxidation"
+      "description": "low volatility SOA precursor from a-pinene oxidation"
     }
   ]
 }

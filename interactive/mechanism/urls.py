@@ -13,6 +13,7 @@ urlpatterns = [
     path('reaction-musica-names-list', views.reaction_musica_names_list_handler), # returns the set of reactions with MUSICA names
     path('reaction-type-schema', views.reaction_type_schema_handler),             # returns the schema for a reaction type
     path('species-detail', views.species_detail_handler),                         # returns a json object for a chemical species
+    path('species-detail-network', views.species_network_plotter),
     # -----------------------------------
     #editing paths:
     path('reaction-remove', views.reaction_remove_handler),                       # removes a reaction

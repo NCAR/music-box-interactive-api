@@ -2,6 +2,7 @@ from datetime import datetime
 from interactive.tools import *
 from django.conf import settings
 import os
+import logging
 from shutil import rmtree
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
@@ -101,4 +102,4 @@ def clear_log():
     lc = open_json('log_config.json')
     lc.update({'history': {}})
     dump_json('log_config.json', lc)
-    print('log cleared')
+    logging.info('log cleared')
