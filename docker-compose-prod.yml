@@ -12,6 +12,7 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
       - /etc/pki/:/music-box-interactive
+    network_mode: "host"
   model-runner:
     build: 
       context: .
@@ -22,6 +23,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+    network_mode: "host"
   status-listener:
     container_name: 'status-listener'
     build: 
@@ -32,5 +34,6 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure
+    network_mode: "host"
 volumes:
   db-data:
