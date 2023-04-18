@@ -188,23 +188,6 @@ def search_for_config_checksum(checksum):
     return uids
 
 
-def get_files(dirName):
-    # create a list of file and sub directories
-    # names in the given directory
-    listOfFile = os.listdir(dirName)
-    allFiles = list()
-    # Iterate over all the entries
-    for entry in listOfFile:
-        # Create full path
-        fullPath = os.path.join(dirName, entry)
-        # If entry is a directory then get the list of files in this directory 
-        if os.path.isdir(fullPath):
-            allFiles = allFiles + get_files(fullPath)
-        else:
-            allFiles.append(fullPath)
-    return allFiles
-
-
 # get species menu of user
 def get_species_menu_list(uid):
     user = get_user(uid)
@@ -216,15 +199,7 @@ def get_species_menu_list(uid):
     for entry in camp_data:
         if entry['type'] == "CHEM_SPEC":
             species_list.append(entry['name'])
-    m_list = sorted(species_list)
-    newlist = []
-    for name in m_list:
-        if len(name) > 25:
-            shortname = name[0:25] + '..'
-            newlist.append(shortname)
-        else:
-            newlist.append(name)
-    return {'species_list_0': m_list, 'species_list_1': newlist}
+    return {'species': sorted(species_list)}
 
 
 # get species detail of user
