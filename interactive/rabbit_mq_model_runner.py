@@ -1,15 +1,18 @@
-import logging
-import pika
-import sys
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-from model_driver.session_model_runner import SessionModelRunner
-import json
-import subprocess
 from concurrent.futures import ThreadPoolExecutor as Pool
+from model_driver.session_model_runner import SessionModelRunner
 from multiprocessing import cpu_count
+from shared.utils import check_for_rabbit_mq
+
 import functools
+import json
+import logging
+import os
+import pika
 import shutil
+import subprocess
+import sys
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -148,23 +151,6 @@ def main():
         channel.stop_consuming()
 
 
-# checks server by trying to connect
-def check_for_rabbit_mq():
-    """
-    Checks if RabbitMQ server is running.
-    """
-    try:
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        connection = pika.BlockingConnection(connParam)
-        if connection.is_open:
-            connection.close()
-            return True
-        else:
-            connection.close()
-            return False
-    except pika.exceptions.AMQPConnectionError:
-        return False
 def getListOfFiles(dirName):
     # create a list of file and sub directories
     # names in the given directory

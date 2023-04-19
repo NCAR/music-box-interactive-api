@@ -109,7 +109,7 @@ def species_convert_from_SI(species_data):
 
 # patch to allow interface to use SI units until CAMP is
 # updated to use all SI units
-def species_convert_to_SI(species_data):
+def (species_data):
     if 'absolute tolerance' in species_data:
         mol = species_data['absolute tolerance']
         name = 'absolute convergence tolerance [mol mol-1]'

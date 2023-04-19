@@ -90,13 +90,6 @@ def sub_props_names(subprop):
     else:
         return subprop
 
-def beautifyReaction(reaction):
-    if '->' in reaction:
-        reaction = reaction.replace('->', ' → ')
-    if '_' in reaction:
-        reaction = reaction.replace('_', ' + ')
-    return reaction
-
 
 def output_plot(prop, plot_units,
                 csb,

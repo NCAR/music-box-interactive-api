@@ -108,24 +108,6 @@ def name_included_reactions(included_reactions, reactions_json):
     return names_dict
 
 
-# make reaction hot hot hot by adding some nicer arrows and cleaning it up
-def beautifyReaction(reaction):
-    if '->' in reaction:
-        reaction = reaction.replace('->', ' → ')
-    if '_' in reaction:
-        reaction = reaction.replace('_', ' + ')
-    return reaction
-
-
-# undo beautifyReaction (usually used when indexing dictionaries)
-def unbeautifyReaction(reaction):
-    if '→' in reaction:
-        reaction = reaction.replace(' → ', '->')
-    if '+' in reaction:
-        reaction = reaction.replace(' + ', '_')
-    return reaction
-
-
 # return list of species, reactions, species size and colors.
 def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
     contained_reactions = {}
