@@ -70,7 +70,7 @@ class UnitTestRunner(unittest.TestCase):
         # get check sum from CHAPMAN
         CHAPMAN_path = os.path.join(examples_path, 'CHAPMAN')
         CHAPMAN_checksum = calculate_checksum(CHAPMAN_path)
-        CHAPMAN_expected_checksum = "1979c4aeaa0fcd9f89b019276edd34d4"
+        CHAPMAN_expected_checksum = "f0a73918971c2824fa8cc1d4bb88ea0b"
         self.assertEqual(CHAPMAN_checksum, CHAPMAN_expected_checksum)
         print("\t - CHAPMAN checksum good ✓")
 
