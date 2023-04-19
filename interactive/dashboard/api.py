@@ -102,7 +102,6 @@ class ExampleView(views.APIView):
                     data = f.read()
                     # put string representation into user.config_files
                     user.binary_files.update({filename: data})
-        logging.info(f"user config files: {user.config_files}")
         user.save()
         export_to_database(request.session.session_key)
         menu_names = get_species_menu_list(request.session.session_key)
