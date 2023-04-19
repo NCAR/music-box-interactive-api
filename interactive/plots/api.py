@@ -1,9 +1,15 @@
-from rest_framework import status, views
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
-from shared.utils import beautifyReaction
+from dashboard import models
 from dashboard.database_tools import get_model_run
+from dashboard.flow_diagram import generate_flow_diagram, generate_database_network_plot
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from interactive import settings
+from io import StringIO, BytesIO
+from rest_framework import views
+from shared.utils import beautifyReaction
 
 import logging
+import shutil
+import os
 
 import plots.plot_setup as plot_setup
 import pandas as pd
@@ -59,7 +65,7 @@ class GetPlot(views.APIView):
                                       status=405)
         if request.method == 'GET':
             props = request.GET['type']
-            buffer = io.BytesIO()
+            buffer = BytesIO()
             # run get_plot function
             if request.GET['unit'] == 'n/a':
                 buffer = plot_setup.get_plot(request.session.session_key, props, False)
@@ -143,9 +149,8 @@ class PlotSpeciesView(views.APIView):
         if not os.path.isdir(network_plot_dir):
             os.makedirs(network_plot_dir)
         # use copyfile()
-        if exists(os.path.join(network_plot_dir, "plot.html")) is False:
+        if os.exists(os.path.join(network_plot_dir, "plot.html")) is False:
             # create plot.html file if doesn't exist
-            f = open(os.path.join(network_plot_dir, "plot.html"), "w")
             logging.info("putting plot into file " + str(os.path.join(network_plot_dir, "plot.html")))
         shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
         logging.info("generating plot and exporting to " + str(network_plot_dir + "/plot.html"))
@@ -153,11 +158,4 @@ class PlotSpeciesView(views.APIView):
         html = generate_database_network_plot(request.session.session_key,
                                        species,
                                        network_plot_dir + "/plot.html")
-        #plot = ('network_plot/'
-        #        + request.session.session_key
-        #        + '/plot.html')
-        plot = str(network_plot_dir + "/plot.html")[1:]
-        #logging.info("[debug] rendering from " + plot)
-        #return render(request, plot)
-        #logging.info("returning html: " + str(html))
         return HttpResponse(html)
