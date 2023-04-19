@@ -11,7 +11,6 @@ import logging
 import os
 import time
 from .species import species
-from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')

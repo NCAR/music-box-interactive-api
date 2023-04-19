@@ -15,11 +15,10 @@ from django.conf import settings
 import logging
 from .compare import *
 from mechanism.species import tolerance_dictionary
-from interactive.tools import *
 from numpy import vectorize
 
-
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+
 model_output_units = 'mol/m-3'
 def sub_props(prop, csvz):
     

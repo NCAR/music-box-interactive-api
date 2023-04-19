@@ -1,26 +1,21 @@
-from django.shortcuts import render
-from .forms.optionsforms import *
-from .forms.report_bug_form import BugForm
-from .forms.evolvingforms import *
-from .forms.initial_condforms import *
+from .build_unit_converter import *
 from .flow_diagram import generate_flow_diagram, get_simulation_length
 from .flow_diagram import get_species, get_step_length
-from .upload_handler import *
-from .build_unit_converter import *
+from .forms.evolvingforms import *
+from .forms.initial_condforms import *
+from .forms.optionsforms import *
+from .forms.report_bug_form import BugForm
 from .save import *
-# from .models import Document
-from django.http import HttpResponse, HttpRequest
-from django.http import HttpResponseRedirect, JsonResponse
-import os
+from .upload_handler import *
 from django.conf import settings
-import mimetypes
-from django.core.files import File
-from interactive.tools import *
-import pandas
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
+
+import os
 import platform
-import codecs
 import time
-from io import TextIOWrapper
+
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
 logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)

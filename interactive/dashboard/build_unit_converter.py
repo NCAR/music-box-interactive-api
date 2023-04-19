@@ -1,4 +1,3 @@
-from interactive.tools import *
 from django.http import HttpResponse
 
 

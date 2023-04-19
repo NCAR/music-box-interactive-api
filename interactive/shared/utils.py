@@ -10,9 +10,9 @@ try:
 except:
     pass
 
-from conversion_dict import conversionTree
-from converter_class import Unit
-from unit_dict import unitDict
+from shared.conversion_dict import conversionTree
+from shared.converter_class import Unit
+from shared.unit_dict import unitDict
 
 def beautifyReaction(reaction):
     if '->' in reaction:

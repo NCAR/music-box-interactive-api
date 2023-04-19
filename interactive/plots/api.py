@@ -4,8 +4,8 @@ from shared.utils import beautifyReaction
 from dashboard.database_tools import get_model_run
 
 import logging
-import plot_setup
 
+import plots.plot_setup as plot_setup
 import pandas as pd
 
 logging.basicConfig(format='%(asctime)s - %(message)s',

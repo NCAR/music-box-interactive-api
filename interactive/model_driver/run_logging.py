@@ -1,5 +1,4 @@
 from datetime import datetime
-from interactive.tools import *
 from django.conf import settings
 import os
 import logging

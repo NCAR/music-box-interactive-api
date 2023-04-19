@@ -1,11 +1,8 @@
 from django.conf import settings
-from django.contrib import messages
-from django.http import HttpResponse, HttpResponseBadRequest, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect
 from .reactions import *
 from .species import *
-import mimetypes
-from interactive.tools import *
 from .network_plot import *
 
 # returns a list of species whose concentrations can be specified

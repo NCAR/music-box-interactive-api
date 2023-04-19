@@ -3,9 +3,7 @@ import os
 import shutil
 from django.conf import settings
 import logging
-from interactive.tools import *
 from csv import reader
-import random
 from scipy.io import netcdf
 from mechanism.reactions import is_musica_named_reaction
 

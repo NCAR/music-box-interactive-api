@@ -19,18 +19,6 @@ path_to_reactions = os.path.join(
 # path to output html file
 path_to_template = os.path.join(
     settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
-class User():
-    userSelectedMinMax = [999999999999, -1]
-    previous_vals = [0, 1]
-    minAndMaxOfTimeFrame = [999999999999, -1]
-    def __init__(self, userSelectedMinMaxz, previous_valsz):
-        global userSelectedMinMax
-        global previous_vals
-        self.userSelectedMinMax = userSelectedMinMaxz
-        self.previous_vals = previous_valsz
-    def setMinAndMaxOfTimeFrame(self, minAndMaxOfTimeFramez):
-        global minAndMaxOfTimeFrame
-        self.minAndMaxOfTimeFrame = minAndMaxOfTimeFramez
 
 minAndMaxOfSelectedTimeFrame = [999999999999, -1]
 userSelectedMinMax = [999999999999, -1]

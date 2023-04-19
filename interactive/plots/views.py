@@ -1,7 +1,6 @@
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from .plot_setup import *
 from django.shortcuts import render
-from interactive.tools import *
 
 
 # returns response with sub properties as buttons (species, rates, etc)

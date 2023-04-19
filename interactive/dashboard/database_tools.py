@@ -1,9 +1,6 @@
 from bisect import bisect_left
 from dashboard import models
-from django.db import models
-from interactive.tools import *
 from io import StringIO
-from numpy import vectorize
 from pyvis.network import Network
 
 import hashlib
@@ -17,9 +14,9 @@ import pandas as pd
 def get_user(uid):
     # check if user exists
     try:
-        user = models.User.objects.get(uid=uid)
+        user = models.SessionUser.objects.get(uid=uid)
         return user
-    except models.User.DoesNotExist:
+    except models.SessionUser.DoesNotExist:
         # if not, create new user
         user = create_user(uid)
         return user
@@ -86,7 +83,7 @@ def set_is_running(uid, is_running):
 
 # create new user
 def create_user(uid):
-    user = models.User(uid=uid)
+    user = models.SessionUser(uid=uid)
     user.save()
     return user
 
@@ -112,7 +109,7 @@ def delete_model_run(uid):
 
 # delete all users
 def delete_all_users():
-    models.User.objects.all().delete()
+    models.SessionUser.objects.all().delete()
 
 
 # delete all model runs
@@ -174,7 +171,7 @@ def delete_csv_file(uid, filename):
 # [return] list of uids of users that
 # have should_cache equal to true for their current model run.
 def search_for_config_checksum(checksum):
-    users = models.User.objects.all()
+    users = models.SessionUser.objects.all()
     uids = []
     for user in users:
         if user.config_checksum == checksum:
@@ -1660,7 +1657,7 @@ def set_current_checksum(uid, checksum):
 # function to search for user given checksum
 def get_user_by_checksum(checksum):
     # query for user with checksum and should_cache = True
-    user = models.User.objects.filter(config_checksum=checksum, should_cache=True).first()
+    user = models.SessionUser.objects.filter(config_checksum=checksum, should_cache=True).first()
     # return user
     return user
 

@@ -8,7 +8,6 @@ from .save import load, save, export
 import json
 import glob
 from django.conf import settings
-from interactive.tools import *
 from pathlib import Path
 import logging
 import shutil

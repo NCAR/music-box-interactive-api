@@ -2,7 +2,6 @@ import os
 import time
 import subprocess
 from django.conf import settings
-from interactive.tools import *
 from mechanism.reactions import reactions_are_valid
 from shutil import rmtree
 import json
