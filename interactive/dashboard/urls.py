@@ -45,7 +45,6 @@ urlpatterns = [
     path('conditions/evolving-file', views.evolv_file),
     path('conditions/download_config', views.download_file),
     path('conditions/config_json', views.config_json),
-    path('conditions/linear_combination_form', views.linear_combination_form),
     path('conditions/evolv-linear-combo', views.evolv_linear_combo),
     path('conditions/evolving-linear-combination',
          views.evolving_linear_combination),

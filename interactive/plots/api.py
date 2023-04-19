@@ -1,9 +1,10 @@
 from dashboard import models
 from dashboard.database_tools import get_model_run
-from dashboard.flow_diagram import generate_flow_diagram, generate_database_network_plot
+from dashboard.flow_diagram import generate_flow_diagram
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from interactive import settings
 from io import StringIO, BytesIO
+from plots.database_tools import generate_database_network_plot
 from rest_framework import views
 from shared.utils import beautifyReaction
 

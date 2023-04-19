@@ -7,7 +7,6 @@ from .forms.optionsforms import *
 from .forms.report_bug_form import BugForm
 from .save import *
 from .upload_handler import *
-from dashboard.forms.evolvingforms import LinearCombinationForm
 from django.conf import settings
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect, JsonResponse
@@ -265,19 +264,6 @@ def download_file(request):
     zip_file = open(fl_path, 'rb')
     response = HttpResponse(zip_file, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="%s"' % 'config.zip'
-    return response
-
-
-def linear_combination_form(request):
-    form = LinearCombinationForm()
-    response = HttpResponse()
-    response.write('<form action="evolv-linear-combo" method="GET"><h3>')
-    for field in form:
-        response.write('<li>')
-        response.write(field)
-        response.write(field.name)
-        response.write('</li>')
-    response.write('<button type="submit">Add</button></h3></form>')
     return response
 
 
