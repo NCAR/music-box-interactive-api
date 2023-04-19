@@ -181,3 +181,16 @@ def get_required_arguments(initial_unit, final_unit):
     convertObject = Unit(conversionTree, unitDict)
     args = convertObject.get_arguments(initial_unit, final_unit)
     return args
+
+# returns sub prop names
+def sub_props_names(subprop):
+    namedict = {
+        'temperature': "Temperature",
+        'pressure': "Pressure",
+        'number_density_air': "Density",
+    }
+    if subprop in namedict:
+        return namedict[subprop]
+    else:
+        return subprop
+

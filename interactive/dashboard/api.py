@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from io import StringIO
 from rest_framework import status, views
 from rest_framework.response import Response
-from shared.utils import check_for_rabbit_mq
+from shared.utils import check_for_rabbit_mq, create_unit_converter
 
 import datetime
 import logging
@@ -308,7 +308,7 @@ class ConversionCalculator(views.APIView):
                 arg_dict.update(
                     {conversion_request[key] + ' units': (
                         conversion_request[key.replace('title', 'unit')])})
-        converter = db_tools.create_unit_converter(
+        converter = create_unit_converter(
             conversion_request['initialUnit'],
             conversion_request['finalUnit'])
         if arg_dict:

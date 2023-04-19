@@ -1,9 +1,16 @@
-from io import StringIO
+from dashboard import models
+from io import StringIO, BytesIO
+from numpy import vectorize
 from plots import mpl_helper
+from pyvis.network import Network
+from shared.utils import beautifyReaction, is_density_needed, create_unit_converter, sub_props_names
 
+import dashboard.database_tools as db_tools
 import logging
 import matplotlib
 import matplotlib.pyplot as plt
+import pandas as pd
+import os
 
 logging.basicConfig(format='%(asctime)s - %(message)s',
                     level=logging.INFO)
@@ -14,7 +21,7 @@ logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
 
 # generate network plot for user
 def generate_database_network_plot(uid, species, path_to_template):
-    user = get_user(uid)
+    user = db_tools.get_user(uid)
     reactions_data = user.config_files['/camp_data/reactions.json']
     net = Network(directed=True)
     contained_reactions = {}
@@ -110,13 +117,13 @@ def get_plot(uid, prop, plot_units):
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
-                pp = float(tolerance(uid)[name])
+                pp = float(db_tools.tolerance(uid)[name])
                 du = 'density units'
                 units = 'mol/m-3 '
                 de = 'density'
                 tolerance_tmp = ppm_to_plot_units(pp, {de: density, du: units})
             else:
-                pp = float(tolerance(uid)[name])
+                pp = float(db_tools.tolerance(uid)[name])
                 tolerance_tmp = ppm_to_plot_units(pp)
 
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
@@ -142,7 +149,7 @@ def get_plot(uid, prop, plot_units):
     axes.grid(True)
     axes.get_legend().remove()
     # Store image in a string buffer
-    buffer = io.BytesIO()
+    buffer = BytesIO()
     figure.savefig(buffer, format='png')
     plt.close(figure)
     return buffer

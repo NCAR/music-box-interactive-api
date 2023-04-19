@@ -515,19 +515,6 @@ def tolerance(uid):
     species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
     return species_dict
 
-# returns sub prop names
-def sub_props_names(subprop):
-    namedict = {
-        'temperature': "Temperature",
-        'pressure': "Pressure",
-        'number_density_air': "Density",
-    }
-    if subprop in namedict:
-        return namedict[subprop]
-    else:
-        return subprop
-
-
 # convert to/from model config format
 def export_to_database_path(uid):
     user = get_user(uid)
