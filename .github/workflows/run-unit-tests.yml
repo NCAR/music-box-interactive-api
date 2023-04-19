@@ -39,4 +39,4 @@ jobs:
 
         # python3 interactive/manage.py runserver 8000 &
         # cd interactive
-        sudo python interactive/unit_test_runner.py 
+        sudo python interactive/test_examples.py 
