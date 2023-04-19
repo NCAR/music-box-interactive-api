@@ -192,15 +192,18 @@ def get_mechanism(uid):
     user = get_user(uid)
     # check if species.json exists
     species = []
+    reactions = []
     if '/camp_data/species.json' in user.config_files:
         camp_data = user.config_files['/camp_data/species.json']["camp-data"]
         species = []
         for entry in camp_data:
             if entry['type'] == "CHEM_SPEC":
                 species.append(entry['name'])
+    if '/camp_data/reactions.json' in user.config_files:
+        reactions = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
     return {
         'species': sorted(species),
-        'reactions': user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
+        'reactions': reactions
     }
 
 # get species detail of user
