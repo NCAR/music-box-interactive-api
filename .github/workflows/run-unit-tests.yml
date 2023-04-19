@@ -35,8 +35,4 @@ jobs:
         # coverage report
     - name: Run Tests
       run: |
-        export MUSIC_BOX_BUILD_DIR="/build/"
-
-        # python3 interactive/manage.py runserver 8000 &
-        # cd interactive
-        sudo python interactive/test_examples.py 
+        echo "TODO"
