@@ -21,10 +21,10 @@ class UnitTestRunner(unittest.TestCase):
         print("Test Case #1: check that all config files are present")
 
         # fetch all files in each examples directories
-        example_1_path = os.path.join(examples_path, 'example_1')
-        files1 = sorted(get_list_of_files(example_1_path))
-        eg1 = '/example_1/camp_data/'
-        ez = '/example_1/'
+        CHAPMAN_path = os.path.join(examples_path, 'CHAPMAN')
+        files1 = sorted(get_list_of_files(CHAPMAN_path))
+        eg1 = '/CHAPMAN/camp_data/'
+        ez = '/CHAPMAN/'
         expected_files_1 = sorted([example_base + eg1 + 'species.json',
                             example_base + eg1 + 'tolerance.json',
                             example_base + eg1 + 'reactions.json',
@@ -32,12 +32,12 @@ class UnitTestRunner(unittest.TestCase):
                             example_base + ez + 'my_config.json',
                             example_base + ez + 'MusicBox_1_60hPa.csv'])
         self.assertEqual(files1, expected_files_1)
-        print("\t - example_1 files look good ✓")
+        print("\t - CHAPMAN files look good ✓")
 
-        example_2_path = os.path.join(examples_path, 'example_2')
-        files2 = sorted(get_list_of_files(example_2_path))
-        eg2 = '/example_2/camp_data/'
-        ez2 = '/example_2/'
+        FLOW_TUBE_path = os.path.join(examples_path, 'FLOW_TUBE')
+        files2 = sorted(get_list_of_files(FLOW_TUBE_path))
+        eg2 = '/FLOW_TUBE/camp_data/'
+        ez2 = '/FLOW_TUBE/'
         expected_files_2 = sorted([example_base + eg2 + 'species.json',
                             example_base + eg2 + 'tolerance.json',
                             example_base + eg2 + 'reactions.json',
@@ -46,12 +46,12 @@ class UnitTestRunner(unittest.TestCase):
                             example_base + ez2 + 'initial_reaction_rates.csv'])
 
         self.assertEqual(files2, expected_files_2)
-        print("\t - example_2 files look good ✓")
+        print("\t - FLOW_TUBE files look good ✓")
 
-        example_3_path = os.path.join(examples_path, 'example_3')
-        files3 = sorted(get_list_of_files(example_3_path))
-        eg3 = '/example_3/camp_data/'
-        ez3 = '/example_3/'
+        FULL_GAS_PHASE_path = os.path.join(examples_path, 'FULL_GAS_PHASE')
+        files3 = sorted(get_list_of_files(FULL_GAS_PHASE_path))
+        eg3 = '/FULL_GAS_PHASE/camp_data/'
+        ez3 = '/FULL_GAS_PHASE/'
         expected_files_3 = sorted([example_base + eg3 + 'species.json',
                             example_base + eg3 + 'tolerance.json',
                             example_base + eg3 + 'reactions.json',
@@ -59,7 +59,7 @@ class UnitTestRunner(unittest.TestCase):
                             example_base + ez3 + 'my_config.json',
                             example_base + ez3 + 'initial_reaction_rates.csv'])
         self.assertEqual(files3, expected_files_3)
-        print("\t - example_3 files look good ✓")
+        print("\t - FULL_GAS_PHASE files look good ✓")
     def test_config_files_checksums(self):
         global base_dir
         """check checksums for config files"""
@@ -67,64 +67,64 @@ class UnitTestRunner(unittest.TestCase):
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
         print("Test Case #2: verify file checksums")
 
-        # get check sum from example_1
-        example_1_path = os.path.join(examples_path, 'example_1')
-        example_1_checksum = calculate_checksum(example_1_path)
-        example_1_expected_checksum = "1979c4aeaa0fcd9f89b019276edd34d4"
-        self.assertEqual(example_1_checksum, example_1_expected_checksum)
-        print("\t - example_1 checksum good ✓")
+        # get check sum from CHAPMAN
+        CHAPMAN_path = os.path.join(examples_path, 'CHAPMAN')
+        CHAPMAN_checksum = calculate_checksum(CHAPMAN_path)
+        CHAPMAN_expected_checksum = "1979c4aeaa0fcd9f89b019276edd34d4"
+        self.assertEqual(CHAPMAN_checksum, CHAPMAN_expected_checksum)
+        print("\t - CHAPMAN checksum good ✓")
 
-        # get check sum from example_2
-        example_2_path = os.path.join(examples_path, 'example_2')
-        example_2_checksum = calculate_checksum(example_2_path)
-        example_2_expected_checksum = "5a9b4fbb43c1778f78949b2cbd8da309"
-        self.assertEqual(example_2_checksum, example_2_expected_checksum)
-        print("\t - example_2 checksum good ✓")
+        # get check sum from FLOW_TUBE
+        FLOW_TUBE_path = os.path.join(examples_path, 'FLOW_TUBE')
+        FLOW_TUBE_checksum = calculate_checksum(FLOW_TUBE_path)
+        FLOW_TUBE_expected_checksum = "5a9b4fbb43c1778f78949b2cbd8da309"
+        self.assertEqual(FLOW_TUBE_checksum, FLOW_TUBE_expected_checksum)
+        print("\t - FLOW_TUBE checksum good ✓")
 
-        # get check sum from example_3
-        example_3_path = os.path.join(examples_path, 'example_3')
-        example_3_checksum = calculate_checksum(example_3_path)
-        example_3_expected_checksum = "40beb530c9be203c3ea59063f2abdb62"
-        self.assertEqual(example_3_checksum, example_3_expected_checksum)
-        print("\t - example_3 checksum good ✓")
+        # get check sum from FULL_GAS_PHASE
+        FULL_GAS_PHASE_path = os.path.join(examples_path, 'FULL_GAS_PHASE')
+        FULL_GAS_PHASE_checksum = calculate_checksum(FULL_GAS_PHASE_path)
+        FULL_GAS_PHASE_expected_checksum = "40beb530c9be203c3ea59063f2abdb62"
+        self.assertEqual(FULL_GAS_PHASE_checksum, FULL_GAS_PHASE_expected_checksum)
+        print("\t - FULL_GAS_PHASE checksum good ✓")
 
     def test_changed_species_config_file(self):
         # edit a config file and check that the checksum changes
         print("Test Case #3: change species file")
         # set output time step to 500 seconds in my_config.json
 
-        # example_1 species location
-        config_path = example_base + '/example_1/camp_data/species.json'
+        # CHAPMAN species location
+        config_path = example_base + '/CHAPMAN/camp_data/species.json'
         species_to_remove = "N2"
         species_remove(species_to_remove, config_path)
 
-        reac_path = example_base + '/example_1/camp_data/reactions.json'
-        my_path = example_base + '/example_1/my_config.json'
+        reac_path = example_base + '/CHAPMAN/camp_data/reactions.json'
+        my_path = example_base + '/CHAPMAN/my_config.json'
         remove_reactions_with_species(species_to_remove, reac_path,
                                       my_path)
-        example_1_expected_checksum = "cacbd4a662dcdf78b0f22951dccb9207"
+        CHAPMAN_expected_checksum = "cacbd4a662dcdf78b0f22951dccb9207"
         examples_path = example_base
 
-        # get check sum from example_1
-        example_1_path = os.path.join(examples_path, 'example_1')
-        example_1_checksum = calculate_checksum(example_1_path)
-        self.assertEqual(example_1_checksum, example_1_expected_checksum)
+        # get check sum from CHAPMAN
+        CHAPMAN_path = os.path.join(examples_path, 'CHAPMAN')
+        CHAPMAN_checksum = calculate_checksum(CHAPMAN_path)
+        self.assertEqual(CHAPMAN_checksum, CHAPMAN_checksum)
         print("\t - removed N2 ✓")
 
     def test_changed_reactions_config_file(self):
         print("Test Case #4: change reactions config file")
         # remove reaction @ index 0
-        config_path = example_base + '/example_1/camp_data/reactions.json'
+        config_path = example_base + '/CHAPMAN/camp_data/reactions.json'
         reaction_remove(0, config_path)
 
-        example_1_expected_checksum = "f0a73918971c2824fa8cc1d4bb88ea0b"
+        CHAPMAN_expected_checksum = "f0a73918971c2824fa8cc1d4bb88ea0b"
         examples_path = os.path.join(base_dir, 'dashboard/static/examples')
 
-        # get check sum from example_1
-        example_1_path = os.path.join(examples_path, 'example_1')
-        example_1_checksum = calculate_checksum(example_1_path)
+        # get check sum from CHAPMAN
+        CHAPMAN_path = os.path.join(examples_path, 'CHAPMAN')
+        CHAPMAN_checksum = calculate_checksum(CHAPMAN_path)
 
-        self.assertEqual(example_1_checksum, example_1_expected_checksum)
+        self.assertEqual(CHAPMAN_checksum, CHAPMAN_checksum)
         print("\t - removed first reaction ✓")
 
     def test_changed_conditions_file(self):
