@@ -1,28 +1,17 @@
-# import re
-from django.shortcuts import render
 from .forms.optionsforms import *
-from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .flow_diagram import generate_flow_diagram
-from .flow_diagram import get_simulation_length, get_species
 from .upload_handler import *
 from .build_unit_converter import *
+import datetime
 from .save import *
-# from .models import Document
-from django.http import HttpResponse, HttpResponsePermanentRedirect, Http404
-from django.http import JsonResponse, HttpResponseBadRequest, HttpRequest
+from django.http import HttpResponse, Http404
+from django.http import JsonResponse, HttpResponseBadRequest
 import os
 from django.conf import settings
-import mimetypes
-from django.core.files import File
 from interactive.tools import *
-import pandas
-import platform
-import codecs
-import time
-from io import TextIOWrapper
-from rest_framework import generics, status, views, permissions
+from rest_framework import status, views
 from rest_framework.response import Response
 from mechanism.reactions import *
 from mechanism.species import *
