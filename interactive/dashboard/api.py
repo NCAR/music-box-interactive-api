@@ -1,28 +1,17 @@
-# import re
-from django.shortcuts import render
 from .forms.optionsforms import *
-from .forms.report_bug_form import BugForm
 from .forms.evolvingforms import *
 from .forms.initial_condforms import *
 from .flow_diagram import generate_flow_diagram
-from .flow_diagram import get_simulation_length, get_species
 from .upload_handler import *
 from .build_unit_converter import *
+import datetime
 from .save import *
-# from .models import Document
-from django.http import HttpResponse, HttpResponsePermanentRedirect, Http404
-from django.http import JsonResponse, HttpResponseBadRequest, HttpRequest
+from django.http import HttpResponse, Http404
+from django.http import JsonResponse, HttpResponseBadRequest
 import os
 from django.conf import settings
-import mimetypes
-from django.core.files import File
 from interactive.tools import *
-import pandas
-import platform
-import codecs
-import time
-from io import TextIOWrapper
-from rest_framework import generics, status, views, permissions
+from rest_framework import status, views
 from rest_framework.response import Response
 from mechanism.reactions import *
 from mechanism.species import *
@@ -73,51 +62,40 @@ class ExampleView(views.APIView):
     def get(self, request):
         if not request.session.session_key:
             request.session.save()
-        # set example conditions and species/reactions
-        example_name = 'example_' + str(request.GET.dict()['example'])
-        examples_path = os.path.join(
-            settings.BASE_DIR, 'dashboard/static/examples')
-        example_folder_path = os.path.join(examples_path, example_name)
+        example_name = request.GET.dict()['example']
+        example_folder_path = os.path.join(settings.BASE_DIR, 'dashboard/static/examples', example_name)
 
-        logging.debug("|_ loading example #" + str(request.GET.dict()['example']))
-        logging.info("|_ example folder path: " + example_folder_path)
+        logging.debug(f"Examples| loading : {example_name}")
 
-        user = get_user(request.session.session_key) # get user via sessionkey
-        # get files in example_folder_path
-        files = get_files(example_folder_path)
-        # loop through files and remove example_folder_path from file path
-        for i in range(len(files)):
-            files[i] = files[i].replace(example_folder_path, '')
-        print("|_ files: ", str(files))
-        # check if files exist
+        user = get_user(request.session.session_key)
+        # recursively pull config file paths
+        files = [os.path.join(dp, f) for dp, _, fn in os.walk(example_folder_path) for f in fn]
         if not files:
             raise Http404("No files in example folder")
         # loop through files and load them into database
-        for file in files:
+        for path in files:
+            filename = path.replace(example_folder_path, '')
+            # each file is expected to be prefixed with / in the config section, like /my_config.json
+            logging.info(f"Examples| processing {filename}")
             # check if json
-            if file.endswith('.json'):
+            if path.endswith('.json'):
                 # get json from file
-                with open(example_folder_path + file) as f:
+                with open(path) as f:
                     data = json.load(f)
                     # put json into user.config_files
-                    user.config_files.update({file: data})
-                    f.close()
+                    user.config_files.update({filename: data})
             # check if other file type
-            elif file.endswith('.csv'):
+            elif path.endswith('.csv'):
                 # get string representation of  file
-                with open(example_folder_path + file) as f:
+                with open(path) as f:
                     data = f.read()
                     # put string representation into user.config_files
-                    user.binary_files.update({file: data})
-                    f.close()
-        #save user
+                    user.binary_files.update({filename: data})
         user.save()
         export_to_database(request.session.session_key)
         menu_names = get_species_menu_list(request.session.session_key)
 
-        print("* menu names: " + str(menu_names))
-        response = Response(menu_names, status=status.HTTP_200_OK)
-        return response
+        return Response(menu_names, status=status.HTTP_200_OK)
 
 
 class SpeciesView(views.APIView):

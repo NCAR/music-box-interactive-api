@@ -3,7 +3,7 @@ BASE_DIR = '/music-box-interactive/interactive'
 try:
     from django.conf import settings
     BASE_DIR = settings.BASE_DIR
-except ModuleNotFoundError:
+except:
     # Error handling
     pass
 
