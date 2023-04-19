@@ -93,34 +93,9 @@ class ExampleView(views.APIView):
                     user.binary_files.update({filename: data})
         user.save()
         export_to_database(request.session.session_key)
-        menu_names = get_species_menu_list(request.session.session_key)
+        menu_names = get_mechanism(request.session.session_key)
 
-        return Response(menu_names, status=status.HTTP_200_OK)
-
-
-class SpeciesView(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received SPECIES_VIEW ******")
-        if not request.session.session_key:
-            request.session.save()
-        logging.info("fetching species for session: " + request.session.session_key)
-
-        menu_names = get_species_menu_list(request.session.session_key)
-        response = Response(menu_names, status=status.HTTP_200_OK)
-        return response
-
-class SpeciesDetailView(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received SPECIES_DETAIL ******")
-        if not request.session.session_key:
-            request.session.save()
-        if 'name' not in request.GET:
-            return JsonResponse({"error": "missing species name"})
-        species_name = request.GET['name']
-        logging.info("fetching species: " + species_name)
-        species = get_species_detail(request.session.session_key, species_name)
-        response = JsonResponse(species)
-        return response
+        return JsonResponse(menu_names)
 
 
 class RemoveSpeciesView(views.APIView):
@@ -183,26 +158,6 @@ class PlotSpeciesView(views.APIView):
         #logging.info("returning html: " + str(html))
         return HttpResponse(html)
         
-class ReactionsView(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received REACTIONS_VIEW ******")
-        if not request.session.session_key:
-            request.session.save()
-        reactions = get_reactions_menu_list(request.session.session_key)
-        response = Response(reactions, status=status.HTTP_200_OK)
-        return response
-
-class ReactionsDetailView(views.APIView):
-    def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
-        if 'index' not in request.GET:
-            return JsonResponse({"error": "missing reaction index"})
-        reaction_detail = get_reactions_info(request.session.session_key)[int(request.GET['index'])]
-        reaction_detail['index'] = int(request.GET['index'])
-        return JsonResponse(reaction_detail)
-
-
 class RemoveReactionView(views.APIView):
     def get(self, request):
         logging.info("****** GET request received REMOVE_REACTION ******")

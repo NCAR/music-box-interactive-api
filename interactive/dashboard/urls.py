@@ -89,10 +89,6 @@ urlpatterns = [
     path('yaml/', schema_view.without_ui(cache_timeout=0),
          name='schema-json'),
 
-    path('api/species/', api.SpeciesView.as_view(),
-         name='current-species'),
-    path('api/species-detail/', api.SpeciesDetailView.as_view(),
-         name='species-detail'),
     path('api/remove-species/', api.RemoveSpeciesView.as_view(),
          name='remove-species'),
     path('api/add-species/', api.AddSpeciesView.as_view(),
@@ -100,10 +96,6 @@ urlpatterns = [
     path('api/plot-species/', api.PlotSpeciesView.as_view(),
          name='plot-species'),
 
-    path('api/reactions/', api.ReactionsView.as_view(),
-         name='current-reactions'),
-    path('api/reactions-detail/', api.ReactionsDetailView.as_view(),
-         name='reactions-detail'),
     path('api/remove-reaction/', api.RemoveReactionView.as_view(),
          name='remove-reaction'),
     path('api/save-reaction/', api.SaveReactionView.as_view(),

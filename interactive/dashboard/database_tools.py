@@ -13,11 +13,10 @@ from numpy import vectorize
 from interactive.tools import *
 import io
 import matplotlib.pyplot as plt
-from unicodedata import decimal
-from urllib import request
 import math
 from bisect import bisect_left
 import hashlib
+
 # get user based on uid
 def get_user(uid):
     # check if user exists
@@ -189,18 +188,20 @@ def search_for_config_checksum(checksum):
 
 
 # get species menu of user
-def get_species_menu_list(uid):
+def get_mechanism(uid):
     user = get_user(uid)
     # check if species.json exists
-    if '/camp_data/species.json' not in user.config_files:
-        return {'species_list_0': [], 'species_list_1': []}
-    camp_data = user.config_files['/camp_data/species.json']["camp-data"]
-    species_list = []
-    for entry in camp_data:
-        if entry['type'] == "CHEM_SPEC":
-            species_list.append(entry['name'])
-    return {'species': sorted(species_list)}
-
+    species = []
+    if '/camp_data/species.json' in user.config_files:
+        camp_data = user.config_files['/camp_data/species.json']["camp-data"]
+        species = []
+        for entry in camp_data:
+            if entry['type'] == "CHEM_SPEC":
+                species.append(entry['name'])
+    return {
+        'species': sorted(species),
+        'reactions': user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
+    }
 
 # get species detail of user
 def get_species_detail(uid, species_name):
@@ -331,41 +332,6 @@ def generate_database_network_plot(uid, species, path_to_template):
     os.remove(uid + '_network.html')
     return html
 # get reactions menu of user
-def get_reactions_menu_list(uid):
-    user = get_user(uid)
-    camp_data = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
-    names = []
-
-    for reaction in camp_data:
-        name = ''
-        if 'reactants' in reaction.keys() and 'products' in reaction.keys():
-            first_item_printed = False
-            for reactant,count_dict in reaction['reactants'].items():
-                if count_dict and count_dict['qty'] != 1:
-                    name += (' + ' if first_item_printed else '') + str(count_dict['qty']) + ' ' + reactant
-                    first_item_printed = True
-                else:
-                    name += (' + ' if first_item_printed else '') + reactant
-                    first_item_printed = True
-            name += '->'
-            first_item_printed = False
-            for product, yield_dict in reaction['products'].items():
-                if yield_dict and yield_dict['yield'] != 1.0:
-                    name += (' + ' if first_item_printed else ' ') + str(yield_dict['yield']) + ' ' + product
-                    first_item_printed = True
-                else:
-                    name += (' + ' if first_item_printed else ' ') + product
-                    first_item_printed = True
-        else:
-            name += reaction['type']
-            if 'species' in reaction.keys():
-                name += ': ' + reaction['species']
-        if len(name) > 40:
-            shortname = name[0:40] + '...'
-            names.append(shortname)
-        else:
-            names.append(name)
-    return names
 
 
 # get reactions details of user

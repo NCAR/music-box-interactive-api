@@ -10,7 +10,7 @@ except:
 import logging
 import os
 import time
-from .species import species_list
+from .species import species
 from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -156,7 +156,7 @@ def reaction_musica_names(reactions_path=reactions_default):
 def reaction_type_schema(reaction_type, reactions_path=reactions_default):
     species = ""
     rea = reactions_path.replace('reactions.json', 'species.json')
-    for idx, entry in enumerate(species_list(rea)):
+    for idx, entry in enumerate(species(rea)):
         if idx > 0:
             species += ";"
         species += entry
