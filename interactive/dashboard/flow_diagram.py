@@ -1,16 +1,14 @@
-from re import I, L
-from statistics import quantiles
-from unicodedata import decimal
-from urllib import request
-from pyvis.network import Network
-import os
-import json
-from django.conf import settings
-import pandas as pd
-import math
-
-import logging
 from bisect import bisect_left
+from django.conf import settings
+from pyvis.network import Network
+from re import I, L
+from shared.utils import beautifyReaction, unbeautifyReaction
+
+import json
+import logging
+import math
+import os
+import pandas as pd
 
 # paths to mechansim files
 path_to_reactions = os.path.join(
