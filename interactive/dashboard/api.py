@@ -423,7 +423,7 @@ class RunStatusView(views.APIView):
         logging.debug(f"session key: {request.session.session_key}")
         response_message = db_tools.get_run_status(request.session.session_key)
         logging.info(f"status: {response_message}")
-        return JsonResponse(response_message)
+        return JsonResponse(response_message, encoder=response_models.RunStatusEncoder)
 
 
 class RunView(views.APIView):

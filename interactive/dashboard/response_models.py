@@ -1,6 +1,8 @@
 from enum import Enum
 from rest_framework import serializers
 
+import json
+
 class RunStatus(Enum):
     RUNNING = 'RUNNING'
     WAITING = 'WAITING'
@@ -8,6 +10,12 @@ class RunStatus(Enum):
     DONE = 'DONE'
     ERROR = 'ERROR'
     UNKNOWN = 'UNKNOWN'
+
+class RunStatusEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, RunStatus):
+            return obj.value
+        return super().default(obj)
 
 class PollingStatusSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=[(choice.name, choice.value) for choice in RunStatus])
