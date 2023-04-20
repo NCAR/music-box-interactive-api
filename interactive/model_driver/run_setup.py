@@ -2,11 +2,13 @@ import os
 import time
 import subprocess
 from django.conf import settings
-from interactive.tools import *
 from mechanism.reactions import reactions_are_valid
+from shared.utils import open_json
 from shutil import rmtree
+
 import json
 import logging
+
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
 logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
@@ -120,8 +122,6 @@ def setup_run():
         species_data = json.load(j)
 
     add_integrated_rates()
-
-    config = open_json('my_config.json')
 
     newpath = os.path.join(mb_dir, 'mb_configuration')
     if os.path.exists(newpath):

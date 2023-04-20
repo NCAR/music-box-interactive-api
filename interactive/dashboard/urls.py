@@ -1,14 +1,10 @@
-from django.urls import path, include
+from django.urls import path
 
 from . import views
 from . import api
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework.views import APIView
-from rest_framework.response import Response
-# Root url tree
-# Dashboard.urls contains landing and getting started pages
 schema_view = get_schema_view(
     openapi.Info(
         title="MusicBox interactive API",
@@ -24,15 +20,6 @@ schema_view = get_schema_view(
 app_name = 'dashboard'
 
 urlpatterns = [
-    # main page rendering paths:
-    path('',          views.landing_page),
-    path('home',          views.landing_page),
-    path('getting_started', views.getting_started_page),
-    path('visualize', views.visualize),
-    path('flow', views.flow),
-    path('get_flow', views.get_flow),
-    path('show_flow', views.render_flow),
-    # -----------------------------------
     # conditions pages rendering paths:
     path('conditions', views.options),
     path('conditions/options', views.options),
@@ -58,7 +45,6 @@ urlpatterns = [
     path('conditions/evolving-file', views.evolv_file),
     path('conditions/download_config', views.download_file),
     path('conditions/config_json', views.config_json),
-    path('conditions/linear_combination_form', views.linear_combination_form),
     path('conditions/evolv-linear-combo', views.evolv_linear_combo),
     path('conditions/evolving-linear-combination',
          views.evolving_linear_combination),
@@ -89,15 +75,6 @@ urlpatterns = [
     path('yaml/', schema_view.without_ui(cache_timeout=0),
          name='schema-json'),
 
-    path('api/remove-species/', api.RemoveSpeciesView.as_view(),
-         name='remove-species'),
-    path('api/add-species/', api.AddSpeciesView.as_view(),
-         name='add-species'),
-    path('api/plot-species/', api.PlotSpeciesView.as_view(),
-         name='plot-species'),
-
-    path('api/remove-reaction/', api.RemoveReactionView.as_view(),
-         name='remove-reaction'),
     path('api/save-reaction/', api.SaveReactionView.as_view(),
          name='save-reaction'),
     path('api/reaction-type-schema/',
@@ -141,16 +118,6 @@ urlpatterns = [
     path('api/check-load/', api.CheckLoadView.as_view(), name='check-load'),
     path('api/check/', api.CheckView.as_view(), name='check'),
     path('api/run/', api.RunView.as_view(), name='run'),
-
-    path('api/plots/get_basic_details/',
-         api.GetBasicDetails.as_view(), name='get-visualize-details'),
-    path('api/plots/get_contents/',
-         api.GetPlotContents.as_view(), name='get_contents'),
-    path('api/plots/get/', api.GetPlot.as_view(), name='get-plots'),
-    path('api/plots/get_flow_details/', api.GetFlowDetails.as_view(),
-         name='get-flow-diagram-details'),
-    path('api/plots/get_flow/', api.GetFlow.as_view(),
-         name='get-flow-diagram'),
 
     path('api/download_config/', api.DownloadConfig.as_view(),
          name='download_config'),

@@ -1,26 +1,22 @@
-from django.shortcuts import render
-from .forms.optionsforms import *
-from .forms.report_bug_form import BugForm
-from .forms.evolvingforms import *
-from .forms.initial_condforms import *
+from .build_unit_converter import *
 from .flow_diagram import generate_flow_diagram, get_simulation_length
 from .flow_diagram import get_species, get_step_length
-from .upload_handler import *
-from .build_unit_converter import *
+from .forms.evolvingforms import *
+from .forms.initial_condforms import *
+from .forms.optionsforms import *
+from .forms.report_bug_form import BugForm
 from .save import *
-# from .models import Document
-from django.http import HttpResponse, HttpRequest
-from django.http import HttpResponseRedirect, JsonResponse
-import os
+from .upload_handler import *
 from django.conf import settings
-import mimetypes
-from django.core.files import File
-from interactive.tools import *
-import pandas
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
+from shared.utils import getUnitTypes, get_required_arguments
+
+import os
 import platform
-import codecs
 import time
-from io import TextIOWrapper
+
 logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
 logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
@@ -79,26 +75,6 @@ def load_example(request):
 def run_model(request):
     context = {}
     return render(request, 'run_model.html', context)
-
-#renders plots page
-def visualize(request):
-    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    csv = pandas.read_csv(csv_results_path)
-    plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
-    plot_property_list = [x.strip() for x in plot_property_list]
-    for x in csv.columns.tolist():
-        if "myrate" in x:
-            plot_property_list.append('RATE')
-    context = {
-        'plots_list': plot_property_list
-    }
-    if os.path.isfile(csv_results_path):
-        if os.path.getsize(csv_results_path) != 0:
-            return render(request, 'plots.html', context)
-        else:
-            return HttpResponseRedirect('/')
-    else:
-        return HttpResponseRedirect('/')
 
 ###############
 
@@ -288,19 +264,6 @@ def download_file(request):
     zip_file = open(fl_path, 'rb')
     response = HttpResponse(zip_file, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="%s"' % 'config.zip'
-    return response
-
-
-def linear_combination_form(request):
-    form = LinearCombinationForm()
-    response = HttpResponse()
-    response.write('<form action="evolv-linear-combo" method="GET"><h3>')
-    for field in form:
-        response.write('<li>')
-        response.write(field)
-        response.write(field.name)
-        response.write('</li>')
-    response.write('<button type="submit">Add</button></h3></form>')
     return response
 
 

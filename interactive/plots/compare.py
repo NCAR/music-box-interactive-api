@@ -1,5 +1,4 @@
-from interactive.tools import *
-
+from shared.utils import open_json
 
 def get_valid_runs():
     index = open_json('log_config.json')['history']

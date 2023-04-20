@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -20,4 +20,4 @@ urlpatterns = [
     path('reaction-save', views.reaction_save_handler),                           # saves a reaction
     path('species-remove', views.species_remove_handler),                         # removes a chemical species
     path('species-save', views.species_save_handler)                              # saves a chemical species
-    ]
+]

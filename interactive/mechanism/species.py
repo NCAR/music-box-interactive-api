@@ -9,7 +9,6 @@ except:
 import logging
 import os
 import time
-from interactive.tools import *
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
@@ -27,7 +26,7 @@ def species_info(species_path=species_default):
 
 
 # returns the list of chemical species names from the species file
-def species(species_path=species_default):
+def species_list(species_path=species_default):
     species_list = []
     for entry in species_info(species_path):
       if entry['type'] == "CHEM_SPEC":
@@ -37,7 +36,7 @@ def species(species_path=species_default):
 
 # returns the list of chemical species whose concentrations can be specified
 def conditions_species_list(species_path=species_default):
-    species = species(species_path)
+    species = species_list(species_path)
     if 'M' in species: species.remove('M')
     return species
 
@@ -45,7 +44,7 @@ def conditions_species_list(species_path=species_default):
 # returns a modified list
 def api_species_menu_names(species_path=species_default):
     # logging.info('getting list of species names')
-    m_list = species(species_path)
+    m_list = species_list(species_path)
     newlist = []
     for name in m_list:
         if len(name) > 25:
@@ -58,7 +57,7 @@ def api_species_menu_names(species_path=species_default):
 
 # returns a list of chemical species names from the species file for use
 def species_menu_names(species_path=species_default):
-    m_list = species(species_path)
+    m_list = species_list(species_path)
     newlist = []
     for name in m_list:
         if len(name) > 25:

@@ -1,17 +1,58 @@
+import pika
 import os
+
 import json
 base_dir = '/music-box-interactive/interactive'
 try:
     from django.conf import settings
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
     base_dir = settings.BASE_DIR
-except ModuleNotFoundError:
-    # Error handling
+except:
     pass
-from .unit_dict import *
-from .conversion_dict import *
-from .converter_class import Unit
 
+from shared.conversion_dict import conversionTree
+from shared.converter_class import Unit
+from shared.unit_dict import unitDict
+
+def beautifyReaction(reaction):
+    if '->' in reaction:
+        reaction = reaction.replace('->', ' → ')
+    if '__' in reaction:
+        reaction = reaction.replace('__', ' (')
+        reaction = reaction+")"
+    if '_' in reaction:
+        reaction = reaction.replace('_', ' + ')
+    return reaction
+
+# undo beautifyReaction (usually used when indexing dictionaries)
+def unbeautifyReaction(reaction):
+    if '→' in reaction:
+        reaction = reaction.replace(' → ', '->')
+    if '+' in reaction:
+        reaction = reaction.replace(' + ', '_')
+    return reaction
+
+# checks server by trying to connect
+def check_for_rabbit_mq():
+    """
+    Checks if RabbitMQ server is running.
+    """
+    try:
+        RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
+        RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
+        RABBIT_USER = os.environ["RABBIT_MQ_USER"]
+        RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connParam)
+        if connection.is_open:
+            connection.close()
+            return True
+        else:
+            connection.close()
+            return False
+    except pika.exceptions.AMQPConnectionError:
+        return False
 
 # get path for filename
 def file_path(filename):
@@ -140,4 +181,16 @@ def get_required_arguments(initial_unit, final_unit):
     convertObject = Unit(conversionTree, unitDict)
     args = convertObject.get_arguments(initial_unit, final_unit)
     return args
+
+# returns sub prop names
+def sub_props_names(subprop):
+    namedict = {
+        'temperature': "Temperature",
+        'pressure': "Pressure",
+        'number_density_air': "Density",
+    }
+    if subprop in namedict:
+        return namedict[subprop]
+    else:
+        return subprop
 

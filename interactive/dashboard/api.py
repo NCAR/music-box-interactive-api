@@ -1,31 +1,21 @@
-from .forms.optionsforms import *
-from .forms.evolvingforms import *
-from .forms.initial_condforms import *
-from .flow_diagram import generate_flow_diagram
-from .upload_handler import *
-from .build_unit_converter import *
-import datetime
 from .save import *
-from django.http import HttpResponse, Http404
-from django.http import JsonResponse, HttpResponseBadRequest
-import os
+from .upload_handler import *
+from dashboard.flow_diagram import *
+from dashboard.forms.formsetup import *
+from dashboard import models 
 from django.conf import settings
-from interactive.tools import *
+from django.http import HttpResponse, Http404
+from django.http import JsonResponse
+from io import StringIO
 from rest_framework import status, views
 from rest_framework.response import Response
-from mechanism.reactions import *
-from mechanism.species import *
-from mechanism.network_plot import *
-from plots.plot_setup import *
-from dashboard.forms.formsetup import *
-from plots.plot_setup import *
-from os.path import exists
-from dashboard.flow_diagram import *
+from shared.utils import check_for_rabbit_mq, create_unit_converter
+
+import datetime
 import logging
-from .models import *
-from .database_tools import *
+import os
 import pika
-from io import StringIO
+import dashboard.database_tools as db_tools
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
@@ -38,17 +28,6 @@ logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
                     level=logging.DEBUG)
 logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
                     level=logging.ERROR)
-
-
-def beautifyReaction(reaction):
-    if '->' in reaction:
-        reaction = reaction.replace('->', ' → ')
-    if '__' in reaction:
-        reaction = reaction.replace('__', ' (')
-        reaction = reaction+")"
-    if '_' in reaction:
-        reaction = reaction.replace('_', ' + ')
-    return reaction
 
 
 class HealthView(views.APIView):
@@ -67,7 +46,7 @@ class ExampleView(views.APIView):
 
         logging.debug(f"Examples| loading : {example_name}")
 
-        user = get_user(request.session.session_key)
+        user = db_tools.get_user(request.session.session_key)
         # recursively pull config file paths
         files = [os.path.join(dp, f) for dp, _, fn in os.walk(example_folder_path) for f in fn]
         if not files:
@@ -92,83 +71,13 @@ class ExampleView(views.APIView):
                     # put string representation into user.config_files
                     user.binary_files.update({filename: data})
         user.save()
-        export_to_database(request.session.session_key)
-        menu_names = get_mechanism(request.session.session_key)
+        db_tools.export_to_database(request.session.session_key)
+        menu_names = db_tools.get_mechanism(request.session.session_key)
 
         return JsonResponse(menu_names)
 
 
-class RemoveSpeciesView(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received REMOVE_SPECIES ******")
-        if not request.session.session_key:
-            request.session.save()
-        if 'name' not in request.GET:
-            return HttpResponseBadRequest("missing species name")
-        species_name = request.GET['name']
-        logging.info("removing species: " + species_name)
-        remove_species(request.session.session_key, species_name)
-        return HttpResponse(status=status.HTTP_200_OK)
-
-
-class AddSpeciesView(views.APIView):
-    def post(self, request):
-        logging.info("****** POST request received ADD_SPECIES ******")
-        species_data = json.loads(request.body)
-        if 'name' not in species_data:
-            return JsonResponse({"error": "missing species name"})
-        species_data['type'] = "CHEM_SPEC"
-        # add species to database
-        add_species(request.session.session_key, species_data)
-        return HttpResponse(status=status.HTTP_200_OK)
-
-
-class PlotSpeciesView(views.APIView):
-    def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
-        if 'name' not in request.GET:
-            return HttpResponseBadRequest("missing species name")
-        species = request.GET['name']
-        network_plot_dir = os.path.join(
-                settings.BASE_DIR, "dashboard/templates/network_plot/" +
-                request.session.session_key)
-        template_plot = os.path.join(
-            settings.BASE_DIR,
-            "dashboard/templates/network_plot/plot.html")
-        if not os.path.isdir(network_plot_dir):
-            os.makedirs(network_plot_dir)
-        # use copyfile()
-        if exists(os.path.join(network_plot_dir, "plot.html")) is False:
-            # create plot.html file if doesn't exist
-            f = open(os.path.join(network_plot_dir, "plot.html"), "w")
-            logging.info("putting plot into file " + str(os.path.join(network_plot_dir, "plot.html")))
-        shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
-        logging.info("generating plot and exporting to " + str(network_plot_dir + "/plot.html"))
-        # generate network plot and place it in unique directory for user
-        html = generate_database_network_plot(request.session.session_key,
-                                       species,
-                                       network_plot_dir + "/plot.html")
-        #plot = ('network_plot/'
-        #        + request.session.session_key
-        #        + '/plot.html')
-        plot = str(network_plot_dir + "/plot.html")[1:]
-        #logging.info("[debug] rendering from " + plot)
-        #return render(request, plot)
-        #logging.info("returning html: " + str(html))
-        return HttpResponse(html)
         
-class RemoveReactionView(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received REMOVE_REACTION ******")
-        if not request.session.session_key:
-            request.session.save()
-        if 'index' not in request.GET:
-            return HttpResponseBadRequest("missing reaction index")
-        reaction_index = int(request.GET['index'])
-        remove_reaction(request.session.session_key, reaction_index)
-        return Response(status=status.HTTP_200_OK)
-
 
 class SaveReactionView(views.APIView):
     def post(self, request):
@@ -185,7 +94,7 @@ class SaveReactionView(views.APIView):
         if 'products' not in reaction_data:
             return JsonResponse({"error": "missing reaction products"})
 
-        save_reaction(request.session.session_key, reaction_data)
+        db_tools.save_reaction(request.session.session_key, reaction_data)
         return Response(status=status.HTTP_200_OK)
 
 
@@ -197,7 +106,7 @@ class ReactionTypeSchemaView(views.APIView):
         if 'type' not in request.GET:
             return JsonResponse({"error": "missing reaction type"})
         reaction_type = request.GET['type']
-        reaction_schema = get_reaction_type_schema(request.session.session_key, reaction_type)
+        reaction_schema = db_tools.get_reaction_type_schema(request.session.session_key, reaction_type)
         return JsonResponse(reaction_schema)
 
 
@@ -207,7 +116,7 @@ class ModelOptionsView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logging.debug("fetching model options for: " + request.session.session_key)
-        model_options = get_model_options(request.session.session_key)
+        model_options = db_tools.db_tools.get_model_options(request.session.session_key)
         return JsonResponse(model_options)
        
     def post(self, request):
@@ -220,14 +129,14 @@ class ModelOptionsView(views.APIView):
         options = {}
         for key in newOptions:
             options.update({key: newOptions[key]})
-        user = get_user(request.session.session_key)
+        user = db_tools.get_user(request.session.session_key)
         # dump options into options.json
         user.config_files['/options.json'] = options
         user.save()
         
         logging.info('box model options updated')
-        options = get_model_options(request.session.session_key)
-        export_to_database_path(request.session.session_key) # equivalent of export_to_path()
+        options = db_tools.get_model_options(request.session.session_key)
+        db_tools.export_to_database_path(request.session.session_key)
         return JsonResponse(options)
 
 
@@ -240,7 +149,7 @@ class InitialConditionsFiles(views.APIView):
 
         logging.debug("fetching conditions files for session id: " +
               request.session.session_key)
-        conditions_files = get_initial_conditions_files(request.session.session_key)
+        conditions_files = db_tools.get_initial_conditions_files(request.session.session_key)
         return JsonResponse(conditions_files)
 
 
@@ -252,7 +161,7 @@ class ConditionsSpeciesList(views.APIView):
         logging.debug("fetching species list for session id: " +
               request.session.session_key)
         
-        species = {"species": get_condition_species(request.session.session_key)}
+        species = {"species": db_tools.get_condition_species(request.session.session_key)}
         logging.info("returning species [csl]:" + str(species))
         return JsonResponse(species)
 
@@ -266,7 +175,7 @@ class InitialConditionsSetup(views.APIView):
 
         logging.debug("fetching initial conditions setup for session id: " +
               request.session.session_key)
-        data = get_user(request.session.session_key).config_files['/initials.json']
+        data = db_tools.get_user(request.session.session_key).config_files['/initials.json']
         return JsonResponse(data)
        
 
@@ -280,7 +189,7 @@ class InitialConditionsSetup(views.APIView):
         logging.debug("received initial conditions setup: " +
                       str(request.body))
         newData = json.loads(request.body)
-        user = get_user(request.session.session_key)
+        user = db_tools.get_user(request.session.session_key)
         user.config_files['/initials.json'] = newData
         user.save()
         return JsonResponse({})
@@ -292,7 +201,7 @@ class InitialSpeciesConcentrations(views.APIView):
         logging.info("****** GET request received INIT_SPECIES_CONC ******")
         if not request.session.session_key:
             request.session.save()
-        values = get_initial_species_concentrations(request.session.session_key)
+        values = db_tools.get_initial_species_concentrations(request.session.session_key)
         return JsonResponse(values)
 
     def post(self, request):
@@ -319,11 +228,11 @@ class InitialSpeciesConcentrations(views.APIView):
         file_data["unit"] = units
         file_data["value"] = values
         # dump file_data into species.json
-        user = get_user(request.session.session_key)
+        user = db_tools.get_user(request.session.session_key)
         user.config_files['/species.json'] = file_data
         user.save()
         # run export
-        export_to_database_path(request.session.session_key)
+        db_tools.export_to_database_path(request.session.session_key)
         return JsonResponse({})
 
 
@@ -337,7 +246,7 @@ class InitialReactionRates(views.APIView):
         logging.debug("fetching initial species conc. for session id: " +
                       request.session.session_key)
         initial_rates = {}
-        initial_rates = convert_initial_conditions_file(request.session.session_key, ',')
+        initial_rates = db_tools.convert_initial_conditions_file(request.session.session_key, ',')
         return JsonResponse(initial_rates)
 
     def post(self, request):
@@ -349,8 +258,8 @@ class InitialReactionRates(views.APIView):
         initial_values = json.loads(request.body)
 
         initial_reaction_rates_file_path = '/initial_reaction_rates.csv'
-        convert_initial_conditions_dict(request.session.session_key, initial_values, initial_reaction_rates_file_path, ',')
-        export_to_database_path(request.session.session_key)
+        db_tools.convert_initial_conditions_dict(request.session.session_key, initial_values, initial_reaction_rates_file_path, ',')
+        db_tools.export_to_database_path(request.session.session_key)
         return JsonResponse({})
 
 
@@ -375,15 +284,15 @@ class UnitConversionArguments(views.APIView):
             request.session.save()
         initial = request.GET['initialUnit']
         final = request.GET['finalUnit']
-        arguments = get_required_arguments(initial, final)
-        f = make_additional_argument_form(arguments)
+        arguments = db_tools.get_required_arguments(initial, final)
+        f = db_tools.make_additional_argument_form(arguments)
         return f
 
 
 class UnitOptions(views.APIView):
     def get(self, request):
         unit_type = request.GET['unitType']
-        response = make_unit_convert_form(unit_type)
+        response = db_tools.make_unit_convert_form(unit_type)
         return response
 
 
@@ -421,17 +330,16 @@ class MusicaReactionsList(views.APIView):
         logging.debug("* fetching species list for session id: " +
                       request.session.session_key)
         reactions = {}
-        reactions = {"reactions": get_reaction_musica_names(request.session.session_key)}
+        reactions = {"reactions": db_tools.get_reaction_musica_names(request.session.session_key)}
         return JsonResponse(reactions)
             
-
 
 class EvolvingConditions(views.APIView):
     def get(self, request):
         logging.info("****** GET request received EVOLVING CONDITIONS ******")
         if not request.session.session_key:
             request.session.save()
-        config = get_user(request.session.session_key).config_files['/my_config.json']
+        config = db_tools.get_user(request.session.session_key).config_files['/my_config.json']
 
         e = config['evolving conditions']
         evolving_conditions_list = e.keys()
@@ -441,7 +349,7 @@ class EvolvingConditions(views.APIView):
         for i in evolving_conditions_list:
             if '.csv' in i or '.txt' in i:
                 logging.info("adding file: " + i)
-                read_obj = get_user(request.session.session_key).binary_files['/'+i]
+                read_obj = db_tools.get_user(request.session.session_key).binary_files['/'+i]
                 csv_reader = reader(read_obj)
                 list_of_rows = list(csv_reader)
 
@@ -491,9 +399,10 @@ class CheckLoadView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logging.debug(f"session key: {request.session.session_key}")
-        response_message = get_run_status(request.session.session_key)
+        response_message = db_tools.get_run_status(request.session.session_key)
         logging.info(f"status: {response_message}")
         return JsonResponse(response_message)
+
 
 class CheckView(views.APIView):
     def get(self, request):
@@ -502,7 +411,7 @@ class CheckView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logging.debug(f"session key: {request.session.session_key}")
-        response_message = get_run_status(request.session.session_key)
+        response_message = db_tools.get_run_status(request.session.session_key)
         print("status: ", response_message)
         return JsonResponse(response_message)
 
@@ -512,40 +421,41 @@ class RunView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         # check if model is already running
-        if get_run_status(request.session.session_key) == 'running':
+        if db_tools.get_run_status(request.session.session_key) == 'running':
             return JsonResponse({'status': 'running'})
         else:
             # start model run by adding job to queue via pika
             # get ModelRun object and set status to true
-            set_is_running(request.session.session_key, True)
+            db_tools.set_is_running(request.session.session_key, True)
 
             # disable pika logging because it's annoying
             logging.getLogger("pika").propagate = False
             isRabbitUp = check_for_rabbit_mq()
             if isRabbitUp:
+                user = db_tools.get_user(request.session.session_key)
                 # check if we should save checksum
-                if get_user(request.session.session_key).should_cache:
+                if user.should_cache:
                     logging.info("saving checksum")
                     # get checksum and save to session
-                    checksum = calculate_checksum(request.session.session_key)
+                    checksum = db_tools.calculate_checksum(request.session.session_key)
                     logging.info("got checksum for current user config files: " + str(checksum))
                     # try to find user with same checksum and should_cache = True
-                    user = get_user_by_checksum(checksum)
-                    set_current_checksum(request.session.session_key, checksum)
+                    user = db_tools.get_user_by_checksum(checksum)
+                    db_tools.set_current_checksum(request.session.session_key, checksum)
                     
                     if user:
                         # if found, copy results from that user to current user
                         logging.info("found user with same checksum, copying results")
-                        copy_results(user.uid, request.session.session_key)
+                        db_tools.copy_results(user.uid, request.session.session_key)
                         # set is_running to false
-                        set_is_running(request.session.session_key, False)
+                        db_tools.set_is_running(request.session.session_key, False)
                         # return status of done
                         return JsonResponse({'status': 'done',
                                              'session_id': request.session.session_key,
                                              'running': False})
                 # check to make sure we have a model to run by
                 # checking if config and binary files exist
-                if get_user(request.session.session_key).config_files is not {} and get_user(request.session.session_key).binary_files is not {}:
+                if user.config_files is not {} and user.binary_files is not {}:
                     # if we get here, we need to run the model
                     logging.info("rabbit is up, adding simulation to queue")
                     RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
@@ -560,9 +470,9 @@ class RunView(views.APIView):
                     body = {}
                     body.update({"session_id": request.session.session_key})
                     # put all config files in body
-                    body.update({"config_files": get_user(request.session.session_key).config_files})
+                    body.update({"config_files": user.config_files})
                     # put all binary files in body
-                    body.update({"binary_files": get_user(request.session.session_key).binary_files})
+                    body.update({"binary_files": user.binary_files})
                     channel.basic_publish(exchange='',
                                     routing_key='run_queue',
                                     body=json.dumps(body))
@@ -580,122 +490,6 @@ class RunView(views.APIView):
                 logging.info("rabbit is down, sim. will be run on API server")
                 return runner.run()
 
-
-class GetPlotContents(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received GET_PLOT_CONTENTS ******")
-        if not request.session.session_key:
-            request.session.save()
-        get = request.GET
-        prop = get['type']
-        # csv_results_path = os.path.join(
-            # os.environ['MUSIC_BOX_BUILD_DIR'],
-            # request.session.session_key+"/output.csv")
-        # logging.debug("searching for file: "+csv_results_path)
-        response = HttpResponse()
-        response.write(plots_unit_select(prop))
-        # get model run from session
-        model_run = get_model_run(request.session.session_key)
-
-        if '/output.csv' not in model_run.results:
-            return response
-        # get /output.csv file from model run
-        model = models.ModelRun.objects.get(uid=request.session.session_key)
-        output_csv = StringIO(model.results['/output.csv'])
-        csv = pd.read_csv(output_csv, encoding='latin1')
-        subs = direct_sub_props(prop, csv)
-        subs.sort()
-        if prop != 'compare':
-            for i in subs:
-                prop = beautifyReaction(sub_props_names(i))
-                response.write('<a href="#" class="sub_p list-group-item \
-                                list-group-item-action" subType="normal" id="'
-                               + i + '">☐ ' + prop + "</a>")
-        elif prop == 'compare':
-            for i in subs:
-                prop = beautifyReaction(sub_props_names(i))
-                response.write('<a href="#" class="sub_p list-group-item \
-                                list-group-item-action" subType="compare" id="'
-                               + i + '">☐ ' + prop + "</a>")
-        return response
-
-
-class GetPlot(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received GET_PLOT ******")
-        model_run = get_model_run(request.session.session_key)
-        if '/output.csv' not in model_run.results:
-            return HttpResponseBadRequest('Bad format for plot request',
-                                      status=405)
-        if request.method == 'GET':
-            props = request.GET['type']
-            # logging.debug("grabbing props: "+str(props))
-            buffer = io.BytesIO()
-            # run get_plot function
-            if request.GET['unit'] == 'n/a':
-                buffer = get_plot(request.session.session_key, props, False)
-            else:
-                buffer = get_plot(request.session.session_key, props, request.GET['unit'])
-            return HttpResponse(buffer.getvalue(), content_type="image/png")
-        return HttpResponseBadRequest('Bad format for plot request',
-                                      status=405)
-
-
-class GetBasicDetails(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received GET_BASIC_DETAILS ******")
-        if not request.session.session_key:
-            request.session.save()
-        model = models.ModelRun.objects.get(uid=request.session.session_key)
-        output_csv = StringIO(model.results['/output.csv'])
-        csv = pd.read_csv(output_csv, encoding='latin1')
-        plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
-        plot_property_list = [x.strip() for x in plot_property_list]
-        for x in csv.columns.tolist():
-            if "myrate" in x:
-                plot_property_list.append('RATE')
-        context = {
-            'plots_list': plot_property_list
-        }
-        logging.info("plots list: " + str(context))
-        return JsonResponse(context)
-
-
-class GetFlowDetails(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received GET_FLOW_DETAILS ******")
-        if not request.session.session_key:
-            request.session.save()
-        model = models.ModelRun.objects.get(uid=request.session.session_key)
-        output_csv = StringIO(model.results['/output.csv'])
-        csv = pd.read_csv(output_csv, encoding='latin1')
-        concs = [x for x in csv.columns if 'CONC' in x]
-        species = [x.split('.')[1] for x in concs if 'myrate' not in x]
-
-        step_length = 0
-        if csv.shape[0] - 1 > 2:
-            step_length = int(csv['time'].iloc[1])
-        context = {
-            "species": species,
-            "stepVal": step_length,
-            "simulation_length": int(csv['time'].iloc[-1])
-        }
-        logging.debug("returning basic info:" + str(context))
-        return JsonResponse(context)
-
-
-class GetFlow(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received GET_FLOW ******")
-        if not request.session.session_key:
-            request.session.save()
-        logging.info(f"session id: {request.session.session_key}")
-        logging.info("using data:" + str(request.GET.dict()))
-        path_to_template = os.path.join(
-            settings.BASE_DIR,
-            "dashboard/templates/network_plot/flow_plot.html")
-        flow = generate_flow_diagram(request.GET.dict(), request.session.session_key, path_to_template)
-        return HttpResponse(flow)
 
 
 class DownloadConfig(views.APIView):
@@ -720,7 +514,7 @@ class DownloadConfig(views.APIView):
         logging.debug("zip path: " + zip_path)
         logging.debug("conf path: " + conf_path)
         # get config files for this session
-        config_files = get_config_files(sessid)
+        config_files = db_tools.get_config_files(sessid)
         # temporarily copy config files to static folder
         if not os.path.exists(destination_path):
             os.makedirs(destination_path)
@@ -729,7 +523,7 @@ class DownloadConfig(views.APIView):
             with open(conf_path + file, "w") as f:
                 f.write(json.dumps(config_file_string))
         # now do the same for binary files
-        binary_files = models.User.objects.get(
+        binary_files = models.SessionUser.objects.get(
             uid=sessid).binary_files
         for file in binary_files:
             binary_file_string = binary_files[file]
@@ -791,7 +585,7 @@ class ConfigJsonUpload(views.APIView):
             configs_path)
         export_to_path(configs_path+"/")
         # now copy files from export_to_path into database and delete from file system 
-        user = models.User.objects.get(uid=request.session.session_key)
+        user = models.SessionUser.objects.get(uid=request.session.session_key)
         # start with species.json
         with open(configs_path+"/species.json", "r") as f:
             species_json = f.read()
@@ -831,7 +625,7 @@ class RemoveInitialConditionsFile(views.APIView):
         logging.debug("removing file:" + str(remove_request))
 
         # remove 'file name' from user.binary_files
-        user = models.User.objects.get(uid=request.session.session_key)
+        user = models.SessionUser.objects.get(uid=request.session.session_key)
         user.binary_files.remove(remove_request['file name'])
         # update my_config
         my_config = json.loads(user.config_files['/my_config.json'])
@@ -859,7 +653,7 @@ class InitCSV(views.APIView):
         logging.debug("saving to conf_path: " + conf_path)
         # manage_initial_conditions_files(uploaded, filename, conf_path)
         # save file to database
-        user = models.User.objects.get(uid=request.session.session_key)
+        user = models.SessionUser.objects.get(uid=request.session.session_key)
         # save file to user.binary_files
         user.binary_files[filename] = uploaded.read()
         # update my_config
@@ -886,7 +680,7 @@ class ClearEvolutionFiles(views.APIView):
         logging.debug("clearing evolution files:" + conf_path)
         # clear_e_files(conf_path)
         # clear files from database
-        user = models.User.objects.get(uid=request.session.session_key)
+        user = models.SessionUser.objects.get(uid=request.session.session_key)
         binary_files = user.binary_files
         config = user.config_files['/my_config.json']
         # clear user.binary_files
@@ -915,7 +709,7 @@ class EvolvFileUpload(views.APIView):
         # manage_uploaded_evolving_conditions_files(
             # uploaded, filename, conf_path)
         # save file to database
-        user = models.User.objects.get(uid=request.session.session_key)
+        user = models.SessionUser.objects.get(uid=request.session.session_key)
         # save file to user.binary_files
         user.binary_files[filename] = uploaded.read()
         # update my_config
@@ -941,25 +735,3 @@ class LoadFromConfigJsonView(views.APIView):
                      request.session.session_key)
         uploaded = request.FILES['file']
 
-
-# checks server by trying to connect
-def check_for_rabbit_mq():
-    """
-    Checks if RabbitMQ server is running.
-    """
-    try:
-        RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-        RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-        RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-        RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        connection = pika.BlockingConnection(connParam)
-        if connection.is_open:
-            connection.close()
-            return True
-        else:
-            connection.close()
-            return False
-    except pika.exceptions.AMQPConnectionError:
-        return False

@@ -1,28 +1,20 @@
 # SESSION BASED MODEL RUNNING
-
-
-from tabnanny import check
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.conf import settings
-import json
-import os
-import subprocess
-import mimetypes
-import pandas as pd
-import time
-import shutil
-# from .run_setup import setup_run
-# from .run_logging import *
 from datetime import datetime
-from mechanism.reactions import reactions_are_valid
-from interactive.tools import *
-from pathlib import Path
 from django.conf import settings
-import logging
-import hashlib
-import pika
+from django.conf import settings
+from django.http import JsonResponse
+from mechanism.reactions import reactions_are_valid
+from shared.utils import direct_dump_json, direct_open_json
+
 import json
+import json
+import logging
+import os
+import pika
+import shutil
+import subprocess
+import time
+
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
 RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
 RABBIT_USER = os.environ["RABBIT_MQ_USER"]
@@ -34,25 +26,6 @@ BASE_DIR = settings.BASE_DIR
 
 # disable propagation
 logging.getLogger("pika").propagate = False
-
-
-# checks server by trying to connect
-def check_for_rabbit_mq():
-    """
-    Checks if RabbitMQ server is running.
-    """
-    try:
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        connection = pika.BlockingConnection(connParam)
-        if connection.is_open:
-            connection.close()
-            return True
-        else:
-            connection.close()
-            return False
-    except pika.exceptions.AMQPConnectionError:
-        return False
 
 
 # add session_id to queue model_finished

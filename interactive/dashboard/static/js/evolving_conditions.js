@@ -5,17 +5,7 @@ $(document).ready(function(){
     $("#evolvcontent").append('<button class="btn btn-secondary" id="linear_combo">Add Linear Combination</button>')
   }
 
-  // saves linear combinations
-  $("#linear_combo").on('click', function(){
-    $('#evolvcontent').html('');
-    $.ajax({
-      url: "/configure/linear_combination_form",
-      type: 'get',
-      success: function(response){
-        $('#evolvcontent').html(response);
-      }
-    });
-  });
+
 
   // clears evolving conditions files button
   $("#clearEvolvFiles").on('click', function(){

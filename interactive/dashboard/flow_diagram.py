@@ -19,18 +19,6 @@ path_to_reactions = os.path.join(
 # path to output html file
 path_to_template = os.path.join(
     settings.BASE_DIR, "dashboard/templates/network_plot/flow_plot.html")
-class User():
-    userSelectedMinMax = [999999999999, -1]
-    previous_vals = [0, 1]
-    minAndMaxOfTimeFrame = [999999999999, -1]
-    def __init__(self, userSelectedMinMaxz, previous_valsz):
-        global userSelectedMinMax
-        global previous_vals
-        self.userSelectedMinMax = userSelectedMinMaxz
-        self.previous_vals = previous_valsz
-    def setMinAndMaxOfTimeFrame(self, minAndMaxOfTimeFramez):
-        global minAndMaxOfTimeFrame
-        self.minAndMaxOfTimeFrame = minAndMaxOfTimeFramez
 
 minAndMaxOfSelectedTimeFrame = [999999999999, -1]
 userSelectedMinMax = [999999999999, -1]
@@ -106,24 +94,6 @@ def name_included_reactions(included_reactions, reactions_json):
         name = '_'.join(reactants) + '->' + '_'.join(products)
         names_dict.update({reaction_index: name})
     return names_dict
-
-
-# make reaction hot hot hot by adding some nicer arrows and cleaning it up
-def beautifyReaction(reaction):
-    if '->' in reaction:
-        reaction = reaction.replace('->', ' → ')
-    if '_' in reaction:
-        reaction = reaction.replace('_', ' + ')
-    return reaction
-
-
-# undo beautifyReaction (usually used when indexing dictionaries)
-def unbeautifyReaction(reaction):
-    if '→' in reaction:
-        reaction = reaction.replace(' → ', '->')
-    if '+' in reaction:
-        reaction = reaction.replace(' + ', '_')
-    return reaction
 
 
 # return list of species, reactions, species size and colors.

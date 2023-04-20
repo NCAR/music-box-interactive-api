@@ -1,9 +1,10 @@
 from datetime import datetime
-from interactive.tools import *
 from django.conf import settings
-import os
-import logging
+from shared.utils import open_json, dump_json
 from shutil import rmtree
+
+import logging
+import os
 
 if "MUSIC_BOX_BUILD_DIR" in os.environ:
     mb_dir = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'])

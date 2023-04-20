@@ -1,6 +1,6 @@
 from django.db import models
 
-class User(models.Model):
+class SessionUser(models.Model):
     # uid of user [CharField]
     uid = models.CharField(max_length=50, primary_key=True)
 

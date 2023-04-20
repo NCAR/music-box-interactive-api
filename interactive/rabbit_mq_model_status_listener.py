@@ -1,17 +1,16 @@
+from dashboard.database_tools import get_model_run
+from django.db import connection
+from shared.utils import check_for_rabbit_mq
+
+import django
+import json
 import logging
+import os
 import pika
 import sys
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 
-import json
-# from session_model_runner import SessionModelRunner
-import django
 django.setup()
-from django.db import connection
-from dashboard.database_tools import *
-# listener to be hosted on main API server
-# listens for messages from rabbitmq that indicate finished models
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 
 
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
@@ -70,24 +69,6 @@ def main():
         channel.stop_consuming()
    # connection.close()
 
-
-# checks server by trying to connect
-def check_for_rabbit_mq():
-    """
-    Checks if RabbitMQ server is running.
-    """
-    try:
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        connection = pika.BlockingConnection(connParam)
-        if connection.is_open:
-            connection.close()
-            return True
-        else:
-            connection.close()
-            return False
-    except pika.exceptions.AMQPConnectionError:
-        return False
 
 
 if __name__ == '__main__':

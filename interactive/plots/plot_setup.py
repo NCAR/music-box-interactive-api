@@ -1,25 +1,18 @@
-import sys
-import os.path
 from . import mpl_helper
-import scipy.io
-import json
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseBadRequest
-from matplotlib import pylab
-from matplotlib.ticker import *
-import matplotlib.pyplot as plt
-from pylab import *
-import PIL, PIL.Image, io
-import pandas
-from django.conf import settings
-import logging
 from .compare import *
 from mechanism.species import tolerance_dictionary
-from interactive.tools import *
 from numpy import vectorize
+from pylab import *
+from shared.utils import create_unit_converter, is_density_needed, beautifyReaction
 
+import io
+import logging
+import matplotlib
+import matplotlib.pyplot as plt
+import pandas
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+
 model_output_units = 'mol/m-3'
 def sub_props(prop, csvz):
     
@@ -89,13 +82,6 @@ def sub_props_names(subprop):
         return namedict[subprop]
     else:
         return subprop
-
-def beautifyReaction(reaction):
-    if '->' in reaction:
-        reaction = reaction.replace('->', ' → ')
-    if '_' in reaction:
-        reaction = reaction.replace('_', ' + ')
-    return reaction
 
 
 def output_plot(prop, plot_units,

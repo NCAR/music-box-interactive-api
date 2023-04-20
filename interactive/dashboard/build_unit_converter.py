@@ -1,5 +1,5 @@
-from interactive.tools import *
 from django.http import HttpResponse
+from shared.unit_dict import unitDict
 
 
 def make_unit_convert_form(unit_type):
