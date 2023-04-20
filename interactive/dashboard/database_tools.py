@@ -1,5 +1,6 @@
 from bisect import bisect_left
 from dashboard import models
+from dashboard.response_models import RunStatus
 from io import StringIO
 from pyvis.network import Network
 from shared.utils import beautifyReaction, unbeautifyReaction
@@ -462,47 +463,32 @@ def get_reaction_musica_names(uid):
 
 # get status of a run
 def get_run_status(uid):
-    response_message = {}
-    status = 'checking'
-    running = False
+    response = {'status': RunStatus.UNKNOWN}
     try:
         model = get_model_run(uid)
         if model is None:
-            status = 'not_started'
+            status = RunStatus.NOT_FOUND
             logging.info("["+str(uid)+"] model run not found for user")
-            return {'status': "not_started", 'session_id': uid, 'running': False}
-        current_status = model.is_running
-        logging.info("["+str(uid)+"] run_status is running? [true/false] ==> "+str(current_status))
-        if current_status is True:
-            running = True
-            status = 'running'
+        if model.is_running:
+            status = RunStatus.RUNNING
         else:
-            status = 'not running'
+            status = RunStatus.WAITING
             # fetch for errors + results
             if '/error.json' in model.results:
                 if model.results['/error.json'] != {}:
-                    status = 'error'
+                    status = RunStatus.ERROR
             if '/MODEL_RUN_COMPLETE' in model.results:
-                status = 'done'
+                status = RunStatus.DONE
     except models.ModelRun.DoesNotExist:
-        status = 'not_started'
+        status = RunStatus.NOT_FOUND
         logging.info("["+str(uid)+"] model run not found for user")
-    response_message.update({'status': status, 'session_id': uid, 'running': running})
+    response['status'] = status
 
     if status == 'error':
         errorfile = models.ModelRun.objects.get(uid=uid).results['/error.json']
-        # search for the species which returned the error
-        if "Property 'chemical_species%" in errorfile['message']:
-            part = errorfile['message'].split('%')[1]
-            specie = part.split("'")[0]
-            spec_json = get_user(uid).config_files['/species.json']
-            for key in spec_json['formula']:
-                if spec_json['formula'][key] == specie:
-                    response_message.update({'e_type': 'species'})
-                    response_message.update({'spec_ID': key + '.Formula'})
-        response_message.update({'e_code': errorfile['code']})
-        response_message.update({'e_message': errorfile['message']})
-    return response_message
+        response.update({'error_code': errorfile['code']})
+        response.update({'error_message': errorfile['message']})
+    return response
 
 def tolerance(uid):
     # grab camp_data/species.json
