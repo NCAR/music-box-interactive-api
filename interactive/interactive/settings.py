@@ -126,12 +126,14 @@ MEDIA_URL = '/media/'
 CORS_ORIGIN_WHITELIST = [
 'http://localhost:8000',
 'http://localhost:8001',
+'http://localhost:8002',
 'https://musicbox.acom.ucar.edu',
 ]
 CORS_ALLOW_HEADERS = [
     'Access-Control-Allow-Origin',
     'Access-Control-Allow-Headers',
     'Authorization',
+    'Content-Type'
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True

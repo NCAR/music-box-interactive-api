@@ -417,6 +417,11 @@ class CheckView(views.APIView):
 
 
 class RunView(views.APIView):
+    def post(self, request):
+        logging.info(request.body)
+
+        return JsonResponse({'status': 'running'})
+
     def get(self, request):
         if not request.session.session_key:
             request.session.save()
