@@ -17,10 +17,7 @@ r = "dashboard/static/config/camp_data/reactions.json"
 def_reaction = os.path.join(settings.BASE_DIR, r)
 def_config = os.path.join(settings.BASE_DIR, "dashboard/static/config")
 
-# Put the data from post request into post.json
-logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 def load(dicti):
     dump_json('post.json', dicti)
@@ -90,7 +87,7 @@ def initial_conditions_files(path=os.path.join(settings.BASE_DIR,
 # returns the initial species concentrations
 def initial_species_concentrations(path=""):
     initial_values = {}
-    logging.info('initial_species_concentrations called')
+    logger.info('initial_species_concentrations called')
     if path == "":
         species = open_json('species.json')
         for key in species["formula"]:
@@ -209,7 +206,7 @@ def initial_reaction_rates_save(initial_values):
 ##############################################
 
 def export_to_path(path):
-    logging.info("exporting data to:" + str(path))
+    logger.info("exporting data to:" + str(path))
     species = direct_open_json(path+'species.json')
     options = direct_open_json(path+'options.json')
     initials = direct_open_json(path+'initials.json')
@@ -296,7 +293,7 @@ def export_to_path(path):
     config_p = path+"my_config.json"
     with open(config_p, 'w') as f:
         json.dump(config, f, indent=4)
-    logging.info('my_config.json updated')
+    logger.info('my_config.json updated')
 
 
 # Combines all individual configuration json files and writes to the config
@@ -385,7 +382,7 @@ def export():
 
     # write dict as json
     dump_json('my_config.json', config)
-    logging.info('my_config.json updated')
+    logger.info('my_config.json updated')
 
 
 # Save the data from the post request to the relevant configuration json
@@ -402,7 +399,7 @@ def save(type):
         for key in dictionary:
             species["formula"].update({key: dictionary[key]})
         dump_json('species.json', species)
-        logging.info('Species updated')
+        logger.info('Species updated')
 
  # Saves initial concentration values for chemical species
 
@@ -410,7 +407,7 @@ def save(type):
         for key in dictionary:
             species["value"].update({key: dictionary[key]})
         dump_json('species.json', species)
-        logging.info('Species updated')
+        logger.info('Species updated')
 
  # Saves units for species concentration
 
@@ -418,7 +415,7 @@ def save(type):
         for key in dictionary:
             species["unit"].update({key: dictionary[key]})
         dump_json('species.json', species)
-        logging.info('Species updated')
+        logger.info('Species updated')
 
  # Saves box model options
 
@@ -426,7 +423,7 @@ def save(type):
         for key in dictionary:
             options.update({key: dictionary[key]})
         dump_json('options.json', options)
-        logging.info('box model options updated')
+        logger.info('box model options updated')
 
  # Saves initial condtions for the model
 
@@ -434,7 +431,7 @@ def save(type):
         for key in dictionary:
             initials['values'].update({key: dictionary[key]})
         dump_json('initials.json', initials)
-        logging.info('initial conditions updated')
+        logger.info('initial conditions updated')
 
  # Saves units for the initial conditions
 
@@ -442,7 +439,7 @@ def save(type):
         for key in dictionary:
             initials['units'].update({key: dictionary[key]})
         dump_json('initials.json', initials)
-        logging.info('initial conditions updated')
+        logger.info('initial conditions updated')
 
     export()
 
@@ -749,11 +746,11 @@ def clear_e_files(config_path=def_config):
         try:
             os.remove(file_path)
         except:
-            logging.error('file not found')
+            logger.error('file not found')
     config.update({'evolving conditions': {}})
     direct_dump_json(config_path+'/my_config.json', config)
 
-    logging.info('ev_conditions files cleared')
+    logger.info('ev_conditions files cleared')
     return
 
 

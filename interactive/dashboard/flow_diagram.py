@@ -22,9 +22,7 @@ minAndMaxOfSelectedTimeFrame = [999999999999, -1]
 userSelectedMinMax = [999999999999, -1]
 
 previous_vals = [0, 1]
-logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 
 # returns species in csv
@@ -212,7 +210,7 @@ def minAndmax(reaction_nodes, quantities, widths):
                 if val > max_val:
                     max_val = val
             except KeyError:
-                logging.info("reaction with no product")
+                logger.info("reaction with no product")
         for reactant in reactants_data:
             edge = reactant + "__TO__" + reaction
             try:
@@ -222,7 +220,7 @@ def minAndmax(reaction_nodes, quantities, widths):
                 if val > max_val:
                     max_val = val
             except KeyError:
-                logging.info("reaction with no reactant")
+                logger.info("reaction with no reactant")
     return (min_val*0.999), (max_val*1.001)
 
 
@@ -366,43 +364,43 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     global minAndMaxOfSelectedTimeFrame
     global userSelectedMinMax
     global previous_vals
-    logging.info(" ***************************************")
-    logging.info("*= [1/6] FINDING REACTIONS AND SPECIES =*")
-    logging.info(" ***************************************")
+    logger.info(" ***************************************")
+    logger.info("*= [1/6] FINDING REACTIONS AND SPECIES =*")
+    logger.info(" ***************************************")
 
     (contained_reactions, species_nodes,
      reactions_nodes, species_colors,
      species_sizes) = findReactionsAndSpecies(
         list_of_species, reactions_data, blockedSpecies)
 
-    logging.info("|_ got species nodes: " + str(species_nodes))
-    logging.info("|_ got reactions nodes: " + str(reactions_nodes))
-    logging.info(" *******************************************")
-    logging.info("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
-    logging.info(" *******************************************")
+    logger.info("|_ got species nodes: " + str(species_nodes))
+    logger.info("|_ got reactions nodes: " + str(reactions_nodes))
+    logger.info(" *******************************************")
+    logger.info("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
+    logger.info(" *******************************************")
 
     widths = findReactionRates(reactions_nodes, df, start, end, cs)
 
-    logging.info(" *************************************")
-    logging.info("*= [3/6] sorting yields from species =*")
-    logging.info(" *************************************")
+    logger.info(" *************************************")
+    logger.info("*= [3/6] sorting yields from species =*")
+    logger.info(" *************************************")
 
     (raw_yields, edgeColors, quantities,
      total_quantites, reaction_names_on_hover) = sortYieldsAndEdgeColors(
         reactions_nodes, reactions_data, widths,
         blockedSpecies, list_of_species)
 
-    logging.info(" *********************************")
-    logging.info("*= [4/6] calculating line widths =*")
-    logging.info(" *********************************")
+    logger.info(" *********************************")
+    logger.info("*= [4/6] calculating line widths =*")
+    logger.info(" *********************************")
     (scaledLineWeights, minVal, maxVal,
      raw_yield_values) = calculateLineWeights(
         max_width, raw_yields, scale_type)
     # print("|_ got scaled line weights:", scaledLineWeights)
-    logging.info("|_ got min and max: " + str(minVal) + " and " + str(maxVal))
-    logging.info(" ********************************* ")
-    logging.info("*= [6/6] calculating line colors =*")
-    logging.info(" ********************************* ")
+    logger.info("|_ got min and max: " + str(minVal) + " and " + str(maxVal))
+    logger.info(" ********************************* ")
+    logger.info("*= [6/6] calculating line colors =*")
+    logger.info(" ********************************* ")
     re_no = reactions_nodes
     sp_no = species_nodes
     sp_no = scaledLineWeights
@@ -427,7 +425,7 @@ def getProductsAndReactionsFrom(reaction):
     else:
         # if no products, set to NO_PRODUCTS
         products.append('NO_PRODUCTS')
-        logging.info("|_ no products found for reaction:" + reaction)
+        logger.info("|_ no products found for reaction:" + reaction)
         no_products.append(reaction)
     return products, reactants
 
@@ -553,7 +551,7 @@ def findQuantities(reactions_nodes, reactions_json):
 
 def CalculateEdgesAndNodes(reactions, species, scaledLineWeights,
                            blockedSpecies):
-    logging.info("[7/7] Creating edges and nodes...")
+    logger.info("[7/7] Creating edges and nodes...")
     species = {}
     edges = {}
     reactions = {}
@@ -614,7 +612,7 @@ def generate_flow_diagram(request_dict):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        logging.info("new user selected min and max: " + str(userSelectedMinMax))
+        logger.info("new user selected min and max: " + str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -785,7 +783,7 @@ def generate_flow_diagram(request_dict):
                   formattedMinOfSelected)+'", "'
                   + str(formattedMaxOfSelected)+'");</script>')
         else:
-            logging.info("looks like min and max are the same")
+            logger.info("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
             block1 = 'parent.document.getElementById("flow-start-range2")'
@@ -839,7 +837,7 @@ def create_and_return_flow_diagram(request_dict,
     global minAndMaxOfSelectedTimeFrame
     global previous_vals
     
-    logging.info("using csv_results_path: " + csv_results_path)
+    logger.info("using csv_results_path: " + csv_results_path)
 
     if (('maxMolval' in request_dict and 'minMolval' in request_dict)
         and (request_dict['maxMolval'] != ''
@@ -849,7 +847,7 @@ def create_and_return_flow_diagram(request_dict,
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        logging.info("new user selected min and max: " + str(userSelectedMinMax))
+        logger.info("new user selected min and max: " + str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -983,9 +981,9 @@ def create_and_return_flow_diagram(request_dict,
             network.setOptions( { physics: false } );
         });
         </script>"""
-        logging.debug("((DEBUG)) [min,max] of selected time frame: " +
+        logger.debug("((DEBUG)) [min,max] of selected time frame: " +
               str(minAndMaxOfSelectedTimeFrame))
-        logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
+        logger.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -1015,12 +1013,12 @@ def create_and_return_flow_diagram(request_dict,
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            logging.debug("previousMin:" + str(formattedPrevMin) + 
+            logger.debug("previousMin:" + str(formattedPrevMin) + 
                   "does not equal " + str(formattedMinOfSelected))
-            logging.debug("previousMax: " + str(formattedPrevMax) +
+            logger.debug("previousMax: " + str(formattedPrevMax) +
                   " does not equal " + str(formattedMaxOfSelected))
-            logging.debug("previousMin: " + str(previousMin) + " equals 0")
-            logging.debug("previousMax: " + str(previousMax) + " equals 1")
+            logger.debug("previousMin: " + str(previousMin) + " equals 0")
+            logger.debug("previousMax: " + str(previousMax) + " equals 1")
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
@@ -1030,7 +1028,7 @@ def create_and_return_flow_diagram(request_dict,
                   formattedMinOfSelected)+'", "'
                   + str(formattedMaxOfSelected)+'", '+str(get_step_length(csv_results_path))+');</script>')
         else:
-            logging.debug("looks like min and max are the same")
+            logger.debug("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
             block1 = 'parent.document.getElementById("flow-start-range2")'

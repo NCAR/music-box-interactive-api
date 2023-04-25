@@ -21,7 +21,7 @@ logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
 
 # generate network plot for user
 def generate_database_network_plot(uid, species, path_to_template):
-    user = db_tools.get_user(uid)
+    user = db_tools.get_user_or_start_session(uid)
     reactions_data = user.config_files['/camp_data/reactions.json']
     net = Network(directed=True)
     contained_reactions = {}
