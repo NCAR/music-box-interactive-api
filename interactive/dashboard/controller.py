@@ -28,5 +28,8 @@ def load_example(example):
         if 'reactions.json' in file:
             with open(file) as contents:
                 mechanism['reactions'] = json.load(contents)
+        if 'my_config.json' in file:
+            with open(file) as contents:
+                conditions = json.load(contents)
 
     return conditions, mechanism
