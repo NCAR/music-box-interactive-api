@@ -1,10 +1,11 @@
 from .save import *
 from .upload_handler import *
 from dashboard import models
+from dashboard.controller import load_example
 from dashboard.flow_diagram import *
 from dashboard.forms.formsetup import *
 from django.conf import settings
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.http import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -15,23 +16,14 @@ from shared.utils import check_for_rabbit_mq, create_unit_converter
 
 import dashboard.database_tools as db_tools
 import dashboard.response_models as response_models
+import dashboard.request_models as request_models
 import datetime
 import logging
 import os
 import pika
 import datetime
 
-# api.py contains all DJANGO based backend requests made to the server
-# each browser session creates a "session_key" saved to cookie on client
-#       - request.session.session_key is a string representation of this value
-#       - request.session.session_key is used to access documents from DJANGO
-
-logging.basicConfig(format='%(asctime)s - %(message)s',
-                    level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
-                    level=logging.DEBUG)
-logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
-                    level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 
 class HealthView(views.APIView):
@@ -44,51 +36,28 @@ class HealthView(views.APIView):
         }
     )
     def get(self, request):
-        logging.info("health")
-        response = JsonResponse({'server_time': datetime.datetime.now()})
-        return response
+        return JsonResponse({'server_time': datetime.datetime.now()})
 
 
-class ExampleView(views.APIView):
+class LoadExample(views.APIView):
+    @swagger_auto_schema(
+        query_serializer=request_models.LoadExampleSerializer,
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=response_models.ExampleSerializer
+            )
+        }
+    )
     def get(self, request):
         if not request.session.session_key:
             request.session.save()
-        example_name = request.GET.dict()['example']
-        example_folder_path = os.path.join(
-            settings.BASE_DIR, 'dashboard/static/examples', example_name)
+        example = request.GET.dict()['example']
+        _ = db_tools.get_user_or_start_session(request.session.session_key)
+        
+        conditions, mechanism = load_example(example)
 
-        logging.debug(f"Examples| loading : {example_name}")
-
-        user = db_tools.get_user(request.session.session_key)
-        # recursively pull config file paths
-        files = [os.path.join(dp, f) for dp, _, fn in os.walk(
-            example_folder_path) for f in fn]
-        if not files:
-            raise Http404("No files in example folder")
-        # loop through files and load them into database
-        for path in files:
-            filename = path.replace(example_folder_path, '')
-            # each file is expected to be prefixed with / in the config section, like /my_config.json
-            logging.info(f"Examples| processing {filename}")
-            # check if json
-            if path.endswith('.json'):
-                # get json from file
-                with open(path) as f:
-                    data = json.load(f)
-                    # put json into user.config_files
-                    user.config_files.update({filename: data})
-            # check if other file type
-            elif path.endswith('.csv'):
-                # get string representation of  file
-                with open(path) as f:
-                    data = f.read()
-                    # put string representation into user.config_files
-                    user.binary_files.update({filename: data})
-        user.save()
-        db_tools.export_to_database(request.session.session_key)
-        menu_names = db_tools.get_mechanism(request.session.session_key)
-
-        return JsonResponse(menu_names)
+        return JsonResponse({'conditions': conditions, 'mechanism': mechanism})
 
 
 class SaveReactionView(views.APIView):
@@ -112,7 +81,7 @@ class SaveReactionView(views.APIView):
 
 class ReactionTypeSchemaView(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received SCHEMATYPEVIEW ******")
+        logger.info("****** GET request received SCHEMATYPEVIEW ******")
         if not request.session.session_key:
             request.session.save()
         if 'type' not in request.GET:
@@ -125,31 +94,31 @@ class ReactionTypeSchemaView(views.APIView):
 
 class ModelOptionsView(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received GET_MODEL_VIEW ******")
+        logger.info("****** GET request received GET_MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("fetching model options for: " +
+        logger.debug("fetching model options for: " +
                       request.session.session_key)
         model_options = db_tools.db_tools.get_model_options(
             request.session.session_key)
         return JsonResponse(model_options)
 
     def post(self, request):
-        logging.info("****** POST request received MODEL_VIEW ******")
+        logger.info("****** POST request received MODEL_VIEW ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("saving model options for user: "
+        logger.debug("saving model options for user: "
                       + request.session.session_key)
         newOptions = json.loads(request.body)
         options = {}
         for key in newOptions:
             options.update({key: newOptions[key]})
-        user = db_tools.get_user(request.session.session_key)
+        user = db_tools.get_user_or_start_session(request.session.session_key)
         # dump options into options.json
         user.config_files['/options.json'] = options
         user.save()
 
-        logging.info('box model options updated')
+        logger.info('box model options updated')
         options = db_tools.get_model_options(request.session.session_key)
         db_tools.export_to_database_path(request.session.session_key)
         return JsonResponse(options)
@@ -157,12 +126,12 @@ class ModelOptionsView(views.APIView):
 
 class InitialConditionsFiles(views.APIView):
     def get(self, request):
-        logging.info(
+        logger.info(
             "****** GET request received INITIAL CONDITIONS FILE ******")
         if not request.session.session_key:
             request.session.save()
 
-        logging.debug("fetching conditions files for session id: " +
+        logger.debug("fetching conditions files for session id: " +
                       request.session.session_key)
         conditions_files = db_tools.get_initial_conditions_files(
             request.session.session_key)
@@ -171,42 +140,42 @@ class InitialConditionsFiles(views.APIView):
 
 class ConditionsSpeciesList(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received INITIAL SPECIES LIST ******")
+        logger.info("****** GET request received INITIAL SPECIES LIST ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("fetching species list for session id: " +
+        logger.debug("fetching species list for session id: " +
                       request.session.session_key)
 
         species = {"species": db_tools.get_condition_species(
             request.session.session_key)}
-        logging.info("returning species [csl]:" + str(species))
+        logger.info("returning species [csl]:" + str(species))
         return JsonResponse(species)
 
 
 class InitialConditionsSetup(views.APIView):
     def get(self, request):
-        logging.info(
+        logger.info(
             "****** GET request received INITIAL CONDITIONS SETUP ******")
         if not request.session.session_key:
             request.session.save()
 
-        logging.debug("fetching initial conditions setup for session id: " +
+        logger.debug("fetching initial conditions setup for session id: " +
                       request.session.session_key)
-        data = db_tools.get_user(
+        data = db_tools.get_user_or_start_session(
             request.session.session_key).config_files['/initials.json']
         return JsonResponse(data)
 
     def post(self, request):
-        logging.info(
+        logger.info(
             "****** POST request received INITIAL CONDITIONS SETUP ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("saving initial conditions setup for session id: " +
+        logger.debug("saving initial conditions setup for session id: " +
                       request.session.session_key)
-        logging.debug("received initial conditions setup: " +
+        logger.debug("received initial conditions setup: " +
                       str(request.body))
         newData = json.loads(request.body)
-        user = db_tools.get_user(request.session.session_key)
+        user = db_tools.get_user_or_start_session(request.session.session_key)
         user.config_files['/initials.json'] = newData
         user.save()
         return JsonResponse({})
@@ -215,7 +184,7 @@ class InitialConditionsSetup(views.APIView):
 class InitialSpeciesConcentrations(views.APIView):
     def get(self, request):
 
-        logging.info("****** GET request received INIT_SPECIES_CONC ******")
+        logger.info("****** GET request received INIT_SPECIES_CONC ******")
         if not request.session.session_key:
             request.session.save()
         values = db_tools.get_initial_species_concentrations(
@@ -223,14 +192,14 @@ class InitialSpeciesConcentrations(views.APIView):
         return JsonResponse(values)
 
     def post(self, request):
-        logging.info(
+        logger.info(
             "****** POST request received INITIAL SPECIES CONC. ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("received options:" + str(request.body))
+        logger.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
 
-        logging.info("* pushing new options:" + str(initial_values))
+        logger.info("* pushing new options:" + str(initial_values))
         formulas = {}
         units = {}
         values = {}
@@ -246,7 +215,7 @@ class InitialSpeciesConcentrations(views.APIView):
         file_data["unit"] = units
         file_data["value"] = values
         # dump file_data into species.json
-        user = db_tools.get_user(request.session.session_key)
+        user = db_tools.get_user_or_start_session(request.session.session_key)
         user.config_files['/species.json'] = file_data
         user.save()
         # run export
@@ -256,12 +225,12 @@ class InitialSpeciesConcentrations(views.APIView):
 
 class InitialReactionRates(views.APIView):
     def get(self, request):
-        logging.info(
+        logger.info(
             "****** GET request received INITIAL REACTION RATES ******")
         if not request.session.session_key:
             request.session.save()
 
-        logging.debug("fetching initial species conc. for session id: " +
+        logger.debug("fetching initial species conc. for session id: " +
                       request.session.session_key)
         initial_rates = {}
         initial_rates = db_tools.convert_initial_conditions_file(
@@ -269,11 +238,11 @@ class InitialReactionRates(views.APIView):
         return JsonResponse(initial_rates)
 
     def post(self, request):
-        logging.info(
+        logger.info(
             "****** POST request received INITIAL REACTION RATES ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("received options:" + str(request.body))
+        logger.debug("received options:" + str(request.body))
         initial_values = json.loads(request.body)
 
         initial_reaction_rates_file_path = '/initial_reaction_rates.csv'
@@ -298,7 +267,7 @@ class ConvertValues(views.APIView):
 
 class UnitConversionArguments(views.APIView):
     def get(self, request):
-        logging.info(
+        logger.info(
             "****** GET request received UNIT CONVERSION ARGUMENTS ******")
         if not request.session.session_key:
             request.session.save()
@@ -342,12 +311,12 @@ class ConversionCalculator(views.APIView):
 
 class MusicaReactionsList(views.APIView):
     def get(self, request):
-        logging.info(
+        logger.info(
             "****** GET request received MUSICA REACTIONS LIST ******")
         if not request.session.session_key:
             request.session.save()
 
-        logging.debug("* fetching species list for session id: " +
+        logger.debug("* fetching species list for session id: " +
                       request.session.session_key)
         reactions = {}
         reactions = {"reactions": db_tools.get_reaction_musica_names(
@@ -357,10 +326,10 @@ class MusicaReactionsList(views.APIView):
 
 class EvolvingConditions(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received EVOLVING CONDITIONS ******")
+        logger.info("****** GET request received EVOLVING CONDITIONS ******")
         if not request.session.session_key:
             request.session.save()
-        config = db_tools.get_user(
+        config = db_tools.get_user_or_start_session(
             request.session.session_key).config_files['/my_config.json']
 
         e = config['evolving conditions']
@@ -370,8 +339,8 @@ class EvolvingConditions(views.APIView):
         file_header_dict = {}
         for i in evolving_conditions_list:
             if '.csv' in i or '.txt' in i:
-                logging.info("adding file: " + i)
-                read_obj = db_tools.get_user(
+                logger.info("adding file: " + i)
+                read_obj = db_tools.get_user_or_start_session(
                     request.session.session_key).binary_files['/'+i]
                 csv_reader = reader(read_obj)
                 list_of_rows = list(csv_reader)
@@ -387,13 +356,13 @@ class EvolvingConditions(views.APIView):
 
 class LinearCombinations(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received LINEAR COMBINATIONS ******")
+        logger.info("****** GET request received LINEAR COMBINATIONS ******")
         if not request.session.session_key:
             request.session.save()
         config_path = os.path.join(settings.BASE_DIR,
                                    'configs/' + request.session.session_key +
                                    "/my_config.json")
-        logging.debug("config path: " + config_path)
+        logger.debug("config path: " + config_path)
         config = direct_open_json(config_path)
 
         if 'evolving conditions' not in config:
@@ -425,19 +394,19 @@ class RunStatusView(views.APIView):
         }
     )
     def get(self, request):
-        logging.info("****** GET request received RUN_STATUS_VIEW ******")
-        logging.info(request)
+        logger.info("****** GET request received RUN_STATUS_VIEW ******")
+        logger.info(request)
         if not request.session.session_key:
             request.session.save()
-        logging.debug(f"session key: {request.session.session_key}")
+        logger.debug(f"session key: {request.session.session_key}")
         response_message = db_tools.get_run_status(request.session.session_key)
-        logging.info(f"status: {response_message}")
+        logger.info(f"status: {response_message}")
         return JsonResponse(response_message, encoder=response_models.RunStatusEncoder)
 
 
 class RunView(views.APIView):
     def post(self, request):
-        logging.info(request.body)
+        logger.info(request.body)
 
         return JsonResponse({'status': 'running'})
 
@@ -452,18 +421,18 @@ class RunView(views.APIView):
             # get ModelRun object and set status to true
             db_tools.set_is_running(request.session.session_key, True)
 
-            # disable pika logging because it's annoying
-            logging.getLogger("pika").propagate = False
+            # disable pika logger because it's annoying
+            logger.getLogger("pika").propagate = False
             isRabbitUp = check_for_rabbit_mq()
             if isRabbitUp:
-                user = db_tools.get_user(request.session.session_key)
+                user = db_tools.get_user_or_start_session(request.session.session_key)
                 # check if we should save checksum
                 if user.should_cache:
-                    logging.info("saving checksum")
+                    logger.info("saving checksum")
                     # get checksum and save to session
                     checksum = db_tools.calculate_checksum(
                         request.session.session_key)
-                    logging.info(
+                    logger.info(
                         "got checksum for current user config files: " + str(checksum))
                     # try to find user with same checksum and should_cache = True
                     user = db_tools.get_user_by_checksum(checksum)
@@ -472,7 +441,7 @@ class RunView(views.APIView):
 
                     if user:
                         # if found, copy results from that user to current user
-                        logging.info(
+                        logger.info(
                             "found user with same checksum, copying results")
                         db_tools.copy_results(
                             user.uid, request.session.session_key)
@@ -487,7 +456,7 @@ class RunView(views.APIView):
                 # checking if config and binary files exist
                 if user.config_files is not {} and user.binary_files is not {}:
                     # if we get here, we need to run the model
-                    logging.info("rabbit is up, adding simulation to queue")
+                    logger.info("rabbit is up, adding simulation to queue")
                     RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
                     RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
                     RABBIT_USER = os.environ["RABBIT_MQ_USER"]
@@ -511,26 +480,26 @@ class RunView(views.APIView):
 
                     # close connection
                     connection.close()
-                    logging.info("published message to run_queue")
+                    logger.info("published message to run_queue")
                     return JsonResponse({'status': 'queued', 'model_running': True})
                 else:
-                    logging.info("no config or binary files found for user " +
+                    logger.info("no config or binary files found for user " +
                                  request.session.session_key + ", not running model")
                     return JsonResponse({'status': 'error', 'model_running': False})
             else:
                 from model_driver.session_model_runner import SessionModelRunner
                 runner = SessionModelRunner(request.session.session_key)
-                logging.info("rabbit is down, sim. will be run on API server")
+                logger.info("rabbit is down, sim. will be run on API server")
                 return runner.run()
 
 
 class DownloadConfig(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received DOWNLOAD_CONFIG ******")
+        logger.info("****** GET request received DOWNLOAD_CONFIG ******")
         if not request.session.session_key:
             request.session.save()
         sessid = request.session.session_key
-        logging.info("sessid: "+sessid)
+        logger.info("sessid: "+sessid)
         destination_path = os.path.join(
             settings.BASE_DIR,
             "dashboard/static/zip/"
@@ -542,9 +511,9 @@ class DownloadConfig(views.APIView):
             + "/config.zip")
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + sessid)
-        logging.debug("destination path: " + destination_path)
-        logging.debug("zip path: " + zip_path)
-        logging.debug("conf path: " + conf_path)
+        logger.debug("destination path: " + destination_path)
+        logger.debug("zip path: " + zip_path)
+        logger.debug("conf path: " + conf_path)
         # get config files for this session
         config_files = db_tools.get_config_files(sessid)
         # temporarily copy config files to static folder
@@ -579,10 +548,10 @@ class DownloadConfig(views.APIView):
 
 class DownloadResults(views.APIView):
     def get(self, request):
-        logging.info("****** GET request received DOWNLOAD_RESULTS ******")
+        logger.info("****** GET request received DOWNLOAD_RESULTS ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("session key: " + request.session.session_key)
+        logger.debug("session key: " + request.session.session_key)
         # fl_path = os.path.join(
         #     os.environ['MUSIC_BOX_BUILD_DIR'],
         #     request.session.session_key + "/output.csv")
@@ -605,10 +574,10 @@ class DownloadResults(views.APIView):
 
 class ConfigJsonUpload(views.APIView):
     def post(self, request):
-        logging.info("****** GET request received CONFIG_UPLOAD ******")
+        logger.info("****** GET request received CONFIG_UPLOAD ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("session key: " + request.session.session_key)
+        logger.debug("session key: " + request.session.session_key)
         uploaded = request.FILES['file']
         configs_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
@@ -646,15 +615,15 @@ class ConfigJsonUpload(views.APIView):
 
 class RemoveInitialConditionsFile(views.APIView):
     def post(self, request):
-        logging.info(
+        logger.info(
             "****** GET request received REMOVE_INIT_COND_FILE ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("session key: " + request.session.session_key)
+        logger.debug("session key: " + request.session.session_key)
         configs_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
         remove_request = json.loads(request.body)
-        logging.debug("removing file:" + str(remove_request))
+        logger.debug("removing file:" + str(remove_request))
 
         # remove 'file name' from user.binary_files
         user = models.SessionUser.objects.get(uid=request.session.session_key)
@@ -671,17 +640,17 @@ class RemoveInitialConditionsFile(views.APIView):
 # upload on conditions/intial page
 class InitCSV(views.APIView):
     def post(self, request):
-        logging.info("****** POST request received INIT_CSV ******")
+        logger.info("****** POST request received INIT_CSV ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("session key: " + request.session.session_key)
+        logger.debug("session key: " + request.session.session_key)
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
         conf_path = os.path.join(
             settings.BASE_DIR,
             'configs/' + request.session.session_key)
-        logging.debug("uploaded file: " + filename)
-        logging.debug("saving to conf_path: " + conf_path)
+        logger.debug("uploaded file: " + filename)
+        logger.debug("saving to conf_path: " + conf_path)
         # manage_initial_conditions_files(uploaded, filename, conf_path)
         # save file to database
         user = models.SessionUser.objects.get(uid=request.session.session_key)
@@ -702,13 +671,13 @@ class InitCSV(views.APIView):
 
 class ClearEvolutionFiles(views.APIView):
     def get(self, request):
-        logging.info("****** POST request received INIT_CSV ******")
+        logger.info("****** POST request received INIT_CSV ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("session key: " + request.session.session_key)
+        logger.debug("session key: " + request.session.session_key)
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
-        logging.debug("clearing evolution files:" + conf_path)
+        logger.debug("clearing evolution files:" + conf_path)
         # clear_e_files(conf_path)
         # clear files from database
         user = models.SessionUser.objects.get(uid=request.session.session_key)
@@ -722,21 +691,21 @@ class ClearEvolutionFiles(views.APIView):
         config.update({'evolving conditions': {}})
         user.config_files['/my_config.json'] = config
         user.save()
-        logging.info('finished clearing evolution files')
+        logger.info('finished clearing evolution files')
         return JsonResponse({})
 
 
 class EvolvFileUpload(views.APIView):
     def post(self, request):
-        logging.info("****** POST request received EVOLV_FILE_UPLOAD ******")
+        logger.info("****** POST request received EVOLV_FILE_UPLOAD ******")
         if not request.session.session_key:
             request.session.save()
-        logging.debug("session key: " + request.session.session_key)
+        logger.debug("session key: " + request.session.session_key)
         filename = str(request.FILES['file'])
         uploaded = request.FILES['file']
         conf_path = os.path.join(
             settings.BASE_DIR, 'configs/' + request.session.session_key)
-        logging.debug("uploading file: " + filename)
+        logger.debug("uploading file: " + filename)
         # manage_uploaded_evolving_conditions_files(
         # uploaded, filename, conf_path)
         # save file to database
@@ -754,7 +723,7 @@ class EvolvFileUpload(views.APIView):
         user.config_files['/my_config.json'] = my_config
         user.save()
 
-        logging.info("uploaded evolving file: " + filename)
+        logger.info("uploaded evolving file: " + filename)
         return JsonResponse({})
 
 
@@ -762,6 +731,6 @@ class LoadFromConfigJsonView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.save()
-        logging.info("saving model options for user: " +
+        logger.info("saving model options for user: " +
                      request.session.session_key)
         uploaded = request.FILES['file']

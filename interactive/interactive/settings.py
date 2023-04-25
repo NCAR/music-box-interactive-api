@@ -124,10 +124,10 @@ MEDIA_URL = '/media/'
 
 # CORS
 CORS_ORIGIN_WHITELIST = [
-'http://localhost:8000',
-'http://localhost:8001',
-'http://localhost:8002',
-'https://musicbox.acom.ucar.edu',
+    'http://localhost:8000',
+    'http://localhost:8001',
+    'http://localhost:8002',
+    'https://musicbox.acom.ucar.edu',
 ]
 CORS_ALLOW_HEADERS = [
     'Access-Control-Allow-Origin',
@@ -152,11 +152,41 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 # Allows plots to be shown in an iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
 
-HOST_SCHEME                     = "https://"
-SECURE_PROXY_SSL_HEADER         = None
-SECURE_SSL_REDIRECT             = False
-SECURE_HSTS_SECONDS             = None
-SECURE_HSTS_INCLUDE_SUBDOMAINS  = False
-SECURE_FRAME_DENY               = False
+HOST_SCHEME = "https://"
+SECURE_PROXY_SSL_HEADER = None
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = None
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_FRAME_DENY = False
 
 XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+            'level': 'DEBUG',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} [{asctime}] ({name}): {message}',
+            'datefmt' : "%Y-%m-%d %H:%M:%S",
+            'style': '{',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'dashboard': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+    },
+}

@@ -40,7 +40,7 @@ urlpatterns = [
     path('api/initial-species-concentrations/', api.InitialSpeciesConcentrations.as_view(), name='initial-species-concentrations'),
 
     path('api/linear-combinations/', api.EvolvingConditions.as_view(), name='linear-combinations'),
-    path('api/load-example/', api.ExampleView.as_view(), name='set-example'),
+    path('api/load-example/', api.LoadExample.as_view(), name='set-example'),
 
     path('api/model-options/', api.ModelOptionsView.as_view(), name='model-options'),
 

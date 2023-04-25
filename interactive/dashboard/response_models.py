@@ -24,3 +24,7 @@ class PollingStatusSerializer(serializers.Serializer):
 
 class HealthSerializer(serializers.Serializer):
     server_time = serializers.DateField()
+
+class ExampleSerializer(serializers.Serializer):
+    mechanism = serializers.JSONField()
+    conditions = serializers.JSONField()

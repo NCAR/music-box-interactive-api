@@ -13,7 +13,7 @@ import os
 import pandas as pd
 
 # get user based on uid
-def get_user(uid):
+def get_user_or_start_session(uid):
     # check if user exists
     try:
         user = models.SessionUser.objects.get(uid=uid)
@@ -37,12 +37,12 @@ def get_model_run(uid):
 
 # get config files of user
 def get_config_files(uid):
-    return get_user(uid).config_files
+    return get_user_or_start_session(uid).config_files
 
 
 # get csv files of user
 def get_csv_files(uid):
-    return get_user(uid).csv_files
+    return get_user_or_start_session(uid).csv_files
 
 
 # get results of model run
@@ -57,14 +57,14 @@ def get_is_running(uid):
 
 # set config files of user
 def set_config_files(uid, config_files):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.config_files = config_files
     user.save()
 
 
 # set csv files of user
 def set_csv_files(uid, csv_files):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.csv_files = csv_files
     user.save()
 
@@ -99,7 +99,7 @@ def create_model_run(uid):
 
 # delete user
 def delete_user(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.delete()
 
 
@@ -121,14 +121,14 @@ def delete_all_model_runs():
 
 # delete all config files
 def delete_all_config_files(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.config_files = {}
     user.save()
 
 
 # delete all csv files
 def delete_all_csv_files(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.csv_files = {}
     user.save()
 
@@ -142,28 +142,28 @@ def delete_results(uid):
 
 # set specific config file of user
 def set_config_file(uid, filename, config_file):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.config_files[filename] = config_file
     user.save()
 
 
 # set specific csv file of user
 def set_csv_file(uid, filename, csv_file):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.csv_files[filename] = csv_file
     user.save()
 
 
 # delete specific config file of user
 def delete_config_file(uid, filename):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     del user.config_files[filename]
     user.save()
 
 
 # delete specific csv file of user
 def delete_csv_file(uid, filename):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     del user.csv_files[filename]
     user.save()
 
@@ -184,7 +184,7 @@ def search_for_config_checksum(checksum):
 
 # get species menu of user
 def get_mechanism(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     # check if species.json exists
     species = []
     reactions = []
@@ -203,7 +203,7 @@ def get_mechanism(uid):
 
 # get species detail of user
 def get_species_detail(uid, species_name):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/species.json']["camp-data"]
     for entry in camp_data:
         if entry['type'] == "CHEM_SPEC":
@@ -221,7 +221,7 @@ def get_species_detail(uid, species_name):
 
 # remove species for user
 def remove_species(uid, species_name):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/species.json']["camp-data"]
     for entry in camp_data:
         if entry['type'] == "CHEM_SPEC":
@@ -257,7 +257,7 @@ def remove_species(uid, species_name):
 
 # add species for user
 def add_species(uid, species_data):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/species.json']["camp-data"]
     for entry in camp_data:
         if entry['type'] == "CHEM_SPEC":
@@ -273,7 +273,7 @@ def add_species(uid, species_data):
 
 # get reactions details of user
 def get_reactions_info(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/reactions.json']["camp-data"][0]['reactions']
     return camp_data
 
@@ -286,7 +286,7 @@ def is_reactions_valid(uid):
     return False
 # remove reaction for user
 def remove_reaction(uid, index):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/reactions.json']["camp-data"]
     camp_data[0]['reactions'].pop(index)
     user.config_files['/camp_data/reactions.json']["camp-data"] = camp_data
@@ -295,7 +295,7 @@ def remove_reaction(uid, index):
 
 # save reaction for user
 def save_reaction(uid, reaction_data):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/reactions.json']
     if 'index' in reaction_data:
         index = reaction_data['index']
@@ -308,13 +308,13 @@ def save_reaction(uid, reaction_data):
 
 # get model options of user
 def get_model_options(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     print("* returning model options: ", user.config_files['/options.json'])
     return user.config_files['/options.json']
 
 
 def post_model_options(uid, newOptions):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     print("* setting model options: ", newOptions)
     user.config_files['/options.json']['camp-data'] = newOptions
     user.save()
@@ -322,7 +322,7 @@ def post_model_options(uid, newOptions):
 
 # get initial conditions files of user
 def get_initial_conditions_files(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     values = {}
     config = user.config_files['/my_config.json']
     if 'initial conditions' in config:
@@ -332,7 +332,7 @@ def get_initial_conditions_files(uid):
 
 # get conditions species list
 def get_condition_species(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     # species
     if '/camp_data/species.json' not in user.config_files:
         return {'species_list_0': [], 'species_list_1': []}
@@ -349,7 +349,7 @@ def get_condition_species(uid):
 
 # get initial species concentrations
 def get_initial_species_concentrations(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     initial_values = {}
     species = user.config_files['/species.json']
     if "formula" in species:
@@ -378,7 +378,7 @@ def default_units(prefix, name):
 
 # converts initial conditions file to dictionary
 def convert_initial_conditions_file(uid, delimiter):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     input_file = '/initial_reaction_rates.csv'
     # check if input_file exists
     if input_file not in user.config_files:
@@ -413,7 +413,7 @@ def convert_initial_conditions_dict(uid, dictionary, output_file, delimiter):
         if is_musica_reaction(uid, key_label):
             column_names += key_label + '.' + value["units"] + delimiter
             column_values += str(value["value"]) + delimiter
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     user.config_files[output_file] = column_names[:-1] + '\n' + column_values[:-1]
     user.save()
 
@@ -492,7 +492,7 @@ def get_run_status(uid):
 
 def tolerance(uid):
     # grab camp_data/species.json
-    species_file = get_user(uid).config_files['/camp_data/species.json']
+    species_file = get_user_or_start_session(uid).config_files['/camp_data/species.json']
     default_tolerance = 1e-14
     species_list = species_file['camp-data']
     for spec in species_list:
@@ -504,7 +504,7 @@ def tolerance(uid):
 
 # convert to/from model config format
 def export_to_database_path(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     species = user.config_files['/species.json']
     options = user.config_files['/options.json']
     initials = user.config_files['/initials.json']
@@ -593,7 +593,7 @@ def export_to_database_path(uid):
 
 # export to database (used for conditions pages)
 def export_to_database(uid):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     config = user.config_files['/my_config.json']
     species_dict = {
         'formula': {},
@@ -655,7 +655,7 @@ def export_to_database(uid):
 
 # get reaction type schema for user
 def get_reaction_type_schema(uid, reaction_type):
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     species = ""
     camp_data = user.config_files['/camp_data/species.json']["camp-data"]
     species_list = []
@@ -1371,7 +1371,7 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
         max_width = 2  # change for max width with optimized performance
 
     # load species json and reactions json
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     reactions_data = user.config_files['/camp_data/reactions.json']
 
     # completely new method of creating nodes and filtering elements
@@ -1583,7 +1583,7 @@ def generate_flow_diagram(request_dict, uid, path_to_template):
 # function that returns checksum of config + binary files for a given uid
 def calculate_checksum(uid):
     # get user
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     # get all config files and their checksums
     config_files = get_config_files(user)
     # binary files
@@ -1613,7 +1613,7 @@ def calculate_checksum(uid):
 # function to return current checksum for user
 def get_current_checksum(uid):
     # get user
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     # get current checksum
     current_checksum = user.config_checksum
     # return current checksum
@@ -1622,7 +1622,7 @@ def get_current_checksum(uid):
 # set current checksum for user
 def set_current_checksum(uid, checksum):
     # get user
-    user = get_user(uid)
+    user = get_user_or_start_session(uid)
     # set current checksum
     user.config_checksum = checksum
     # save user

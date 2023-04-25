@@ -23,10 +23,8 @@ config_files_to_ignore = [
     'README'
 ]
 config_default = os.path.join(settings.BASE_DIR, "dashboard/static/config")
-logging.basicConfig(filename='logs.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s', level=logging.DEBUG)
-logging.basicConfig(filename='errors.log', filemode='w', format='%(asctime)s - [ERROR!!] %(message)s', level=logging.ERROR)
 
+logger = logging.getLogger(__name__)
 
 
 # reads csv file into dictionary
@@ -127,14 +125,14 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
     content = f.read()
     file_name = os.path.join(os.path.join(
         settings.BASE_DIR, uploaded_path+"/uploaded"), 'uploaded.zip')
-    logging.info("taking zip from " + file_name)
+    logger.info("taking zip from " + file_name)
     if not os.path.isdir(file_name.replace('uploaded.zip', '')):
         # make dirs just in case
         os.makedirs(file_name.replace('uploaded.zip', ''))
     if not os.path.isfile(file_name):
         g = open(file_name, 'x')
     g = open(file_name, 'wb')
-    logging.info("writing zip to " + file_name)
+    logger.info("writing zip to " + file_name)
     g.write(content)
     g.close()
 
@@ -142,7 +140,7 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
     with ZipFile(file_name, 'r') as zip:
         zip.extractall(os.path.join(
             settings.BASE_DIR, uploaded_path+"/unzipped"))
-    logging.info("extracted zip into " +os.path.join(
+    logger.info("extracted zip into " +os.path.join(
             settings.BASE_DIR, uploaded_path+"/unzipped"))
     camp_files = ['camp_data/config.json', 'camp_data/reactions.json',
                   'camp_data/species.json', 'camp_data/tolerance.json']
@@ -162,7 +160,7 @@ def handle_uploaded_zip_config(f, uploaded_path="dashboard/static/zip",
     # checks that all neccesary files are in the zip
     for f in needed_files:
         if not os.path.isfile(os.path.join(unzip, f)):
-            logging.info('missing needed file from upload: ' + f)
+            logger.info('missing needed file from upload: ' + f)
             return False
 
     # updates CAMP file format if necessary
@@ -204,7 +202,7 @@ def create_config_zip(destination_path=confg_def,
     if not os.path.isdir(zip_path.replace('config.zip', '')):
         # make dirs just in case
         os.makedirs(zip_path.replace('config.zip', ''))
-    logging.info("* making zip @ " + zip_path)
+    logger.info("* making zip @ " + zip_path)
     # create zip via shutil
     make_archive(destination_path, zip_path)
 
