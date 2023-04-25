@@ -21,3 +21,6 @@ class PollingStatusSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=[(choice.name, choice.value) for choice in RunStatus])
     error_code = serializers.CharField(required=False)
     error_message = serializers.CharField(required=False)
+
+class HealthSerializer(serializers.Serializer):
+    server_time = serializers.DateField()

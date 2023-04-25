@@ -19,6 +19,7 @@ import datetime
 import logging
 import os
 import pika
+import datetime
 
 # api.py contains all DJANGO based backend requests made to the server
 # each browser session creates a "session_key" saved to cookie on client
@@ -34,9 +35,17 @@ logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
 
 
 class HealthView(views.APIView):
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=response_models.HealthSerializer
+            )
+        }
+    )
     def get(self, request):
         logging.info("health")
-        response = JsonResponse({'data': 1})
+        response = JsonResponse({'server_time': datetime.datetime.now()})
         return response
 
 
