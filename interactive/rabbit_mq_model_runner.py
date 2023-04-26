@@ -1,5 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor as Pool
-from model_driver.session_model_runner import SessionModelRunner
 from multiprocessing import cpu_count
 from shared.utils import check_for_rabbit_mq
 
@@ -99,6 +98,7 @@ def run_queue_callback(ch, method, properties, body):
     # make a workding directory in the music box build folder
     # this prevents jobs from differing sessions from overwriting each other
     working_directory = f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
+    logging.info(f"Working directory: {working_directory}")
 
     os.makedirs(session_path, exist_ok=True)
     os.makedirs(camp_dir, exist_ok=True)

@@ -406,6 +406,7 @@ class RunStatusView(views.APIView):
 
 class RunView(views.APIView):
     @swagger_auto_schema(
+        query_serializer=request_models.RunSerializer,
         responses={
             200: openapi.Response(
                 description='Success',

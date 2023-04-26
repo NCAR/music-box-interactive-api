@@ -44,13 +44,8 @@ def check_for_rabbit_mq():
         RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
         credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
         connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        connection = pika.BlockingConnection(connParam)
-        if connection.is_open:
-            connection.close()
-            return True
-        else:
-            connection.close()
-            return False
+        with pika.BlockingConnection(connParam) as connection:
+            return connection.is_open
     except pika.exceptions.AMQPConnectionError:
         return False
 
