@@ -49,9 +49,6 @@ def load_example(example):
 
 
 def publish_run_request(session_id, config):
-    logger.info(session_id)
-    logger.info(config)
-
     RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
     RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
     RABBIT_USER = os.environ["RABBIT_MQ_USER"]

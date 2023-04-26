@@ -1,15 +1,17 @@
+# these import must come first
+import os
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+django.setup()
+
 from dashboard.database_tools import get_model_run
-from django.db import connection
 from shared.utils import check_for_rabbit_mq
 
-import django
 import json
 import logging
-import os
 import pika
 import sys
 
-django.setup()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
 
 

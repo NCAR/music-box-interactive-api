@@ -418,91 +418,10 @@ class RunView(views.APIView):
             request.session.save()
         logger.info(f"Recieved run requst for session {request.session.session_key}")
         if controller.publish_run_request(request.session.session_key, request.data):
-            return JsonResponse({'status': response_models.RunStatus.WAITING})
+            response = {'status': response_models.RunStatus.WAITING}
         else:
-            return JsonResponse({'status': response_models.RunStatus.ERROR})
-
-    def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
-        # check if model is already running
-        if db_tools.get_run_status(request.session.session_key) == 'running':
-            return JsonResponse({'status': 'running'})
-        else:
-            # start model run by adding job to queue via pika
-            # get ModelRun object and set status to true
-            db_tools.set_is_running(request.session.session_key, True)
-
-            # disable pika logger because it's annoying
-            logger.getLogger("pika").propagate = False
-            isRabbitUp = check_for_rabbit_mq()
-            if isRabbitUp:
-                user = db_tools.get_user_or_start_session(request.session.session_key)
-                # check if we should save checksum
-                if user.should_cache:
-                    logger.info("saving checksum")
-                    # get checksum and save to session
-                    checksum = db_tools.calculate_checksum(
-                        request.session.session_key)
-                    logger.info(
-                        "got checksum for current user config files: " + str(checksum))
-                    # try to find user with same checksum and should_cache = True
-                    user = db_tools.get_user_by_checksum(checksum)
-                    db_tools.set_current_checksum(
-                        request.session.session_key, checksum)
-
-                    if user:
-                        # if found, copy results from that user to current user
-                        logger.info(
-                            "found user with same checksum, copying results")
-                        db_tools.copy_results(
-                            user.uid, request.session.session_key)
-                        # set is_running to false
-                        db_tools.set_is_running(
-                            request.session.session_key, False)
-                        # return status of done
-                        return JsonResponse({'status': 'done',
-                                             'session_id': request.session.session_key,
-                                             'running': False})
-                # check to make sure we have a model to run by
-                # checking if config and binary files exist
-                if user.config_files is not {} and user.binary_files is not {}:
-                    # if we get here, we need to run the model
-                    logger.info("rabbit is up, adding simulation to queue")
-                    RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-                    RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-                    RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-                    RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
-                    credentials = pika.PlainCredentials(
-                        RABBIT_USER, RABBIT_PASSWORD)
-                    connParam = pika.ConnectionParameters(
-                        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-                    connection = pika.BlockingConnection(connParam)
-                    channel = connection.channel()
-                    channel.queue_declare(queue='run_queue')
-                    body = {}
-                    body.update({"session_id": request.session.session_key})
-                    # put all config files in body
-                    body.update({"config_files": user.config_files})
-                    # put all binary files in body
-                    body.update({"binary_files": user.binary_files})
-                    channel.basic_publish(exchange='',
-                                          routing_key='run_queue',
-                                          body=json.dumps(body))
-
-                    # close connection
-                    connection.close()
-                    logger.info("published message to run_queue")
-                    return JsonResponse({'status': 'queued', 'model_running': True})
-                else:
-                    logger.info("no config or binary files found for user " +
-                                 request.session.session_key + ", not running model")
-                    return JsonResponse({'status': 'error', 'model_running': False})
-            else:
-                from model_driver.session_model_runner import SessionModelRunner
-                runner = SessionModelRunner(request.session.session_key)
-                logger.info("rabbit is down, sim. will be run on API server")
-                return runner.run()
+            response = {'status': response_models.RunStatus.ERROR}
+        return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
 class DownloadConfig(views.APIView):
