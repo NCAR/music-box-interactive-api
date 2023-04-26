@@ -80,68 +80,65 @@ def callback(session_id, config_files_dict, future):
         logging.info("["+session_id+"] Sent output files to model_finished_queue")
 
 
+def run_queue_callback(ch, method, properties, body):
+    data = json.loads(body)
+    # grab config files and binary files from data
+    config_files = data["config_files"]
+    binary_files = data["binary_files"]
+    session_id = data["session_id"]
+    # base directory for config files
+    config_file_path = os.path.join('/music-box-interactive/interactive/configs', session_id)
+    files_array = [] # will be used to parse results on callback
+    # create directory if it doesn't exist
+    if not os.path.exists(config_file_path):
+        os.makedirs(config_file_path)
+    # put config files and binary files into file system
+    for config_file in config_files:
+        files_array.append(config_file)
+        full_path = os.path.join(config_file_path, config_file[1:])
+        # if config file does not exist, create it
+        dirname = os.path.dirname(full_path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        # write config file to file system
+        with open(full_path, 'w') as f:
+            # dump json
+            json.dump(config_files[config_file], f)
+    for binary_file in binary_files:
+        files_array.append(binary_file)
+        full_path = os.path.join(config_file_path, binary_file[1:])
+        # if config file does not exist, create it
+        dirname = os.path.dirname(full_path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        # write binary file to file system
+        with open(full_path, 'w') as f:
+            f.write(binary_files[binary_file])
+    logging.info("Adding runner for session {} to pool".format(session_id))
+    # run model
+    
+    runner = SessionModelRunner(session_id)
+    runner.set_run_as_rabbit(True) # set to true if running as rabbitmq
+    runner.run() # sets up everything
+
+    new_callback_function = functools.partial(callback, session_id, files_array) # pass session_id and files_array to callback function
+    f = pool.submit(subprocess.call, "../music_box ./mb_configuration/my_config.json", shell=True, cwd=runner.mb_dir, stdout=subprocess.DEVNULL) # run model in separate thread, remove stdout=subprocess.DEVNULL if you want to see output
+    f.add_done_callback(new_callback_function) # calls callback when model is finished
+
+    
+    # pool.shutdown(wait=False) # no .submit() calls after that point
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
     credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-    connection = pika.BlockingConnection(connParam)
-    channel = connection.channel()
+    with pika.BlockingConnection(connParam) as connection:
+        channel = connection.channel()
 
-    channel.queue_declare(queue='run_queue')
-
-    def run_queue_callback(ch, method, properties, body):
-        data = json.loads(body)
-        # grab config files and binary files from data
-        config_files = data["config_files"]
-        binary_files = data["binary_files"]
-        session_id = data["session_id"]
-        # base directory for config files
-        config_file_path = os.path.join('/music-box-interactive/interactive/configs', session_id)
-        files_array = [] # will be used to parse results on callback
-        # create directory if it doesn't exist
-        if not os.path.exists(config_file_path):
-            os.makedirs(config_file_path)
-        # put config files and binary files into file system
-        for config_file in config_files:
-            files_array.append(config_file)
-            full_path = os.path.join(config_file_path, config_file[1:])
-            # if config file does not exist, create it
-            dirname = os.path.dirname(full_path)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-            # write config file to file system
-            with open(full_path, 'w') as f:
-                # dump json
-                json.dump(config_files[config_file], f)
-        for binary_file in binary_files:
-            files_array.append(binary_file)
-            full_path = os.path.join(config_file_path, binary_file[1:])
-            # if config file does not exist, create it
-            dirname = os.path.dirname(full_path)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-            # write binary file to file system
-            with open(full_path, 'w') as f:
-                f.write(binary_files[binary_file])
-        logging.info("Adding runner for session {} to pool".format(session_id))
-        # run model
-        
-        runner = SessionModelRunner(session_id)
-        runner.set_run_as_rabbit(True) # set to true if running as rabbitmq
-        runner.run() # sets up everything
-
-        new_callback_function = functools.partial(callback, session_id, files_array) # pass session_id and files_array to callback function
-        f = pool.submit(subprocess.call, "../music_box ./mb_configuration/my_config.json", shell=True, cwd=runner.mb_dir, stdout=subprocess.DEVNULL) # run model in separate thread, remove stdout=subprocess.DEVNULL if you want to see output
-        f.add_done_callback(new_callback_function) # calls callback when model is finished
-
-        
-        # pool.shutdown(wait=False) # no .submit() calls after that point
-        
-
-    channel.basic_consume(queue='run_queue',
-                          on_message_callback=run_queue_callback,
-                          auto_ack=True)
+        channel.queue_declare(queue='run_queue')
+        channel.basic_consume(queue='run_queue',
+                            on_message_callback=run_queue_callback,
+                            auto_ack=True)
 
     logging.info("Waiting for model_finished_queue messages")
     try:

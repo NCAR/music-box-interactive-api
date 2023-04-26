@@ -1,7 +1,6 @@
 from .save import *
 from .upload_handler import *
 from dashboard import models
-from dashboard.controller import load_example
 from dashboard.flow_diagram import *
 from dashboard.forms.formsetup import *
 from django.conf import settings
@@ -14,6 +13,7 @@ from rest_framework import status, views
 from rest_framework.response import Response
 from shared.utils import check_for_rabbit_mq, create_unit_converter
 
+import dashboard.controller as controller
 import dashboard.database_tools as db_tools
 import dashboard.response_models as response_models
 import dashboard.request_models as request_models
@@ -55,7 +55,7 @@ class LoadExample(views.APIView):
         example = request.GET.dict()['example']
         _ = db_tools.get_user_or_start_session(request.session.session_key)
         
-        conditions, mechanism = load_example(example)
+        conditions, mechanism = controller.load_example(example)
 
         return JsonResponse({'conditions': conditions, 'mechanism': mechanism})
 
@@ -405,10 +405,22 @@ class RunStatusView(views.APIView):
 
 
 class RunView(views.APIView):
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=response_models.PollingStatusSerializer
+            )
+        }
+    )
     def post(self, request):
-        logger.info(request.body)
-
-        return JsonResponse({'status': 'running'})
+        if not request.session.session_key:
+            request.session.save()
+        logger.info(f"Recieved run requst for session {request.session.session_key}")
+        if controller.publish_run_request(request.session.session_key, request.data):
+            return JsonResponse({'status': response_models.RunStatus.WAITING})
+        else:
+            return JsonResponse({'status': response_models.RunStatus.ERROR})
 
     def get(self, request):
         if not request.session.session_key:
