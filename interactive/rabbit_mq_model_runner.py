@@ -81,6 +81,8 @@ def callback(session_id, config_files_dict, future):
 
 
 def run_queue_callback(ch, method, properties, body):
+    logging.info("Received run message")
+    logging.info(f"Message body: {body}")
     data = json.loads(body)
     # grab config files and binary files from data
     config_files = data["config_files"]
@@ -140,12 +142,11 @@ def main():
                             on_message_callback=run_queue_callback,
                             auto_ack=True)
 
-    logging.info("Waiting for model_finished_queue messages")
-    try:
-        channel.start_consuming()
-    except KeyboardInterrupt:
-        print("Stopping consuming")
-        channel.stop_consuming()
+        logging.info("Waiting for model_finished_queue messages")
+        try:
+            channel.start_consuming()
+        except KeyboardInterrupt:
+            channel.stop_consuming()
 
 
 def getListOfFiles(dirName):
