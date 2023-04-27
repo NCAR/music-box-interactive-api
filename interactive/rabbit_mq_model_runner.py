@@ -1,3 +1,9 @@
+# these import must come first
+import os
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+django.setup()
+
 from concurrent.futures import ThreadPoolExecutor as Pool
 from multiprocessing import cpu_count
 from shared.utils import check_for_rabbit_mq
@@ -85,15 +91,23 @@ def run_queue_callback(ch, method, properties, body):
         data = json.loads(body)
         session_id = data["session_id"]
         config = data["config"]
-        logging.info(config)
 
         session_path = os.path.join('/music-box-interactive/interactive/configs', session_id)
         config_file_path = os.path.join(session_path, 'my_config.json')
-        camp_config = os.path.join(
-            session_path, 
-            config["conditions"]["model components"]["configuration file"]
-        )
-        camp_dir = os.path.dirname(camp_config)
+
+        camp_config = None
+        full_camp_config_path = None
+        for model_config in config["conditions"]["model components"]:
+            if ("type" in model_config) and (model_config["type"] == "CAMP"):
+                camp_config = model_config["configuration file"]
+                full_camp_config_path = os.path.join(session_path, camp_config)
+                # update the camp configuration path to point to the full path on the file system
+                # so that the model can find it
+                model_config["configuration file"] = full_camp_config_path
+        if camp_config is None:
+            raise Exception("Could not find camp config")
+
+        camp_dir = os.path.dirname(full_camp_config_path)
         mechanism_config = os.path.join(camp_dir, 'mechanism.json')
         # make a workding directory in the music box build folder
         # this prevents jobs from differing sessions from overwriting each other
@@ -104,15 +118,12 @@ def run_queue_callback(ch, method, properties, body):
         os.makedirs(camp_dir, exist_ok=True)
         os.makedirs(working_directory, exist_ok=True)
 
-        # update the camp configuration path to point to the full path on the file system
-        config["conditions"]["model components"]["configuration file"] = camp_config
-
         # write the box model configuration
         with open(config_file_path, 'w') as f:
             json.dump(config["conditions"], f)
 
         # write the mechanism to the camp configuration 
-        with open(camp_config, 'w') as f:
+        with open(full_camp_config_path, 'w') as f:
             json.dump({"camp-files": [mechanism_config]}, f)
 
         # write the mechanism to the camp configuration 
@@ -136,7 +147,6 @@ def run_queue_callback(ch, method, properties, body):
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
     credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
     with pika.BlockingConnection(connParam) as connection:

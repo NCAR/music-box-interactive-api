@@ -16,4 +16,4 @@ RUN pip3 install -r ./requirements.txt
 COPY . /music-box-interactive/
 
 # Start the model runner on entry
-# CMD ["python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
+CMD ["python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]

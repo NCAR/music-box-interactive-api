@@ -80,10 +80,10 @@ if __name__ == '__main__':
         if check_for_rabbit_mq():
             main()
         else:
-            print('[ERR!] RabbitMQ server is not running. Exiting...')
+            logging.error('[ERR!] RabbitMQ server is not running. Exiting...')
             sys.exit(1)
     except KeyboardInterrupt:
-        print('Interrupted')
+        logging.debug('Interrupted')
         try:
             sys.exit(0)
         except SystemExit:

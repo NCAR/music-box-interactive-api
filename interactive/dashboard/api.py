@@ -394,13 +394,9 @@ class RunStatusView(views.APIView):
         }
     )
     def get(self, request):
-        logger.info("****** GET request received RUN_STATUS_VIEW ******")
-        logger.info(request)
-        if not request.session.session_key:
-            request.session.save()
-        logger.debug(f"session key: {request.session.session_key}")
+        logger.debug(f"Run status | session key: {request.session.session_key}")
         response_message = db_tools.get_run_status(request.session.session_key)
-        logger.info(f"status: {response_message}")
+        logger.info(f"Run status | {response_message}")
         return JsonResponse(response_message, encoder=response_models.RunStatusEncoder)
 
 
