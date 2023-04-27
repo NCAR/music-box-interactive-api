@@ -21,7 +21,7 @@ services:
     restart: on-failure
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
   status-listener:
     container_name: 'status-listener'
     build: 

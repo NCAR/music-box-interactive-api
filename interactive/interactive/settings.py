@@ -188,5 +188,8 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
+        'pika': {
+            'propagate': False
+        }
     },
 }

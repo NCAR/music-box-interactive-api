@@ -40,6 +40,11 @@
       "name": "O3",
       "type": "CHEM_SPEC",
       "absolute tolerance": 1e-12
+    },
+    {
+      "name": "N2",
+      "type": "CHEM_SPEC",
+      "absolute tolerance": 1e-12
     }
   ]
 }

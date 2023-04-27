@@ -1,17 +1,16 @@
+# these import must come first
+import os
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+django.setup()
+
 from dashboard.database_tools import get_model_run
-from django.db import connection
 from shared.utils import check_for_rabbit_mq
 
-import django
 import json
 import logging
-import os
 import pika
 import sys
-
-django.setup()
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-
 
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
 RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
@@ -81,10 +80,10 @@ if __name__ == '__main__':
         if check_for_rabbit_mq():
             main()
         else:
-            print('[ERR!] RabbitMQ server is not running. Exiting...')
+            logging.error('[ERR!] RabbitMQ server is not running. Exiting...')
             sys.exit(1)
     except KeyboardInterrupt:
-        print('Interrupted')
+        logging.debug('Interrupted')
         try:
             sys.exit(0)
         except SystemExit:
