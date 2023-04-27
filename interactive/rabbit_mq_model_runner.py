@@ -11,8 +11,6 @@ import shutil
 import subprocess
 import sys
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
 # 2) run model when receive message
@@ -33,7 +31,7 @@ RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 # disable propagation
 logging.getLogger("pika").propagate = False
 
-def callback(session_id, output_directory, future):
+def music_box_exited_callback(session_id, output_directory, future):
     credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
     connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
     with pika.BlockingConnection(connParam) as connection:
@@ -80,59 +78,62 @@ def callback(session_id, output_directory, future):
 
 
 def run_queue_callback(ch, method, properties, body):
-    logging.info("Received run message")
-    logging.debug(f"Message body: {body}")
+    try:
+        logging.info("Received run message")
+        logging.debug(f"Message body: {body}")
 
-    data = json.loads(body)
-    session_id = data["session_id"]
-    config = data["config"]
+        data = json.loads(body)
+        session_id = data["session_id"]
+        config = data["config"]
+        logging.info(config)
 
-    session_path = os.path.join('/music-box-interactive/interactive/configs', session_id)
-    config_file_path = os.path.join(session_path, 'my_config.json')
-    camp_config = os.path.join(
-        session_path, 
-        config["conditions"]["model components"][0]["configuration file"]
-    )
-    camp_dir = os.path.dirname(camp_config)
-    mechanism_config = os.path.join(camp_dir, 'mechanism.json')
-    # make a workding directory in the music box build folder
-    # this prevents jobs from differing sessions from overwriting each other
-    working_directory = f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
-    logging.info(f"Working directory: {working_directory}")
+        session_path = os.path.join('/music-box-interactive/interactive/configs', session_id)
+        config_file_path = os.path.join(session_path, 'my_config.json')
+        camp_config = os.path.join(
+            session_path, 
+            config["conditions"]["model components"]["configuration file"]
+        )
+        camp_dir = os.path.dirname(camp_config)
+        mechanism_config = os.path.join(camp_dir, 'mechanism.json')
+        # make a workding directory in the music box build folder
+        # this prevents jobs from differing sessions from overwriting each other
+        working_directory = f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
+        logging.info(f"Working directory: {working_directory}")
 
-    os.makedirs(session_path, exist_ok=True)
-    os.makedirs(camp_dir, exist_ok=True)
-    os.makedirs(working_directory, exist_ok=True)
+        os.makedirs(session_path, exist_ok=True)
+        os.makedirs(camp_dir, exist_ok=True)
+        os.makedirs(working_directory, exist_ok=True)
 
-    # update the camp configuration path to point to the full path on the file system
-    config["conditions"]["model components"][0]["configuration file"] = camp_config
+        # update the camp configuration path to point to the full path on the file system
+        config["conditions"]["model components"]["configuration file"] = camp_config
 
-    # write the box model configuration
-    with open(config_file_path, 'w') as f:
-        json.dump(config["conditions"], f)
+        # write the box model configuration
+        with open(config_file_path, 'w') as f:
+            json.dump(config["conditions"], f)
 
-    # write the mechanism to the camp configuration 
-    with open(camp_config, 'w') as f:
-        json.dump({"camp-files": [mechanism_config]}, f)
+        # write the mechanism to the camp configuration 
+        with open(camp_config, 'w') as f:
+            json.dump({"camp-files": [mechanism_config]}, f)
 
-    # write the mechanism to the camp configuration 
-    with open(mechanism_config, 'w') as f:
-        json.dump(config["mechanism"], f)
+        # write the mechanism to the camp configuration 
+        with open(mechanism_config, 'w') as f:
+            json.dump(config["mechanism"], f)
 
-    logging.info("Adding runner for session {} to pool".format(session_id))
+        logging.info("Adding runner for session {} to pool".format(session_id))
 
-    # run model in separate thread, remove stdout=subprocess.DEVNULL if you want to see output
-    f = pool.submit(
-        subprocess.call, 
-        # run music box with this configuration
-        f"/music-box/build/music_box {config_file_path}", 
-        shell=True, 
-        cwd=working_directory, 
-        stdout=subprocess.DEVNULL
-    )
-    f.add_done_callback(functools.partial(callback, working_directory, session_id))
-    
-    # pool.shutdown(wait=False) # no .submit() calls after that point
+        # run model in separate thread, remove stdout=subprocess.DEVNULL if you want to see output
+        f = pool.submit(
+            subprocess.call, 
+            # run music box with this configuration
+            f"/music-box/build/music_box {config_file_path}", 
+            shell=True, 
+            cwd=working_directory, 
+            stdout=subprocess.DEVNULL
+        )
+        f.add_done_callback(functools.partial(music_box_exited_callback, session_id, working_directory))
+    except Exception:
+        logging.exception('Setting up run failed')
+
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
@@ -173,8 +174,6 @@ def getListOfFiles(dirName):
 if __name__ == '__main__':
     # config to easily see threads and process IDs
     logging.basicConfig(
-        filename='logs.log',
-        filemode='w+',
         level=logging.INFO,
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
@@ -182,10 +181,10 @@ if __name__ == '__main__':
         if check_for_rabbit_mq():
             main()
         else:
-            print('[ERR!] RabbitMQ server is not running.')
+            logging.error('[ERR!] RabbitMQ server is not running.')
             sys.exit(1)
     except KeyboardInterrupt:
-        print('Interrupted')
+        logging.debug('Interrupted')
         try:
             sys.exit(0)
         except SystemExit:

@@ -12,9 +12,6 @@ import logging
 import pika
 import sys
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
-
-
 RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
 RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
 RABBIT_USER = os.environ["RABBIT_MQ_USER"]
