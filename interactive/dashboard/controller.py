@@ -19,7 +19,6 @@ def load_example(example):
 
     files = [os.path.join(dp, f)
              for dp, _, fn in os.walk(example_path) for f in fn]
-    logger.info(files)
     if not files:
         raise Http404("No files in example folder")
 
