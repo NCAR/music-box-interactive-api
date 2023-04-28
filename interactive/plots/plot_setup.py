@@ -11,9 +11,9 @@ import pandas
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-model_output_units = 'mol/m-3'
+model_output_units = 'mol m-3'
 def sub_props(prop, csvz):
-    
+
     csv = pandas.read_csv(csvz)
     titles = csv.columns.tolist()
     spec = list([])
@@ -89,7 +89,7 @@ def output_plot(prop, plot_units,
     if plot_units:
         converter = vectorize(create_unit_converter(model_output_units, plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol/m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -112,7 +112,7 @@ def output_plot(prop, plot_units,
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
                 pp = float(tolerance_dictionary(spc)[name])
                 du = 'density units'
-                units = 'mol/m-3 '
+                units = 'mol m-3 '
                 de = 'density'
                 tolerance = ppm_to_plot_units(pp, {de: density, du: units})
             else:
@@ -127,7 +127,7 @@ def output_plot(prop, plot_units,
                 axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
         else:
             name = name.split('__')[1]
-            axes.set_ylabel(r"(mol/m^3 s^-1)")
+            axes.set_ylabel(r"(mol m^-3 s^-1)")
             axes.set_title(beautifyReaction(name))
     elif prop.split('.')[0] == 'ENV':
         axes.set_title(sub_props_names(name))
@@ -136,7 +136,7 @@ def output_plot(prop, plot_units,
         elif name == 'pressure':
             axes.set_ylabel(r"Pa")
         elif name == 'number_density_air':
-            axes.set_ylabel(r"moles/m^3")
+            axes.set_ylabel(r"moles m^-3")
 
     # axes.legend()
     axes.grid(True)
@@ -153,13 +153,13 @@ def output_plot(prop, plot_units,
 def plots_unit_select(prop):
     unit_choices = {
         'species': [
-            'mol/m-3',
+            'mol m-3',
             'ppm',
             'ppb',
-            'mol/mol',
-            'mol/cm-3',
-            'molecule/cm-3',
-            'molecule/m-3'
+            'mol mol-1',
+            'mol cm-3',
+            'molecule cm-3',
+            'molecule m-3'
         ]
     }
     response = ''
