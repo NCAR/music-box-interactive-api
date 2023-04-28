@@ -1,10 +1,10 @@
 # these import must come first
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
 django.setup()
 
-from dashboard.database_tools import get_model_run
+from api.database_tools import get_model_run
 from shared.utils import check_for_rabbit_mq
 
 import json
