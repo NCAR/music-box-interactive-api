@@ -11,7 +11,9 @@ from shared.utils import check_for_rabbit_mq
 import functools
 import json
 import logging
+import numpy as np
 import os
+import pandas as pd
 import pika
 import shutil
 import subprocess
@@ -33,61 +35,62 @@ RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
 RABBIT_USER = os.environ["RABBIT_MQ_USER"]
 RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
 
+def publish_message(message):
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    with pika.BlockingConnection(connParam) as connection:
+        channel = connection.channel()
+        channel.queue_declare(queue='model_finished_queue')
+        channel.basic_publish(exchange='',
+                                routing_key='model_finished_queue',
+                                body=json.dumps(message))
 
 # disable propagation
 logging.getLogger("pika").propagate = False
 
 def music_box_exited_callback(session_id, output_directory, future):
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-    with pika.BlockingConnection(connParam) as connection:
+    if future.exception() is not None:
+        logging.info("["+session_id+"] Got exception: %s" % future.exception())
+    else:
+        logging.info("["+session_id+"] Model finished.")
+        # 1) check for output files (in /build)
+        # 2) send output files to model_finished_queue
+        # 3) delete config files and binary files from file system
 
-        if future.exception() is not None:
-            logging.info("["+session_id+"] Got exception: %s" % future.exception())
-        else:
-            logging.info("["+session_id+"] Model finished.")
-            # 1) check for output files (in /build)
-            # 2) send output files to model_finished_queue
-            # 3) delete config files and binary files from file system
-
-            # check number of output files in /build
-            output_files = getListOfFiles(output_directory)
-            if len(output_files) == 0:
-                logging.info("["+session_id+"] No output files found, exiting")
-                return
-            # body to send to model_finished_queue
-            body = {'session_id': session_id}
-            complete_path = os.path.join(output_directory, 'MODEL_RUN_COMPLETE')
-            csv_path = os.path.join(output_directory, 'output.csv')
-            error_path = os.path.join(output_directory, 'error.json')
-            if os.path.exists(complete_path):
-                # read complete file
-                with open(complete_path, 'r') as f:
-                    body["MODEL_RUN_COMPLETE"] = f.read()
-            if os.path.exists(error_path):
-                # read error file
-                with open(error_path, 'r') as f:
-                    body["error.json"] = f.read()
-            if os.path.exists(csv_path):
-                # read csv file
-                with open(csv_path, 'r') as f:
-                    body["output.csv"] = f.read()
-            # remove all files to save space
-            shutil.rmtree(output_directory)
-            # send body to model_finished_queue
-            channel = connection.channel()
-            channel.queue_declare(queue='model_finished_queue')
-            channel.basic_publish(exchange='',
-                                    routing_key='model_finished_queue',
-                                    body=json.dumps(body))
-            logging.info("["+session_id+"] Sent output files to model_finished_queue")
+        # check number of output files in /build
+        logging.info(f"output directory: {output_directory}")
+        output_files = getListOfFiles(output_directory)
+        if len(output_files) == 0:
+            logging.info("["+session_id+"] No output files found, exiting")
+            return
+        # body to send to model_finished_queue
+        body = {'session_id': session_id}
+        complete_path = os.path.join(output_directory, 'MODEL_RUN_COMPLETE')
+        csv_path = os.path.join(output_directory, 'output.csv')
+        error_path = os.path.join(output_directory, 'error.json')
+        if os.path.exists(complete_path):
+            # read complete file
+            with open(complete_path, 'r') as f:
+                body["MODEL_RUN_COMPLETE"] = f.read()
+        if os.path.exists(error_path):
+            # read error file
+            with open(error_path, 'r') as f:
+                body["error.json"] = f.read()
+        if os.path.exists(csv_path):
+            # read csv file
+            with open(csv_path, 'r') as f:
+                body["output.csv"] = f.read()
+        # remove all files to save space
+        shutil.rmtree(output_directory)
+        # send body to model_finished_queue
+        publish_message(body)
+        logging.info("["+session_id+"] Sent output files to model_finished_queue")
 
 
 def run_queue_callback(ch, method, properties, body):
+    logging.info("Received run message")
+    session_id = None
     try:
-        logging.info("Received run message")
-        logging.debug(f"Message body: {body}")
-
         data = json.loads(body)
         session_id = data["session_id"]
         config = data["config"]
@@ -117,6 +120,22 @@ def run_queue_callback(ch, method, properties, body):
         os.makedirs(session_path, exist_ok=True)
         os.makedirs(camp_dir, exist_ok=True)
         os.makedirs(working_directory, exist_ok=True)
+        if not os.path.exists(working_directory):
+            raise Exception("Did not create working directory")
+
+        if "evolving conditions" in config["conditions"] and isinstance(config["conditions"]["evolving conditions"], list):
+            evolving = config["conditions"]["evolving conditions"]
+            if len(evolving) > 0:
+                headers, vals = evolving[0], np.array(evolving[1:])
+                data = {}
+                for idx, column in enumerate(headers):
+                    data[column] = vals[:, idx]
+                logging.info(data)
+                csv_path = os.path.join(session_path, "evolving_conditions.csv")
+                pd.DataFrame(data).to_csv(csv_path, index=False)
+                config["conditions"]["evolving conditions"] = {
+                    csv_path: {}
+                }
 
         # write the box model configuration
         with open(config_file_path, 'w') as f:
@@ -142,7 +161,9 @@ def run_queue_callback(ch, method, properties, body):
             stdout=subprocess.DEVNULL
         )
         f.add_done_callback(functools.partial(music_box_exited_callback, session_id, working_directory))
-    except Exception:
+    except Exception as e:
+        error = {"error.json": str(e), "session_id": session_id}
+        publish_message(error)
         logging.exception('Setting up run failed')
 
 
@@ -184,7 +205,7 @@ def getListOfFiles(dirName):
 if __name__ == '__main__':
     # config to easily see threads and process IDs
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
