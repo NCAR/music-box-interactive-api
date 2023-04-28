@@ -43,6 +43,19 @@ def load_example(example):
                     del df
                 else:
                     logger.warning("Could not find initial rates condition file")
+            if "evolving conditions" in conditions:
+                evolving_conditions = list(conditions["evolving conditions"].keys())
+                if len(evolving_conditions) > 0:
+                    evolving_conditions = evolving_conditions[0]
+                    path = [f for f in files if evolving_conditions in f]
+                    if len(path) > 0:
+                        evolving_conditions = path[0]
+                        df = pd.read_csv(evolving_conditions)
+                        conditions["evolving conditions"] = df.to_dict()
+                        del df
+                    else:
+                        logger.warning("Could not find initial rates condition file")
+
 
     return conditions, mechanism
 
