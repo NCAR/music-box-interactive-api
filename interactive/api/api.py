@@ -71,7 +71,7 @@ class RunView(views.APIView):
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
-class CompressConfig(views.APIView):
+class CompressConfiguration(views.APIView):
     @swagger_auto_schema(
         query_serializer=request_models.RunSerializer,
         responses={
@@ -88,7 +88,7 @@ class CompressConfig(views.APIView):
         return JsonResponse({ 'status': 'OK' }, encoder=response_models.RunStatusEncoder)
 
 
-class ExtractConfig(views.APIView):
+class ExtractConfiguration(views.APIView):
     @swagger_auto_schema(
         responses={
             200: openapi.Response(
