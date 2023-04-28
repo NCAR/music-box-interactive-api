@@ -490,18 +490,6 @@ def get_run_status(uid):
         response.update({'error_message': errorfile['message']})
     return response
 
-def tolerance(uid):
-    # grab camp_data/species.json
-    species_file = get_user_or_start_session(uid).config_files['/camp_data/species.json']
-    default_tolerance = 1e-14
-    species_list = species_file['camp-data']
-    for spec in species_list:
-        if 'absolute tolerance' not in spec:
-            spec.update({'absolute tolerance': default_tolerance})
-
-    species_dict = {j['name']:j['absolute tolerance'] for j in species_list}
-    return species_dict
-
 # convert to/from model config format
 def export_to_database_path(uid):
     user = get_user_or_start_session(uid)

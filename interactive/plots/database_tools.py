@@ -81,7 +81,7 @@ def generate_database_network_plot(uid, species, path_to_template):
 
 
 # get plot from model run
-def get_plot(uid, prop, plot_units):
+def get_plot(uid, prop, plot_units, tolerance):
     # get output.csv from model run
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
@@ -118,13 +118,13 @@ def get_plot(uid, prop, plot_units):
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
-                pp = float(db_tools.tolerance(uid)[name])
+                pp = float(tolerance)
                 du = 'density units'
                 units = 'mol m-3 '
                 de = 'density'
                 tolerance_tmp = ppm_to_plot_units(pp, {de: density, du: units})
             else:
-                pp = float(db_tools.tolerance(uid)[name])
+                pp = float(tolerance)
                 tolerance_tmp = ppm_to_plot_units(pp)
 
             #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
