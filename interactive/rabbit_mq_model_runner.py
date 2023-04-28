@@ -1,7 +1,7 @@
 # these import must come first
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
 django.setup()
 
 from concurrent.futures import ThreadPoolExecutor as Pool
@@ -81,7 +81,7 @@ def music_box_exited_callback(session_id, output_directory, future):
             with open(csv_path, 'r') as f:
                 body["output.csv"] = f.read()
         # remove all files to save space
-        shutil.rmtree(output_directory)
+        # shutil.rmtree(output_directory)
         # send body to model_finished_queue
         publish_message(body)
         logging.info("["+session_id+"] Sent output files to model_finished_queue")
@@ -125,7 +125,8 @@ def run_queue_callback(ch, method, properties, body):
 
         if "evolving conditions" in config["conditions"] and isinstance(config["conditions"]["evolving conditions"], list):
             evolving = config["conditions"]["evolving conditions"]
-            if len(evolving) > 0:
+            logging.info(evolving)
+            if len(evolving) > 1:
                 headers, vals = evolving[0], np.array(evolving[1:])
                 data = {}
                 for idx, column in enumerate(headers):

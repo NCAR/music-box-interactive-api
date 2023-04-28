@@ -1,15 +1,16 @@
-from dashboard import models
+from api import models
 from io import StringIO, BytesIO
 from numpy import vectorize
 from plots import mpl_helper
 from pyvis.network import Network
 from shared.utils import beautifyReaction, is_density_needed, create_unit_converter, sub_props_names
 
-import dashboard.database_tools as db_tools
-import logging
-import matplotlib
+import api.database_tools as db_tools
 import matplotlib.pyplot as plt
 import pandas as pd
+
+import logging
+import matplotlib
 import os
 
 logging.basicConfig(format='%(asctime)s - %(message)s',

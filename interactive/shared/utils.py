@@ -5,7 +5,7 @@ import json
 base_dir = '/music-box-interactive/interactive'
 try:
     from django.conf import settings
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'interactive.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
     base_dir = settings.BASE_DIR
 except:
     pass
@@ -49,48 +49,6 @@ def check_for_rabbit_mq():
     except pika.exceptions.AMQPConnectionError:
         return False
 
-# get path for filename
-def file_path(filename):
-    locations = {
-        'initials.json': 'config',
-        'my_config.json': 'config',
-        'options.json': 'config',
-        'photo.json': 'config',
-        'post.json': 'config',
-        'species.json': 'config',
-        'chapman.json': 'mechanism',
-        'datamolec_info.json': 'mechanism',
-        'datamolec_info copy.json': 'mechanism',
-        'form_stage.json': 'mechanism',
-        'latex.json': 'mechanism',
-        'reaction_stage.json': 'mechanism',
-        'T1mozcart.json': 'mechanism',
-        'mol_name.json': 'mechanism',
-        'linear_combinations.json': 'config',
-        'log_config.json': 'log',
-        'old_config.json': 'config',
-        'run_button.json': 'config',
-        'plots_configuration.json': 'config'
-    }
-    file_loc = locations[filename]
-    if file_loc == "config":
-        cfg = os.path.join(base_dir, "dashboard/static/config")
-        return os.path.join(cfg, filename)
-    elif file_loc == "mechanism":
-        cfg = os.path.join(base_dir, "dashboard/static/mechanism")
-        return os.path.join(cfg, filename)
-    elif file_loc == "log":
-        cfg = os.path.join(base_dir, "dashboard/static/log")
-        return os.path.join(cfg, filename)
-
-
-
-# open json file with filename
-def open_json(filename):
-    path = file_path(filename)
-    with open(path) as f:
-        dicti = json.loads(f.read())
-    return dicti
 
 
 def direct_open_json(filePath):
@@ -105,12 +63,6 @@ def direct_dump_json(filePath, content):
         # json.dump(content, f)
 
 
-# save dictionary as json to a file
-def dump_json(filename, content):
-    path = file_path(filename)
-    with open(path, 'w') as f:
-        json.dump(content, f, indent=4)
-
 
 # turns 'E a' notation to "10^a" notations
 def sci_note(dirty):
@@ -122,6 +74,7 @@ def sci_note(dirty):
     else: scinote = dirty
     return scinote
 
+
 # same as sci_note() but with tags for mathjax rendering
 def sci_note_jax(dirty):
     if 'e' in dirty:
@@ -132,6 +85,7 @@ def sci_note_jax(dirty):
     else: scinote = dirty
     jax = "\\" + "begin{equation}" + scinote + "\\" + "end{equation}"
     return jax
+
 
 # converts parameter labels to mathjax items
 def param_jax(dirty):
