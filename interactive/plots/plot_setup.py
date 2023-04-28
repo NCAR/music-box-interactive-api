@@ -84,7 +84,7 @@ def sub_props_names(subprop):
         return subprop
 
 
-def get_plot(prop, plot_units,
+def output_plot(prop, plot_units,
                 csb,
                 spc):
     matplotlib.use('agg')

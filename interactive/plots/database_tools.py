@@ -91,12 +91,12 @@ def get_plot(uid, prop, plot_units):
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
-    model_output_units = 'mol/m-3'
+    model_output_units = 'mol m-3'
     #make unit conversion if needed
     if plot_units:
         converter = vectorize(create_unit_converter(model_output_units, plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol/m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -119,7 +119,7 @@ def get_plot(uid, prop, plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
                 pp = float(db_tools.tolerance(uid)[name])
                 du = 'density units'
-                units = 'mol/m-3 '
+                units = 'mol m-3 '
                 de = 'density'
                 tolerance_tmp = ppm_to_plot_units(pp, {de: density, du: units})
             else:
@@ -134,7 +134,7 @@ def get_plot(uid, prop, plot_units):
                 axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
         else:
             name = name.split('__')[1]
-            axes.set_ylabel(r"(mol/m^3 s^-1)")
+            axes.set_ylabel(r"(mol m^-3 s^-1)")
             axes.set_title(beautifyReaction(name))
     elif prop.split('.')[0] == 'ENV':
         axes.set_title(sub_props_names(name))
@@ -143,7 +143,7 @@ def get_plot(uid, prop, plot_units):
         elif name == 'pressure':
             axes.set_ylabel(r"Pa")
         elif name == 'number_density_air':
-            axes.set_ylabel(r"moles/m^3")
+            axes.set_ylabel(r"moles m^-3")
 
     # axes.legend()
     axes.grid(True)
