@@ -81,7 +81,7 @@ def generate_database_network_plot(uid, species, path_to_template):
 
 
 # get plot from model run
-def get_plot(uid, prop, plot_units, tolerance):
+def get_plot(uid, prop, plot_units, tolerance, label):
     # get output.csv from model run
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
@@ -109,7 +109,7 @@ def get_plot(uid, prop, plot_units, tolerance):
     if prop.split('.')[0] == 'CONC':
         if 'myrate__' not in prop.split('.')[1]:
             axes.set_ylabel("("+plot_units+")")
-            axes.set_title(beautifyReaction(name))
+            axes.set_title(label)
             #unit converter for tolerance      
             if plot_units:
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
@@ -138,7 +138,7 @@ def get_plot(uid, prop, plot_units, tolerance):
             axes.set_ylabel(r"(mol m^-3 s^-1)")
             axes.set_title(beautifyReaction(name))
     elif prop.split('.')[0] == 'ENV':
-        axes.set_title(sub_props_names(name))
+        axes.set_title(label)
         if name == 'temperature':
             axes.set_ylabel(r"K")
         elif name == 'pressure':

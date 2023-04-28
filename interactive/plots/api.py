@@ -69,9 +69,11 @@ class GetPlot(views.APIView):
             buffer = BytesIO()
             # run get_plot function
             if request.GET['unit'] == 'n/a':
-                buffer = get_plot(request.session.session_key, props, False, request.GET['tolerance'])
+              buffer = get_plot(request.session.session_key, props, \
+                                False, request.GET['tolerance'], request.GET['label'])
             else:
-                buffer = get_plot(request.session.session_key, props, request.GET['unit'], request.GET['tolerance'])
+              buffer = get_plot(request.session.session_key, props, \
+                                request.GET['unit'], request.GET['tolerance'], request.GET['label'])
             return HttpResponse(buffer.getvalue(), content_type="image/png")
         return HttpResponseBadRequest('Bad format for plot request',
                                       status=405)
