@@ -11,37 +11,37 @@ unitDict = {
             'subtype': 'mixing ratio',
             'factor': 1e9
         },
-        'mol/mol':{
+        'mol mol-1':{
             'type': 'concentration',
             'subtype': 'mixing ratio',
             'factor': 1
         },
-        'mol/m-3':{
+        'mol m-3':{
             'type': 'concentration',
             'subtype': 'number density',
             'factor': 1
         },
-        'molecule/m-3':{
+        'molecule m-3':{
             'type': 'concentration',
             'subtype': 'number density',
             'factor': 6.0221415e23
         },
-        'mol/cm-3':{
+        'mol cm-3':{
             'type': 'concentration',
             'subtype': 'number density',
             'factor': 1e-6
         },
-        'molecule/cm-3':{
+        'molecule cm-3':{
             'type': 'concentration',
             'subtype': 'number density',
             'factor': 6.0221415e17
         },
-        'kg/m-2':{
+        'kg m-2':{
             'type': 'concentration',
             'subtype': 'area mass density',
             'factor': 1
         },
-        'g/m-2':{
+        'g m-2':{
             'type': 'concentration',
             'subtype': 'area mass density',
             'factor': 0.001
@@ -91,12 +91,12 @@ unitDict = {
             'subtype': 'standard pressure',
             'factor': 0.01,
         },
-        'g/mol':{
+        'g mol-1':{
             'type': 'molar mass',
             'subtype': 'standard molar mass',
             'factor': 1000,
         },
-        'kg/mol':{
+        'kg mol-1':{
             'type': 'molar mass',
             'subtype': 'standard molar mass',
             'factor': 1,
@@ -111,7 +111,7 @@ unitDict = {
             'subtype': 'standard height',
             'factor': 0.001,
         },
-        'mol/m-3 ':{
+        'mol m-3 ':{
             'type': 'density',
             'subtype': 'standard density',
             'factor': 1
