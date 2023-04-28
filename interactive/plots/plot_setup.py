@@ -1,6 +1,4 @@
 from . import mpl_helper
-from .compare import *
-from mechanism.species import tolerance_dictionary
 from numpy import vectorize
 from pylab import *
 from shared.utils import create_unit_converter, is_density_needed, beautifyReaction
@@ -38,10 +36,6 @@ def sub_props(prop, csvz):
     if prop == 'env':
         logging.info('getting conditions')
         return env
-    if prop == 'compare':
-        logging.info('getting runs')
-        runs = get_valid_runs()
-        return runs
 
 
 def direct_sub_props(prop, csv):
@@ -66,10 +60,6 @@ def direct_sub_props(prop, csv):
     if prop == 'env':
         logging.info('getting conditions')
         return env
-    if prop == 'compare':
-        logging.info('getting runs')
-        runs = get_valid_runs()
-        return runs
 
 
 def sub_props_names(subprop):
@@ -185,3 +175,6 @@ def plots_unit_select(prop):
         response = response + '</select></div></div>'
         response = response + '<label>Select Species to Plot:</label>'
     return response
+
+def tolerance_dictionary():
+    return 1e-14
