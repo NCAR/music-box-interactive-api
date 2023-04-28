@@ -1,14 +1,17 @@
 from bisect import bisect_left
 from django.conf import settings
+from io import StringIO
 from pyvis.network import Network
 from re import I, L
 from shared.utils import beautifyReaction, unbeautifyReaction
+
+import api.models as models
+import pandas as pd
 
 import json
 import logging
 import math
 import os
-import pandas as pd
 
 # paths to mechansim files
 path_to_reactions = os.path.join(
@@ -103,7 +106,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
         if el not in blockedSpecies:
             # create empty dict for each species
             species_nodes.update({el: {}})
-    for r in reactions_data['camp-data'][0]['reactions']:
+    for r in reactions_data:
         for species in list_of_species:
             species_colors.update({species: "#6b6bdb"})
             species_sizes.update({species: 40})
@@ -598,8 +601,9 @@ def getReactName(reaction_names_on_hover, x):
         name = x
     return name
 
+
 # function called from API to get data for graph (AKA the main function)
-def generate_flow_diagram(request_dict):
+def generate_flow_diagram(request_dict, uid):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
     global previous_vals
@@ -612,7 +616,7 @@ def generate_flow_diagram(request_dict):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        logger.info("new user selected min and max: " + str(userSelectedMinMax))
+        logging.info("new user selected min and max: " + str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -620,9 +624,9 @@ def generate_flow_diagram(request_dict):
         request_dict.update({'maxArrowWidth': 10})
     minAndMaxOfSelectedTimeFrame = [999999999999, -1]
     # load csv file
-    csv_results_path = os.path.join(
-        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
-    csv = pd.read_csv(csv_results_path)
+    model = models.ModelRun.objects.get(uid=uid)
+    output_csv = StringIO(model.results['/output.csv'])
+    csv = pd.read_csv(output_csv, encoding='latin1')
 
     start_step = int(request_dict['startStep'])
     end_step = int(request_dict['endStep'])
@@ -640,9 +644,7 @@ def generate_flow_diagram(request_dict):
         max_width = 2  # change for max width with optimized performance
 
     # load species json and reactions json
-
-    with open(path_to_reactions, 'r') as f:
-        reactions_data = json.load(f)
+    reactions_data = request_dict["reactions"]
 
     # completely new method of creating nodes and filtering elements
     selected_species = request_dict['includedSpecies'].split(',')
@@ -653,7 +655,7 @@ def generate_flow_diagram(request_dict):
      total_quantites,
      reaction_names_on_hover) = new_find_reactions_and_species(
         selected_species, reactions_data, blockedSpecies,
-        csv, start_step, end_step, max_width, scale_type)
+        csv, start_step, end_step, max_width, scale_type, uid)
 
     # add edges and nodes
     # force network to be 100% width and height before it's sent to page
@@ -675,13 +677,13 @@ def generate_flow_diagram(request_dict):
                       10 for x in list(reac_nodes)], title=names)
         net.add_nodes(network_content['species_nodes'], color=colors,
                       size=[
-                        10 for x in list(network_content['species_nodes'])])
+            10 for x in list(network_content['species_nodes'])])
     else:
         net.add_nodes(names, color=[
                       "#FF7F7F" for x in reac_nodes], title=names)
         net.add_nodes(network_content['species_nodes'], color=colors,
                       size=[species_sizes[x] for x in list(
-                        network_content['species_nodes'])])
+                          network_content['species_nodes'])])
     net.set_edge_smooth('dynamic')
     # add edges individually so we can modify contents
     i = 0
@@ -734,10 +736,11 @@ def generate_flow_diagram(request_dict):
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
-    net.show(path_to_template)
+    # net.show(path_to_template)
+    net.show(uid+"_flow_network.html") # tmp file to put html at
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]
-    with open(path_to_template, 'r+') as f:
+    with open(uid+"_flow_network.html", 'r+') as f:
         #############################################
         # here we are going to replace the contents #
         #############################################
@@ -745,7 +748,13 @@ def generate_flow_diagram(request_dict):
         network.on("stabilizationIterationsDone", function () {
             network.setOptions( { physics: false } );
         });
-        </script>"""
+    
+        </script>
+        
+        """
+        logging.debug("((DEBUG)) [min,max] of selected time frame: " +
+            str(minAndMaxOfSelectedTimeFrame))
+        logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -758,7 +767,8 @@ def generate_flow_diagram(request_dict):
                 or int(minAndMaxOfSelectedTimeFrame[0]) == 999999999999):
             a = """<script>
         parent.document.getElementById("flow-start-range2").value = "NULL";
-        parent.document.getElementById("flow-end-range2").value = "NULL";"""
+        parent.document.getElementById("flow-end-range2").value = "NULL";
+        console.log("inputting NULL");"""
 
         else:
             a = '<script>\
@@ -774,16 +784,22 @@ def generate_flow_diagram(request_dict):
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
+            logging.debug("previousMin:" + str(formattedPrevMin) + 
+                "does not equal " + str(formattedMinOfSelected))
+            logging.debug("previousMax: " + str(formattedPrevMax) +
+                " does not equal " + str(formattedMaxOfSelected))
+            logging.debug("previousMin: " + str(previousMin) + " equals 0")
+            logging.debug("previousMax: " + str(previousMax) + " equals 1")
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
                 "'+str(formattedMaxOfSelected)+'";'
             a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
-                  + str(formattedMaxOfSelected)+'", "'+str(
-                  formattedMinOfSelected)+'", "'
-                  + str(formattedMaxOfSelected)+'");</script>')
+                + str(formattedMaxOfSelected)+'", "'+str(
+                formattedMinOfSelected)+'", "'
+                + str(formattedMaxOfSelected)+'", '+str(get_step_length(uid))+');</script>')
         else:
-            logger.info("looks like min and max are the same")
+            logging.debug("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
             block1 = 'parent.document.getElementById("flow-start-range2")'
@@ -795,13 +811,14 @@ def generate_flow_diagram(request_dict):
                 block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
                 fmos = str(formattedMinOfSelected)
                 block2 = formattedUserMax + '", "' + fmos
-                block3 = '", "' + formattedMaxOfSelected + '");</script>'
+                block3 = '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');\
+                        </script>'
                 a += block1 + block2 + block3
             else:
                 fmos = formattedMinOfSelected
                 block1 = 'parent.reloadSlider("' + fmos + '", "'
                 block2 = formattedMaxOfSelected + '", "' + str(fmos)
-                a += block1 + '", "' + formattedMaxOfSelected + '");</script>'
+                a += block1 + '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \
@@ -826,7 +843,14 @@ def generate_flow_diagram(request_dict):
         f.seek(0)  # rewrite into the file
         for line in lines:
             f.write(line)
+        f.close()
 
+    # read from file, delete the file, and return the contents
+    f = open(uid+"_flow_network.html", 'r')
+    contents = f.read()
+    f.close()
+    os.remove(uid+"_flow_network.html")
+    return contents
 
 # function that returns HTML code for iframe network (used for new api)
 def create_and_return_flow_diagram(request_dict,

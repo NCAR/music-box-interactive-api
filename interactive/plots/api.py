@@ -1,12 +1,12 @@
 from admin import settings
 from api import models
 from api.database_tools import get_model_run
-from flow_diagram import generate_flow_diagram
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from io import StringIO, BytesIO
 from plots.database_tools import generate_database_network_plot, get_plot
+from plots.flow_diagram import generate_flow_diagram
 from rest_framework import views
 from shared.utils import beautifyReaction
 
