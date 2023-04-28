@@ -10,11 +10,16 @@ def get_session_path(session_id):
     return os.path.join('/music-box-interactive/interactive/configs', session_id)
 
 
+def get_config_file_path(session_id):
+    '''Returns the absolute path to the MusicBox configuration file'''
+    return os.path.join(get_session_path(session_id), "my_config.json")
+
+
 def load_configuration(session_id, config):
     '''Loads a JSON configuration from the client and saves it in MusicBox format'''
     try:
         session_path = get_session_path(session_id)
-        config_file_path = os.path.join(session_path, 'my_config.json')
+        config_file_path = get_config_file_path(session_id)
 
         camp_config = None
         full_camp_config_path = None
@@ -72,5 +77,4 @@ def load_configuration(session_id, config):
         error = {"error.json": str(e), "session_id": session_id}
         publish_message(error)
         logging.exception('Loading configuration failed')
-
 

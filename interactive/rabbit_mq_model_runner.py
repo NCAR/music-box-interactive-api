@@ -18,7 +18,7 @@ import pika
 import shutil
 import subprocess
 import sys
-from shared.configuration_handler import load_configuration
+from shared.configuration_handler import load_configuration, get_config_file_path
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -97,6 +97,7 @@ def run_queue_callback(ch, method, properties, body):
         config = data["config"]
 
         load_configuration(session_id, config)
+        config_file_path = get_config_file_path(session_id)
 
         logging.info("Adding runner for session {} to pool".format(session_id))
 
