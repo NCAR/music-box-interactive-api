@@ -70,3 +70,36 @@ class RunView(views.APIView):
             response = {'status': response_models.RunStatus.ERROR}
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
+
+class CompressConfig(views.APIView):
+    @swagger_auto_schema(
+        query_serializer=request_models.RunSerializer,
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=response_models.PollingStatusSerializer
+            )
+        }
+    )
+    def post(self, request):
+        if not request.session.session_key:
+            request.session.save()
+        logger.info(f"Recieved run request for session {request.session.session_key}")
+        return JsonResponse({ 'status': 'OK' }, encoder=response_models.RunStatusEncoder)
+
+
+class ExtractConfig(views.APIView):
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=response_models.PollingStatusSerializer
+            )
+        }
+    )
+    def post(self, request):
+        if not request.session.session_key:
+            request.session.save()
+        logger.info(f"Recieved run request for session {request.session.session_key}")
+        return JsonResponse({ 'status': 'OK' }, encoder=response_models.RunStatusEncoder)
+
