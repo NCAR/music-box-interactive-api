@@ -24,7 +24,7 @@ class LoadExample(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key:
+        if not request.session.session_key or not db_tools.user_exists(request.session.session_key):
             request.session.save()
         example = request.GET.dict()['example']
         _ = db_tools.get_user_or_start_session(request.session.session_key)
@@ -61,7 +61,7 @@ class RunView(views.APIView):
         }
     )
     def post(self, request):
-        if not request.session.session_key:
+        if not request.session.session_key or not db_tools.user_exists(request.session.session_key):
             request.session.save()
         logger.info(f"Recieved run requst for session {request.session.session_key}")
         if controller.publish_run_request(request.session.session_key, request.data):

@@ -6,6 +6,7 @@ from re import I, L
 from shared.utils import beautifyReaction, unbeautifyReaction
 
 import api.models as models
+import numpy as np
 import pandas as pd
 
 import json
@@ -28,20 +29,6 @@ previous_vals = [0, 1]
 logger = logging.getLogger(__name__)
 
 
-# returns species in csv
-def get_species(csv_results_path):
-    csv = pd.read_csv(csv_results_path)
-    concs = [x for x in csv.columns if 'CONC' in x]
-    clean_concs = [x.split('.')[1] for x in concs if 'myrate' not in x]
-    return clean_concs
-
-
-# returns length of csv
-def get_simulation_length(csv_results_path):
-    csv = pd.read_csv(csv_results_path)
-    return int(csv['time'].iloc[-1])
-
-
 # get user inputted step length
 def get_step_length(csv_results_path):
     csv = pd.read_csv(csv_results_path)
@@ -49,50 +36,6 @@ def get_step_length(csv_results_path):
         return int(csv['time'].iloc[1])
     else:
         return 0
-
-
-# get entire time column from results
-def time_column_list(csv_results_path):
-    csv = pd.read_csv(csv_results_path)
-    return csv['time'].tolist()
-
-
-# make list of indexes of included reactions
-def find_reactions(list_of_species, reactions_json):
-    r_list = reactions_json['camp-data'][0]['reactions']
-    included = {}
-    for reaction in r_list:
-        reactants = []
-        products = []
-        if 'reactants' in reaction:
-            reactants = reaction['reactants']
-
-        if 'products' in reaction:
-            products = reaction['products']
-
-        for species in list_of_species:
-            if (species in products) or (species in reactants):
-                included.update({r_list.index(reaction): {}})
-    return list(included)
-
-
-# make list of indexes into reaction names
-def name_included_reactions(included_reactions, reactions_json):
-    r_list = reactions_json['camp-data'][0]['reactions']
-    names_dict = {}
-    for reaction_index in included_reactions:
-        reaction = r_list[reaction_index]
-        if 'reactants' in reaction:
-            reactants = reaction['reactants']
-        else:
-            reactants = ['null']
-        if 'products' in reaction:
-            products = reaction['products']
-        else:
-            products = ['null']
-        name = '_'.join(reactants) + '->' + '_'.join(products)
-        names_dict.update({reaction_index: name})
-    return names_dict
 
 
 # return list of species, reactions, species size and colors.
@@ -107,12 +50,13 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
             # create empty dict for each species
             species_nodes.update({el: {}})
     for r in reactions_data:
+        logger.info(f"r: {r}")
         for species in list_of_species:
             species_colors.update({species: "#6b6bdb"})
             species_sizes.update({species: 40})
             if 'reactants' in r:
                 if species in r['reactants']:
-                    tmp_val = reactions_data['camp-data'][0]['reactions']
+                    tmp_val = reactions_data
                     contained_reactions.update(
                         {tmp_val.index(r): {}})
                     reaction_string = ""
@@ -128,7 +72,7 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
                         reaction_string = reaction_string[:-1]
                     reactions_nodes.update({reaction_string: {}})
                 if species in r['products']:
-                    tmp_val = reactions_data['camp-data'][0]['reactions']
+                    tmp_val = reactions_data
                     contained_reactions.update(
                         {tmp_val.index(r): {}})
                     reaction_string = ""
@@ -180,13 +124,10 @@ def findReactionRates(reactions_nodes, df, start, end,
         reactionsToAdd.append(re)
     rates = df[rates_cols]
     first = 0
-    last = len(time_column_list(csv_results_path))-1
-    # find closest time value to start, NOT USED RN
-    closest_val = take_closest(time_column_list(csv_results_path), start)
-    (" [DEBUG] closest_val: " + str(closest_val))
+    last = len(df)-1
     if start != 1:
-        first = time_column_list(csv_results_path).index(start)
-        last = time_column_list(csv_results_path).index(end)
+        first = np.where(df.time.values == take_closest(df.time.values, start))[0].item()
+        last = np.where(df.time.values == take_closest(df.time.values, end))[0].item()
     first_and_last = rates.iloc[[first, last]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
@@ -254,6 +195,7 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for product in products_data:
             if product != "NO_PRODUCTS":
                 name = reaction+"__TO__"+product
+                logger.info(widths)
                 tmp = widths[reaction]*quantities[name]
                 if (tmp <= userMM[1]
                         and tmp >= userMM[0]):
@@ -454,7 +396,7 @@ def reactionNameFromDictionary(r):
 
 
 # return quantities of species in reactions
-def findQuantities(reactions_nodes, reactions_json):
+def findQuantities(reactions_nodes, reactions):
     global userSelectedMinMax
     global previous_vals
     global minAndMaxOfSelectedTimeFrame
@@ -467,19 +409,18 @@ def findQuantities(reactions_nodes, reactions_json):
 
     reaction_names_on_hover = {}  # these names will be shown on hover
 
-    r_list = reactions_json['camp-data'][0]['reactions']
     i = 0
-    for reaction in r_list:
-        if "products" in r_list[i]:
+    for reaction in reactions:
+        if "products" in reaction:
             # get products data at index reaction
-            reaction_data = r_list[i]['products']
+            reaction_data = reaction['products']
             # get reactants data at index reaction
-            reactant_data = r_list[i]['reactants']
+            reactant_data = reaction['reactants']
 
             reactants_string = ""
             products_string = ""
 
-            speciesFromReaction = reactionNameFromDictionary(r_list[i])
+            speciesFromReaction = reactionNameFromDictionary(reactions[i])
 
             for reactant in reactant_data:
                 reactant_name = reactant
@@ -616,7 +557,7 @@ def generate_flow_diagram(request_dict, uid):
         userSelectedMinMax = [
             float(request_dict["minMolval"]),
             float(request_dict["maxMolval"])]
-        logging.info("new user selected min and max: " + str(userSelectedMinMax))
+        logger.info("new user selected min and max: " + str(userSelectedMinMax))
     if 'startStep' not in request_dict:
         request_dict.update({'startStep': 1})
 
@@ -644,11 +585,12 @@ def generate_flow_diagram(request_dict, uid):
         max_width = 2  # change for max width with optimized performance
 
     # load species json and reactions json
-    reactions_data = request_dict["reactions"]
+    reactions_data = request_dict["reactions"]["reactions"]
+    logger.info(f"reactions data: {reactions_data}")
 
     # completely new method of creating nodes and filtering elements
-    selected_species = request_dict['includedSpecies'].split(',')
-    blockedSpecies = request_dict['blockedSpecies'].split(',')
+    selected_species = request_dict['includedSpecies']
+    blockedSpecies = request_dict['blockedSpecies']
 
     (network_content, raw_yields, edgeColors, quantities, minVal, maxVal,
      raw_yield_values, species_colors, species_sizes,
@@ -688,6 +630,7 @@ def generate_flow_diagram(request_dict, uid):
     # add edges individually so we can modify contents
     i = 0
     values = edgeColors
+    logger.info(network_content)
     for edge in network_content['edges']:
         unbeu1 = unbeautifyReaction(edge[0])
         unbeu2 = unbeautifyReaction(edge[1])
@@ -752,9 +695,9 @@ def generate_flow_diagram(request_dict, uid):
         </script>
         
         """
-        logging.debug("((DEBUG)) [min,max] of selected time frame: " +
+        logger.debug("((DEBUG)) [min,max] of selected time frame: " +
             str(minAndMaxOfSelectedTimeFrame))
-        logging.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
+        logger.debug("((DEBUG)) [min,max] given by user: " + str(userSelectedMinMax))
         formattedPrevMin = str('{:0.3e}'.format(previousMin))
         formattedPrevMax = str('{:0.3e}'.format(previousMax))
         formattedMinOfSelected = str(
@@ -784,12 +727,12 @@ def generate_flow_diagram(request_dict, uid):
         if (str(formattedPrevMin) != str(formattedMinOfSelected)
             or str(formattedPrevMax) != str(formattedMaxOfSelected)
                 or previousMax == 1):
-            logging.debug("previousMin:" + str(formattedPrevMin) + 
+            logger.debug("previousMin:" + str(formattedPrevMin) + 
                 "does not equal " + str(formattedMinOfSelected))
-            logging.debug("previousMax: " + str(formattedPrevMax) +
+            logger.debug("previousMax: " + str(formattedPrevMax) +
                 " does not equal " + str(formattedMaxOfSelected))
-            logging.debug("previousMin: " + str(previousMin) + " equals 0")
-            logging.debug("previousMax: " + str(previousMax) + " equals 1")
+            logger.debug("previousMin: " + str(previousMin) + " equals 0")
+            logger.debug("previousMax: " + str(previousMax) + " equals 1")
             a += 'parent.document.getElementById("flow-start-range2").value =\
                 "'+str(formattedMinOfSelected)+'";\
                     parent.document.getElementById("flow-end-range2").value =\
@@ -799,7 +742,7 @@ def generate_flow_diagram(request_dict, uid):
                 formattedMinOfSelected)+'", "'
                 + str(formattedMaxOfSelected)+'", '+str(get_step_length(uid))+');</script>')
         else:
-            logging.debug("looks like min and max are the same")
+            logger.debug("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
             isNotDefaultmax = int(userSelectedMinMax[1]) != -1
             block1 = 'parent.document.getElementById("flow-start-range2")'
