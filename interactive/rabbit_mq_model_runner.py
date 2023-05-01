@@ -45,8 +45,8 @@ def publish_message(message):
         channel = connection.channel()
         channel.queue_declare(queue='model_finished_queue')
         channel.basic_publish(exchange='',
-                                routing_key='model_finished_queue',
-                                body=json.dumps(message))
+                              routing_key='model_finished_queue',
+                              body=json.dumps(message))
 
 # disable propagation
 logging.getLogger("pika").propagate = False
