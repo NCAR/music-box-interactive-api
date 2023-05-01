@@ -40,7 +40,6 @@ def get_step_length(csv_results_path):
 
 # return list of species, reactions, species size and colors.
 def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
-    contained_reactions = {}
     species_nodes = {}
     reactions_nodes = {}
     species_colors = {}
@@ -51,46 +50,49 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
             species_nodes.update({el: {}})
     for r in reactions_data:
         for species in list_of_species:
-            logger.info(f"species: {species}")
+            if 'irr__' in species:
+                continue
             species_colors.update({species: "#6b6bdb"})
             species_sizes.update({species: 40})
             if 'reactants' in r:
                 if species in r['reactants']:
-                    tmp_val = reactions_data
-                    contained_reactions.update(
-                        {tmp_val.index(r): {}})
                     reaction_string = ""
                     for reactant in r['reactants']:
                         species_nodes.update({reactant: {}})
                         reaction_string = reaction_string + reactant + "_"
                     # remove last _ and replace with ->
                     reaction_string = reaction_string[:-1] + "->"
+                    irr = ''
                     for product in r['products']:
+                        if 'irr__' in product:
+                            irr = product
+                            continue
                         species_nodes.update({product: {}})
                         reaction_string = reaction_string + product + "_"
                     if r['products'] != [] and len(r['products']) != 0:
                         reaction_string = reaction_string[:-1]
-                    reactions_nodes.update({reaction_string: {}})
+                    reactions_nodes.update({reaction_string: {"irr": irr}})
                 if species in r['products']:
-                    tmp_val = reactions_data
-                    contained_reactions.update(
-                        {tmp_val.index(r): {}})
                     reaction_string = ""
                     for reactant in r['reactants']:
                         species_nodes.update({reactant: {}})
                         reaction_string = reaction_string + reactant + "_"
                     # remove last + and replace with →
                     reaction_string = reaction_string[:-1] + "->"
+                    irr = ''
                     for product in r['products']:
+                        if 'irr__' in product:
+                            irr = product
+                            continue
                         species_nodes.update({product: {}})
                         reaction_string = reaction_string + product + "_"
                     reaction_string = reaction_string[:-1]
-                    reactions_nodes.update({reaction_string: {}})
+                    reactions_nodes.update({reaction_string: {"irr": irr}})
     for speci in species_nodes:
         if speci not in list_of_species:
             species_colors.update({speci: "#94b8f8"})
             species_sizes.update({speci: 20})
-    return (contained_reactions, species_nodes,
+    return (species_nodes,
             reactions_nodes, species_colors, species_sizes)
 
 
@@ -117,9 +119,9 @@ def take_closest(myList, myNumber):
 # return list of raw widths for arrows. Also set new minAndMax
 def findReactionRates(reactions_nodes, df, start, end):
     # select columns representing the intermediate reaction rates
-    rates_cols = [x for x in df.columns if 'irr' in x]
-    reactionsToAdd = list(reactions_nodes.keys())
-    logger.info(reactionsToAdd)
+    rates_cols = [x for x in df.columns if 'irr__' in x]
+    # now map irr__X to the reaction name
+    mapping = {vals['irr'] : key for key, vals in reactions_nodes.items()}
     rates = df[rates_cols]
     first = 0
     last = len(df)-1
@@ -133,16 +135,9 @@ def findReactionRates(reactions_nodes, df, start, end):
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
     # map irr concentrations to reaction names
-    mapping = {}
-    logger.info(reactionsToAdd)
-    for key in values:
-        logger.info(f'key = {key}')
-        for reaction in reactionsToAdd:
-            if key.split('.')[1] in reaction:
-                mapping[key] = reaction
     widths = {}
     for key in values:
-        widths[mapping[key]] = values[key]
+        widths[mapping[key.split('.')[1]]] = values[key]
     return widths
 
 
@@ -199,6 +194,9 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     for reaction in reactions_nodes:
 
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
+        logger.info(f"reaction: {reaction}")
+        logger.info(products_data)
+        logger.info(reactants_data)
         for product in products_data:
             if product != "NO_PRODUCTS":
                 name = reaction+"__TO__"+product
@@ -320,8 +318,7 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     logger.info("*= [1/6] FINDING REACTIONS AND SPECIES =*")
     logger.info(" ***************************************")
 
-    (contained_reactions, species_nodes,
-     reactions_nodes, species_colors,
+    (species_nodes, reactions_nodes, species_colors,
      species_sizes) = findReactionsAndSpecies(
         list_of_species, reactions_data, blockedSpecies)
 
@@ -595,7 +592,6 @@ def generate_flow_diagram(request_dict, uid):
 
     # load species json and reactions json
     reactions_data = request_dict["reactions"]["reactions"]
-    logger.info(f"reactions data: {reactions_data}")
 
     # completely new method of creating nodes and filtering elements
     selected_species = request_dict['includedSpecies']
