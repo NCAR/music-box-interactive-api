@@ -191,6 +191,8 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
     if (newMin != prev0 or newMax != prev1):
         userSelectedMinMax = [newmin, newmax]
     userMM = userSelectedMinMax  # short version to clean up code
+    logger.info(widths)
+    logger.info(quantities)
     for reaction in reactions_nodes:
 
         products_data, reactants_data = getProductsAndReactionsFrom(reaction)
@@ -200,7 +202,6 @@ def sortYieldsAndEdgeColors(reactions_nodes, reactions_data,
         for product in products_data:
             if product != "NO_PRODUCTS":
                 name = reaction+"__TO__"+product
-                logger.info(widths)
                 tmp = widths[reaction]*quantities[name]
                 if (tmp <= userMM[1]
                         and tmp >= userMM[0]):
@@ -437,6 +438,7 @@ def findQuantities(reactions_nodes, reactions):
                     and (isSpeciesInReaction(reaction_data, reactant_name)
                          or inReac)):
                     nme = str(reactant_name)+"__TO__"+str(speciesFromReaction)
+                    logger.info(f"nme: {nme}")
                     quantities.update({nme: 1})
                     if str(speciesFromReaction) in reactions_nodes:
                         new_val = total_quantites.get(reactant_name, 0) + 1
@@ -446,6 +448,7 @@ def findQuantities(reactions_nodes, reactions):
                 elif (isSpeciesInReaction(reaction_data, reactant_name)
                       or isSpeciesInReaction(reactant_data, reactant_name)):
                     reactant_yield = reactant_yield['qty']
+                    logger.info(f"name: {name}")
                     quantities.update(
                         {name: reactant_yield})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -461,6 +464,8 @@ def findQuantities(reactions_nodes, reactions):
             if len(reaction_data) == 0:
                 products_string = "NO_PRODUCTS-"
             for product in reaction_data:
+                if "irr__" in product:
+                    continue
                 product_name = product
                 product_yield = reaction_data[product_name]
 
@@ -469,6 +474,7 @@ def findQuantities(reactions_nodes, reactions):
                     and (isSpeciesInReaction(reaction_data, product_name)
                          or isSpeciesInReaction(reactant_data, product_name))):
                     nme = str(speciesFromReaction)+"__TO__"+str(product_name)
+                    logger.info(f"nme2: {nme}")
                     quantities.update({nme: 1})
                     # check if reaction is included in user selected species
                     if str(speciesFromReaction) in reactions_nodes:
@@ -481,6 +487,7 @@ def findQuantities(reactions_nodes, reactions):
                       or isSpeciesInReaction(reactant_data, product_name)):
                     product_yield = product_yield['yield']
                     name = str(speciesFromReaction)+"__TO__"+str(product_name)
+                    logger.info(f"name2: {name}")
                     quantities.update(
                         {name: product_yield})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -554,6 +561,7 @@ def generate_flow_diagram(request_dict, uid):
     global userSelectedMinMax
     global minAndMaxOfSelectedTimeFrame
     global previous_vals
+    logger.info(f'request: {request_dict}')
 
     if (('maxMolval' in request_dict and 'minMolval' in request_dict)
         and (request_dict['maxMolval'] != ''
