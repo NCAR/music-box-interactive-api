@@ -15,6 +15,11 @@ def get_config_file_path(session_id):
     return os.path.join(get_session_path(session_id), "my_config.json")
 
 
+def get_working_directory(session_id):
+    '''Returns the working directory for model runs for a given session id'''
+    return f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
+
+
 def load_configuration(session_id, config):
     '''Loads a JSON configuration from the client and saves it in MusicBox format'''
     try:
@@ -37,7 +42,7 @@ def load_configuration(session_id, config):
         mechanism_config = os.path.join(camp_dir, 'mechanism.json')
         # make a workding directory in the music box build folder
         # this prevents jobs from differing sessions from overwriting each other
-        working_directory = f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
+        working_directory = get_working_directory(session_id)
         logging.info(f"Working directory: {working_directory}")
 
         os.makedirs(session_path, exist_ok=True)
