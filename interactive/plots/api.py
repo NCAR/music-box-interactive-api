@@ -130,11 +130,10 @@ class GetFlow(views.APIView):
         }
     )
     def post(self, request):
-        logging.info("get flow")
         if not request.session.session_key:
             request.session.save()
-        logging.info(f"session id: {request.session.session_key}")
-        logging.info("using data:" + str(request.data))
+        logging.debug(f"session id: {request.session.session_key}")
+        logging.debug("using data:" + str(request.data))
         flow = generate_flow_diagram(request.data, request.session.session_key)
         return  JsonResponse({})
         return HttpResponse(flow)

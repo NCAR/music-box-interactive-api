@@ -50,8 +50,8 @@ def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
             # create empty dict for each species
             species_nodes.update({el: {}})
     for r in reactions_data:
-        logger.info(f"r: {r}")
         for species in list_of_species:
+            logger.info(f"species: {species}")
             species_colors.update({species: "#6b6bdb"})
             species_sizes.update({species: 40})
             if 'reactants' in r:
@@ -115,27 +115,34 @@ def take_closest(myList, myNumber):
 
 
 # return list of raw widths for arrows. Also set new minAndMax
-def findReactionRates(reactions_nodes, df, start, end,
-                      csv_results_path):
-    rates_cols = [x for x in df.columns if 'myrate' in x]
-    reactionsToAdd = []
-    for re in reactions_nodes:
-        # convert index of reaction into actual reaction name
-        reactionsToAdd.append(re)
+def findReactionRates(reactions_nodes, df, start, end):
+    # select columns representing the intermediate reaction rates
+    rates_cols = [x for x in df.columns if 'irr' in x]
+    reactionsToAdd = list(reactions_nodes.keys())
+    logger.info(reactionsToAdd)
     rates = df[rates_cols]
     first = 0
     last = len(df)-1
+    end = 800
+    # map the start and end values to the respective nearest time step
     if start != 1:
         first = np.where(df.time.values == take_closest(df.time.values, start))[0].item()
         last = np.where(df.time.values == take_closest(df.time.values, end))[0].item()
+    # find the change between the two timesteps
     first_and_last = rates.iloc[[first, last]]
     difference = first_and_last.diff()
     values = dict(difference.iloc[-1])
+    # map irr concentrations to reaction names
+    mapping = {}
+    logger.info(reactionsToAdd)
+    for key in values:
+        logger.info(f'key = {key}')
+        for reaction in reactionsToAdd:
+            if key.split('.')[1] in reaction:
+                mapping[key] = reaction
     widths = {}
     for key in values:
-        if key.split('.')[1].split("__")[1] in reactionsToAdd:
-            widths.update({key.split('.')[1].split("__")[1]: float(
-                str('{:0.3e}'.format(values[key])))})
+        widths[mapping[key]] = values[key]
     return widths
 
 
@@ -324,7 +331,9 @@ def new_find_reactions_and_species(list_of_species, reactions_data,
     logger.info("*= [2/6] FINDING INTEGRATED REACTION RATES =*")
     logger.info(" *******************************************")
 
-    widths = findReactionRates(reactions_nodes, df, start, end, cs)
+    widths = findReactionRates(reactions_nodes, df, start, end)
+
+    logger.info(f"widths: {widths}")
 
     logger.info(" *************************************")
     logger.info("*= [3/6] sorting yields from species =*")
