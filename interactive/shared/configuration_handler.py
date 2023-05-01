@@ -3,16 +3,36 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+import shutil
 
 
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
-    return os.path.join('/music-box-interactive/interactive/configs', session_id)
+    os.makedirs(os.environ['MUSIC_BOX_CONFIG_DIR'], exist_ok=True)
+    path = os.path.join('/music-box-interactive/interactive/configs', session_id)
+    os.makedirs(path)
+    return path
 
 
 def get_config_file_path(session_id):
     '''Returns the absolute path to the MusicBox configuration file'''
     return os.path.join(get_session_path(session_id), "my_config.json")
+
+
+def get_working_directory(session_id):
+    '''Returns the working directory for model runs for a given session id'''
+    os.makedirs(os.environ['MUSIC_BOX_BUILD_DIR'], exist_ok=True)
+    path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], session_id)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def get_zip_file_path(session_id):
+    '''Returns the path for a zip file for a given session id'''
+    os.makedirs(os.environ['MUSIC_BOX_ZIP_DIR'], exist_ok=True)
+    path = os.path.join(os.environ['MUSIC_BOX_ZIP_DIR'], session_id)
+    os.makedirs(path, exist_ok=True)
+    return path
 
 
 def load_configuration(session_id, config):
@@ -37,12 +57,10 @@ def load_configuration(session_id, config):
         mechanism_config = os.path.join(camp_dir, 'mechanism.json')
         # make a workding directory in the music box build folder
         # this prevents jobs from differing sessions from overwriting each other
-        working_directory = f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
+        working_directory = get_working_directory(session_id)
         logging.info(f"Working directory: {working_directory}")
 
-        os.makedirs(session_path, exist_ok=True)
         os.makedirs(camp_dir, exist_ok=True)
-        os.makedirs(working_directory, exist_ok=True)
         if not os.path.exists(working_directory):
             raise Exception("Did not create working directory")
 
@@ -78,3 +96,32 @@ def load_configuration(session_id, config):
         publish_message(error)
         logging.exception('Loading configuration failed')
 
+
+def compress_configuration(session_id):
+    '''Creates a compressed file holding the previously loaded configuration for a given session id'''
+
+    config_folder = get_session_path(session_id)
+    zip_file_path = get_zip_file_path(session_id)
+    logging.info(f'Compressing configuration: {config_folder} to: {zip_file_path}')
+    make_archive(config_folder, zip_file_path)
+
+
+def make_archive(source, destination):
+    '''Creates a compressed version of the source folder. From: http://www.seanbehan.com/how-to-use-python-shutil-make_archive-to-zip-up-a-directory-recursively-including-the-root-folder/'''
+    base = os.path.basename(destination)
+    name = base.split('.')[0]
+    format = base.split('.')[1]
+    archive_from = os.path.dirname(source)
+    archive_to   = os.path.basename(source.strip(os.sep))
+    shutil.make_archive(name, format, archive_from, archive_to)
+    shutil.move(f'{name}.{format}', destination)
+
+
+def extract_configuration(session_id, zipfile):
+    '''Extracts a compressed configuration and returns it as JSON'''
+    content = zipfile.read()
+    with open(get_zip_file_path(session_id), 'wb') as f:
+        f.write(content)
+    with ZipFile(get_zip_file_path(session_id, 'r') as zip:
+        zip.extractall(get_session_path(session_id)
+    return True

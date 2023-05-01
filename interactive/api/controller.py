@@ -6,6 +6,9 @@ import logging
 import os
 import pandas as pd
 import pika
+from shared.configuration_handler import compress_configuration, \
+                                         load_configuration, \
+                                         get_zip_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +61,15 @@ def load_example(example):
 
 
     return conditions, mechanism
+
+
+def compress_configuration(session_id, request_data):
+    '''Returns a compress file containing the provided configuration'''
+    data = json.loads(request_data)
+    config = data["config"]
+    load_configuration(session_id, config)
+    compress_configuration(session_id)
+    return open(get_zip_file_path(session_id), 'rb')
 
 
 def publish_run_request(session_id, config):

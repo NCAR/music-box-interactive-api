@@ -71,7 +71,7 @@ class RunView(views.APIView):
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
-class CompressConfiguration(views.APIView):
+class CompressConfigurationView(views.APIView):
     @swagger_auto_schema(
         query_serializer=request_models.RunSerializer,
         responses={
@@ -84,11 +84,14 @@ class CompressConfiguration(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.save()
-        logger.info(f"Recieved run request for session {request.session.session_key}")
-        return JsonResponse({ 'status': 'OK' }, encoder=response_models.RunStatusEncoder)
+        logger.info(f"Recieved compress configuration request for session {request.session.session_key}")
+        tarball = controller.compress_configuration(request.session.session_key, request.data)
+        response = HttpResponse(tarball, content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename="config.zip"'
+        return response
 
 
-class ExtractConfiguration(views.APIView):
+class ExtractConfigurationView(views.APIView):
     @swagger_auto_schema(
         responses={
             200: openapi.Response(
@@ -100,6 +103,7 @@ class ExtractConfiguration(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.save()
-        logger.info(f"Recieved run request for session {request.session.session_key}")
-        return JsonResponse({ 'status': 'OK' }, encoder=response_models.RunStatusEncoder)
+        logger.info(f"Recieved extract configuration request for session {request.session.session_key}")
+        conditions, mechanism = controller.extract_configuration(request.session.session_key, request.data)
+        return JsonResponse({ 'conditions': conditions, 'mechanism': mechanism })
 

@@ -18,7 +18,9 @@ import pika
 import shutil
 import subprocess
 import sys
-from shared.configuration_handler import load_configuration, get_config_file_path
+from shared.configuration_handler import load_configuration, \
+                                         get_config_file_path, \
+                                         get_working_directory
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -98,6 +100,7 @@ def run_queue_callback(ch, method, properties, body):
 
         load_configuration(session_id, config)
         config_file_path = get_config_file_path(session_id)
+        working_directory = get_working_directory(session_id)
 
         logging.info("Adding runner for session {} to pool".format(session_id))
 
@@ -107,7 +110,7 @@ def run_queue_callback(ch, method, properties, body):
             # run music box with this configuration
             f"/music-box/build/music_box {config_file_path}", 
             shell=True, 
-            cwd=working_directory, 
+            cwd=working_directory,
             stdout=subprocess.DEVNULL
         )
         f.add_done_callback(functools.partial(music_box_exited_callback, session_id, working_directory))
