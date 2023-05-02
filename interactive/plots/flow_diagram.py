@@ -792,7 +792,6 @@ def generate_flow_diagram(request_dict, uid):
         for line in lines:
             f.write(line)
 
-    # read from file, delete the file, and return the contents
     with open(graph_file, 'r') as f:
         contents = f.read()
     os.remove(graph_file)
