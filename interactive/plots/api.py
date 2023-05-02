@@ -125,7 +125,10 @@ class GetFlow(views.APIView):
         responses={
             200: openapi.Response(
                 description='Success',
-                # schema=response_models.ExampleSerializer
+                schema=openapi.Schema(
+                    type='string',
+                    description='HTML content of the flow diagram'
+                )
             )
         }
     )
@@ -135,7 +138,6 @@ class GetFlow(views.APIView):
         logging.debug(f"session id: {request.session.session_key}")
         logging.debug("using data:" + str(request.data))
         flow = generate_flow_diagram(request.data, request.session.session_key)
-        # return  JsonResponse({})
         return HttpResponse(flow)
 
 
