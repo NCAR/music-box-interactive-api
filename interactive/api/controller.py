@@ -69,10 +69,9 @@ def get_configuration_as_json(file_path):
     return conditions, mechanism
 
 
-def handle_compress_configuration(session_id, request_data):
+def handle_compress_configuration(session_id, config):
     '''Returns a compress file containing the provided configuration'''
-    logger.info("data", request_data)
-    config = request_data["config"]
+    logger.info(f"handling compress request for: {session_id} config: {config}")
     load_configuration(session_id, config)
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')

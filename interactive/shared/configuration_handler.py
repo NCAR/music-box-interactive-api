@@ -15,6 +15,11 @@ def get_session_path(session_id):
     return path
 
 
+def remove_session_folder(session_id):
+    '''Removes the folder containing the configuration for a given session'''
+    shutil.rmtree(get_session_path(session_id))
+
+
 def get_config_file_path(session_id):
     '''Returns the absolute path to the MusicBox configuration file'''
     return os.path.join(get_session_path(session_id), "my_config.json")
@@ -28,12 +33,22 @@ def get_working_directory(session_id):
     return path
 
 
-def get_zip_file_path(session_id):
-    '''Returns the path for a zip file for a given session id'''
+def get_zip_folder_path(session_id):
+    '''Returns the folder for compressed configurations for a given session'''
     os.makedirs(os.environ['MUSIC_BOX_ZIP_DIR'], exist_ok=True)
     path = os.path.join(os.environ['MUSIC_BOX_ZIP_DIR'], session_id)
     os.makedirs(path, exist_ok=True)
     return path
+
+
+def get_zip_file_path(session_id):
+    '''Returns the path for a zip file for a given session id'''
+    return os.path.join(get_zip_folder_path(session_id), "config.zip")
+
+
+def remove_zip_folder(session_id):
+    '''Removes the folder holding a compressed configuration for a session'''
+    shutil.rmtree(get_zip_folder_path(session_id))    
 
 
 def load_configuration(session_id, config):
@@ -41,9 +56,12 @@ def load_configuration(session_id, config):
     session_path = get_session_path(session_id)
     config_file_path = get_config_file_path(session_id)
 
+    logging.info(f"Loading config: {config}")
+
     camp_config = None
     full_camp_config_path = None
     for model_config in config["conditions"]["model components"]:
+        logging.info(f"model config: {model_config}")
         if ("type" in model_config) and (model_config["type"] == "CAMP"):
             camp_config = model_config["configuration file"]
             full_camp_config_path = os.path.join(session_path, camp_config)
@@ -94,22 +112,24 @@ def load_configuration(session_id, config):
 
 def compress_configuration(session_id):
     '''Creates a compressed file holding the previously loaded configuration for a given session id'''
-
     config_folder = get_session_path(session_id)
     zip_file_path = get_zip_file_path(session_id)
     logging.info(f'Compressing configuration: {config_folder} to: {zip_file_path}')
     make_archive(config_folder, zip_file_path)
+    remove_session_folder(session_id)
 
 
 def make_archive(source, destination):
     '''Creates a compressed version of the source folder. From: http://www.seanbehan.com/how-to-use-python-shutil-make_archive-to-zip-up-a-directory-recursively-including-the-root-folder/'''
     base = os.path.basename(destination)
+    logging.info(f"basename: {base}")
     name = base.split('.')[0]
     format = base.split('.')[1]
     archive_from = os.path.dirname(source)
     archive_to   = os.path.basename(source.strip(os.sep))
+    logging.info(f"make archive {name} {format} {archive_from} {archive_to}")
     shutil.make_archive(name, format, archive_from, archive_to)
-    shutil.move(f'{name}.{format}', destination)
+    shutil.move(f'{name}.{format}', os.path.dirname(destination))
 
 
 def extract_configuration(session_id, zipfile):
@@ -119,4 +139,5 @@ def extract_configuration(session_id, zipfile):
         f.write(content)
     with ZipFile(get_zip_file_path(session_id), 'r') as zip:
         zip.extractall(get_session_path(session_id))
+    remove_zip_folder(session_id)
     return True

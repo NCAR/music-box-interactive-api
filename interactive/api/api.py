@@ -1,8 +1,11 @@
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import views
+import sys
+import json
 
+import shared.configuration_handler as config_handler
 import api.controller as controller
 import api.database_tools as db_tools
 import api.response_models as response_models
@@ -85,10 +88,13 @@ class CompressConfigurationView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logger.info(f"Recieved compress configuration request for session {request.session.session_key}")
-        logger.info(f"Request: {request}")
-        zipfile = controller.handle_compress_configuration(request.session.session_key, request.data)
+        config = json.loads(request.body)
+        logger.info(f"Request: {config}")
+        logger.info(f'Mechanism: {config["mechanism"]}')
+        zipfile = controller.handle_compress_configuration(request.session.session_key, config)
         response = HttpResponse(zipfile, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename="config.zip"'
+#        config_handler.remove_zip_folder(request.session.session_key)
         return response
 
 
@@ -106,5 +112,6 @@ class ExtractConfigurationView(views.APIView):
             request.session.save()
         logger.info(f"Recieved extract configuration request for session {request.session.session_key}")
         conditions, mechanism = controller.handle_extract_configuration(request.session.session_key, request.data)
+        config_handler.remove_session_folder(request.session.session_key)
         return JsonResponse({ 'conditions': conditions, 'mechanism': mechanism })
 
