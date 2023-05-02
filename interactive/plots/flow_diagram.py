@@ -29,15 +29,6 @@ previous_vals = [0, 1]
 logger = logging.getLogger(__name__)
 
 
-# get user inputted step length
-def get_step_length(csv_results_path):
-    csv = pd.read_csv(csv_results_path)
-    if csv.shape[0] - 1 > 2:
-        return int(csv['time'].iloc[1])
-    else:
-        return 0
-
-
 # return list of species, reactions, species size and colors.
 def findReactionsAndSpecies(list_of_species, reactions_data, blockedSpecies):
     species_nodes = {}
@@ -396,6 +387,8 @@ def reactionNameFromDictionary(r):
     reaction_string = reaction_string[:-1] + \
         "->"  # remove last _ and replace with ->
     for product in r['products']:
+        if 'irr__' in product:
+            continue
         reaction_string = reaction_string + product + "_"
     reaction_string = reaction_string[:-1]
 
@@ -420,7 +413,7 @@ def findQuantities(reactions_nodes, reactions):
     for reaction in reactions:
         if "products" in reaction:
             # get products data at index reaction
-            reaction_data = reaction['products']
+            products_data = reaction['products']
             # get reactants data at index reaction
             reactant_data = reaction['reactants']
 
@@ -435,20 +428,18 @@ def findQuantities(reactions_nodes, reactions):
                 inReac = isSpeciesInReaction(reactant_data, reactant_name)
                 name = str(reactant_name)+"__TO__"+str(speciesFromReaction)
                 if (reactant_yield == {}
-                    and (isSpeciesInReaction(reaction_data, reactant_name)
+                    and (isSpeciesInReaction(products_data, reactant_name)
                          or inReac)):
                     nme = str(reactant_name)+"__TO__"+str(speciesFromReaction)
-                    logger.info(f"nme: {nme}")
                     quantities.update({nme: 1})
                     if str(speciesFromReaction) in reactions_nodes:
                         new_val = total_quantites.get(reactant_name, 0) + 1
                         total_quantites.update(
                             {str(reactant_name): new_val})
                         reactants_string += str(reactant_name)+"_"
-                elif (isSpeciesInReaction(reaction_data, reactant_name)
+                elif (isSpeciesInReaction(products_data, reactant_name)
                       or isSpeciesInReaction(reactant_data, reactant_name)):
                     reactant_yield = reactant_yield['qty']
-                    logger.info(f"name: {name}")
                     quantities.update(
                         {name: reactant_yield})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -461,20 +452,19 @@ def findQuantities(reactions_nodes, reactions):
                         rep1 = str(product_name)
                         reactants_string = reactants_string.replace(rep, rep1)
             reactants_string = reactants_string[:-1]
-            if len(reaction_data) == 0:
+            if len(products_data) == 0:
                 products_string = "NO_PRODUCTS-"
-            for product in reaction_data:
+            for product in products_data:
                 if "irr__" in product:
                     continue
                 product_name = product
-                product_yield = reaction_data[product_name]
+                product_yield = products_data[product_name]
 
                 # reaction_names_on_hover
                 if (product_yield == {}
-                    and (isSpeciesInReaction(reaction_data, product_name)
+                    and (isSpeciesInReaction(products_data, product_name)
                          or isSpeciesInReaction(reactant_data, product_name))):
                     nme = str(speciesFromReaction)+"__TO__"+str(product_name)
-                    logger.info(f"nme2: {nme}")
                     quantities.update({nme: 1})
                     # check if reaction is included in user selected species
                     if str(speciesFromReaction) in reactions_nodes:
@@ -483,11 +473,10 @@ def findQuantities(reactions_nodes, reactions):
                         total_quantites.update(
                             {str(product_name): new_val})
                         products_string += str(product_name)+"_"
-                elif (isSpeciesInReaction(reaction_data, product_name)
+                elif (isSpeciesInReaction(products_data, product_name)
                       or isSpeciesInReaction(reactant_data, product_name)):
                     product_yield = product_yield['yield']
                     name = str(speciesFromReaction)+"__TO__"+str(product_name)
-                    logger.info(f"name2: {name}")
                     quantities.update(
                         {name: product_yield})
                     if str(speciesFromReaction) in reactions_nodes:
@@ -582,6 +571,9 @@ def generate_flow_diagram(request_dict, uid):
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
     csv = pd.read_csv(output_csv, encoding='latin1')
+    step_length = 0
+    if csv.shape[0] - 1 > 2:
+        step_length = int(csv['time'].iloc[1])
 
     start_step = int(request_dict['startStep'])
     end_step = int(request_dict['endStep'])
@@ -692,11 +684,11 @@ def generate_flow_diagram(request_dict, uid):
                              width=float(edge[2]), title="flux: "+flux)
         i = i+1
 
-    # net.show(path_to_template)
-    net.show(uid+"_flow_network.html") # tmp file to put html at
+    graph_file = f"{uid}_flow_network.html"
+    net.save_graph(graph_file)
     if minAndMaxOfSelectedTimeFrame[0] == minAndMaxOfSelectedTimeFrame[1]:
         minAndMaxOfSelectedTimeFrame = [0, maxVal]
-    with open(uid+"_flow_network.html", 'r+') as f:
+    with open(graph_file, 'r+') as f:
         #############################################
         # here we are going to replace the contents #
         #############################################
@@ -753,7 +745,7 @@ def generate_flow_diagram(request_dict, uid):
             a += ('parent.reloadSlider("'+str(formattedMinOfSelected)+'","'
                 + str(formattedMaxOfSelected)+'", "'+str(
                 formattedMinOfSelected)+'", "'
-                + str(formattedMaxOfSelected)+'", '+str(get_step_length(uid))+');</script>')
+                + str(formattedMaxOfSelected)+'", '+str(step_length)+');</script>')
         else:
             logger.debug("looks like min and max are the same")
             isNotDefaultMin = int(userSelectedMinMax[0]) != 999999999999
@@ -767,14 +759,14 @@ def generate_flow_diagram(request_dict, uid):
                 block1 = 'parent.reloadSlider("' + formattedUserMin + '", "'
                 fmos = str(formattedMinOfSelected)
                 block2 = formattedUserMax + '", "' + fmos
-                block3 = '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');\
+                block3 = '", "' + formattedMaxOfSelected + '", '+str(step_length)+');\
                         </script>'
                 a += block1 + block2 + block3
             else:
                 fmos = formattedMinOfSelected
                 block1 = 'parent.reloadSlider("' + fmos + '", "'
                 block2 = formattedMaxOfSelected + '", "' + str(fmos)
-                a += block1 + '", "' + formattedMaxOfSelected + '", '+str(get_step_length(uid))+');</script>'
+                a += block1 + '", "' + formattedMaxOfSelected + '", '+str(step_length)+');</script>'
         if isPhysicsEnabled == 'true':
             # add options to reduce text size
             a += \
@@ -802,10 +794,10 @@ def generate_flow_diagram(request_dict, uid):
         f.close()
 
     # read from file, delete the file, and return the contents
-    f = open(uid+"_flow_network.html", 'r')
+    f = open(graph_file, 'r')
     contents = f.read()
     f.close()
-    os.remove(uid+"_flow_network.html")
+    os.remove(graph_file)
     return contents
 
 # function that returns HTML code for iframe network (used for new api)

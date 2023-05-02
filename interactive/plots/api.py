@@ -135,7 +135,7 @@ class GetFlow(views.APIView):
         logging.debug(f"session id: {request.session.session_key}")
         logging.debug("using data:" + str(request.data))
         flow = generate_flow_diagram(request.data, request.session.session_key)
-        return  JsonResponse({})
+        # return  JsonResponse({})
         return HttpResponse(flow)
 
 
