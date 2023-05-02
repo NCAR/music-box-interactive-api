@@ -28,7 +28,7 @@ class LoadExample(views.APIView):
             request.session.save()
         example = request.GET.dict()['example']
         _ = db_tools.get_user_or_start_session(request.session.session_key)
-        
+
         conditions, mechanism = controller.load_example(example)
 
         return JsonResponse({'conditions': conditions, 'mechanism': mechanism})
@@ -85,8 +85,9 @@ class CompressConfigurationView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logger.info(f"Recieved compress configuration request for session {request.session.session_key}")
-        tarball = controller.compress_configuration(request.session.session_key, request.data)
-        response = HttpResponse(tarball, content_type='application/zip')
+        logger.info(f"Request: {request}")
+        zipfile = controller.handle_compress_configuration(request.session.session_key, request.data)
+        response = HttpResponse(zipfile, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename="config.zip"'
         return response
 
@@ -104,6 +105,6 @@ class ExtractConfigurationView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logger.info(f"Recieved extract configuration request for session {request.session.session_key}")
-        conditions, mechanism = controller.extract_configuration(request.session.session_key, request.data)
+        conditions, mechanism = controller.handle_extract_configuration(request.session.session_key, request.data)
         return JsonResponse({ 'conditions': conditions, 'mechanism': mechanism })
 

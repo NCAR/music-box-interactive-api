@@ -14,14 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 def load_example(example):
+    '''Returns a JSON version of one of the example configurations'''
+    example_path = os.path.join(
+        settings.BASE_DIR, 'api/static/examples', example)
+    return get_configuration_as_json(example_path)
+
+
+def get_configuration_as_json(file_path):
+    '''Returns a JSON veresion of a full MusicBox configuration'''
+
     conditions = {}
     mechanism = {}
 
-    example_path = os.path.join(
-        settings.BASE_DIR, 'api/static/examples', example)
-
     files = [os.path.join(dp, f)
-             for dp, _, fn in os.walk(example_path) for f in fn]
+             for dp, _, fn in os.walk(file_path) for f in fn]
     if not files:
         raise Http404("No files in example folder")
 
@@ -63,13 +69,21 @@ def load_example(example):
     return conditions, mechanism
 
 
-def compress_configuration(session_id, request_data):
+def handle_compress_configuration(session_id, request_data):
     '''Returns a compress file containing the provided configuration'''
-    data = json.loads(request_data)
-    config = data["config"]
+    logger.info("data", request_data)
+    config = request_data["config"]
     load_configuration(session_id, config)
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')
+
+
+def handle_extract_configuration(session_id, request_data):
+    '''Returns a JSON version of a compressed MusicBox configuration'''
+    data = json.loads(request_data)
+    zipfile = request_data.FILES['file']
+    extract_configuration(session_id, zipfile)
+    return get_configuration_as_json(get_zip_file_path(session_id))
 
 
 def publish_run_request(session_id, config):
