@@ -1,26 +1,23 @@
+from admin import settings
 from api import models
 from api.database_tools import get_model_run
-from api.flow_diagram import generate_flow_diagram
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
-from admin import settings
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from io import StringIO, BytesIO
 from plots.database_tools import generate_database_network_plot, get_plot
+from plots.flow_diagram import generate_flow_diagram
 from rest_framework import views
 from shared.utils import beautifyReaction
+
+import pandas as pd
+import plots.plot_setup as plot_setup
+import plots.request_models as request_models
 
 import logging
 import shutil
 import os
 
-import plots.plot_setup as plot_setup
-import pandas as pd
-
-logging.basicConfig(format='%(asctime)s - %(message)s',
-                    level=logging.INFO)
-logging.basicConfig(format='%(asctime)s - [DEBUG] %(message)s',
-                    level=logging.DEBUG)
-logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
-                    level=logging.ERROR)
 
 class GetPlotContents(views.APIView):
     def get(self, request):
@@ -123,16 +120,24 @@ class GetFlowDetails(views.APIView):
 
 
 class GetFlow(views.APIView):
-    def get(self, request):
-        logging.info("****** GET request received GET_FLOW ******")
+    @swagger_auto_schema(
+        query_serializer=request_models.GetFlowSerializer,
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=openapi.Schema(
+                    type='string',
+                    description='HTML content of the flow diagram'
+                )
+            )
+        }
+    )
+    def post(self, request):
         if not request.session.session_key:
             request.session.save()
-        logging.info(f"session id: {request.session.session_key}")
-        logging.info("using data:" + str(request.GET.dict()))
-        path_to_template = os.path.join(
-            settings.BASE_DIR,
-            "dashboard/templates/network_plot/flow_plot.html")
-        flow = generate_flow_diagram(request.GET.dict(), request.session.session_key, path_to_template)
+        logging.debug(f"session id: {request.session.session_key}")
+        logging.debug("using data:" + str(request.data))
+        flow = generate_flow_diagram(request.data, request.session.session_key)
         return HttpResponse(flow)
 
 
