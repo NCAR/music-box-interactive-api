@@ -127,6 +127,32 @@ def load_configuration(session_id, config, keep_relative_paths=False):
         json.dump(config["mechanism"]["reactions"], f)
 
 
+def filter_diagnostics(mechanism):
+    '''Removes diagnostic species from the mechanism'''
+    def species_filter(species):
+        if "name" in species and species["name"][0:5]=="irr__":
+            return False
+        else:
+            return True
+
+    mechanism["species"]["camp-data"] = list(filter(species_filter, mechanism["species"]["camp-data"]))
+
+    def product_filter(pair):
+        key, value = pair
+        if key[0:5]=="irr__":
+            return False
+        else:
+            return True
+
+    reactions = mechanism["reactions"]["camp-data"][0]["reactions"]
+    for idx, rxn in enumerate(reactions):
+        if "products" in rxn:
+            reactions[idx]["products"] = dict(list(filter(product_filter, rxn["products"].items())))
+    mechanism["reactions"]["camp-data"][0]["reactions"] = reactions
+
+    return mechanism
+
+
 def compress_configuration(session_id):
     '''Creates a compressed file holding the previously loaded configuration for a given session id'''
     config_folder = get_session_path(session_id)
