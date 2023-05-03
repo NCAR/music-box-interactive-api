@@ -6,12 +6,12 @@ import logging
 import os
 import pandas as pd
 import pika
-from shared.configuration_handler import compress_configuration, \
-                                         extract_configuration, \
-                                         load_configuration, \
-                                         filter_diagnostics, \
-                                         get_session_path, \
-                                         get_zip_file_path
+from shared.configuration_utils import compress_configuration, \
+                                       extract_configuration, \
+                                       load_configuration, \
+                                       filter_diagnostics, \
+                                       get_session_path, \
+                                       get_zip_file_path
 
 logger = logging.getLogger(__name__)
 

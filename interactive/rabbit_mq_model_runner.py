@@ -18,9 +18,9 @@ import pika
 import shutil
 import subprocess
 import sys
-from shared.configuration_handler import load_configuration, \
-                                         get_config_file_path, \
-                                         get_working_directory
+from shared.configuration_utils import load_configuration, \
+                                       get_config_file_path, \
+                                       get_working_directory
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue

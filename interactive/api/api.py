@@ -5,7 +5,7 @@ from rest_framework import views
 import sys
 import json
 
-import shared.configuration_handler as config_handler
+import shared.configuration_utils as config_utils
 import api.controller as controller
 import api.database_tools as db_tools
 import api.response_models as response_models
@@ -92,7 +92,7 @@ class CompressConfigurationView(views.APIView):
         config = json.loads(request.body)['config']
         zipfile = controller.handle_compress_configuration(request.session.session_key, config)
         response = FileResponse(zipfile)
-        config_handler.remove_zip_folder(request.session.session_key)
+        config_utils.remove_zip_folder(request.session.session_key)
         return response
 
 
@@ -110,5 +110,5 @@ class ExtractConfigurationView(views.APIView):
             request.session.save()
         logger.info(f"Recieved extract configuration request for session {request.session.session_key}")
         conditions, mechanism = controller.handle_extract_configuration(request.session.session_key, request.FILES["file"])
-        config_handler.remove_session_folder(request.session.session_key)
+        config_utils.remove_session_folder(request.session.session_key)
         return JsonResponse({ 'conditions': conditions, 'mechanism': mechanism })
