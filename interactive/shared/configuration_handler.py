@@ -57,12 +57,9 @@ def load_configuration(session_id, config):
     session_path = get_session_path(session_id)
     config_file_path = get_config_file_path(session_id)
 
-    logging.info(f"Loading configuration: {config}")
-
     camp_config = None
     full_camp_config_path = None
     for model_config in config["conditions"]["model components"]:
-        logging.info(f"model config: {model_config}")
         if ("type" in model_config) and (model_config["type"] == "CAMP"):
             camp_config = model_config["configuration file"]
             full_camp_config_path = os.path.join(session_path, camp_config)

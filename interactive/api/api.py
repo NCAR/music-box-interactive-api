@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import views
@@ -67,7 +67,8 @@ class RunView(views.APIView):
         if not request.session.session_key or not db_tools.user_exists(request.session.session_key):
             request.session.save()
         logger.info(f"Recieved run requst for session {request.session.session_key}")
-        if controller.publish_run_request(request.session.session_key, request.data):
+        config = json.loads(request.body)['config']
+        if controller.publish_run_request(request.session.session_key, config):
             response = {'status': response_models.RunStatus.WAITING}
         else:
             response = {'status': response_models.RunStatus.ERROR}
@@ -88,12 +89,9 @@ class CompressConfigurationView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logger.info(f"Recieved compress configuration request for session {request.session.session_key}")
-        config = json.loads(request.body)
-        logger.info(f"Request: {config}")
-        logger.info(f'Mechanism: {config["mechanism"]}')
+        config = json.loads(request.body)['config']
         zipfile = controller.handle_compress_configuration(request.session.session_key, config)
-        response = HttpResponse(zipfile, content_type='application/zip')
-        response['Content-Disposition'] = 'attachment; filename="config.zip"'
+        response = FileResponse(zipfile)
         config_handler.remove_zip_folder(request.session.session_key)
         return response
 
