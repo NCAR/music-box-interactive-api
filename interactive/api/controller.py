@@ -78,7 +78,6 @@ def handle_compress_configuration(session_id, config):
 
 def handle_extract_configuration(session_id, request_data):
     '''Returns a JSON version of a compressed MusicBox configuration'''
-    data = json.loads(request_data)
     zipfile = request_data.FILES['file']
     extract_configuration(session_id, zipfile)
     return get_configuration_as_json(get_zip_file_path(session_id))
