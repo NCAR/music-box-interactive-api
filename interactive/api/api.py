@@ -94,7 +94,7 @@ class CompressConfigurationView(views.APIView):
         zipfile = controller.handle_compress_configuration(request.session.session_key, config)
         response = HttpResponse(zipfile, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename="config.zip"'
-#        config_handler.remove_zip_folder(request.session.session_key)
+        config_handler.remove_zip_folder(request.session.session_key)
         return response
 
 

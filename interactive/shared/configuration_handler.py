@@ -10,14 +10,15 @@ from zipfile import ZipFile
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
     os.makedirs(os.environ['MUSIC_BOX_CONFIG_DIR'], exist_ok=True)
-    path = os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id)
+    os.makedirs(os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id), exist_ok=True)
+    path = os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id, "configuration")
     os.makedirs(path, exist_ok=True)
     return path
 
 
 def remove_session_folder(session_id):
     '''Removes the folder containing the configuration for a given session'''
-    shutil.rmtree(get_session_path(session_id))
+    shutil.rmtree(os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id))
 
 
 def get_config_file_path(session_id):
@@ -48,7 +49,7 @@ def get_zip_file_path(session_id):
 
 def remove_zip_folder(session_id):
     '''Removes the folder holding a compressed configuration for a session'''
-    shutil.rmtree(get_zip_folder_path(session_id))    
+    shutil.rmtree(get_zip_folder_path(session_id))
 
 
 def load_configuration(session_id, config):
@@ -56,7 +57,7 @@ def load_configuration(session_id, config):
     session_path = get_session_path(session_id)
     config_file_path = get_config_file_path(session_id)
 
-    logging.info(f"Loading config: {config}")
+    logging.info(f"Loading configuration: {config}")
 
     camp_config = None
     full_camp_config_path = None
@@ -76,7 +77,6 @@ def load_configuration(session_id, config):
     # make a workding directory in the music box build folder
     # this prevents jobs from differing sessions from overwriting each other
     working_directory = get_working_directory(session_id)
-    logging.info(f"Working directory: {working_directory}")
 
     os.makedirs(camp_dir, exist_ok=True)
     if not os.path.exists(working_directory):
@@ -84,7 +84,6 @@ def load_configuration(session_id, config):
 
     if "evolving conditions" in config["conditions"] and isinstance(config["conditions"]["evolving conditions"], list):
         evolving = config["conditions"]["evolving conditions"]
-        logging.info(evolving)
         if len(evolving) > 1:
             headers, vals = evolving[0], np.array(evolving[1:])
             data = {}
@@ -101,11 +100,11 @@ def load_configuration(session_id, config):
     with open(config_file_path, 'w') as f:
         json.dump(config["conditions"], f)
 
-    # write the mechanism to the camp configuration 
+    # write the mechanism to the camp configuration
     with open(full_camp_config_path, 'w') as f:
         json.dump({"camp-files": [mechanism_config]}, f)
 
-    # write the mechanism to the camp configuration 
+    # write the mechanism to the camp configuration
     with open(mechanism_config, 'w') as f:
         json.dump(config["mechanism"], f)
 
@@ -122,7 +121,6 @@ def compress_configuration(session_id):
 def make_archive(source, destination):
     '''Creates a compressed version of the source folder. From: http://www.seanbehan.com/how-to-use-python-shutil-make_archive-to-zip-up-a-directory-recursively-including-the-root-folder/'''
     base = os.path.basename(destination)
-    logging.info(f"basename: {base}")
     name = base.split('.')[0]
     format = base.split('.')[1]
     archive_from = os.path.dirname(source)
