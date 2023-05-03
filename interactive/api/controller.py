@@ -9,6 +9,7 @@ import pika
 from shared.configuration_handler import compress_configuration, \
                                          extract_configuration, \
                                          load_configuration, \
+                                         filter_diagnostics, \
                                          get_session_path, \
                                          get_zip_file_path
 
@@ -70,7 +71,7 @@ def get_configuration_as_json(file_path):
                     else:
                         logger.warning("Could not find initial rates condition file")
 
-    return conditions, mechanism
+    return conditions, filter_diagnostics(mechanism)
 
 
 def handle_compress_configuration(session_id, config):
