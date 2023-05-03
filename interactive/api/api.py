@@ -109,7 +109,6 @@ class ExtractConfigurationView(views.APIView):
         if not request.session.session_key:
             request.session.save()
         logger.info(f"Recieved extract configuration request for session {request.session.session_key}")
-        conditions, mechanism = controller.handle_extract_configuration(request.session.session_key, request.data)
+        conditions, mechanism = controller.handle_extract_configuration(request.session.session_key, request.FILES["file"])
         config_handler.remove_session_folder(request.session.session_key)
         return JsonResponse({ 'conditions': conditions, 'mechanism': mechanism })
-
