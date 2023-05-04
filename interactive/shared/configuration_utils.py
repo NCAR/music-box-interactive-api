@@ -9,8 +9,6 @@ from zipfile import ZipFile
 
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
-    os.makedirs(os.environ['MUSIC_BOX_CONFIG_DIR'], exist_ok=True)
-    os.makedirs(os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id), exist_ok=True)
     path = os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id, "configuration")
     os.makedirs(path, exist_ok=True)
     return path
