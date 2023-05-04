@@ -6,20 +6,33 @@ import logging
 import os
 import pandas as pd
 import pika
+from shared.configuration_utils import compress_configuration, \
+                                       extract_configuration, \
+                                       load_configuration, \
+                                       filter_diagnostics, \
+                                       get_session_path, \
+                                       get_zip_file_path
 
 logger = logging.getLogger(__name__)
 
 
 def load_example(example):
+    '''Returns a JSON version of one of the example configurations'''
+    example_path = os.path.join(
+        settings.BASE_DIR, 'api/static/examples', example)
+    return get_configuration_as_json(example_path)
+
+
+def get_configuration_as_json(file_path):
+    '''Returns a JSON version of a full MusicBox configuration'''
+
     conditions = {}
     mechanism = {}
 
-    example_path = os.path.join(
-        settings.BASE_DIR, 'api/static/examples', example)
-
     files = [os.path.join(dp, f)
-             for dp, _, fn in os.walk(example_path) for f in fn]
+             for dp, _, fn in os.walk(file_path) for f in fn]
     if not files:
+        logging.error("No files in example foler")
         raise Http404("No files in example folder")
 
     for file in files:
@@ -32,7 +45,8 @@ def load_example(example):
         if 'my_config.json' in file:
             with open(file) as contents:
                 conditions = json.load(contents)
-            if "initial conditions" in conditions:
+            if "initial conditions" in conditions and \
+               len(list(conditions["initial conditions"].keys())) > 0:
                 rates_file = list(conditions["initial conditions"].keys())[0]
                 logger.debug(f"Found rates file: {rates_file}")
                 path = [f for f in files if rates_file in f]
@@ -43,7 +57,8 @@ def load_example(example):
                     del df
                 else:
                     logger.warning("Could not find initial rates condition file")
-            if "evolving conditions" in conditions:
+            if "evolving conditions" in conditions and \
+               len(list(conditions["evolving conditions"].keys())) > 0:
                 evolving_conditions = list(conditions["evolving conditions"].keys())
                 if len(evolving_conditions) > 0:
                     evolving_conditions = evolving_conditions[0]
@@ -56,8 +71,20 @@ def load_example(example):
                     else:
                         logger.warning("Could not find initial rates condition file")
 
+    return conditions, filter_diagnostics(mechanism)
 
-    return conditions, mechanism
+
+def handle_compress_configuration(session_id, config):
+    '''Returns a compress file containing the provided configuration'''
+    load_configuration(session_id, config, keep_relative_paths=True)
+    compress_configuration(session_id)
+    return open(get_zip_file_path(session_id), 'rb')
+
+
+def handle_extract_configuration(session_id, zipfile):
+    '''Returns a JSON version of a compressed MusicBox configuration'''
+    extract_configuration(session_id, zipfile)
+    return get_configuration_as_json(get_session_path(session_id))
 
 
 def publish_run_request(session_id, config):

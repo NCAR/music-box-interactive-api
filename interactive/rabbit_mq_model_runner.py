@@ -18,6 +18,9 @@ import pika
 import shutil
 import subprocess
 import sys
+from shared.configuration_utils import load_configuration, \
+                                       get_config_file_path, \
+                                       get_working_directory
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -42,8 +45,8 @@ def publish_message(message):
         channel = connection.channel()
         channel.queue_declare(queue='model_finished_queue')
         channel.basic_publish(exchange='',
-                                routing_key='model_finished_queue',
-                                body=json.dumps(message))
+                              routing_key='model_finished_queue',
+                              body=json.dumps(message))
 
 # disable propagation
 logging.getLogger("pika").propagate = False
@@ -95,60 +98,9 @@ def run_queue_callback(ch, method, properties, body):
         session_id = data["session_id"]
         config = data["config"]
 
-        session_path = os.path.join('/music-box-interactive/interactive/configs', session_id)
-        config_file_path = os.path.join(session_path, 'my_config.json')
-
-        camp_config = None
-        full_camp_config_path = None
-        for model_config in config["conditions"]["model components"]:
-            if ("type" in model_config) and (model_config["type"] == "CAMP"):
-                camp_config = model_config["configuration file"]
-                full_camp_config_path = os.path.join(session_path, camp_config)
-                # update the camp configuration path to point to the full path on the file system
-                # so that the model can find it
-                model_config["configuration file"] = full_camp_config_path
-        if camp_config is None:
-            raise Exception("Could not find camp config")
-
-        camp_dir = os.path.dirname(full_camp_config_path)
-        mechanism_config = os.path.join(camp_dir, 'mechanism.json')
-        # make a workding directory in the music box build folder
-        # this prevents jobs from differing sessions from overwriting each other
-        working_directory = f"{os.environ['MUSIC_BOX_BUILD_DIR']}/{session_id}"
-        logging.info(f"Working directory: {working_directory}")
-
-        os.makedirs(session_path, exist_ok=True)
-        os.makedirs(camp_dir, exist_ok=True)
-        os.makedirs(working_directory, exist_ok=True)
-        if not os.path.exists(working_directory):
-            raise Exception("Did not create working directory")
-
-        if "evolving conditions" in config["conditions"] and isinstance(config["conditions"]["evolving conditions"], list):
-            evolving = config["conditions"]["evolving conditions"]
-            logging.info(evolving)
-            if len(evolving) > 1:
-                headers, vals = evolving[0], np.array(evolving[1:])
-                data = {}
-                for idx, column in enumerate(headers):
-                    data[column] = vals[:, idx]
-                logging.info(data)
-                csv_path = os.path.join(session_path, "evolving_conditions.csv")
-                pd.DataFrame(data).to_csv(csv_path, index=False)
-                config["conditions"]["evolving conditions"] = {
-                    csv_path: {}
-                }
-
-        # write the box model configuration
-        with open(config_file_path, 'w') as f:
-            json.dump(config["conditions"], f)
-
-        # write the mechanism to the camp configuration 
-        with open(full_camp_config_path, 'w') as f:
-            json.dump({"camp-files": [mechanism_config]}, f)
-
-        # write the mechanism to the camp configuration 
-        with open(mechanism_config, 'w') as f:
-            json.dump(config["mechanism"], f)
+        load_configuration(session_id, config)
+        config_file_path = get_config_file_path(session_id)
+        working_directory = get_working_directory(session_id)
 
         logging.info("Adding runner for session {} to pool".format(session_id))
 
@@ -158,7 +110,7 @@ def run_queue_callback(ch, method, properties, body):
             # run music box with this configuration
             f"/music-box/build/music_box {config_file_path}", 
             shell=True, 
-            cwd=working_directory, 
+            cwd=working_directory,
             stdout=subprocess.DEVNULL
         )
         f.add_done_callback(functools.partial(music_box_exited_callback, session_id, working_directory))
