@@ -27,6 +27,9 @@ class ConfigSerializer(serializers.Serializer):
     mechanism = serializers.JSONField()
     conditions = serializers.JSONField()
 
+    class Meta:
+        ref_name = "ConfigResponse"
+
 class FileSerializer(serializers.Serializer):
     filename = serializers.CharField()
     content = serializers.SerializerMethodField()

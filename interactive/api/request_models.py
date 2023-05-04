@@ -6,3 +6,6 @@ class LoadExampleSerializer(serializers.Serializer):
 class ConfigSerializer(serializers.Serializer):
     mechanism = serializers.JSONField()
     conditions = serializers.JSONField()
+
+    class Meta:
+        ref_name = "ConfigRequeset"

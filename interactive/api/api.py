@@ -77,7 +77,7 @@ class RunView(views.APIView):
 
 class CompressConfigurationView(views.APIView):
     @swagger_auto_schema(
-        query_serializer=request_models.ConfigSerializer,
+        request_body=request_models.ConfigSerializer,
         responses={
             200: openapi.Response(
                 description='Success',
@@ -98,7 +98,13 @@ class CompressConfigurationView(views.APIView):
 
 class ExtractConfigurationView(views.APIView):
     @swagger_auto_schema(
-        query_serializer=request_models.ConfigSerializer,
+        request_body=openapi.Schema(
+            type='object',
+            properties={
+                'file': openapi.Schema(type='string', format='binary'),
+            },
+            required=['file']
+        ),
         responses={
             200: openapi.Response(
                 description='Success',
