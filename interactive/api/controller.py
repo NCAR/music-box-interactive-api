@@ -6,6 +6,8 @@ import logging
 import os
 import pandas as pd
 import pika
+from api import models
+from io import StringIO
 from shared.configuration_utils import compress_configuration, \
                                        extract_configuration, \
                                        load_configuration, \
@@ -110,3 +112,10 @@ def publish_run_request(session_id, config):
     logger.info("published message to run_queue")
 
     return True
+
+
+def get_results_file(session_id):
+    '''Returns a csv file with the model results'''
+    model = models.ModelRun.objects.get(uid=session_id)
+    output_csv = StringIO(model.results['/output.csv'])
+    return pd.read_csv(output_csv, encoding='latin1')
