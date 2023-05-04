@@ -2,6 +2,7 @@ from enum import Enum
 from rest_framework import serializers
 
 import json
+import base64
 
 class RunStatus(Enum):
     RUNNING = 'RUNNING'
@@ -22,6 +23,14 @@ class PollingStatusSerializer(serializers.Serializer):
     error_code = serializers.CharField(required=False)
     error_message = serializers.CharField(required=False)
 
-class ExampleSerializer(serializers.Serializer):
+class ConfigSerializer(serializers.Serializer):
     mechanism = serializers.JSONField()
     conditions = serializers.JSONField()
+
+class FileSerializer(serializers.Serializer):
+    filename = serializers.CharField()
+    content = serializers.SerializerMethodField()
+
+    def get_content(self, obj):
+        with open(obj, 'rb') as f:
+            return base64.b64encode(f.read()).decode('utf-8')

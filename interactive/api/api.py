@@ -22,7 +22,7 @@ class LoadExample(views.APIView):
         responses={
             200: openapi.Response(
                 description='Success',
-                schema=response_models.ExampleSerializer
+                schema=response_models.ConfigSerializer
             )
         }
     )
@@ -55,7 +55,7 @@ class RunStatusView(views.APIView):
 
 class RunView(views.APIView):
     @swagger_auto_schema(
-        query_serializer=request_models.RunSerializer,
+        query_serializer=request_models.ConfigSerializer,
         responses={
             200: openapi.Response(
                 description='Success',
@@ -77,11 +77,11 @@ class RunView(views.APIView):
 
 class CompressConfigurationView(views.APIView):
     @swagger_auto_schema(
-        query_serializer=request_models.RunSerializer,
+        query_serializer=request_models.ConfigSerializer,
         responses={
             200: openapi.Response(
                 description='Success',
-                schema=response_models.PollingStatusSerializer
+                schema=response_models.FileSerializer
             )
         }
     )
@@ -98,10 +98,11 @@ class CompressConfigurationView(views.APIView):
 
 class ExtractConfigurationView(views.APIView):
     @swagger_auto_schema(
+        query_serializer=request_models.ConfigSerializer,
         responses={
             200: openapi.Response(
                 description='Success',
-                schema=response_models.PollingStatusSerializer
+                schema=response_models.ConfigSerializer
             )
         }
     )
