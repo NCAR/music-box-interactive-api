@@ -9,5 +9,6 @@ urlpatterns = [
     path('api/run', api.RunView.as_view(), name='run'),
     path('api/run-status', api.RunStatusView.as_view(), name='run_status'),
     path('api/compress-config', api.CompressConfigurationView.as_view(), name='compress-config'),
-    path('api/extract-config', api.ExtractConfigurationView.as_view(), name='extract-config')
+    path('api/extract-config', api.ExtractConfigurationView.as_view(), name='extract-config'),
+    path('api/download-results', api.DownloadResultsView.as_view(), name='download-results')
 ]
