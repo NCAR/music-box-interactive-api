@@ -1,19 +1,22 @@
 from rest_framework import serializers
 from api.models import RunStatus
 
-import json
 import base64
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RunStatusEncoder(json.JSONEncoder):
     def default(self, obj):
+        logger.info(f"object: {obj}")
         if isinstance(obj, RunStatus):
-            return obj.value
+            return obj.name
         return super().default(obj)
 
 class PollingStatusSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=[(choice.name, choice.value) for choice in RunStatus])
-    error_code = serializers.CharField(required=False)
-    error_message = serializers.CharField(required=False)
+    error= serializers.CharField(required=False)
 
 class ConfigSerializer(serializers.Serializer):
     mechanism = serializers.JSONField()

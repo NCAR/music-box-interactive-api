@@ -1,16 +1,11 @@
-from bisect import bisect_left
 from api import models
 from api.response_models import RunStatus
-from io import StringIO
-from pyvis.network import Network
-from shared.utils import beautifyReaction, unbeautifyReaction
 
 import hashlib
 import json
 import logging
-import math
-import os
-import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 def user_exists(uid):
     try:
@@ -473,15 +468,15 @@ def get_run_status(uid):
     error = {}
     try:
         model = get_model_run(uid)
-        logging.debug(f"model: {model}")
-        logging.debug(f"model.status: {model.status}")
-        logging.debug(f"model.results: {model.results}")
-        status = model.status
-        if model.status == RunStatus.ERROR:
+        logger.debug(f"model: {model}")
+        logger.debug(f"model.status: {model.status}")
+        logger.debug(f"model.results: {model.results}")
+        status = RunStatus(model.status)
+        if status == RunStatus.ERROR:
             error = model.results.error
     except models.ModelRun.DoesNotExist:
         status = RunStatus.NOT_FOUND
-        logging.info(f"[{uid}] model run not found for user")
+        logger.info(f"[{uid}] model run not found for user")
     return {'status': status, 'error': error}
 
 # convert to/from model config format

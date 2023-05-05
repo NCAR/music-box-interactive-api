@@ -93,9 +93,8 @@ def handle_extract_configuration(session_id, zipfile):
 
 def publish_run_request(session_id, config):
     model_run = db_tools.create_model_run(session_id)
-    model_run.status = RunStatus.WAITING
+    model_run.status = RunStatus.WAITING.name
     model_run.save()
-    logger.info(f"model run: {model_run}")
     body = {"session_id": session_id, "config": config}
     publish_message(body, 'run_queue')
     logger.info("published message to run_queue")

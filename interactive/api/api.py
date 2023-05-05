@@ -54,6 +54,8 @@ class RunStatusView(views.APIView):
         }
     )
     def get(self, request):
+        if not request.session.session_key:
+            request.session.save()
         logger.debug(f"Run status | session key: {request.session.session_key}")
         response = db_tools.get_run_status(request.session.session_key)
         logger.info(f"Run status | {response}")
