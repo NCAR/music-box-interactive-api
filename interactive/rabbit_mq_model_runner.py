@@ -68,7 +68,7 @@ def music_box_exited_callback(session_id, output_directory, future):
         # remove all files to save space
         # shutil.rmtree(output_directory)
         # send body to model_finished_queue
-        publish_message(body)
+        publish_message(body, 'model_finished_queue')
         logging.info("["+session_id+"] Sent output files to model_finished_queue")
 
 

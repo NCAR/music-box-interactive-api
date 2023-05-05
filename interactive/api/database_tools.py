@@ -468,9 +468,7 @@ def get_run_status(uid):
     error = {}
     try:
         model = get_model_run(uid)
-        logger.debug(f"model: {model}")
-        logger.debug(f"model.status: {model.status}")
-        logger.debug(f"model.results: {model.results}")
+        logger.debug(f"model: {model} | {model.status}")
         status = RunStatus(model.status)
         if status == RunStatus.ERROR:
             error = model.results.error

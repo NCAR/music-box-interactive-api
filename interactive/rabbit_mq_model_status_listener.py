@@ -6,6 +6,7 @@ django.setup()
 
 from api.database_tools import get_model_run
 from shared.rabbit_mq import check_for_rabbit_mq, consume
+from api.models import RunStatus
 
 import json
 import logging
@@ -19,13 +20,13 @@ def run_model_finished_callback(ch, method, properties, body):
     logging.info("Model finished for session {}".format(session_id))
     # grab MODEL_RUN_COMPLETE and error.json from data
     # save results to database
-    status = "UNKNOWN"
+    status = RunStatus.UNKNOWN.value
     if "MODEL_RUN_COMPLETE" in json_body:
-        status = "DONE"
+        status = RunStatus.DONE.value
     error_json = {}
     if "error.json" in json_body:
         error_json = json_body["error.json"]
-        status = "ERROR"
+        status = RunStatus.ERROR.value
         logging.info(f"Model error for session {session_id}: {error_json}")
     else:
         logging.info(f"No errors for session {session_id}")
@@ -37,9 +38,8 @@ def run_model_finished_callback(ch, method, properties, body):
         logging.info(f"No output found for session {session_id}")
     
     # update model_run with MODEL_RUN_COMPLETE and error_json
-    model_run.results['status'] = status
     model_run.results['error'] = error_json
-    model_run.is_running = False
+    model_run.status = status
     model_run.save()
     logging.info("Model run saved to database")
 

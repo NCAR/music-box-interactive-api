@@ -75,8 +75,8 @@ class RunView(views.APIView):
     def post(self, request):
         if not request.session.session_key:
             request.session.save()
-        logger.info(f"Recieved run requst for session {request.session.session_key}")
-        controller.publish_run_request(request.session.session_key, request.data)
+        logger.debug(f"Run request | session key: {request.session.session_key}")
+        controller.publish_run_request(request.session.session_key, request.data['config'])
         response = db_tools.get_run_status(request.session.session_key)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
