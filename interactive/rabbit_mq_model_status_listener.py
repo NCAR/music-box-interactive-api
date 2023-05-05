@@ -34,11 +34,13 @@ def main():
         logging.info("Model finished for session {}".format(session_id))
         # grab MODEL_RUN_COMPLETE and error.json from data
         # save results to database
-        
-        MODEL_RUN_COMPLETE = json_body["MODEL_RUN_COMPLETE"]
+        status = "UNKNOWN"
+        if "MODEL_RUN_COMPLETE" in json_body:
+            status = "DONE"
         error_json = {}
         if "error.json" in json_body:
             error_json = json_body["error.json"]
+            status = "ERROR"
             logging.info(f"Model error for session {session_id}: {error_json}")
         else:
             logging.info(f"No errors for session {session_id}")
@@ -50,8 +52,8 @@ def main():
             logging.info(f"No output found for session {session_id}")
         
         # update model_run with MODEL_RUN_COMPLETE and error_json
-        model_run.results['/MODEL_RUN_COMPLETE'] = MODEL_RUN_COMPLETE
-        model_run.results['/error.json'] = error_json
+        model_run.results['status'] = status
+        model_run.results['error'] = error_json
         model_run.is_running = False
         model_run.save()
         logging.info("Model run saved to database")

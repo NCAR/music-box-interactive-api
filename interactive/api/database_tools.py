@@ -470,32 +470,26 @@ def get_reaction_musica_names(uid):
 
 # get status of a run
 def get_run_status(uid):
-    response = {'status': RunStatus.UNKNOWN}
+    status = RunStatus.NOT_FOUND
+    error = { }
     try:
         model = get_model_run(uid)
-        if model is None:
+        logging.info(f"model results: {model.results}")
+        if model is None or not 'status' in model.results.keys():
             status = RunStatus.NOT_FOUND
             logging.info("["+str(uid)+"] model run not found for user")
-        if model.is_running:
+        elif model.is_running:
             status = RunStatus.RUNNING
-        else:
-            status = RunStatus.WAITING
-            # fetch for errors + results
-            if '/error.json' in model.results:
-                if model.results['/error.json'] != {}:
-                    status = RunStatus.ERROR
-            if '/MODEL_RUN_COMPLETE' in model.results:
-                status = RunStatus.DONE
+        elif model.results.status == 'ERROR':
+            status = RunStatus.ERROR
+            error = model.results.error
+        elif model.results.status == 'DONE':
+            status = RunStatus.DONE
     except models.ModelRun.DoesNotExist:
         status = RunStatus.NOT_FOUND
         logging.info("["+str(uid)+"] model run not found for user")
-    response['status'] = status
 
-    if status == 'error':
-        errorfile = models.ModelRun.objects.get(uid=uid).results['/error.json']
-        response.update({'error_code': errorfile['code']})
-        response.update({'error_message': errorfile['message']})
-    return response
+    return { 'status': status, 'error': error }
 
 # convert to/from model config format
 def export_to_database_path(uid):
