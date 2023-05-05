@@ -18,7 +18,15 @@ logger = logging.getLogger(__name__)
 
 class LoadExample(views.APIView):
     @swagger_auto_schema(
-        query_serializer=request_models.LoadExampleSerializer,
+        manual_parameters=[
+            openapi.Parameter(
+                name='example',
+                in_=openapi.IN_QUERY,
+                description='The example to load',
+                type=openapi.TYPE_STRING,
+                enum=[e.value for e in request_models.Example] # use the Enum values
+            )
+        ],
         responses={
             200: openapi.Response(
                 description='Success',
