@@ -2,7 +2,6 @@ from django.http import HttpResponse, JsonResponse, FileResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import views
-import sys
 import json
 
 import shared.configuration_utils as config_utils
@@ -56,9 +55,9 @@ class RunStatusView(views.APIView):
     )
     def get(self, request):
         logger.debug(f"Run status | session key: {request.session.session_key}")
-        response_message = db_tools.get_run_status(request.session.session_key)
-        logger.info(f"Run status | {response_message}")
-        return JsonResponse(response_message, encoder=response_models.RunStatusEncoder)
+        response = db_tools.get_run_status(request.session.session_key)
+        logger.info(f"Run status | {response}")
+        return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
 class RunView(views.APIView):
@@ -72,14 +71,11 @@ class RunView(views.APIView):
         }
     )
     def post(self, request):
-        if not request.session.session_key or not db_tools.user_exists(request.session.session_key):
+        if not request.session.session_key:
             request.session.save()
         logger.info(f"Recieved run requst for session {request.session.session_key}")
-        config = json.loads(request.body)['config']
-        if controller.publish_run_request(request.session.session_key, config):
-            response = {'status': response_models.RunStatus.WAITING}
-        else:
-            response = {'status': response_models.RunStatus.ERROR}
+        controller.publish_run_request(request.session.session_key, request.data)
+        response = db_tools.get_run_status(request.session.session_key)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 

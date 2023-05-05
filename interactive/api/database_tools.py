@@ -470,26 +470,19 @@ def get_reaction_musica_names(uid):
 
 # get status of a run
 def get_run_status(uid):
-    status = RunStatus.NOT_FOUND
-    error = { }
+    error = {}
     try:
         model = get_model_run(uid)
-        logging.info(f"model results: {model.results}")
-        if model is None or not 'status' in model.results.keys():
-            status = RunStatus.NOT_FOUND
-            logging.info("["+str(uid)+"] model run not found for user")
-        elif model.is_running:
-            status = RunStatus.RUNNING
-        elif model.results.status == 'ERROR':
-            status = RunStatus.ERROR
+        logging.debug(f"model: {model}")
+        logging.debug(f"model.status: {model.status}")
+        logging.debug(f"model.results: {model.results}")
+        status = model.status
+        if model.status == RunStatus.ERROR:
             error = model.results.error
-        elif model.results.status == 'DONE':
-            status = RunStatus.DONE
     except models.ModelRun.DoesNotExist:
         status = RunStatus.NOT_FOUND
-        logging.info("["+str(uid)+"] model run not found for user")
-
-    return { 'status': status, 'error': error }
+        logging.info(f"[{uid}] model run not found for user")
+    return {'status': status, 'error': error}
 
 # convert to/from model config format
 def export_to_database_path(uid):

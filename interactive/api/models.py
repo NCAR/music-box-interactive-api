@@ -1,4 +1,14 @@
 from django.db import models
+from enum import Enum
+
+class RunStatus(Enum):
+    RUNNING = 'RUNNING'
+    WAITING = 'WAITING'
+    NOT_FOUND = 'NOT_FOUND'
+    DONE = 'DONE'
+    ERROR = 'ERROR'
+    UNKNOWN = 'UNKNOWN'
+
 
 class SessionUser(models.Model):
     # uid of user [CharField]
@@ -24,9 +34,9 @@ class ModelRun(models.Model):
     # checksum of config files [CharField]
     config_checksum = models.CharField(max_length=50)
 
-    # is running? [BooleanField]
-    is_running = models.BooleanField(default=False)
-    
+    # status of the model run [CharField]
+    status = models.CharField(max_length=50, choices=[(status.value, status.value) for status in RunStatus])
+
     # results name and binary data [JSONField]
     results = models.JSONField(default=dict) # {name: binary data}
 

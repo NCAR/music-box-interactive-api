@@ -6,21 +6,18 @@ django.setup()
 
 from concurrent.futures import ThreadPoolExecutor as Pool
 from multiprocessing import cpu_count
-from shared.utils import check_for_rabbit_mq
+from shared.configuration_utils import load_configuration, \
+                                       get_config_file_path, \
+                                       get_working_directory
+from shared.rabbit_mq import consume, check_for_rabbit_mq, publish_message
 
 import functools
 import json
 import logging
-import numpy as np
 import os
-import pandas as pd
-import pika
 import shutil
 import subprocess
 import sys
-from shared.configuration_utils import load_configuration, \
-                                       get_config_file_path, \
-                                       get_working_directory
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -32,21 +29,6 @@ from shared.configuration_utils import load_configuration, \
 # set this number to 1 if you want to run everything in one thread -- if you are running on a server
 # without much cpu power/want to reduce energy usage you should probably set this to 1
 pool = Pool(max_workers=cpu_count()) # sets max number of workers to add to pool
-
-RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
-
-def publish_message(message):
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-    with pika.BlockingConnection(connParam) as connection:
-        channel = connection.channel()
-        channel.queue_declare(queue='model_finished_queue')
-        channel.basic_publish(exchange='',
-                              routing_key='model_finished_queue',
-                              body=json.dumps(message))
 
 # disable propagation
 logging.getLogger("pika").propagate = False
@@ -102,7 +84,7 @@ def run_queue_callback(ch, method, properties, body):
         config_file_path = get_config_file_path(session_id)
         working_directory = get_working_directory(session_id)
 
-        logging.info("Adding runner for session {} to pool".format(session_id))
+        logging.info(f"Adding runner for session {session_id} to pool")
 
         # run model in separate thread, remove stdout=subprocess.DEVNULL if you want to see output
         f = pool.submit(
@@ -121,21 +103,7 @@ def run_queue_callback(ch, method, properties, body):
 
 
 def main():
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-    with pika.BlockingConnection(connParam) as connection:
-        channel = connection.channel()
-
-        channel.queue_declare(queue='run_queue')
-        channel.basic_consume(queue='run_queue',
-                            on_message_callback=run_queue_callback,
-                            auto_ack=True)
-
-        logging.info("Waiting for model_finished_queue messages")
-        try:
-            channel.start_consuming()
-        except KeyboardInterrupt:
-            channel.stop_consuming()
+    consume("Waiting for model_finished_queue messages", 'run_queue', run_queue_callback)
 
 
 def getListOfFiles(dirName):

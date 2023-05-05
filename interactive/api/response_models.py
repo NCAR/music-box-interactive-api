@@ -1,16 +1,8 @@
-from enum import Enum
 from rest_framework import serializers
+from api.models import RunStatus
 
 import json
 import base64
-
-class RunStatus(Enum):
-    RUNNING = 'RUNNING'
-    WAITING = 'WAITING'
-    NOT_FOUND = 'NOT_FOUND'
-    DONE = 'DONE'
-    ERROR = 'ERROR'
-    UNKNOWN = 'UNKNOWN'
 
 class RunStatusEncoder(json.JSONEncoder):
     def default(self, obj):

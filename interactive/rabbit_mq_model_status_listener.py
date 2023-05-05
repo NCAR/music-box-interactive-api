@@ -5,72 +5,49 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
 django.setup()
 
 from api.database_tools import get_model_run
-from shared.utils import check_for_rabbit_mq
+from shared.rabbit_mq import check_for_rabbit_mq, consume
 
 import json
 import logging
-import pika
 import sys
 
-RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
+def run_model_finished_callback(ch, method, properties, body):
+    json_body = json.loads(body)
+    session_id = json_body["session_id"]
+    # grab ModelRun for session_id
+    model_run = get_model_run(session_id)
+    logging.info("Model finished for session {}".format(session_id))
+    # grab MODEL_RUN_COMPLETE and error.json from data
+    # save results to database
+    status = "UNKNOWN"
+    if "MODEL_RUN_COMPLETE" in json_body:
+        status = "DONE"
+    error_json = {}
+    if "error.json" in json_body:
+        error_json = json_body["error.json"]
+        status = "ERROR"
+        logging.info(f"Model error for session {session_id}: {error_json}")
+    else:
+        logging.info(f"No errors for session {session_id}")
+    if "output.csv" in json_body:
+        output_csv = json_body["output.csv"]
+        model_run.results['/output.csv'] = output_csv
+        logging.info(f"Output found for session {session_id}")
+    else:
+        logging.info(f"No output found for session {session_id}")
+    
+    # update model_run with MODEL_RUN_COMPLETE and error_json
+    model_run.results['status'] = status
+    model_run.results['error'] = error_json
+    model_run.is_running = False
+    model_run.save()
+    logging.info("Model run saved to database")
+
 
 # disable propagation
 logging.getLogger("pika").propagate = False
 def main():
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-    connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-    conn = pika.BlockingConnection(connParam)
-    channel = conn.channel()
-    channel.queue_declare(queue='model_finished_queue')
-
-    def run_model_finished_callback(ch, method, properties, body):
-        json_body = json.loads(body)
-        session_id = json_body["session_id"]
-        # grab ModelRun for session_id
-        model_run = get_model_run(session_id)
-        logging.info("Model finished for session {}".format(session_id))
-        # grab MODEL_RUN_COMPLETE and error.json from data
-        # save results to database
-        status = "UNKNOWN"
-        if "MODEL_RUN_COMPLETE" in json_body:
-            status = "DONE"
-        error_json = {}
-        if "error.json" in json_body:
-            error_json = json_body["error.json"]
-            status = "ERROR"
-            logging.info(f"Model error for session {session_id}: {error_json}")
-        else:
-            logging.info(f"No errors for session {session_id}")
-        if "output.csv" in json_body:
-            output_csv = json_body["output.csv"]
-            model_run.results['/output.csv'] = output_csv
-            logging.info(f"Output found for session {session_id}")
-        else:
-            logging.info(f"No output found for session {session_id}")
-        
-        # update model_run with MODEL_RUN_COMPLETE and error_json
-        model_run.results['status'] = status
-        model_run.results['error'] = error_json
-        model_run.is_running = False
-        model_run.save()
-        logging.info("Model run saved to database")
-
-        
-    channel.basic_consume(queue='model_finished_queue',
-                          on_message_callback=run_model_finished_callback,
-                          auto_ack=True)
-
-    logging.info("Waiting for model_finished_queue messages")
-    try:
-        channel.start_consuming()
-    except KeyboardInterrupt:
-        channel.stop_consuming()
-   # connection.close()
-
-
+    consume("Waiting for model_finished_queue messages", 'model_finished_queue', run_model_finished_callback)
 
 if __name__ == '__main__':
     # config to easily see threads and process IDs
