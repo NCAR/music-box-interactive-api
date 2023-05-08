@@ -95,7 +95,7 @@ def run_request_callback(ch, method, properties, body):
         body = {"session_id": session_id}
         publish_message(route_key = RunStatus.RUNNING.value, message=body)
     except Exception as e:
-        body = {"error.json": str(e), "session_id": session_id}
+        body = {"error.json": json.dumps({'message': str(e)}), "session_id": session_id}
         publish_message(route_key = RunStatus.ERROR.value, message=body)
         logging.exception('Setting up run failed')
 

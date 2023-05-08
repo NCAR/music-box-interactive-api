@@ -55,6 +55,8 @@ def other_status_callback(ch, method, properties, body):
     session_id = json_body["session_id"]
     model_run = get_model_run(session_id)
     model_run.status = method.routing_key
+    if RunStatus(method.routing_key) == RunStatus.ERROR:
+        model_run.results = {'error': json_body['error.json']}
     model_run.save()
 
 
