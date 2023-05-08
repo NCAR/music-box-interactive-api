@@ -5,14 +5,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
 django.setup()
 
 from api.database_tools import get_model_run
-from shared.rabbit_mq import check_for_rabbit_mq, consume
+from shared.rabbit_mq import rabbit_is_available, consume, RabbitConfig, ConsumerConfig
 from api.models import RunStatus
 
 import json
 import logging
 import sys
 
-def run_model_finished_callback(ch, method, properties, body):
+def done_status_callback(ch, method, properties, body):
     json_body = json.loads(body)
     session_id = json_body["session_id"]
     # grab ModelRun for session_id
@@ -44,10 +44,22 @@ def run_model_finished_callback(ch, method, properties, body):
     logging.info("Model run saved to database")
 
 
+def other_status_callback(ch, method, properties, body):
+    logging.info(f"other status: {method.routing_key} {body}")
+
 # disable propagation
 logging.getLogger("pika").propagate = False
+
 def main():
-    consume("Waiting for model_finished_queue messages", 'model_finished_queue', run_model_finished_callback)
+    done = ConsumerConfig(
+        route_keys=[RunStatus.Done.value], callback = done_status_callback
+        )
+
+    other = ConsumerConfig(
+        route_keys=[status.value for status in RunStatus if status != RunStatus.DONE],
+        callback = other_status_callback)
+
+    consume(consumer_configs=[done, other])
 
 if __name__ == '__main__':
     # config to easily see threads and process IDs
@@ -56,7 +68,7 @@ if __name__ == '__main__':
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
-        if check_for_rabbit_mq():
+        if rabbit_is_available():
             main()
         else:
             logging.error('[ERR!] RabbitMQ server is not running. Exiting...')

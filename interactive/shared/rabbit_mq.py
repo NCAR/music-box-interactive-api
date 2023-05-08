@@ -11,80 +11,106 @@ RABBIT_PORT = int(os.getenv("RABBIT_MQ_PORT", "5672"))
 RABBIT_USER = os.getenv("RABBIT_MQ_USER", "guest")
 RABBIT_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", "guest")
 
-
 class RabbitConfig:
-    def __init__(self, exchange, queue, route_keys=None, 
-                 host=RABBIT_HOST, 
-                 port=RABBIT_PORT, 
-                 user=RABBIT_USER, 
+    def __init__(self, queue, exchange = 'musicbox_interactive',
+                 host=RABBIT_HOST,
+                 port=RABBIT_PORT,
+                 user=RABBIT_USER,
                  password=RABBIT_PASSWORD):
+        if not queue:
+            raise ValueError(f"No queue to listen on was specified.")
+        if not exchange:
+            raise ValueError(f"An exchange must be specified.")
+        if not host:
+            raise ValueError(f"You must specify a host.")
+        if not port:
+            raise ValueError(f"You must specify a port.")
+        if not password:
+            raise ValueError(f"You must specify a password.")
+        if not user:
+            raise ValueError(f"You must specify a user.")
+
         self.exchange = exchange
         self.queue = queue
-        self.route_keys = route_keys
         self.host = host
         self.port = port
         self.user = user
         self.password = password
 
+class ConsumerConfig():
+    def __init__(self, route_keys=None, callback = None):
+        if not route_keys:
+            raise ValueError(f"At least one route key must be supplied.")
+        if not callback:
+            raise ValueError(
+                f"A callback must be supplied when consuming from a message queue.")
+        self.route_keys = route_keys
+        self.callback = callback
 
-def publish_message(message, queue=None, route_key=None, exchange='musicbox.model_runs'):
+def publish_message(route_key, message, rabbit_config = RabbitConfig):
     """
     Publishes a message on a queue
     """
-    if not queue:
-        raise ValueError(f"No queue to listen on was specified.")
     if not route_key:
-        raise ValueError(f"A route key must be supplied")
-
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+        raise ValueError("You must supply a route key.")
+    if not message:
+        raise ValueError("Message must at least be an empty dict.")
+    
+    # create connection parameters
+    credentials = pika.PlainCredentials(rabbit_config.user, rabbit_config.password)
     connParam = pika.ConnectionParameters(
-        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        rabbit_config.host, rabbit_config.port, credentials=credentials)
+    
+    # setup a connection
     with pika.BlockingConnection(connParam) as connection:
+        # start a channel and declare an exchange
         channel = connection.channel()
+        channel.exchange_declare(rabbit_config.exchange, exchange_type='direct')
 
-        # Ensure the queue is initialized
-        channel.queue_declare(queue=queue)
+        # publish
+        channel.basic_publish(exchange=rabbit_config.exchange,
+                            routing_key=route_key,
+                            body=json.dumps(message))
 
-        # Bind the queue to the routing key
-        channel.queue_bind(exchange=exchange, queue=queue,
-                           routing_key=route_key)
-
-        channel.basic_publish(exchange='',
-                              routing_key=queue,
-                              body=json.dumps(message))
-
-
-def consume(queue=None, route_key=None, callback=None, exchange='musicbox.model_runs'):
+def consume(consumer_configs, rabbit_config = RabbitConfig()):
     """
     Setup a consumer for a queue. The queue and callback must be supplied
     """
-    if not queue:
-        raise ValueError(f"No queue to listen on was specified.")
-    if not route_key:
-        raise ValueError(f"A route key must be supplied")
-    if not callback:
-        raise ValueError(
-            f"A callback must be supplied when consuming from a message queue.")
 
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    # create connection parameters
+    credentials = pika.PlainCredentials(rabbit_config.user, rabbit_config.password)
     connParam = pika.ConnectionParameters(
-        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+        rabbit_config.host, rabbit_config.port, credentials=credentials)
 
+    # setup a connection
     with pika.BlockingConnection(connParam) as connection:
+        # start a channel and declare an exchange
         channel = connection.channel()
+        channel.exchange_declare(rabbit_config.exchange, exchange_type='direct')
 
-        channel.queue_declare(queue=queue)
-        channel.basic_consume(queue=queue,
-                              on_message_callback=callback,
-                              auto_ack=True)
+        # loop through each consumer and generate a queue with a random name
+        for consumer in consumer_configs:
+            result = channel.queue_declare(queue='', exclusive=True)
+            queue_name = result.method.queue
+            # bind the route keys to the queue
+            for key in consumer.route_keys:
+                channel.queue_bind(
+                    exchange=rabbit_config.exchange, queue=queue_name, routing_key=key
+                )
+
+            # setup a callback for this queue
+            channel.basic_consume(queue=queue_name,
+                                on_message_callback=consumer.callback,
+                                auto_ack=True)
 
         try:
+            # start consuming on all queues
             channel.start_consuming()
         except KeyboardInterrupt:
             channel.stop_consuming()
 
 
-def check_for_rabbit_mq():
+def rabbit_is_available():
     """
     Determine if rabbit mq is accepting connections
     """

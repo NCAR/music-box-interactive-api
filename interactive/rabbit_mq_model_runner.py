@@ -6,10 +6,11 @@ django.setup()
 
 from concurrent.futures import ThreadPoolExecutor as Pool
 from multiprocessing import cpu_count
+from api.models import RunStatus
 from shared.configuration_utils import load_configuration, \
                                        get_config_file_path, \
                                        get_working_directory
-from shared.rabbit_mq import consume, check_for_rabbit_mq, publish_message
+from shared.rabbit_mq import RabbitConfig, consume, rabbit_is_available, publish_message, ConsumerConfig
 
 import functools
 import json
@@ -32,6 +33,7 @@ pool = Pool(max_workers=cpu_count()) # sets max number of workers to add to pool
 
 # disable propagation
 logging.getLogger("pika").propagate = False
+
 
 def music_box_exited_callback(session_id, output_directory, future):
     if future.exception() is not None:
@@ -68,11 +70,11 @@ def music_box_exited_callback(session_id, output_directory, future):
         # remove all files to save space
         # shutil.rmtree(output_directory)
         # send body to model_finished_queue
-        publish_message(body, 'model_finished_queue')
+        publish_message(route_key = RunStatus.DONE.value, message=body)
         logging.info("["+session_id+"] Sent output files to model_finished_queue")
 
 
-def run_queue_callback(ch, method, properties, body):
+def run_request_callback(ch, method, properties, body):
     logging.info("Received run message")
     session_id = None
     try:
@@ -96,16 +98,20 @@ def run_queue_callback(ch, method, properties, body):
             stdout=subprocess.DEVNULL
         )
         f.add_done_callback(functools.partial(music_box_exited_callback, session_id, working_directory))
-        publish_message
+        body = {"session_id": session_id}
+        publish_message(route_key = RunStatus.RUNNING.value, message=body)
     except Exception as e:
-        error = {"error.json": str(e), "session_id": session_id}
-        publish_message(error)
+        body = {"error.json": str(e), "session_id": session_id}
+        publish_message(route_key = RunStatus.ERROR.value, message=body)
         logging.exception('Setting up run failed')
 
 
 def main():
-    consume('run_queue', run_queue_callback)
-    logging.info("Waiting for model_finished_queue messages")
+    consume(consumer_configs=[
+        ConsumerConfig(
+            route_keys=['run_request'], callback = run_request_callback
+        )
+    ])
 
 
 def getListOfFiles(dirName):
@@ -132,7 +138,7 @@ if __name__ == '__main__':
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
     try:
-        if check_for_rabbit_mq():
+        if rabbit_is_available():
             main()
         else:
             logging.error('[ERR!] RabbitMQ server is not running.')

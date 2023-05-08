@@ -15,7 +15,7 @@ from shared.configuration_utils import compress_configuration, \
                                        filter_diagnostics, \
                                        get_session_path, \
                                        get_zip_file_path
-from shared.rabbit_mq import publish_message
+from shared.rabbit_mq import publish_message, RabbitConfig
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +96,9 @@ def publish_run_request(session_id, config):
     model_run.status = RunStatus.WAITING.value
     model_run.save()
     body = {"session_id": session_id, "config": config}
-    publish_message(body, 'run_queue')
+    publish_message(route_key = 'run_request', message=body)
+
+
     logger.info("published message to run_queue")
 
 

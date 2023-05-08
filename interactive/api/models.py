@@ -7,7 +7,6 @@ class RunStatus(Enum):
     NOT_FOUND = 'NOT_FOUND'
     DONE = 'DONE'
     ERROR = 'ERROR'
-    UNKNOWN = 'UNKNOWN'
 
 
 class SessionUser(models.Model):
