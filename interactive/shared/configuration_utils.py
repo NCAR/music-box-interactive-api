@@ -106,6 +106,8 @@ def load_configuration(session_id, config, keep_relative_paths=False):
                 config["conditions"]["evolving conditions"] = {
                     csv_path: {}
                 }
+        else:
+            del config["conditions"]["evolving conditions"]
 
     # write the box model configuration
     with open(config_file_path, 'w') as f:

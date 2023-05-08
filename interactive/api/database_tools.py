@@ -471,7 +471,7 @@ def get_run_status(uid):
         logger.debug(f"model: {model} | {model.status}")
         status = RunStatus(model.status)
         if status == RunStatus.ERROR:
-            error = model.results.error
+            error = json.loads(model.results['error'])
     except models.ModelRun.DoesNotExist:
         status = RunStatus.NOT_FOUND
         logger.info(f"[{uid}] model run not found for user")
