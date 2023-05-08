@@ -102,6 +102,8 @@ def consume(consumer_configs, rabbit_config = RabbitConfig()):
                                 on_message_callback=consumer.callback,
                                 auto_ack=True)
 
+        route_keys = [key for consumer in consumer_configs for key in consumer.route_keys]
+        logger.info(f"Consuming for keys: {', '.join(route_keys)}")
         try:
             # start consuming on all queues
             channel.start_consuming()

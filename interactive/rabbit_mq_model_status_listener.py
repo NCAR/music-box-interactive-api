@@ -23,7 +23,7 @@ def done_status_callback(ch, method, properties, body):
     logging.info("Model finished for session {}".format(session_id))
     # grab MODEL_RUN_COMPLETE and error.json from data
     # save results to database
-    status = RunStatus.UNKNOWN.value
+    status = RunStatus.DONE.value
     if "MODEL_RUN_COMPLETE" in json_body:
         status = RunStatus.DONE.value
     error_json = {}
@@ -38,6 +38,8 @@ def done_status_callback(ch, method, properties, body):
         model_run.results['/output.csv'] = output_csv
         logging.info(f"Output found for session {session_id}")
     else:
+        status = RunStatus.ERROR.value
+        error_json = {'message': 'No output found'}
         logging.info(f"No output found for session {session_id}")
     
     # update model_run with MODEL_RUN_COMPLETE and error_json
@@ -48,7 +50,12 @@ def done_status_callback(ch, method, properties, body):
 
 
 def other_status_callback(ch, method, properties, body):
-    logging.info(f"other status: {method.routing_key} {body}")
+    logging.info(f"status update: {method.routing_key} {body}")
+    json_body = json.loads(body)
+    session_id = json_body["session_id"]
+    model_run = get_model_run(session_id)
+    model_run.status = method.routing_key
+    model_run.save()
 
 def main():
     done = ConsumerConfig(
