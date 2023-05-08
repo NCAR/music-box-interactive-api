@@ -11,8 +11,9 @@ RABBIT_PORT = int(os.getenv("RABBIT_MQ_PORT", "5672"))
 RABBIT_USER = os.getenv("RABBIT_MQ_USER", "guest")
 RABBIT_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", "guest")
 
+
 class RabbitConfig:
-    def __init__(self, exchange = 'musicbox_interactive',
+    def __init__(self, exchange='musicbox_interactive',
                  host=RABBIT_HOST,
                  port=RABBIT_PORT,
                  user=RABBIT_USER,
@@ -34,8 +35,9 @@ class RabbitConfig:
         self.user = user
         self.password = password
 
+
 class ConsumerConfig:
-    def __init__(self, route_keys=None, callback = None):
+    def __init__(self, route_keys=None, callback=None):
         if not route_keys:
             raise ValueError(f"At least one route key must be supplied.")
         if not callback:
@@ -45,7 +47,7 @@ class ConsumerConfig:
         self.callback = callback
 
 
-def publish_message(route_key, message, rabbit_config = RabbitConfig()):
+def publish_message(route_key, message, rabbit_config=RabbitConfig()):
     """
     Publishes a message on a queue
     """
@@ -53,31 +55,34 @@ def publish_message(route_key, message, rabbit_config = RabbitConfig()):
         raise ValueError("You must supply a route key.")
     if not message:
         raise ValueError("Message must at least be an empty dict.")
-    
+
     # create connection parameters
-    credentials = pika.PlainCredentials(rabbit_config.user, rabbit_config.password)
+    credentials = pika.PlainCredentials(
+        rabbit_config.user, rabbit_config.password)
     connParam = pika.ConnectionParameters(
         rabbit_config.host, rabbit_config.port, credentials=credentials)
-    
+
     # setup a connection
     with pika.BlockingConnection(connParam) as connection:
         # start a channel and declare an exchange
         channel = connection.channel()
-        channel.exchange_declare(rabbit_config.exchange, exchange_type='direct')
+        channel.exchange_declare(
+            rabbit_config.exchange, exchange_type='direct')
 
         # publish
         channel.basic_publish(exchange=rabbit_config.exchange,
-                            routing_key=route_key,
-                            body=json.dumps(message))
+                              routing_key=route_key,
+                              body=json.dumps(message))
 
 
-def consume(consumer_configs, rabbit_config = RabbitConfig()):
+def consume(consumer_configs, rabbit_config=RabbitConfig()):
     """
     Setup a consumer for a queue. The queue and callback must be supplied
     """
 
     # create connection parameters
-    credentials = pika.PlainCredentials(rabbit_config.user, rabbit_config.password)
+    credentials = pika.PlainCredentials(
+        rabbit_config.user, rabbit_config.password)
     connParam = pika.ConnectionParameters(
         rabbit_config.host, rabbit_config.port, credentials=credentials)
 
@@ -85,7 +90,8 @@ def consume(consumer_configs, rabbit_config = RabbitConfig()):
     with pika.BlockingConnection(connParam) as connection:
         # start a channel and declare an exchange
         channel = connection.channel()
-        channel.exchange_declare(rabbit_config.exchange, exchange_type='direct')
+        channel.exchange_declare(
+            rabbit_config.exchange, exchange_type='direct')
 
         # loop through each consumer and generate a queue with a random name
         for consumer in consumer_configs:
@@ -99,10 +105,11 @@ def consume(consumer_configs, rabbit_config = RabbitConfig()):
 
             # setup a callback for this queue
             channel.basic_consume(queue=queue_name,
-                                on_message_callback=consumer.callback,
-                                auto_ack=True)
+                                  on_message_callback=consumer.callback,
+                                  auto_ack=True)
 
-        route_keys = [key for consumer in consumer_configs for key in consumer.route_keys]
+        route_keys = [
+            key for consumer in consumer_configs for key in consumer.route_keys]
         logger.info(f"Consuming for keys: {', '.join(route_keys)}")
         try:
             # start consuming on all queues

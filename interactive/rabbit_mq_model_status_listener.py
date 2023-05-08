@@ -6,7 +6,7 @@ django.setup()
 
 from api.database_tools import get_model_run
 from shared.rabbit_mq import rabbit_is_available, consume, RabbitConfig, ConsumerConfig
-from api.models import RunStatus
+from api.run_status import RunStatus
 
 import json
 import logging

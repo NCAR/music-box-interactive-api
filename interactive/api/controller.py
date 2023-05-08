@@ -7,7 +7,7 @@ import os
 import pandas as pd
 import api.database_tools as db_tools
 from api import models
-from api.models import RunStatus
+from api.run_status import RunStatus
 from io import StringIO
 from shared.configuration_utils import compress_configuration, \
                                        extract_configuration, \

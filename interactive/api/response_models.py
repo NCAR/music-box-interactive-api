@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import RunStatus
+from api.run_status import RunStatus
 
 import base64
 import json

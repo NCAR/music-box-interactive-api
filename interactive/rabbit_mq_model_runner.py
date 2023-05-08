@@ -1,16 +1,10 @@
-# these import must come first
-import os
-import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
-django.setup()
-
 from concurrent.futures import ThreadPoolExecutor as Pool
 from multiprocessing import cpu_count
-from api.models import RunStatus
+from api.run_status import RunStatus
 from shared.configuration_utils import load_configuration, \
                                        get_config_file_path, \
                                        get_working_directory
-from shared.rabbit_mq import RabbitConfig, consume, rabbit_is_available, publish_message, ConsumerConfig
+from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
 
 import functools
 import json
