@@ -79,7 +79,6 @@ def run_request_callback(ch, method, properties, body):
         load_configuration(session_id, config)
         config_file_path = get_config_file_path(session_id)
         working_directory = get_working_directory(session_id)
-        logging.info(f'config file path {config_file_path}')
 
         logging.info(f"Adding runner for session {session_id} to pool")
 
