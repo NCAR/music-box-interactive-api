@@ -62,7 +62,7 @@ def music_box_exited_callback(session_id, output_directory, future):
             with open(csv_path, 'r') as f:
                 body["output.csv"] = f.read()
         # remove all files to save space
-        # shutil.rmtree(output_directory)
+        shutil.rmtree(output_directory)
         # send body to model_finished_queue
         publish_message(route_key = RunStatus.DONE.value, message=body)
         logging.info("["+session_id+"] Sent output files to model_finished_queue")

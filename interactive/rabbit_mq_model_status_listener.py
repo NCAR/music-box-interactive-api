@@ -57,6 +57,7 @@ def other_status_callback(ch, method, properties, body):
     model_run.status = method.routing_key
     model_run.save()
 
+
 def main():
     done = ConsumerConfig(
         route_keys=[RunStatus.DONE.value], callback = done_status_callback

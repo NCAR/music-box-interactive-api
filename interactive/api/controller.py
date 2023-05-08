@@ -97,8 +97,6 @@ def publish_run_request(session_id, config):
     model_run.save()
     body = {"session_id": session_id, "config": config}
     publish_message(route_key = 'run_request', message=body)
-
-
     logger.info("published message to run_queue")
 
 
