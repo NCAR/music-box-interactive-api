@@ -15,7 +15,7 @@ from shared.configuration_utils import compress_configuration, \
                                        filter_diagnostics, \
                                        get_session_path, \
                                        get_zip_file_path
-from shared.rabbit_mq import publish_message, RabbitConfig
+from shared.rabbit_mq import publish_message
 
 logger = logging.getLogger(__name__)
 
