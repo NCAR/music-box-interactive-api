@@ -96,6 +96,7 @@ def run_queue_callback(ch, method, properties, body):
             stdout=subprocess.DEVNULL
         )
         f.add_done_callback(functools.partial(music_box_exited_callback, session_id, working_directory))
+        publish_message
     except Exception as e:
         error = {"error.json": str(e), "session_id": session_id}
         publish_message(error)
@@ -103,7 +104,8 @@ def run_queue_callback(ch, method, properties, body):
 
 
 def main():
-    consume("Waiting for model_finished_queue messages", 'run_queue', run_queue_callback)
+    consume('run_queue', run_queue_callback)
+    logging.info("Waiting for model_finished_queue messages")
 
 
 def getListOfFiles(dirName):
