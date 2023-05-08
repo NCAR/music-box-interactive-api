@@ -12,13 +12,11 @@ RABBIT_USER = os.getenv("RABBIT_MQ_USER", "guest")
 RABBIT_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", "guest")
 
 class RabbitConfig:
-    def __init__(self, queue, exchange = 'musicbox_interactive',
+    def __init__(self, exchange = 'musicbox_interactive',
                  host=RABBIT_HOST,
                  port=RABBIT_PORT,
                  user=RABBIT_USER,
                  password=RABBIT_PASSWORD):
-        if not queue:
-            raise ValueError(f"No queue to listen on was specified.")
         if not exchange:
             raise ValueError(f"An exchange must be specified.")
         if not host:
@@ -31,13 +29,12 @@ class RabbitConfig:
             raise ValueError(f"You must specify a user.")
 
         self.exchange = exchange
-        self.queue = queue
         self.host = host
         self.port = port
         self.user = user
         self.password = password
 
-class ConsumerConfig():
+class ConsumerConfig:
     def __init__(self, route_keys=None, callback = None):
         if not route_keys:
             raise ValueError(f"At least one route key must be supplied.")
@@ -47,7 +44,8 @@ class ConsumerConfig():
         self.route_keys = route_keys
         self.callback = callback
 
-def publish_message(route_key, message, rabbit_config = RabbitConfig):
+
+def publish_message(route_key, message, rabbit_config = RabbitConfig()):
     """
     Publishes a message on a queue
     """
@@ -71,6 +69,7 @@ def publish_message(route_key, message, rabbit_config = RabbitConfig):
         channel.basic_publish(exchange=rabbit_config.exchange,
                             routing_key=route_key,
                             body=json.dumps(message))
+
 
 def consume(consumer_configs, rabbit_config = RabbitConfig()):
     """

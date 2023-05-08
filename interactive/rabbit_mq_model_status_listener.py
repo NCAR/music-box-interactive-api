@@ -12,6 +12,9 @@ import json
 import logging
 import sys
 
+# disable propagation
+logging.getLogger("pika").propagate = False
+
 def done_status_callback(ch, method, properties, body):
     json_body = json.loads(body)
     session_id = json_body["session_id"]
@@ -47,12 +50,9 @@ def done_status_callback(ch, method, properties, body):
 def other_status_callback(ch, method, properties, body):
     logging.info(f"other status: {method.routing_key} {body}")
 
-# disable propagation
-logging.getLogger("pika").propagate = False
-
 def main():
     done = ConsumerConfig(
-        route_keys=[RunStatus.Done.value], callback = done_status_callback
+        route_keys=[RunStatus.DONE.value], callback = done_status_callback
         )
 
     other = ConsumerConfig(
