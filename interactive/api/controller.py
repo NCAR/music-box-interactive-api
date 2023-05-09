@@ -80,7 +80,7 @@ def get_configuration_as_json(file_path):
 
 def handle_compress_configuration(session_id, config):
     '''Returns a compress file containing the provided configuration'''
-    load_configuration(session_id, config, keep_relative_paths=True)
+    load_configuration(session_id, config, keep_relative_paths=True, in_scientific_notation=False)
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')
 

@@ -4,6 +4,7 @@ django-cors-headers
 django-crispy-forms
 django-extensions
 drf-yasg
+fjson
 matplotlib
 nose
 numpy

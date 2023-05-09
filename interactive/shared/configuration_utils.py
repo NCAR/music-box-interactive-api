@@ -4,6 +4,7 @@ import numpy as np
 import os
 import pandas as pd
 import shutil
+import fjson
 from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,32 @@ def remove_zip_folder(session_id):
     shutil.rmtree(get_zip_folder_path(session_id))
 
 
-def load_configuration(session_id, config, keep_relative_paths=False):
+def replace_large_ints(data):
+    '''Replaces large ints with floats so they will be output in scientific notation'''
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, int) and float(value) > 1.0e10:
+                data[key] = float(value)
+            else:
+                replace_large_ints(value)
+    elif isinstance(data, list):
+        for key, value in enumerate(data):
+            if isinstance(value, int) and float(value) > 1.0e10:
+                data[key] = float(value)
+            else:
+                replace_large_ints(value)
+
+
+def save_as_json(data, file, in_scientific_notation=True):
+    '''Returns a dictionary as a JSON string optionally with floats in scientific notation'''
+    if in_scientific_notation:
+        replace_large_ints(data)
+        return fjson.dump(data, file, float_format=".12e", indent=2, separators=(", ", ": "))
+    else:
+        return json.dump(data, file)
+
+
+def load_configuration(session_id, config, keep_relative_paths=False, in_scientific_notation=True):
     '''Loads a JSON configuration from the client and saves it in MusicBox format'''
     session_path = get_session_path(session_id)
     config_file_path = get_config_file_path(session_id)
@@ -127,7 +153,7 @@ def load_configuration(session_id, config, keep_relative_paths=False):
 
     # write the box model configuration
     with open(config_file_path, 'w') as f:
-        json.dump(config["conditions"], f)
+        save_as_json(config["conditions"], f, in_scientific_notation=in_scientific_notation)
 
     # write the mechanism to the camp configuration
     with open(full_camp_config_path, 'w') as f:
@@ -138,9 +164,9 @@ def load_configuration(session_id, config, keep_relative_paths=False):
 
     # write the mechanism to the camp configuration
     with open(species_config, 'w') as f:
-        json.dump(config["mechanism"]["species"], f)
+        save_as_json(config["mechanism"]["species"], f, in_scientific_notation=in_scientific_notation)
     with open(reactions_config, 'w') as f:
-        json.dump(config["mechanism"]["reactions"], f)
+        save_as_json(config["mechanism"]["reactions"], f, in_scientific_notation=in_scientific_notation)
 
 
 def filter_diagnostics(mechanism):
