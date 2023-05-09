@@ -32,24 +32,6 @@ def unbeautifyReaction(reaction):
         reaction = reaction.replace(' + ', '_')
     return reaction
 
-# checks server by trying to connect
-def check_for_rabbit_mq():
-    """
-    Checks if RabbitMQ server is running.
-    """
-    try:
-        RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-        RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-        RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-        RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-        connParam = pika.ConnectionParameters(RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        with pika.BlockingConnection(connParam) as connection:
-            return connection.is_open
-    except pika.exceptions.AMQPConnectionError:
-        return False
-
-
 
 def direct_open_json(filePath):
     with open(filePath) as f:

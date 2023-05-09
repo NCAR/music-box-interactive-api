@@ -6,6 +6,7 @@ import pandas as pd
 import shutil
 from zipfile import ZipFile
 
+logger = logging.getLogger(__name__)
 
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
@@ -106,6 +107,23 @@ def load_configuration(session_id, config, keep_relative_paths=False):
                 config["conditions"]["evolving conditions"] = {
                     csv_path: {}
                 }
+        else:
+            del config["conditions"]["evolving conditions"]
+
+    if "initial conditions" in config["conditions"]:
+        initial = config["conditions"]["initial conditions"]
+        logger.info(initial)
+        df = pd.DataFrame.from_dict(initial, orient='index', columns=['Value']).T.reset_index(drop=True)
+        csv_path = os.path.join(session_path, "initial_conditions.csv")
+        df.to_csv(csv_path, index=False)
+        if keep_relative_paths:
+            config["conditions"]["initial conditions"] = {
+                "initial_conditions.csv": {}
+            }
+        else:
+            config["conditions"]["initial conditions"] = {
+                csv_path: {}
+            }
 
     # write the box model configuration
     with open(config_file_path, 'w') as f:

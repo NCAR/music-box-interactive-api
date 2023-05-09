@@ -5,8 +5,9 @@ import json
 import logging
 import os
 import pandas as pd
-import pika
+import api.database_tools as db_tools
 from api import models
+from api.run_status import RunStatus
 from io import StringIO
 from shared.configuration_utils import compress_configuration, \
                                        extract_configuration, \
@@ -14,6 +15,7 @@ from shared.configuration_utils import compress_configuration, \
                                        filter_diagnostics, \
                                        get_session_path, \
                                        get_zip_file_path
+from shared.rabbit_mq import publish_message
 
 logger = logging.getLogger(__name__)
 
@@ -90,28 +92,12 @@ def handle_extract_configuration(session_id, zipfile):
 
 
 def publish_run_request(session_id, config):
-    RABBIT_HOST = os.environ["RABBIT_MQ_HOST"]
-    RABBIT_PORT = int(os.environ["RABBIT_MQ_PORT"])
-    RABBIT_USER = os.environ["RABBIT_MQ_USER"]
-    RABBIT_PASSWORD = os.environ["RABBIT_MQ_PASSWORD"]
-
-    try:
-        credentials = pika.PlainCredentials( RABBIT_USER, RABBIT_PASSWORD)
-        connParam = pika.ConnectionParameters( RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-        with pika.BlockingConnection(connParam) as connection:
-            channel = connection.channel()
-            channel.queue_declare(queue='run_queue')
-            body = {"session_id": session_id, "config": config}
-            channel.basic_publish(exchange='',
-                                routing_key='run_queue',
-                                body=json.dumps(body))
-    except Exception as e:
-        logger.exception(f"Unable to publish run message")
-        return False
-
+    model_run = db_tools.create_model_run(session_id)
+    model_run.status = RunStatus.WAITING.value
+    model_run.save()
+    body = {"session_id": session_id, "config": config}
+    publish_message(route_key = 'run_request', message=body)
     logger.info("published message to run_queue")
-
-    return True
 
 
 def get_results_file(session_id):

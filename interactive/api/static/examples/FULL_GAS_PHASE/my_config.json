@@ -88,7 +88,7 @@
             "initial value [mol m-3]": 2.3e-05
         },
         "H2O": {
-            "initial value [molecule cm-3]": 7.7e+16
+            "initial value [mol m-3]": 0.128
         }
     },
     "environmental conditions": {

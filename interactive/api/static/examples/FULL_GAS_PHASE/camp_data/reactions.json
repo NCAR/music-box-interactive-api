@@ -451,7 +451,7 @@
           "N": 1.0
         },
         {
-          "rxn id": "R29",
+          "rxn id": "R29a",
           "reactants": {
             "OH": {},
             "HNO3": {}
@@ -460,13 +460,30 @@
             "NO3": {}
           },
           "orig params": "CMAQ_8(2.4E-14, -460.0, 2.7E-17, -2199.0, 6.5E-34, -1335.0)",
-          "type": "CMAQ_OH_HNO3",
-          "k0_A": 2.4e-14,
-          "k0_C": 460.0,
-          "k2_A": 2.7e-17,
-          "k2_C": 2199.0,
-          "k3_A": 6.5e-34,
-          "k3_C": 1335.0
+          "type": "ARRHENIUS",
+          "A": 2.4e-14,
+          "B": 0.0,
+          "C": 460.0
+        },
+        {
+          "rxn id": "R29b",
+          "reactants": {
+            "OH": {},
+            "HNO3": {}
+          },
+          "products": {
+            "NO3": {}
+          },
+          "orig params": "CMAQ_8(2.4E-14, -460.0, 2.7E-17, -2199.0, 6.5E-34, -1335.0)",
+          "type": "TROE",
+          "k0_A": 6.5e-34,
+          "k0_B": 0.0,
+          "k0_C": 1335.0,
+          "kinf_A": 2.7e-17,
+          "kinf_B": 0.0,
+          "kinf_C": 2199.0,
+          "Fc": 1.0,
+          "N": 1.0
         },
         {
           "rxn id": "R30",
@@ -540,7 +557,7 @@
           "C": 380.0
         },
         {
-          "rxn id": "R34",
+          "rxn id": "R34a",
           "reactants": {
             "HO2": {
               "qty": 2
@@ -550,14 +567,30 @@
             "H2O2": {}
           },
           "orig params": "CMAQ_9(2.3E-13, -6.0E+02, 1.7E-33, -1.0E+03)",
-          "type": "CMAQ_H2O2",
-          "k1_A": 2.3e-13,
-          "k1_C": 600.0,
-          "k2_A": 1.7e-33,
-          "k2_C": 1000.0
+          "type": "ARRHENIUS",
+          "A": 2.3e-13,
+          "B": 0.0,
+          "C": 600.0
         },
         {
-          "rxn id": "R35",
+          "rxn id": "R34b",
+          "reactants": {
+            "HO2": {
+              "qty": 2
+            },
+             "M": {}
+          },
+          "products": {
+            "H2O2": {}
+          },
+          "orig params": "CMAQ_9(2.3E-13, -6.0E+02, 1.7E-33, -1.0E+03)",
+          "type": "ARRHENIUS",
+          "A": 1.7e-33,
+          "B": 0.0,
+          "C": 1000.0
+        },
+        {
+          "rxn id": "R35a",
           "reactants": {
             "HO2": {
               "qty": 2
@@ -568,11 +601,28 @@
             "H2O2": {}
           },
           "orig params": "H2O * CMAQ_9(3.22E-34, -2.8E+03, 2.38E-54, -3.2E+3)",
-          "type": "CMAQ_H2O2",
-          "k1_A": 3.22e-34,
-          "k1_C": 2800.0,
-          "k2_A": 2.38e-54,
-          "k2_C": 3200.0
+          "type": "ARRHENIUS",
+          "A": 3.22e-34,
+          "B": 0.0,
+          "C": 2800.0
+        },
+        {
+          "rxn id": "R35b",
+          "reactants": {
+            "HO2": {
+              "qty": 2
+            },
+            "H2O": {},
+            "M": {}
+          },
+          "products": {
+            "H2O2": {}
+          },
+          "orig params": "H2O * CMAQ_9(3.22E-34, -2.8E+03, 2.38E-54, -3.2E+3)",
+          "type": "ARRHENIUS",
+          "A": 2.38e-54,
+          "B": 0.0,
+          "C": 3200.0
         },
         {
           "type": "PHOTOLYSIS",
@@ -1041,7 +1091,7 @@
           "MUSICA name": "ROOH"
         },
         {
-          "rxn id": "R65",
+          "rxn id": "R65a",
           "reactants": {
             "OH": {},
             "CO": {}
@@ -1050,11 +1100,26 @@
             "HO2": {}
           },
           "orig params": "CMAQ_9(1.44E-13, 0.0E+00, 3.43E-33, 0.0E+00)",
-          "type": "CMAQ_H2O2",
-          "k1_A": 1.44e-13,
-          "k1_C": 0.0,
-          "k2_A": 3.43e-33,
-          "k2_C": 0.0
+          "type": "ARRHENIUS",
+          "A": 1.44e-13,
+          "B": 0.0,
+          "C": 0.0
+        },
+        {
+          "rxn id": "R65b",
+          "reactants": {
+            "OH": {},
+            "CO": {},
+            "M": {}
+          },
+          "products": {
+            "HO2": {}
+          },
+          "orig params": "CMAQ_9(1.44E-13, 0.0E+00, 3.43E-33, 0.0E+00)",
+          "type": "ARRHENIUS",
+          "A": 3.43e-33,
+          "B": 0.0,
+          "C": 0.0
         },
         {
           "rxn id": "R66",
