@@ -1,7 +1,7 @@
 # these import must come first
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
 django.setup()
 
 from api.database_tools import get_model_run

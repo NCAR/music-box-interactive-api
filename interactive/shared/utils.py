@@ -5,7 +5,7 @@ import json
 base_dir = '/music-box-interactive/interactive'
 try:
     from django.conf import settings
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
     base_dir = settings.BASE_DIR
 except:
     pass

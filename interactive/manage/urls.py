@@ -3,9 +3,9 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-import admin.api as api
+import manage.api as api
 
-app_name = 'admin'
+app_name = 'manage'
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -23,6 +23,6 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('', include('api.urls')),
     path('', include('plots.urls')),
-    path('admin/health', api.HealthView.as_view(), name='health'),
-    path('admin/swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('manage/health', api.HealthView.as_view(), name='health'),
+    path('manage/swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
