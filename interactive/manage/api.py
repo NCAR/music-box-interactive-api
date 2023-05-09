@@ -4,7 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import views
 
 import datetime
-import admin.response_models as response_models
+import manage.response_models as response_models
 
 
 class HealthView(views.APIView):

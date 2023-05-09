@@ -1,4 +1,4 @@
-from admin import settings
+from manage import settings
 from api import models
 from api.database_tools import get_model_run
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse

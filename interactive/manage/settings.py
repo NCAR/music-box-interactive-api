@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 ]
 
-ROOT_URLCONF = 'admin.urls'
+ROOT_URLCONF = 'manage.urls'
 
 TEMPLATES = [
     {
@@ -73,7 +73,7 @@ TEMPLATES = [
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-WSGI_APPLICATION = 'admin.wsgi.application'
+WSGI_APPLICATION = 'manage.wsgi.application'
 
 
 # Database
