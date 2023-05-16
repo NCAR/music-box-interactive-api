@@ -12,7 +12,6 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
       - /etc/pki/:/music-box-interactive
-      - ./var/wwww/html/static:/static
     network_mode: "host"
   model-runner:
     build: 
