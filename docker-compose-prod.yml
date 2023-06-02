@@ -13,6 +13,7 @@ services:
       - db-data:/music-box-interactive/interactive
       - /etc/pki/:/music-box-interactive
     network_mode: "host"
+    restart: on-failure
   model-runner:
     build: 
       context: .
