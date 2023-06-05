@@ -15,11 +15,11 @@ def np_encoder(object):
         return object.item()
 
 
-# time interval should be in format [small, large]
-# and have a minimum difference greater than or equal to the model timestep
 def return_valid_df_time_indices(df, user_time_range, model_timestep):
-    logger.info(f"user_time_range {user_time_range}")
-    logger.info(f"model_timestep {model_timestep}")
+    """time interval should be in format [small, large]
+    and have a minimum difference greater than or equal to the model timestep
+    """
+
     full_time_range = np.array(
         [df["time"].index[0], df["time"].index[-1]], dtype=np.int64
     )
@@ -36,20 +36,22 @@ def return_valid_df_time_indices(df, user_time_range, model_timestep):
     )
 
 
-# Simple logic check on user inputed time range
-# to ensure that it is in format [small, large]
 def return_valid_df_filter_range(user_filter_range):
+    """Simple logic check on user inputed time range
+    to ensure that it is in format [small, large]
+    """
     if user_filter_range[0] < user_filter_range[1]:
         return user_filter_range
     else:
         return [0, 1000000]
 
 
-# get flux returns the sum of the differences between each timestep
-# divided by the length of the array
-# divided by the size of the timestep.
-# Resultant units should be (change in concentration)/time
 def get_flux(series, model_time_range_indices, model_timestep):
+    """get flux returns the sum of the differences between each timestep
+    divided by the length of the array
+    divided by the size of the timestep.
+    Resultant units should be (change in concentration)/time
+    """
     series_sum = sum(
         np.diff(
             series[
@@ -57,17 +59,16 @@ def get_flux(series, model_time_range_indices, model_timestep):
             ]
         )
     )
-
     series_length = len(
         series[model_time_range_indices[0] : model_time_range_indices[1] + 1]
     )
     return series_sum / series_length / model_timestep
 
 
-# getting flux before graphing.
-# TODO: This step is inefficient and could possibly be eliminated by using
-# the mapping dict in a single loop
-def get_flux_min_max(df, model_time_range_indices, model_timestep):
+def get_min_max_flux(df, model_time_range_indices, model_timestep):
+    """get flux range before graphing to allow
+    arrow width calculation on the fly.
+    """
     flux_list = []
     for name, values in df.items():
         if "irr" in name:
@@ -81,22 +82,26 @@ def get_flux_min_max(df, model_time_range_indices, model_timestep):
     return [min(flux_list), max(flux_list)]
 
 
-# scales arrows using the user selected max arrow width,
-# with a minimum width of 1.
-# This may benefit from a different scaling curve or log base
 def scale_arrow_width(
-    width, raw_flux_min_max, display_min_max, user_arrow_scaling_type
+    width, raw_min_max_flux, display_min_max, user_arrow_scaling_type
 ):
+    """Scales arrows using the user selected max arrow width,
+    with a minimum width of 1.
+    This may benefit from a different scaling curve or log base
+    """
     if user_arrow_scaling_type == "linear":
-        return np.interp(width, raw_flux_min_max, display_min_max)
+        return np.interp(width, raw_min_max_flux, display_min_max)
     if user_arrow_scaling_type == "log":
         return np.interp(
-            np.log(width), np.log(raw_flux_min_max), display_min_max
+            np.log(width), np.log(raw_min_max_flux), display_min_max
         )
 
 
-# main function
+
 def generate_flow_diagram(request_dict, uid):
+    """Main function grabs model data and user settings, and returns an
+    html file with the graph, and json with the adjusted user settings
+    """
     ########################
     # get data to build with
     ########################
@@ -117,6 +122,7 @@ def generate_flow_diagram(request_dict, uid):
     ]
     user_filter_toggle = request_dict["showFilteredNodesAndEdges"]
     user_blocked_species = request_dict["blockedSpecies"]
+    logger.debug(f"user_blocked_species {user_blocked_species}")
     user_disabled_physics = request_dict["isPhysicsEnabled"]
 
     reactions = request_dict["reactions"]["reactions"]
@@ -128,7 +134,7 @@ def generate_flow_diagram(request_dict, uid):
         df=df, user_time_range=user_time_range, model_timestep=model_timestep
     )
     # for use with display_width calculation.
-    raw_flux_min_max = get_flux_min_max(
+    raw_min_max_flux = get_min_max_flux(
         df=df,
         model_time_range_indices=model_time_range_indices,
         model_timestep=model_timestep,
@@ -145,11 +151,10 @@ def generate_flow_diagram(request_dict, uid):
     species = set()
 
     for reaction in reactions:
-        # logger.info(f"reaction {reaction}")
         if "reactants" in reaction:
             for reactant in reaction["reactants"]:
                 species.add(reactant)
-        
+
         # Currently, the following code will leave "adjustment" products,
         # like from wall-loss and emmissions calculations, floating.
         # If desired, the concentration/flux could simply be added to
@@ -161,7 +166,6 @@ def generate_flow_diagram(request_dict, uid):
                 species.add(product)
             else:
                 irr = product
-                logger.info(f"irr = product {irr}")
         if "reactants" in reaction:
             reactants = [
                 f"{'' if v.get('qty') is None or v.get('qty') == 1 else v['qty']}{k}"
@@ -186,12 +190,14 @@ def generate_flow_diagram(request_dict, uid):
     # but pyvis is not a good choice to develop this algo on.
     if user_disabled_physics:
         net.toggle_physics(False)
-    logger.info(f"mapping {mapping}")
+    logger.debug(f"mapping {mapping}")
 
     # add the nodes for the reactions and species
 
-    for species in species:
-        net.add_node(species)
+    for s in species:
+        if s in user_blocked_species:
+            continue
+        net.add_node(s)
 
     for reaction in reactions:
         average_flux = get_flux(
@@ -212,6 +218,7 @@ def generate_flow_diagram(request_dict, uid):
             net.add_node(
                 reaction["label"], label=reaction["label"], color=display_color
             )
+            species.add(reaction["label"])
             if "reactants" in reaction:
                 for reactant in reaction["reactants"]:
                     if reactant in user_blocked_species:
@@ -233,7 +240,7 @@ def generate_flow_diagram(request_dict, uid):
                     )
                     displayWidth = scale_arrow_width(
                         width=width,
-                        raw_flux_min_max=raw_flux_min_max,
+                        raw_min_max_flux=raw_min_max_flux,
                         display_min_max=[1, user_width_scaling],
                         user_arrow_scaling_type=user_arrow_scaling_type,
                     )
@@ -244,7 +251,6 @@ def generate_flow_diagram(request_dict, uid):
                         title="flux: " + str(width),
                         color=display_color,
                     )
-                # logger.info(f"average_flux: {average_flux}")
             for product in reaction["products"]:
                 display_color = "#FF7F7F"
                 # reaction rate here is take as the last time entry from our
@@ -267,22 +273,18 @@ def generate_flow_diagram(request_dict, uid):
                     )
                     displayWidth = scale_arrow_width(
                         width=width,
-                        raw_flux_min_max=raw_flux_min_max,
+                        raw_min_max_flux=raw_min_max_flux,
                         display_min_max=[1, user_width_scaling],
                         user_arrow_scaling_type=user_arrow_scaling_type,
                     )
-                    net.add_edge(
-                        reaction["label"],
-                        product,
-                        width=displayWidth,
-                        color=display_color,
-                        title="flux: " + str(width),
-                    )
-                # logger.info(f"average_flux: {average_flux}")
-    # for reaction in reactions:
-    #     if "reactants" in reaction:
-    #         for reactant in reaction["reactants"]:
-    #             logger.info(f"reactant: {reactant}")
+                    if product not in user_blocked_species:
+                        net.add_edge(
+                            reaction["label"],
+                            product,
+                            width=displayWidth,
+                            color=display_color,
+                            title="flux: " + str(width),
+                        )
 
     # set the layout and show the graph
     graph_file = f"{uid}_flow_network.html"
@@ -300,9 +302,8 @@ def generate_flow_diagram(request_dict, uid):
         model_time_range_indices[1] * model_timestep,
     ]
     user_interface_options["filterRange"] = model_filter_range
-
-    logger.info(f"user_interface_options: {user_interface_options}")
-
+    user_interface_options["timeStep"] = model_timestep
+    user_interface_options["minMaxFlux"] = raw_min_max_flux
     # TODO refactor to use django inbuilt (contents ends up inserted code-injection style)
     return contents, json.dumps(
         user_interface_options, indent=4, default=np_encoder
