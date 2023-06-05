@@ -122,7 +122,6 @@ def generate_flow_diagram(request_dict, uid):
     ]
     user_filter_toggle = request_dict["showFilteredNodesAndEdges"]
     user_blocked_species = request_dict["blockedSpecies"]
-    logger.debug(f"user_blocked_species {user_blocked_species}")
     user_disabled_physics = request_dict["isPhysicsEnabled"]
 
     reactions = request_dict["reactions"]["reactions"]
@@ -143,6 +142,8 @@ def generate_flow_diagram(request_dict, uid):
     model_filter_range = return_valid_df_filter_range(
         user_filter_range=user_filter_range
     )
+
+    model_min_max_flux = [100000, 0]
 
     # builds a map between model terminology and request_dict lists
     mapping = {}
@@ -190,7 +191,6 @@ def generate_flow_diagram(request_dict, uid):
     # but pyvis is not a good choice to develop this algo on.
     if user_disabled_physics:
         net.toggle_physics(False)
-    logger.debug(f"mapping {mapping}")
 
     # add the nodes for the reactions and species
 
@@ -244,6 +244,10 @@ def generate_flow_diagram(request_dict, uid):
                         display_min_max=[1, user_width_scaling],
                         user_arrow_scaling_type=user_arrow_scaling_type,
                     )
+                    if average_flux < model_min_max_flux[0]:
+                        model_min_max_flux[0] = average_flux
+                    if average_flux > model_min_max_flux[1]:
+                        model_min_max_flux[1] = average_flux
                     net.add_edge(
                         reactant,
                         reaction["label"],
@@ -278,6 +282,10 @@ def generate_flow_diagram(request_dict, uid):
                         user_arrow_scaling_type=user_arrow_scaling_type,
                     )
                     if product not in user_blocked_species:
+                        if average_flux < model_min_max_flux[0]:
+                            model_min_max_flux[0] = average_flux
+                        if average_flux > model_min_max_flux[1]:
+                            model_min_max_flux[1] = average_flux
                         net.add_edge(
                             reaction["label"],
                             product,
@@ -303,7 +311,8 @@ def generate_flow_diagram(request_dict, uid):
     ]
     user_interface_options["filterRange"] = model_filter_range
     user_interface_options["timeStep"] = model_timestep
-    user_interface_options["minMaxFlux"] = raw_min_max_flux
+    user_interface_options["minMaxFlux"] = model_min_max_flux
+    user_interface_options["species"] = list(species)
     # TODO refactor to use django inbuilt (contents ends up inserted code-injection style)
     return contents, json.dumps(
         user_interface_options, indent=4, default=np_encoder
