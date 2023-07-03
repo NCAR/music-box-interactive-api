@@ -36,6 +36,7 @@ WORKDIR music-box-interactive
 # migrate so database works
 RUN python3 interactive/manage.py makemigrations
 RUN python3 interactive/manage.py migrate
+RUN python3 interactive/manage.py collectstatic
 
 EXPOSE 8000
 

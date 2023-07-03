@@ -12,6 +12,13 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
       - /etc/pki/:/music-box-interactive
+    network_mode: "host"
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"    # Maximum size of each log file, e.g., 10 megabytes
+        max-file: "5"      # Maximum number of log files to retain
   model-runner:
     build: 
       context: .
@@ -22,6 +29,12 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+    network_mode: "host"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"    # Maximum size of each log file, e.g., 10 megabytes
+        max-file: "5"      # Maximum number of log files to retain
   status-listener:
     container_name: 'status-listener'
     build: 
@@ -32,5 +45,11 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
     restart: on-failure
+    network_mode: "host"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"    # Maximum size of each log file, e.g., 10 megabytes
+        max-file: "5"      # Maximum number of log files to retain
 volumes:
   db-data:

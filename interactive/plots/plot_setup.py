@@ -1,28 +1,19 @@
-import sys
-import os.path
 from . import mpl_helper
-import scipy.io
-import json
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseBadRequest
-from matplotlib import pylab
-from matplotlib.ticker import *
-import matplotlib.pyplot as plt
-from pylab import *
-import PIL, PIL.Image, io
-import pandas
-from django.conf import settings
-import logging
-from .compare import *
-from mechanism.species import tolerance_dictionary
-from interactive.tools import *
 from numpy import vectorize
+from pylab import *
+from shared.utils import create_unit_converter, is_density_needed, beautifyReaction
 
+import io
+import logging
+import matplotlib
+import matplotlib.pyplot as plt
+import pandas
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
-model_output_units = 'mol/m-3'
+
+model_output_units = 'mol m-3'
 def sub_props(prop, csvz):
-    
+
     csv = pandas.read_csv(csvz)
     titles = csv.columns.tolist()
     spec = list([])
@@ -45,10 +36,6 @@ def sub_props(prop, csvz):
     if prop == 'env':
         logging.info('getting conditions')
         return env
-    if prop == 'compare':
-        logging.info('getting runs')
-        runs = get_valid_runs()
-        return runs
 
 
 def direct_sub_props(prop, csv):
@@ -73,10 +60,6 @@ def direct_sub_props(prop, csv):
     if prop == 'env':
         logging.info('getting conditions')
         return env
-    if prop == 'compare':
-        logging.info('getting runs')
-        runs = get_valid_runs()
-        return runs
 
 
 def sub_props_names(subprop):
@@ -97,7 +80,6 @@ def beautifyReaction(reaction):
         reaction = reaction.replace('_', ' + ')
     return reaction
 
-
 def output_plot(prop, plot_units,
                 csb,
                 spc):
@@ -113,7 +95,7 @@ def output_plot(prop, plot_units,
     if plot_units:
         converter = vectorize(create_unit_converter(model_output_units, plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol/m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -136,7 +118,7 @@ def output_plot(prop, plot_units,
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
                 pp = float(tolerance_dictionary(spc)[name])
                 du = 'density units'
-                units = 'mol/m-3 '
+                units = 'mol m-3 '
                 de = 'density'
                 tolerance = ppm_to_plot_units(pp, {de: density, du: units})
             else:
@@ -151,7 +133,7 @@ def output_plot(prop, plot_units,
                 axes.set_ylim(-0.05 * ymax_minimum, ymax_minimum)
         else:
             name = name.split('__')[1]
-            axes.set_ylabel(r"(mol/m^3 s^-1)")
+            axes.set_ylabel(r"(mol m^-3 s^-1)")
             axes.set_title(beautifyReaction(name))
     elif prop.split('.')[0] == 'ENV':
         axes.set_title(sub_props_names(name))
@@ -160,7 +142,7 @@ def output_plot(prop, plot_units,
         elif name == 'pressure':
             axes.set_ylabel(r"Pa")
         elif name == 'number_density_air':
-            axes.set_ylabel(r"moles/m^3")
+            axes.set_ylabel(r"moles m^-3")
 
     # axes.legend()
     axes.grid(True)
@@ -177,13 +159,13 @@ def output_plot(prop, plot_units,
 def plots_unit_select(prop):
     unit_choices = {
         'species': [
-            'mol/m-3',
+            'mol m-3',
             'ppm',
             'ppb',
-            'mol/mol',
-            'mol/cm-3',
-            'molecule/cm-3',
-            'molecule/m-3'
+            'mol mol-1',
+            'mol cm-3',
+            'molecule cm-3',
+            'molecule m-3'
         ]
     }
     response = ''
@@ -199,3 +181,6 @@ def plots_unit_select(prop):
         response = response + '</select></div></div>'
         response = response + '<label>Select Species to Plot:</label>'
     return response
+
+def tolerance_dictionary():
+    return 1e-14

@@ -3,7 +3,9 @@ Werkzeug
 django-cors-headers
 django-crispy-forms
 django-extensions
+django-prometheus
 drf-yasg
+fjson
 matplotlib
 nose
 numpy

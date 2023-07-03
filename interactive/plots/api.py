@@ -1,0 +1,169 @@
+from manage import settings
+from api import models
+from api.database_tools import get_model_run
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from io import StringIO, BytesIO
+from plots.database_tools import generate_database_network_plot, get_plot
+from plots.flow_diagram import generate_flow_diagram
+from rest_framework import views
+from shared.utils import beautifyReaction
+
+import pandas as pd
+import plots.plot_setup as plot_setup
+import plots.request_models as request_models
+
+import logging
+import shutil
+import os
+
+
+class GetPlotContents(views.APIView):
+    def get(self, request):
+        logging.info("****** GET request received GET_PLOT_CONTENTS ******")
+        if not request.session.session_key:
+            request.session.save()
+        get = request.GET
+        prop = get['type']
+        response = HttpResponse()
+        response.write(plot_setup.plots_unit_select(prop))
+        # get model run from session
+        model_run = get_model_run(request.session.session_key)
+
+        if '/output.csv' not in model_run.results:
+            return response
+        # get /output.csv file from model run
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        output_csv = StringIO(model.results['/output.csv'])
+        csv = pd.read_csv(output_csv, encoding='latin1')
+        subs = plot_setup.direct_sub_props(prop, csv)
+        subs.sort()
+        if prop != 'compare':
+            for i in subs:
+                prop = beautifyReaction(plot_setup.sub_props_names(i))
+                response.write('<a href="#" class="sub_p list-group-item \
+                                list-group-item-action" subType="normal" id="'
+                               + i + '">☐ ' + prop + "</a>")
+        elif prop == 'compare':
+            for i in subs:
+                prop = beautifyReaction(plot_setup.sub_props_names(i))
+                response.write('<a href="#" class="sub_p list-group-item \
+                                list-group-item-action" subType="compare" id="'
+                               + i + '">☐ ' + prop + "</a>")
+        return response
+
+
+class GetPlot(views.APIView):
+    def get(self, request):
+        logging.info("****** GET request received GET_PLOT ******")
+        model_run = get_model_run(request.session.session_key)
+        if '/output.csv' not in model_run.results:
+            return HttpResponseBadRequest('Bad format for plot request',
+                                      status=405)
+        if request.method == 'GET':
+            props = request.GET['type']
+            buffer = BytesIO()
+            # run get_plot function
+            if request.GET['unit'] == 'n/a':
+              buffer = get_plot(request.session.session_key, props, \
+                                False, request.GET['tolerance'], request.GET['label'])
+            else:
+              buffer = get_plot(request.session.session_key, props, \
+                                request.GET['unit'], request.GET['tolerance'], request.GET['label'])
+            return HttpResponse(buffer.getvalue(), content_type="image/png")
+        return HttpResponseBadRequest('Bad format for plot request',
+                                      status=405)
+
+
+class GetBasicDetails(views.APIView):
+    def get(self, request):
+        logging.info("****** GET request received GET_BASIC_DETAILS ******")
+        if not request.session.session_key:
+            request.session.save()
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        output_csv = StringIO(model.results['/output.csv'])
+        csv = pd.read_csv(output_csv, encoding='latin1')
+        plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
+        plot_property_list = [x.strip() for x in plot_property_list]
+        for x in csv.columns.tolist():
+            if "myrate" in x:
+                plot_property_list.append('RATE')
+        context = {
+            'plots_list': plot_property_list
+        }
+        logging.info("plots list: " + str(context))
+        return JsonResponse(context)
+
+
+class GetFlowDetails(views.APIView):
+    def get(self, request):
+        logging.info("****** GET request received GET_FLOW_DETAILS ******")
+        if not request.session.session_key:
+            request.session.save()
+        model = models.ModelRun.objects.get(uid=request.session.session_key)
+        output_csv = StringIO(model.results['/output.csv'])
+        csv = pd.read_csv(output_csv, encoding='latin1')
+        concs = [x for x in csv.columns if 'CONC' in x]
+        species = [x.split('.')[1] for x in concs if 'myrate' not in x]
+
+        step_length = 0
+        if csv.shape[0] - 1 > 2:
+            step_length = int(csv['time'].iloc[1])
+        context = {
+            "species": species,
+            "stepVal": step_length,
+            "simulation_length": int(csv['time'].iloc[-1])
+        }
+        logging.debug("returning basic info:" + str(context))
+        return JsonResponse(context)
+
+
+class GetFlow(views.APIView):
+    @swagger_auto_schema(
+        query_serializer=request_models.GetFlowSerializer,
+        responses={
+            200: openapi.Response(
+                description='Success',
+                schema=openapi.Schema(
+                    type='string',
+                    description='HTML content of the flow diagram'
+                )
+            )
+        }
+    )
+    def post(self, request):
+        if not request.session.session_key:
+            request.session.save()
+        logging.debug(f"session id: {request.session.session_key}")
+        logging.debug("using data:" + str(request.data))
+        flow = generate_flow_diagram(request.data, request.session.session_key)
+        return HttpResponse(flow)
+
+
+class PlotSpeciesView(views.APIView):
+    def get(self, request):
+        if not request.session.session_key:
+            request.session.save()
+        if 'name' not in request.GET:
+            return HttpResponseBadRequest("missing species name")
+        species = request.GET['name']
+        network_plot_dir = os.path.join(
+                settings.BASE_DIR, "dashboard/templates/network_plot/" +
+                request.session.session_key)
+        template_plot = os.path.join(
+            settings.BASE_DIR,
+            "dashboard/templates/network_plot/plot.html")
+        if not os.path.isdir(network_plot_dir):
+            os.makedirs(network_plot_dir)
+        # use copyfile()
+        if os.exists(os.path.join(network_plot_dir, "plot.html")) is False:
+            # create plot.html file if doesn't exist
+            logging.info("putting plot into file " + str(os.path.join(network_plot_dir, "plot.html")))
+        shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
+        logging.info("generating plot and exporting to " + str(network_plot_dir + "/plot.html"))
+        # generate network plot and place it in unique directory for user
+        html = generate_database_network_plot(request.session.session_key,
+                                       species,
+                                       network_plot_dir + "/plot.html")
+        return HttpResponse(html)
