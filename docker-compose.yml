@@ -34,15 +34,6 @@ services:
     depends_on:
       - rabbitmq
     restart: on-failure
-  # web:
-  #   container_name: 'web'
-  #   build: 
-  #     context: .
-  #     dockerfile: ./Dockerfile.web
-  #     args:
-  #       - BASE_API_URL=${BASE_API_URL}
-  #   ports:
-  #     - 8001:80
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:3.11-management
