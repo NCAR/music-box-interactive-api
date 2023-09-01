@@ -92,16 +92,16 @@ def load_configuration(session_id, config, keep_relative_paths=False, in_scienti
 
     camp_config = None
     full_camp_config_path = None
-    for model_config in config["conditions"]["model components"]:
-        if ("type" in model_config) and (model_config["type"] == "CAMP"):
-            camp_config = model_config["configuration file"]
-            full_camp_config_path = os.path.join(session_path, camp_config)
-            # update the camp configuration path to point to the full path on the file system
-            # so that the model can find it
-            if keep_relative_paths:
-                model_config["configuration file"] = camp_config
-            else:
-                model_config["configuration file"] = full_camp_config_path
+    model_config = config["conditions"]["model components"]
+    if ("type" in model_config) and (model_config["type"] == "CAMP"):
+        camp_config = model_config["configuration file"]
+        full_camp_config_path = os.path.join(session_path, camp_config)
+        # update the camp configuration path to point to the full path on the file system
+        # so that the model can find it
+        if keep_relative_paths:
+            model_config["configuration file"] = camp_config
+        else:
+            model_config["configuration file"] = full_camp_config_path
     if camp_config is None:
         raise Exception("Could not find camp config")
 
