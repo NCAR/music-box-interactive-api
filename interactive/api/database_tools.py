@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def user_exists(uid):
     try:
         models.SessionUser.objects.get(uid=uid)
@@ -15,6 +16,8 @@ def user_exists(uid):
     return True
 
 # get user based on uid
+
+
 def get_user_or_start_session(uid):
     # check if user exists
     try:
@@ -71,6 +74,8 @@ def set_csv_files(uid, csv_files):
     user.save()
 
 # set results of model run
+
+
 def set_results(uid, results):
     model_run = get_model_run(uid)
     model_run.results = results
@@ -81,7 +86,7 @@ def set_results(uid, results):
 def set_is_running(uid, is_running):
     model_run = get_model_run(uid)
     model_run.is_running = is_running
-    logging.info("["+str(uid)+"] set running to: "+str(is_running))
+    logging.info("[" + str(uid) + "] set running to: " + str(is_running))
     model_run.save()
 
 
@@ -204,6 +209,8 @@ def get_mechanism(uid):
     }
 
 # get species detail of user
+
+
 def get_species_detail(uid, species_name):
     user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/species.json']["camp-data"]
@@ -233,15 +240,15 @@ def remove_species(uid, species_name):
     user.config_files['/camp_data/species.json']["camp-data"] = camp_data
     # find any reactions that use this species and remove them
     reaction_data = user.config_files['/camp_data/reactions.json']["camp-data"]
-    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions'] if not species_name in r['reactants'].keys() and not species_name in r['products'].keys()]
+    reaction_data[0]['reactions'] = [r for r in reaction_data[0]['reactions']
+                                     if species_name not in r['reactants'].keys() and species_name not in r['products'].keys()]
     for entry in reaction_data:
         if entry['type'] == "CHEM_REACTION":
             if species_name in entry['species']:
                 reaction_data.remove(entry)
     user.config_files['/camp_data/reactions.json']["camp-data"] = reaction_data
-    
-    user.save()
 
+    user.save()
 
     # now remove the species from my_config.json
     # check if my_config_path exists
@@ -252,8 +259,7 @@ def remove_species(uid, species_name):
         if species_name in chem_species['chemical species']:
             del chem_species['chemical species'][species_name]
     user.config_files['/my_config.json'] = chem_species
-    
-    
+
     user.save()
 
 
@@ -287,6 +293,8 @@ def is_reactions_valid(uid):
         return True
     return False
 # remove reaction for user
+
+
 def remove_reaction(uid, index):
     user = get_user_or_start_session(uid)
     camp_data = user.config_files['/camp_data/reactions.json']["camp-data"]
@@ -416,7 +424,8 @@ def convert_initial_conditions_dict(uid, dictionary, output_file, delimiter):
             column_names += key_label + '.' + value["units"] + delimiter
             column_values += str(value["value"]) + delimiter
     user = get_user_or_start_session(uid)
-    user.config_files[output_file] = column_names[:-1] + '\n' + column_values[:-1]
+    user.config_files[output_file] = column_names[:-1] + \
+        '\n' + column_values[:-1]
     user.save()
 
 
@@ -431,7 +440,7 @@ def is_musica_reaction(uid, name):
     if not MUSICA_name:
         return False
     for reaction in reactions:
-        if not "MUSICA name" in reaction:
+        if "MUSICA name" not in reaction:
             continue
         if MUSICA_name == reaction["MUSICA name"]:
             if prefix == "EMIS" and reaction["type"] == "EMISSION":
@@ -453,13 +462,13 @@ def get_reaction_musica_names(uid):
                 continue
             if reaction['type'] == "EMISSION":
                 reactions['EMIS.' + reaction['MUSICA name']] = \
-                    { 'units': 'ppm s-1' }
+                    {'units': 'ppm s-1'}
             elif reaction['type'] == "FIRST_ORDER_LOSS":
                 reactions['LOSS.' + reaction['MUSICA name']] = \
-                    { 'units': 's-1' }
+                    {'units': 's-1'}
             elif reaction['type'] == "PHOTOLYSIS":
                 reactions['PHOT.' + reaction['MUSICA name']] = \
-                    { 'units' : 's-1' }
+                    {'units': 's-1'}
     return reactions
 
 
@@ -478,6 +487,8 @@ def get_run_status(uid):
     return {'status': status, 'error': error}
 
 # convert to/from model config format
+
+
 def export_to_database_path(uid):
     user = get_user_or_start_session(uid)
     species = user.config_files['/species.json']
@@ -587,7 +598,7 @@ def export_to_database(uid):
             iv = config['chemical species'][key][j]
             species_dict['unit'].update({name: unit})
             species_dict['value'].update({name: iv})
-        i = i+1
+        i = i + 1
 
     option_dict = {}
     for key in config['box model options']:
@@ -711,6 +722,8 @@ def get_reaction_type_schema(uid, reaction_type):
     return schema
 
 # function that returns checksum of config + binary files for a given uid
+
+
 def calculate_checksum(uid):
     # get user
     user = get_user_or_start_session(uid)
@@ -726,7 +739,7 @@ def calculate_checksum(uid):
         # create checksum of config file contents
         checksum = hashlib.md5(encoded_string).hexdigest()
         checksums.append(checksum.strip())
-    
+
     # checksum of binary files
     for binary_file in binary_files:
         # encoded string from binary file
@@ -741,6 +754,8 @@ def calculate_checksum(uid):
     return checksum
 
 # function to return current checksum for user
+
+
 def get_current_checksum(uid):
     # get user
     user = get_user_or_start_session(uid)
@@ -750,6 +765,8 @@ def get_current_checksum(uid):
     return current_checksum
 
 # set current checksum for user
+
+
 def set_current_checksum(uid, checksum):
     # get user
     user = get_user_or_start_session(uid)
@@ -759,18 +776,28 @@ def set_current_checksum(uid, checksum):
     user.save()
 
 # function to search for user given checksum
+
+
 def get_user_by_checksum(checksum):
     # query for user with checksum and should_cache = True
-    user = models.SessionUser.objects.filter(config_checksum=checksum, should_cache=True).first()
+    user = models.SessionUser.objects.filter(
+        config_checksum=checksum, should_cache=True).first()
     # return user
     return user
 
 # function to copy results from one user to another
+
+
 def copy_results(from_uid, to_uid):
-    logging.info("copying results from " + str(from_uid) + " to " + str(to_uid))
+    logging.info(
+        "copying results from " +
+        str(from_uid) +
+        " to " +
+        str(to_uid))
     # get ModelRun object from from_uid
     model_run = get_model_run(from_uid)
-    # check if running = False, results aren't empty, and we aren't copying to the same user
+    # check if running = False, results aren't empty, and we aren't copying to
+    # the same user
     if model_run.is_running == False and model_run.results != {} and from_uid != to_uid:
         # get ModelRun object from to_uid
         model_run_to = get_model_run(to_uid)

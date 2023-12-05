@@ -1,3 +1,6 @@
+from shared.unit_dict import unitDict
+from shared.converter_class import Unit
+from shared.conversion_dict import conversionTree
 import pika
 import os
 
@@ -7,24 +10,23 @@ try:
     from django.conf import settings
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
     base_dir = settings.BASE_DIR
-except:
+except BaseException:
     pass
 
-from shared.conversion_dict import conversionTree
-from shared.converter_class import Unit
-from shared.unit_dict import unitDict
 
 def beautifyReaction(reaction):
     if '->' in reaction:
         reaction = reaction.replace('->', ' → ')
     if '__' in reaction:
         reaction = reaction.replace('__', ' (')
-        reaction = reaction+")"
+        reaction = reaction + ")"
     if '_' in reaction:
         reaction = reaction.replace('_', ' + ')
     return reaction
 
 # undo beautifyReaction (usually used when indexing dictionaries)
+
+
 def unbeautifyReaction(reaction):
     if '→' in reaction:
         reaction = reaction.replace(' → ', '->')
@@ -45,7 +47,6 @@ def direct_dump_json(filePath, content):
         # json.dump(content, f)
 
 
-
 # turns 'E a' notation to "10^a" notations
 def sci_note(dirty):
     if 'e' in dirty:
@@ -53,7 +54,8 @@ def sci_note(dirty):
         b = a[0].strip('0')
         c = b.strip('.')
         scinote = c + '*10^{' + a[1] + '}'
-    else: scinote = dirty
+    else:
+        scinote = dirty
     return scinote
 
 
@@ -64,7 +66,8 @@ def sci_note_jax(dirty):
         b = a[0].strip('0')
         c = b.strip('.')
         scinote = c + '*10^{' + a[1] + '}'
-    else: scinote = dirty
+    else:
+        scinote = dirty
     jax = "\\" + "begin{equation}" + scinote + "\\" + "end{equation}"
     return jax
 
@@ -114,6 +117,8 @@ def get_required_arguments(initial_unit, final_unit):
     return args
 
 # returns sub prop names
+
+
 def sub_props_names(subprop):
     namedict = {
         'temperature': "Temperature",
@@ -124,4 +129,3 @@ def sub_props_names(subprop):
         return namedict[subprop]
     else:
         return subprop
-

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+
 class GetFlowSerializer(serializers.Serializer):
     includedSpecies = serializers.CharField()
     blockedSpecies = serializers.CharField()

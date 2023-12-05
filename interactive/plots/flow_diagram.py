@@ -55,12 +55,12 @@ def get_flux(series, model_time_range_indices, model_timestep):
     series_sum = sum(
         np.diff(
             series[
-                model_time_range_indices[0] : model_time_range_indices[1] + 1
+                model_time_range_indices[0]: model_time_range_indices[1] + 1
             ]
         )
     )
     series_length = len(
-        series[model_time_range_indices[0] : model_time_range_indices[1] + 1]
+        series[model_time_range_indices[0]: model_time_range_indices[1] + 1]
     )
     return series_sum / series_length / model_timestep
 
@@ -95,7 +95,6 @@ def scale_arrow_width(
         return np.interp(
             np.log(width), np.log(raw_min_max_flux), display_min_max
         )
-
 
 
 def generate_flow_diagram(request_dict, uid):
@@ -313,7 +312,8 @@ def generate_flow_diagram(request_dict, uid):
     user_interface_options["timeStep"] = model_timestep
     user_interface_options["minMaxFlux"] = model_min_max_flux
     user_interface_options["species"] = list(species)
-    # TODO refactor to use django inbuilt (contents ends up inserted code-injection style)
+    # TODO refactor to use django inbuilt (contents ends up inserted
+    # code-injection style)
     return contents, json.dumps(
         user_interface_options, indent=4, default=np_encoder
     )
