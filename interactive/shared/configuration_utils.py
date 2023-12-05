@@ -92,6 +92,9 @@ def load_configuration(session_id, config, keep_relative_paths=False, in_scienti
 
     camp_config = None
     full_camp_config_path = None
+    # for now there's only ever 1 configuration
+    # this SHOULD NOT be changed since this is a requirement (that it's an array)
+    # which is imposed by music box
     model_config = config["conditions"]["model components"][0]
     if ("type" in model_config) and (model_config["type"] == "CAMP"):
         camp_config = model_config["configuration file"]
