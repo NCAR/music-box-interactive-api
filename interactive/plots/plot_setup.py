@@ -12,6 +12,8 @@ import pandas
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 model_output_units = 'mol m-3'
+
+
 def sub_props(prop, csvz):
 
     csv = pandas.read_csv(csvz)
@@ -78,18 +80,22 @@ def output_plot(prop, plot_units,
                 csb,
                 spc):
     matplotlib.use('agg')
-        
+
     (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
     csv_results_path = csb
     csv = pandas.read_csv(csv_results_path)
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
-    #make unit conversion if needed
+    # make unit conversion if needed
     if plot_units:
-        converter = vectorize(create_unit_converter(model_output_units, plot_units))
+        converter = vectorize(
+            create_unit_converter(
+                model_output_units,
+                plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {
+                'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units': 'mol m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -100,13 +106,14 @@ def output_plot(prop, plot_units,
     name = prop.split('.')[1]
     if prop.split('.')[0] == 'CONC':
         if 'myrate__' not in prop.split('.')[1]:
-            axes.set_ylabel("("+plot_units+")")
+            axes.set_ylabel("(" + plot_units + ")")
             axes.set_title(beautifyReaction(name))
-            #unit converter for tolerance      
+            # unit converter for tolerance
             if plot_units:
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
             else:
-                ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
+                ppm_to_plot_units = create_unit_converter(
+                    'ppm', model_output_units)
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
@@ -119,7 +126,8 @@ def output_plot(prop, plot_units,
                 pp = float(tolerance_dictionary(spc)[name])
                 tolerance = ppm_to_plot_units(pp)
 
-            #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
+            # this determines the minimum value of the y axis range. minimum
+            # value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
             ymax_minimum = tolerance_yrange_factor * tolerance
             property_maximum = subset[str(prop.strip())].max()
@@ -175,6 +183,7 @@ def plots_unit_select(prop):
         response = response + '</select></div></div>'
         response = response + '<label>Select Species to Plot:</label>'
     return response
+
 
 def tolerance_dictionary():
     return 1e-14

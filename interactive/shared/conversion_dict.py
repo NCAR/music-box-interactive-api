@@ -1,7 +1,9 @@
-#dictionary with lambda functions for all conversions between unit types (ex. number density -> mixing ratio)
+# dictionary with lambda functions for all conversions between unit types
+# (ex. number density -> mixing ratio)
 
-# format: 
-# function = conversionTree[unit type][final unit subtype][initial unit subtype]
+# format:
+# function = conversionTree[unit type][final unit subtype][initial unit
+# subtype]
 
 conversionTree = {
     "concentration": {
@@ -9,27 +11,27 @@ conversionTree = {
         "number density": {
             'area mass density': {
                 'arguments': ['molar mass', 'height', 'molar mass units', 'height units'],
-                'function': (lambda concentration, args : concentration / args['molar mass'] / args['height'])
+                'function': (lambda concentration, args: concentration / args['molar mass'] / args['height'])
             },
             'mixing ratio': {
                 'arguments': ['density', 'density units'],
-                'function': (lambda concentration, args : concentration * args['density'])
+                'function': (lambda concentration, args: concentration * args['density'])
             },
             'number density': {
                 'arguments': [],
-                'function': (lambda concentration, args : concentration)
+                'function': (lambda concentration, args: concentration)
             }
         },
         'area mass density': {
             'number density': {
                 'arguments': ['molar mass', 'height', 'molar mass units', 'height units'],
-                'function': (lambda concentration, args : concentration * args['molar mass'] * args['height'])
+                'function': (lambda concentration, args: concentration * args['molar mass'] * args['height'])
             }
         },
         'mixing ratio': {
             'number density': {
                 'arguments': ['density', 'density units'],
-                'function': (lambda concentration, args : concentration / args['density'])
+                'function': (lambda concentration, args: concentration / args['density'])
             }
         }
     },
@@ -39,30 +41,30 @@ conversionTree = {
             'base unit': 'C',
             'fahrenheit': {
                 'arguments': [],
-                'function': (lambda temperature, args : (temperature - 32) / 1.8)
+                'function': (lambda temperature, args: (temperature - 32) / 1.8)
             },
             'kelvin': {
                 'arguments': [],
-                'function': (lambda temperature, args : (temperature - 273.15))
+                'function': (lambda temperature, args: (temperature - 273.15))
             },
             'celsius': {
                 'arguments': [],
-                'function': (lambda temperature, args : temperature)
+                'function': (lambda temperature, args: temperature)
             }
 
         },
-        'kelvin':{
+        'kelvin': {
             'base unit': 'K',
             'celsius': {
                 'arguments': [],
-                'function': (lambda temperature, args : (temperature + 273.15))
+                'function': (lambda temperature, args: (temperature + 273.15))
             }
         },
-        'fahrenheit':{
+        'fahrenheit': {
             'base unit': 'F',
             'celsius': {
                 'arguments': [],
-                'function': (lambda temperature, args : (temperature * 1.8) + 32)
+                'function': (lambda temperature, args: (temperature * 1.8) + 32)
             }
         }
     },

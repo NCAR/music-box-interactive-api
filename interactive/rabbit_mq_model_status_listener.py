@@ -1,19 +1,19 @@
 # these import must come first
+import sys
+import logging
+import json
+from api.run_status import RunStatus
+from shared.rabbit_mq import rabbit_is_available, consume, RabbitConfig, ConsumerConfig
+from api.database_tools import get_model_run
 import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
 django.setup()
 
-from api.database_tools import get_model_run
-from shared.rabbit_mq import rabbit_is_available, consume, RabbitConfig, ConsumerConfig
-from api.run_status import RunStatus
-
-import json
-import logging
-import sys
 
 # disable propagation
 logging.getLogger("pika").propagate = False
+
 
 def done_status_callback(ch, method, properties, body):
     json_body = json.loads(body)
@@ -41,7 +41,7 @@ def done_status_callback(ch, method, properties, body):
         status = RunStatus.ERROR.value
         error_json = json.dumps({'message': 'No output found'})
         logging.info(f"No output found for session {session_id}")
-    
+
     # update model_run with MODEL_RUN_COMPLETE and error_json
     model_run.results['error'] = error_json
     model_run.status = status
@@ -62,14 +62,16 @@ def other_status_callback(ch, method, properties, body):
 
 def main():
     done = ConsumerConfig(
-        route_keys=[RunStatus.DONE.value], callback = done_status_callback
-        )
+        route_keys=[RunStatus.DONE.value], callback=done_status_callback
+    )
 
     other = ConsumerConfig(
-        route_keys=[status.value for status in RunStatus if status != RunStatus.DONE],
-        callback = other_status_callback)
+        route_keys=[
+            status.value for status in RunStatus if status != RunStatus.DONE],
+        callback=other_status_callback)
 
     consume(consumer_configs=[done, other])
+
 
 if __name__ == '__main__':
     # config to easily see threads and process IDs

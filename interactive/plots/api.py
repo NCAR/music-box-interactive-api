@@ -38,8 +38,7 @@ class GetPlotContents(views.APIView):
         model = models.ModelRun.objects.get(uid=request.session.session_key)
         output_csv = StringIO(model.results['/output.csv'])
         csv = pd.read_csv(output_csv, encoding='latin1')
-        subs = plot_setup.direct_sub_props(prop, csv)
-        subs.sort()
+        subs = sorted(plot_setup.direct_sub_props(prop, csv))
         if prop != 'compare':
             for i in subs:
                 prop = beautifyReaction(plot_setup.sub_props_names(i))
@@ -61,17 +60,25 @@ class GetPlot(views.APIView):
         model_run = get_model_run(request.session.session_key)
         if '/output.csv' not in model_run.results:
             return HttpResponseBadRequest('Bad format for plot request',
-                                      status=405)
+                                          status=405)
         if request.method == 'GET':
             props = request.GET['type']
             buffer = BytesIO()
             # run get_plot function
             if request.GET['unit'] == 'n/a':
-              buffer = get_plot(request.session.session_key, props, \
-                                False, request.GET['tolerance'], request.GET['label'])
+                buffer = get_plot(
+                    request.session.session_key,
+                    props,
+                    False,
+                    request.GET['tolerance'],
+                    request.GET['label'])
             else:
-              buffer = get_plot(request.session.session_key, props, \
-                                request.GET['unit'], request.GET['tolerance'], request.GET['label'])
+                buffer = get_plot(
+                    request.session.session_key,
+                    props,
+                    request.GET['unit'],
+                    request.GET['tolerance'],
+                    request.GET['label'])
             return HttpResponse(buffer.getvalue(), content_type="image/png")
         return HttpResponseBadRequest('Bad format for plot request',
                                       status=405)
@@ -140,7 +147,7 @@ class GetFlow(views.APIView):
         logging.debug("using data:" + str(request.data))
         flow = generate_flow_diagram(request.data, request.session.session_key)
         return HttpResponse(flow)
-    
+
 
 class GetD3Flow(views.APIView):
     @swagger_auto_schema(
@@ -160,7 +167,8 @@ class GetD3Flow(views.APIView):
             request.session.save()
         logging.debug(f"session id: {request.session.session_key}")
         logging.debug("using data:" + str(request.data))
-        flow = generate_D3_flow_diagram(request.data, request.session.session_key)
+        flow = generate_D3_flow_diagram(
+            request.data, request.session.session_key)
         return HttpResponse(flow)
 
 
@@ -172,8 +180,8 @@ class PlotSpeciesView(views.APIView):
             return HttpResponseBadRequest("missing species name")
         species = request.GET['name']
         network_plot_dir = os.path.join(
-                settings.BASE_DIR, "dashboard/templates/network_plot/" +
-                request.session.session_key)
+            settings.BASE_DIR, "dashboard/templates/network_plot/" +
+            request.session.session_key)
         template_plot = os.path.join(
             settings.BASE_DIR,
             "dashboard/templates/network_plot/plot.html")
@@ -182,11 +190,13 @@ class PlotSpeciesView(views.APIView):
         # use copyfile()
         if os.exists(os.path.join(network_plot_dir, "plot.html")) is False:
             # create plot.html file if doesn't exist
-            logging.info("putting plot into file " + str(os.path.join(network_plot_dir, "plot.html")))
+            logging.info("putting plot into file " +
+                         str(os.path.join(network_plot_dir, "plot.html")))
         shutil.copyfile(template_plot, network_plot_dir + "/plot.html")
-        logging.info("generating plot and exporting to " + str(network_plot_dir + "/plot.html"))
+        logging.info("generating plot and exporting to " +
+                     str(network_plot_dir + "/plot.html"))
         # generate network plot and place it in unique directory for user
         html = generate_database_network_plot(request.session.session_key,
-                                       species,
-                                       network_plot_dir + "/plot.html")
+                                              species,
+                                              network_plot_dir + "/plot.html")
         return HttpResponse(html)

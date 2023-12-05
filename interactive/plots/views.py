@@ -12,14 +12,25 @@ def get_contents(request):
 
     response = HttpResponse()
     response.write(plots_unit_select(prop))
-    subs = sub_props(prop)
-    subs.sort()
+    subs = sorted(sub_props(prop))
     if prop != 'compare':
         for i in subs:
-            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
+            response.write(
+                '<a href="#" class="sub_p list-group-item list-group-item-action" subType="normal" id="' +
+                i +
+                '">☐ ' +
+                beautifyReaction(
+                    sub_props_names(i)) +
+                "</a>")
     elif prop == 'compare':
         for i in subs:
-            response.write('<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' + i + '">☐ ' + beautifyReaction(sub_props_names(i)) + "</a>")
+            response.write(
+                '<a href="#" class="sub_p list-group-item list-group-item-action" subType="compare" id="' +
+                i +
+                '">☐ ' +
+                beautifyReaction(
+                    sub_props_names(i)) +
+                "</a>")
     return response
 
 
@@ -36,9 +47,8 @@ def get(request):
     return HttpResponseBadRequest('Bad format for plot request', status=405)
 
 
-
 def compare(request):
-    
+
     context = {
         'runs': get_valid_runs()
     }
@@ -53,9 +63,10 @@ def select_units(request):
     return HttpResponse()
 
 
-#renders plots page
+# renders plots page
 def visualize(request):
-    csv_results_path = os.path.join(os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
+    csv_results_path = os.path.join(
+        os.environ['MUSIC_BOX_BUILD_DIR'], "output.csv")
     csv = pandas.read_csv(csv_results_path)
     plot_property_list = [x.split('.')[0] for x in csv.columns.tolist()]
     plot_property_list = [x.strip() for x in plot_property_list]

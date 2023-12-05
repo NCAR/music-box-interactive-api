@@ -51,7 +51,7 @@ def get_flux_array(series, model_time_indices, model_timestep):
     Resultant units should be (change in concentration)/time
     """
     series_diff = np.diff(
-        series[model_time_indices[0] : model_time_indices[1] + 1]
+        series[model_time_indices[0]: model_time_indices[1] + 1]
     )
     return series_diff / model_timestep
 
@@ -197,7 +197,8 @@ def generate_D3_flow_diagram(request_dict, uid):
     user_interface_options["graphInfo"] = reactionGraph
     contents = "</html>"
     logger.info(f"timeRange, {user_interface_options['timeRange']}")
-    # TODO refactor to use django inbuilt (contents ends up inserted code-injection style)
+    # TODO refactor to use django inbuilt (contents ends up inserted
+    # code-injection style)
     return (
         contents,
         json.dumps(user_interface_options, indent=4, default=np_encoder),
