@@ -143,5 +143,5 @@ class DownloadResultsView(views.APIView):
         results = controller.get_results_file(request.session.session_key)
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=output.csv'
-        results.to_csv(path_or_buf=response)
+        results.to_csv(path_or_buf=response, index=False)
         return response

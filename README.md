@@ -9,12 +9,12 @@ All configuration is handled by docker files and docker compose.
 
 To build
 ```
-docker-compose build
+docker compose build
 ```
 
 To run
 ```
-docker-compose up
+docker compose up
 ```
 
 You can press CTRL-C to quite docker compose.

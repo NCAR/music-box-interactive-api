@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 import logging
-import matplotlib
 import os
 
 logging.basicConfig(format='%(asctime)s - %(message)s',
@@ -85,9 +84,9 @@ def get_plot(uid, prop, plot_units, tolerance, label):
     # get output.csv from model run
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
-    matplotlib.use('agg')
         
-    (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
+    # (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
+    figure, axes = plt.subplots(dpi=300)
     csv = pd.read_csv(output_csv, encoding='latin1')
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
@@ -151,6 +150,7 @@ def get_plot(uid, prop, plot_units, tolerance, label):
     axes.get_legend().remove()
     # Store image in a string buffer
     buffer = BytesIO()
+    figure.tight_layout()
     figure.savefig(buffer, format='png')
     plt.close(figure)
     return buffer
