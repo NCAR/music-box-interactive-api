@@ -1,8 +1,8 @@
 # these imports must come first # noqa: E402
-import os # noqa: E402
-import django # noqa: E402
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings') # noqa: E402
-django.setup() # noqa: E402
+import os  # noqa: E402
+import django  # noqa: E402
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  # noqa: E402
+django.setup()  # noqa: E402
 
 import sys
 import logging
