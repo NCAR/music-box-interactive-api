@@ -1,15 +1,14 @@
 # these imports must come first
+from api.database_tools import get_model_run
+from shared.rabbit_mq import rabbit_is_available, consume, ConsumerConfig
+from api.run_status import RunStatus
+import json
+import logging
+import sys
 import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
 django.setup()
-
-import sys
-import logging
-import json
-from api.run_status import RunStatus
-from shared.rabbit_mq import rabbit_is_available, consume, ConsumerConfig
-from api.database_tools import get_model_run
 
 
 # disable propagation
