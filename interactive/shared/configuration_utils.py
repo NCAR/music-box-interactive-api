@@ -7,6 +7,7 @@ import shutil
 import fjson
 from zipfile import ZipFile
 
+
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
     path = os.path.join(
@@ -152,7 +153,8 @@ def load_configuration(
         else:
             del config["conditions"]["evolving conditions"]
 
-    if "initial conditions" in config["conditions"] and len(config["conditions"]["initial conditions"]) > 0:
+    if "initial conditions" in config["conditions"] and len(
+            config["conditions"]["initial conditions"]) > 0:
         initial = config["conditions"]["initial conditions"]
         df = pd.DataFrame.from_dict(
             initial,
