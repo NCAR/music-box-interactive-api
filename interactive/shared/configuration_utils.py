@@ -7,9 +7,6 @@ import shutil
 import fjson
 from zipfile import ZipFile
 
-logger = logging.getLogger(__name__)
-
-
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
     path = os.path.join(
@@ -155,9 +152,8 @@ def load_configuration(
         else:
             del config["conditions"]["evolving conditions"]
 
-    if "initial conditions" in config["conditions"]:
+    if "initial conditions" in config["conditions"] and len(config["conditions"]["initial conditions"]) > 0:
         initial = config["conditions"]["initial conditions"]
-        logger.info(initial)
         df = pd.DataFrame.from_dict(
             initial,
             orient='index',
@@ -250,9 +246,10 @@ def make_archive(source, destination):
 def extract_configuration(session_id, zipfile):
     '''Extracts a compressed configuration and returns it as JSON'''
     content = zipfile.read()
-    with open(get_zip_file_path(session_id), 'wb') as f:
+    path = get_zip_file_path(session_id)
+    with open(path, 'wb') as f:
         f.write(content)
-    with ZipFile(get_zip_file_path(session_id), 'r') as zip:
+    with ZipFile(path, 'r') as zip:
         zip.extractall(get_unzip_folder_path(session_id))
     remove_zip_folder(session_id)
     return True
