@@ -247,7 +247,6 @@ def extract_configuration(session_id, zipfile):
     '''Extracts a compressed configuration and returns it as JSON'''
     content = zipfile.read()
     path = get_zip_file_path(session_id)
-    logging.debug(path)
     with open(path, 'wb') as f:
         f.write(content)
     with ZipFile(path, 'r') as zip:
