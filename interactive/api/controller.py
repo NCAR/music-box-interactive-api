@@ -102,7 +102,6 @@ def publish_run_request(session_id, config):
     model_run = db_tools.create_model_run(session_id)
     model_run.status = RunStatus.WAITING.value
     model_run.save()
-    logger.debug(config)
     body = {"session_id": session_id, "config": config}
     publish_message(route_key='run_request', message=body)
     logger.info("published message to run_queue")
