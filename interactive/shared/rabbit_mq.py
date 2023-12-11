@@ -100,8 +100,9 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             # bind the route keys to the queue
             for key in consumer.route_keys:
                 channel.queue_bind(
-                    exchange=rabbit_config.exchange, queue=queue_name, routing_key=key
-                )
+                    exchange=rabbit_config.exchange,
+                    queue=queue_name,
+                    routing_key=key)
 
             # setup a callback for this queue
             channel.basic_consume(queue=queue_name,

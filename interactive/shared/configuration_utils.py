@@ -7,11 +7,13 @@ import shutil
 import fjson
 from zipfile import ZipFile
 
-logger = logging.getLogger(__name__)
 
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
-    path = os.path.join(os.environ['MUSIC_BOX_CONFIG_DIR'], session_id, "configuration")
+    path = os.path.join(
+        os.environ['MUSIC_BOX_CONFIG_DIR'],
+        session_id,
+        "configuration")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -80,33 +82,47 @@ def save_as_json(data, file, in_scientific_notation=True):
     '''Returns a dictionary as a JSON string optionally with floats in scientific notation'''
     if in_scientific_notation:
         replace_large_ints(data)
-        return fjson.dump(data, file, float_format=".12e", indent=2, separators=(", ", ": "))
+        return fjson.dump(
+            data,
+            file,
+            float_format=".12e",
+            indent=2,
+            separators=(
+                ", ",
+                ": "))
     else:
         return json.dump(data, file)
 
 
-def load_configuration(session_id, config, keep_relative_paths=False, in_scientific_notation=True):
+def load_configuration(
+        session_id,
+        config,
+        keep_relative_paths=False,
+        in_scientific_notation=True):
     '''Loads a JSON configuration from the client and saves it in MusicBox format'''
     session_path = get_session_path(session_id)
     config_file_path = get_config_file_path(session_id)
 
     camp_config = None
     full_camp_config_path = None
-    for model_config in config["conditions"]["model components"]:
-        if ("type" in model_config) and (model_config["type"] == "CAMP"):
-            camp_config = model_config["configuration file"]
-            full_camp_config_path = os.path.join(session_path, camp_config)
-            # update the camp configuration path to point to the full path on the file system
-            # so that the model can find it
-            if keep_relative_paths:
-                model_config["configuration file"] = camp_config
-            else:
-                model_config["configuration file"] = full_camp_config_path
+    # for now there's only ever 1 configuration
+    # this SHOULD NOT be changed since this is a requirement (that it's an array)
+    # which is imposed by music box
+    model_config = config["conditions"]["model components"][0]
+    if ("type" in model_config) and (model_config["type"] == "CAMP"):
+        camp_config = model_config["configuration file"]
+        full_camp_config_path = os.path.join(session_path, camp_config)
+        # update the camp configuration path to point to the full path on the file system
+        # so that the model can find it
+        if keep_relative_paths:
+            model_config["configuration file"] = camp_config
+        else:
+            model_config["configuration file"] = full_camp_config_path
     if camp_config is None:
         raise Exception("Could not find camp config")
 
     camp_dir = os.path.dirname(full_camp_config_path)
-    species_config   = os.path.join(camp_dir, 'species.json')
+    species_config = os.path.join(camp_dir, 'species.json')
     reactions_config = os.path.join(camp_dir, 'reactions.json')
     # make a workding directory in the music box build folder
     # this prevents jobs from differing sessions from overwriting each other
@@ -116,7 +132,8 @@ def load_configuration(session_id, config, keep_relative_paths=False, in_scienti
     if not os.path.exists(working_directory):
         raise Exception("Did not create working directory")
 
-    if "evolving conditions" in config["conditions"] and isinstance(config["conditions"]["evolving conditions"], list):
+    if "evolving conditions" in config["conditions"] and isinstance(
+            config["conditions"]["evolving conditions"], list):
         evolving = config["conditions"]["evolving conditions"]
         if len(evolving) > 1:
             headers, vals = evolving[0], np.array(evolving[1:])
@@ -136,10 +153,14 @@ def load_configuration(session_id, config, keep_relative_paths=False, in_scienti
         else:
             del config["conditions"]["evolving conditions"]
 
-    if "initial conditions" in config["conditions"]:
+    if "initial conditions" in config["conditions"] and len(
+            config["conditions"]["initial conditions"]) > 0:
         initial = config["conditions"]["initial conditions"]
-        logger.info(initial)
-        df = pd.DataFrame.from_dict(initial, orient='index', columns=['Value']).T.reset_index(drop=True)
+        df = pd.DataFrame.from_dict(
+            initial,
+            orient='index',
+            columns=['Value']).T.reset_index(
+            drop=True)
         csv_path = os.path.join(session_path, "initial_conditions.csv")
         df.to_csv(csv_path, index=False)
         if keep_relative_paths:
@@ -153,7 +174,10 @@ def load_configuration(session_id, config, keep_relative_paths=False, in_scienti
 
     # write the box model configuration
     with open(config_file_path, 'w') as f:
-        save_as_json(config["conditions"], f, in_scientific_notation=in_scientific_notation)
+        save_as_json(
+            config["conditions"],
+            f,
+            in_scientific_notation=in_scientific_notation)
 
     # write the mechanism to the camp configuration
     with open(full_camp_config_path, 'w') as f:
@@ -164,24 +188,27 @@ def load_configuration(session_id, config, keep_relative_paths=False, in_scienti
 
     # write the mechanism to the camp configuration
     with open(species_config, 'w') as f:
-        save_as_json(config["mechanism"]["species"], f, in_scientific_notation=in_scientific_notation)
+        save_as_json(config["mechanism"]["species"], f,
+                     in_scientific_notation=in_scientific_notation)
     with open(reactions_config, 'w') as f:
-        save_as_json(config["mechanism"]["reactions"], f, in_scientific_notation=in_scientific_notation)
+        save_as_json(config["mechanism"]["reactions"], f,
+                     in_scientific_notation=in_scientific_notation)
 
 
 def filter_diagnostics(mechanism):
     '''Removes diagnostic species from the mechanism'''
     def species_filter(species):
-        if "name" in species and species["name"][0:5]=="irr__":
+        if "name" in species and species["name"][0:5] == "irr__":
             return False
         else:
             return True
 
-    mechanism["species"]["camp-data"] = list(filter(species_filter, mechanism["species"]["camp-data"]))
+    mechanism["species"]["camp-data"] = list(
+        filter(species_filter, mechanism["species"]["camp-data"]))
 
     def product_filter(pair):
         key, value = pair
-        if key[0:5]=="irr__":
+        if key[0:5] == "irr__":
             return False
         else:
             return True
@@ -189,7 +216,8 @@ def filter_diagnostics(mechanism):
     reactions = mechanism["reactions"]["camp-data"][0]["reactions"]
     for idx, rxn in enumerate(reactions):
         if "products" in rxn:
-            reactions[idx]["products"] = dict(list(filter(product_filter, rxn["products"].items())))
+            reactions[idx]["products"] = dict(
+                list(filter(product_filter, rxn["products"].items())))
     mechanism["reactions"]["camp-data"][0]["reactions"] = reactions
 
     return mechanism
@@ -199,7 +227,8 @@ def compress_configuration(session_id):
     '''Creates a compressed file holding the previously loaded configuration for a given session id'''
     config_folder = get_session_path(session_id)
     zip_file_path = get_zip_file_path(session_id)
-    logging.info(f'Compressing configuration: {config_folder} to: {zip_file_path}')
+    logging.info(
+        f'Compressing configuration: {config_folder} to: {zip_file_path}')
     make_archive(config_folder, zip_file_path)
     remove_session_folder(session_id)
 
@@ -210,7 +239,7 @@ def make_archive(source, destination):
     name = base.split('.')[0]
     format = base.split('.')[1]
     archive_from = os.path.dirname(source)
-    archive_to   = os.path.basename(source.strip(os.sep))
+    archive_to = os.path.basename(source.strip(os.sep))
     logging.info(f"make archive {name} {format} {archive_from} {archive_to}")
     shutil.make_archive(name, format, archive_from, archive_to)
     shutil.move(f'{name}.{format}', os.path.dirname(destination))
@@ -219,9 +248,10 @@ def make_archive(source, destination):
 def extract_configuration(session_id, zipfile):
     '''Extracts a compressed configuration and returns it as JSON'''
     content = zipfile.read()
-    with open(get_zip_file_path(session_id), 'wb') as f:
+    path = get_zip_file_path(session_id)
+    with open(path, 'wb') as f:
         f.write(content)
-    with ZipFile(get_zip_file_path(session_id), 'r') as zip:
+    with ZipFile(path, 'r') as zip:
         zip.extractall(get_unzip_folder_path(session_id))
     remove_zip_folder(session_id)
     return True

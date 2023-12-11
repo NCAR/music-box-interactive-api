@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class RunStatusEncoder(json.JSONEncoder):
     def default(self, obj):
         logger.info(f"object: {obj}")
@@ -14,9 +15,12 @@ class RunStatusEncoder(json.JSONEncoder):
             return obj.name
         return super().default(obj)
 
+
 class PollingStatusSerializer(serializers.Serializer):
-    status = serializers.ChoiceField(choices=[(choice.name, choice.value) for choice in RunStatus])
-    error= serializers.CharField(required=False)
+    status = serializers.ChoiceField(
+        choices=[(choice.name, choice.value) for choice in RunStatus])
+    error = serializers.CharField(required=False)
+
 
 class ConfigSerializer(serializers.Serializer):
     mechanism = serializers.JSONField()
@@ -24,6 +28,7 @@ class ConfigSerializer(serializers.Serializer):
 
     class Meta:
         ref_name = "ConfigResponse"
+
 
 class FileSerializer(serializers.Serializer):
     filename = serializers.CharField()

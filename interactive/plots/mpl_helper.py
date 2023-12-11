@@ -3,25 +3,29 @@
 # Licensed under the GNU General Public License version 2 or (at your
 # option) any later version. See the file COPYING for details.
 
-import sys, os, math, re
+import matplotlib.pyplot as plt
+import sys
+import os
+import math
+import re
 import matplotlib
 matplotlib.use('PDF')
-import matplotlib.pyplot as plt
 
-matplotlib.rc('text', usetex = False)
-matplotlib.rc('xtick.major', pad = 8)
-matplotlib.rc('ytick.major', pad = 8)
-matplotlib.rc('xtick', labelsize = 10)
-matplotlib.rc('legend', fontsize = 10, borderpad = 0.7, borderaxespad = 1)
-matplotlib.rc('font', size = 10, family = "serif",
-              serif = ["Computer Modern Roman"])
-matplotlib.rc('lines', linewidth = 1)
-matplotlib.rc('patch', linewidth = 0.5)
-matplotlib.rc('axes', linewidth = 0.5)
+matplotlib.rc('text', usetex=False)
+matplotlib.rc('xtick.major', pad=8)
+matplotlib.rc('ytick.major', pad=8)
+matplotlib.rc('xtick', labelsize=10)
+matplotlib.rc('legend', fontsize=10, borderpad=0.7, borderaxespad=1)
+matplotlib.rc('font', size=10, family="serif",
+              serif=["Computer Modern Roman"])
+matplotlib.rc('lines', linewidth=1)
+matplotlib.rc('patch', linewidth=0.5)
+matplotlib.rc('axes', linewidth=0.5)
+
 
 def make_fig(figure_width=5,
              proj3d=False,
-             axis_ratio=(1 + math.sqrt(5)) / 2, # golden ratio
+             axis_ratio=(1 + math.sqrt(5)) / 2,  # golden ratio
              left_margin=0.8,
              right_margin=0.2,
              bottom_margin=0.5,
@@ -49,8 +53,10 @@ def make_fig(figure_width=5,
                             axis_width_fraction,
                             axis_height_fraction], **kwargs)
     if colorbar:
-        cb_left_fraction = (left_margin + axis_width + colorbar_offset) / figure_width
-        cb_bottom_fraction = (bottom_margin + axis_height * (1.0 - colorbar_height_fraction) / 2.0) / figure_height
+        cb_left_fraction = (left_margin + axis_width +
+                            colorbar_offset) / figure_width
+        cb_bottom_fraction = (bottom_margin + axis_height *
+                              (1.0 - colorbar_height_fraction) / 2.0) / figure_height
         cb_width_fraction = colorbar_width / figure_width
         cb_height_fraction = axis_height * colorbar_height_fraction / figure_height
         colorbar_axes = figure.add_axes([cb_left_fraction,
@@ -61,18 +67,19 @@ def make_fig(figure_width=5,
     else:
         return (figure, axes)
 
+
 def make_fig_array(n_vert=2,
                    n_horiz=2,
                    figure_width=5,
-                   axis_ratio=(1 + math.sqrt(5)) / 2, # golden ratio
+                   axis_ratio=(1 + math.sqrt(5)) / 2,  # golden ratio
                    left_margin=0.8,
                    right_margin=0.2,
                    bottom_margin=0.5,
                    top_margin=0.2,
                    horiz_sep=0.4,
                    vert_sep=0.4,
-                   colorbar_location="left", # "left", "right", "top", "bottom"
-                   colorbar=None, # "individual", "single", "shared"
+                   colorbar_location="left",  # "left", "right", "top", "bottom"
+                   colorbar=None,  # "individual", "single", "shared"
                    top_colorbar=False,
                    colorbar_width=0.15,
                    colorbar_length_fraction=0.8,
@@ -101,9 +108,11 @@ def make_fig_array(n_vert=2,
 
     If colorbar is "single" then only one cbar_axes is returned.
     """
-    axis_width = (figure_width - left_margin - right_margin - (n_horiz - 1) * horiz_sep) / float(n_horiz)
+    axis_width = (figure_width - left_margin - right_margin -
+                  (n_horiz - 1) * horiz_sep) / float(n_horiz)
     axis_height = axis_width / axis_ratio
-    figure_height = bottom_margin + axis_height * n_vert + vert_sep * (n_vert - 1) + top_margin
+    figure_height = bottom_margin + axis_height * \
+        n_vert + vert_sep * (n_vert - 1) + top_margin
     figure = plt.figure()
     figure.set_figwidth(figure_width)
     figure.set_figheight(figure_height)
@@ -168,26 +177,28 @@ def make_fig_array(n_vert=2,
                     y_height = colorbar_width
                 else:
                     raise Exception("unknown colorbar: %s" % str(colorbar))
-                if colorbar == "individual" \
-                        or (colorbar == "shared"
-                            and ((colorbar_location == "left" and i_horiz == 0)
-                                 or (colorbar_location == "right" and i_horiz == n_horiz - 1)
-                                 or (colorbar_location == "bottom" and i_vert == 0)
-                                 or (colorbar_location == "top" and i_vert == n_vert - 1))):
-                        cbar_axes = figure.add_axes([x_left / figure_width,
-                                                     y_bottom / figure_height,
-                                                     x_width / figure_width,
-                                                     y_height / figure_height])
-                        if colorbar_location == "left":
-                            cbar_axes.xaxis.tick_left()
-                            cbar_axes.xaxis.set_label_position('left')
-                        if colorbar_location == "top":
-                            cbar_axes.xaxis.tick_top()
-                            cbar_axes.xaxis.set_label_position('top')
-                        if colorbar == "individual":
-                            cbar_axes_array[-1].append(cbar_axes)
-                        elif colorbar == "shared":
-                            cbar_axes_array.append(cbar_axes)
+                if colorbar == "individual" or (
+                    colorbar == "shared" and (
+                        (colorbar_location == "left" and i_horiz == 0) or (
+                            colorbar_location == "right" and i_horiz == n_horiz -
+                            1) or (
+                            colorbar_location == "bottom" and i_vert == 0) or (
+                            colorbar_location == "top" and i_vert == n_vert -
+                            1))):
+                    cbar_axes = figure.add_axes([x_left / figure_width,
+                                                 y_bottom / figure_height,
+                                                 x_width / figure_width,
+                                                 y_height / figure_height])
+                    if colorbar_location == "left":
+                        cbar_axes.xaxis.tick_left()
+                        cbar_axes.xaxis.set_label_position('left')
+                    if colorbar_location == "top":
+                        cbar_axes.xaxis.tick_top()
+                        cbar_axes.xaxis.set_label_position('top')
+                    if colorbar == "individual":
+                        cbar_axes_array[-1].append(cbar_axes)
+                    elif colorbar == "shared":
+                        cbar_axes_array.append(cbar_axes)
         return (figure, axes_array, cbar_axes_array)
     elif colorbar == "single":
         total_width = n_horiz * axis_width + (n_horiz - 1) * horiz_sep
@@ -233,6 +244,7 @@ def make_fig_array(n_vert=2,
         raise Exception("unknown colorbar: %s" % str(colorbar))
     return (figure, axes_array)
 
+
 def remove_fig_array_axes(axes_array, remove_x_axes=True, remove_y_axes=True):
     for (i_row, row) in enumerate(axes_array):
         for (i_col, axes) in enumerate(row):
@@ -242,6 +254,7 @@ def remove_fig_array_axes(axes_array, remove_x_axes=True, remove_y_axes=True):
             if i_col > 0 and remove_y_axes:
                 for t in axes.get_yticklabels():
                     t.set_visible(False)
+
 
 def find_nearest_index(data, value):
     """Find the index of the entry in data that is closest to value.
@@ -254,21 +267,22 @@ def find_nearest_index(data, value):
     """
     min_diff = abs(value - data[0])
     min_i = 0
-    for i in range(1,len(data)):
+    for i in range(1, len(data)):
         diff = abs(value - data[i])
         if diff < min_diff:
             min_diff = diff
             min_i = i
     return min_i
 
+
 def label_plot_line(axes, x_data, y_data, label_x, label_text,
-                        offset_x=None,
-                        offset_y=None,
-                        default_offset_mag=5,
-                        horizontalalignment="left",
-                        verticalalignment="bottom",
-                        flip_xy = False,
-                        draw_text = True, draw_box = True):
+                    offset_x=None,
+                    offset_y=None,
+                    default_offset_mag=5,
+                    horizontalalignment="left",
+                    verticalalignment="bottom",
+                    flip_xy=False,
+                    draw_text=True, draw_box=True):
     if offset_x is None:
         if horizontalalignment == "left":
             offset_x = default_offset_mag
@@ -298,6 +312,7 @@ def label_plot_line(axes, x_data, y_data, label_x, label_text,
                   xytext=(offset_x, offset_y),
                   textcoords='offset points',
                   **kwargs)
+
 
 def axes_boxed_text(axes, label_text, loc,
                     offset_x=15,
@@ -356,6 +371,7 @@ def axes_boxed_text(axes, label_text, loc,
                   textcoords='offset points',
                   **kwargs)
 
+
 def axes_broken_y(fig, axes, upper_frac=0.5, break_frac=0.05, ybounds=None,
                   xlabel=None, ylabel=None, enforce_upper_frac=False):
     """
@@ -372,10 +388,10 @@ def axes_broken_y(fig, axes, upper_frac=0.5, break_frac=0.05, ybounds=None,
         x1, y1, x2, y2 = axes.get_position().get_points().flatten().tolist()
         segment_height = (y_max - y_min) / 3.
         xoffsets = [0, +xwidth, -xwidth, 0]
-        yvalues  = [y_min + (i * segment_height) for i in range(4)]
+        yvalues = [y_min + (i * segment_height) for i in range(4)]
         # Get color of y-axis
         for loc, spine in axes.spines.iteritems():
-            if loc  == 'left':
+            if loc == 'left':
                 color = spine.get_edgecolor()
         for x_position in [x1, x2]:
             line = matplotlib.lines.Line2D(
@@ -412,7 +428,7 @@ def axes_broken_y(fig, axes, upper_frac=0.5, break_frac=0.05, ybounds=None,
             spine.set_color('none')
     upper_axes.get_xaxis().set_ticks_position('top')
     lower_axes.get_xaxis().set_ticks_position('bottom')
-    #plt.setp(upper_axes.get_xticklabels(), visible=False)
+    # plt.setp(upper_axes.get_xticklabels(), visible=False)
     for t in upper_axes.get_xticklabels():
         t.set_visible(False)
     breakmarks(fig, upper_axes, y1 + lower_height, upper_bottom)
@@ -422,14 +438,17 @@ def axes_broken_y(fig, axes, upper_frac=0.5, break_frac=0.05, ybounds=None,
         upper_axes.set_ylim(ymin2, ymax2)
         lower_axes.set_autoscaley_on(False)
         upper_axes.set_autoscaley_on(False)
-        upper_axes.yaxis.get_label().set_position((0, 1 - (0.5 / (upper_frac/(1+break_frac)))))
-        lower_axes.yaxis.get_label().set_position((0, 0.5 / ((1 - upper_frac)/(1+break_frac))))
+        upper_axes.yaxis.get_label().set_position(
+            (0, 1 - (0.5 / (upper_frac / (1 + break_frac)))))
+        lower_axes.yaxis.get_label().set_position(
+            (0, 0.5 / ((1 - upper_frac) / (1 + break_frac))))
     # Make original axes invisible
     axes.set_xticks([])
     axes.set_yticks([])
     for loc, spine in axes.spines.iteritems():
         spine.set_color('none')
     return upper_axes, lower_axes
+
 
 def get_filename_list(directory, filename_pattern):
     """Return a list of files in a directory matching a given pattern.
@@ -441,7 +460,7 @@ def get_filename_list(directory, filename_pattern):
     group match.
 
     Example:
-    >>> netcdf_files = partmc.get_filename_list('out/', r'data_.*\.nc')
+    >>> netcdf_files = partmc.get_filename_list('out/', r'data_.*\\.nc')
 
     """
     filename_list = []

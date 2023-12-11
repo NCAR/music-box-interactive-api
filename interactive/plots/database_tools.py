@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 import logging
-import matplotlib
 import os
 
 logging.basicConfig(format='%(asctime)s - %(message)s',
@@ -21,6 +20,8 @@ logging.basicConfig(format='%(asctime)s - [ERROR!!] %(message)s',
                     level=logging.ERROR)
 
 # generate network plot for user
+
+
 def generate_database_network_plot(uid, species, path_to_template):
     user = db_tools.get_user_or_start_session(uid)
     reactions_data = user.config_files['/camp_data/reactions.json']
@@ -49,7 +50,7 @@ def generate_database_network_plot(uid, species, path_to_template):
             first = '+'.join(reactants)
             second = '+'.join(products)
             name = first + '->' + second
-            net.add_node(name, label=name,  color='green',
+            net.add_node(name, label=name, color='green',
                          borderWidthSelected=3)
             for j in reactants:
                 nodes.update({j: {}})
@@ -85,19 +86,23 @@ def get_plot(uid, prop, plot_units, tolerance, label):
     # get output.csv from model run
     model = models.ModelRun.objects.get(uid=uid)
     output_csv = StringIO(model.results['/output.csv'])
-    matplotlib.use('agg')
-        
-    (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
+
+    # (figure, axes) = mpl_helper.make_fig(top_margin=0.6, right_margin=0.8)
+    figure, axes = plt.subplots(dpi=300)
     csv = pd.read_csv(output_csv, encoding='latin1')
     titles = csv.columns.tolist()
     csv.columns = csv.columns.str.strip()
     subset = csv[['time', str(prop.strip())]]
     model_output_units = 'mol m-3'
-    #make unit conversion if needed
+    # make unit conversion if needed
     if plot_units:
-        converter = vectorize(create_unit_converter(model_output_units, plot_units))
+        converter = vectorize(
+            create_unit_converter(
+                model_output_units,
+                plot_units))
         if is_density_needed(model_output_units, plot_units):
-            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units':'mol m-3 '})
+            subset[str(prop.strip())] = converter(subset[str(prop.strip())], {
+                'density': csv['ENV.number_density_air'].iloc[[-1]], 'density units': 'mol m-3 '})
         else:
             subset[str(prop.strip())] = converter(subset[str(prop.strip())])
 
@@ -108,13 +113,14 @@ def get_plot(uid, prop, plot_units, tolerance, label):
     name = prop.split('.')[1]
     if prop.split('.')[0] == 'CONC':
         if 'myrate__' not in prop.split('.')[1]:
-            axes.set_ylabel("("+plot_units+")")
+            axes.set_ylabel("(" + plot_units + ")")
             axes.set_title(label)
-            #unit converter for tolerance      
+            # unit converter for tolerance
             if plot_units:
                 ppm_to_plot_units = create_unit_converter('ppm', plot_units)
             else:
-                ppm_to_plot_units = create_unit_converter('ppm', model_output_units)
+                ppm_to_plot_units = create_unit_converter(
+                    'ppm', model_output_units)
 
             if is_density_needed('ppm', plot_units):
                 density = float(csv['ENV.number_density_air'].iloc[[-1]])
@@ -127,7 +133,8 @@ def get_plot(uid, prop, plot_units, tolerance, label):
                 pp = float(tolerance)
                 tolerance_tmp = ppm_to_plot_units(pp)
 
-            #this determines the minimum value of the y axis range. minimum value of ymax = tolerance * tolerance_yrange_factor
+            # this determines the minimum value of the y axis range. minimum
+            # value of ymax = tolerance * tolerance_yrange_factor
             tolerance_yrange_factor = 5
             ymax_minimum = tolerance_yrange_factor * tolerance_tmp
             property_maximum = subset[str(prop.strip())].max()
@@ -151,6 +158,7 @@ def get_plot(uid, prop, plot_units, tolerance, label):
     axes.get_legend().remove()
     # Store image in a string buffer
     buffer = BytesIO()
+    figure.tight_layout()
     figure.savefig(buffer, format='png')
     plt.close(figure)
     return buffer

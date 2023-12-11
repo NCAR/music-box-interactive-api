@@ -10,11 +10,11 @@ from api import models
 from api.run_status import RunStatus
 from io import StringIO
 from shared.configuration_utils import compress_configuration, \
-                                       extract_configuration, \
-                                       load_configuration, \
-                                       filter_diagnostics, \
-                                       get_session_path, \
-                                       get_zip_file_path
+    extract_configuration, \
+    load_configuration, \
+    filter_diagnostics, \
+    get_session_path, \
+    get_zip_file_path
 from shared.rabbit_mq import publish_message
 
 logger = logging.getLogger(__name__)
@@ -60,10 +60,12 @@ def get_configuration_as_json(file_path):
                     conditions["initial conditions"] = df.to_dict()
                     del df
                 else:
-                    logger.warning("Could not find initial rates condition file")
+                    logger.warning(
+                        "Could not find initial rates condition file")
             if "evolving conditions" in conditions and \
                len(list(conditions["evolving conditions"].keys())) > 0:
-                evolving_conditions = list(conditions["evolving conditions"].keys())
+                evolving_conditions = list(
+                    conditions["evolving conditions"].keys())
                 if len(evolving_conditions) > 0:
                     evolving_conditions = evolving_conditions[0]
                     path = [f for f in files if evolving_conditions in f]
@@ -73,14 +75,19 @@ def get_configuration_as_json(file_path):
                         conditions["evolving conditions"] = df.to_dict()
                         del df
                     else:
-                        logger.warning("Could not find initial rates condition file")
+                        logger.warning(
+                            "Could not find initial rates condition file")
 
     return conditions, filter_diagnostics(mechanism)
 
 
 def handle_compress_configuration(session_id, config):
     '''Returns a compress file containing the provided configuration'''
-    load_configuration(session_id, config, keep_relative_paths=True, in_scientific_notation=False)
+    load_configuration(
+        session_id,
+        config,
+        keep_relative_paths=True,
+        in_scientific_notation=False)
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')
 
@@ -95,8 +102,9 @@ def publish_run_request(session_id, config):
     model_run = db_tools.create_model_run(session_id)
     model_run.status = RunStatus.WAITING.value
     model_run.save()
+    logger.debug(config)
     body = {"session_id": session_id, "config": config}
-    publish_message(route_key = 'run_request', message=body)
+    publish_message(route_key='run_request', message=body)
     logger.info("published message to run_queue")
 
 

@@ -3,18 +3,18 @@
 
 **Configure, run, and plot results for the MusicBox model, and edit chemical mechanisms.**
 
-** Build and run
+## Build and run
 
 All configuration is handled by docker files and docker compose.
 
 To build
 ```
-docker-compose build
+docker compose build
 ```
 
 To run
 ```
-docker-compose up
+docker compose up
 ```
 
 You can press CTRL-C to quite docker compose.
@@ -48,3 +48,7 @@ If you would like to view the logs after starting docker in a detach state, you 
 ```
 docker compose logs -f
 ```
+
+## Web Files
+
+This repository is only the API server for MusicBox Interactive. If you wish to run the web files, head over to [music-box-interactive-client](https://github.com/NCAR/music-box-interactive-client)
