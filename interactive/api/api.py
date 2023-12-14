@@ -95,7 +95,7 @@ class LoadResultsView(views.APIView):
             )
         }
     )
-    def post(self, request):
+    def get(self, request):
         if not request.session.session_key:
             request.session.save()
         logger.debug(
