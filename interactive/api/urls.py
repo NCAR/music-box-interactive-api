@@ -18,6 +18,10 @@ urlpatterns = [
         api.RunStatusView.as_view(),
         name='run_status'),
     path(
+        'api/load-results',
+        api.LoadResultsView.as_view(),
+        name='run_status'),
+    path(
         'api/compress-config',
         api.CompressConfigurationView.as_view(),
         name='compress-config'),
