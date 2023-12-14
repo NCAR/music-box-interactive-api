@@ -100,7 +100,7 @@ class LoadResultsView(views.APIView):
             request.session.save()
         logger.debug(
             f"load results | session key: {request.session.session_key}")
-        response = controller.get_results_file(request.session.session_key).to_dict()
+        response = controller.get_results_file(request.session.session_key).to_dict(orient='list')
         return JsonResponse(response)
 
 class CompressConfigurationView(views.APIView):
