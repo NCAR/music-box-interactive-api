@@ -111,6 +111,6 @@ def get_results_file(session_id):
     '''Returns a csv file with the model results'''
     model = models.ModelRun.objects.get(uid=session_id)
     output_csv = StringIO(model.results['/output.csv'])
-    df =  pd.read_csv(output_csv, encoding='latin1')
+    df = pd.read_csv(output_csv, encoding='latin1')
     df.columns = df.columns.str.strip()
     return df
