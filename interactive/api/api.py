@@ -86,6 +86,7 @@ class RunView(views.APIView):
         response = db_tools.get_run_status(request.session.session_key)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
+
 class LoadResultsView(views.APIView):
     @swagger_auto_schema(
         responses={
@@ -100,8 +101,11 @@ class LoadResultsView(views.APIView):
             request.session.save()
         logger.debug(
             f"load results | session key: {request.session.session_key}")
-        response = controller.get_results_file(request.session.session_key).to_dict(orient='list')
+        response = controller.get_results_file(
+            request.session.session_key).to_dict(
+            orient='list')
         return JsonResponse(response)
+
 
 class CompressConfigurationView(views.APIView):
     @swagger_auto_schema(
