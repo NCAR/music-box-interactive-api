@@ -6,7 +6,6 @@ import json
 
 import shared.configuration_utils as config_utils
 import api.controller as controller
-import api.database_tools as db_tools
 import api.response_models as response_models
 import api.request_models as request_models
 
@@ -52,7 +51,7 @@ class RunStatusView(views.APIView):
     def get(self, request):
         logger.debug(
             f"Run status | session key: {request.session.session_key}")
-        response = db_tools.get_run_status(request.session.session_key)
+        response = controller.get_run_status(request.session.session_key)
         logger.info(f"Run status | {response}")
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
@@ -68,12 +67,14 @@ class RunView(views.APIView):
         }
     )
     def post(self, request):
+        if not request.session.exists(request.session.session_key):
+            request.session.save() 
         logger.debug(
             f"Run request | session key: {request.session.session_key}")
         controller.publish_run_request(
             request.session.session_key,
             request.data['config'])
-        response = db_tools.get_run_status(request.session.session_key)
+        response = controller.get_run_status(request.session.session_key)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 

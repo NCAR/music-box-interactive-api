@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import pandas as pd
-import api.database_tools as db_tools
 from api import models
 from api.run_status import RunStatus
 from io import StringIO
@@ -99,7 +98,7 @@ def handle_extract_configuration(session_id, zipfile):
 
 
 def publish_run_request(session_id, config):
-    model_run = db_tools.create_model_run(session_id)
+    model_run = create_model_run(session_id)
     model_run.status = RunStatus.WAITING.value
     model_run.save()
     body = {"session_id": session_id, "config": config}
@@ -114,3 +113,40 @@ def get_results_file(session_id):
     df = pd.read_csv(output_csv, encoding='latin1')
     df.columns = df.columns.str.strip()
     return df
+
+# get model run based on uid
+def get_model_run(uid):
+    try:
+        model = models.ModelRun.objects.get(uid=uid)
+        return model
+    except models.ModelRun.DoesNotExist:
+        # if not, create new model run
+        model_run = create_model_run(uid)
+        return model_run
+
+
+# get results of model run
+def get_results(uid):
+    return get_model_run(uid).results
+
+
+# create new model run
+def create_model_run(uid):
+    model_run = models.ModelRun(uid=uid)
+    model_run.save()
+    return model_run
+
+
+# get status of a run
+def get_run_status(uid):
+    error = {}
+    try:
+        model = get_model_run(uid)
+        logger.debug(f"model: {model} | {model.status}")
+        status = RunStatus(model.status)
+        if status == RunStatus.ERROR:
+            error = json.loads(model.results['error'])
+    except Exception as e:
+        status = RunStatus.NOT_FOUND
+        logger.info(f"[{uid}] model run not found for user")
+    return {'status': status, 'error': error}

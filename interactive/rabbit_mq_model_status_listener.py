@@ -9,7 +9,7 @@ import logging
 import json
 from api.run_status import RunStatus
 from shared.rabbit_mq import rabbit_is_available, consume, ConsumerConfig
-from api.database_tools import get_model_run
+from api.controller import get_model_run
 
 
 # disable propagation

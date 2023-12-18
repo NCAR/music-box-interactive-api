@@ -148,7 +148,6 @@ CSRF_COOKIE_NAME = "csrftoken"
 
 # Sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
-SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_DOMAIN = None  # or the domain of your frontend application
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
