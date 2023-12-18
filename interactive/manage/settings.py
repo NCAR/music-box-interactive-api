@@ -36,8 +36,6 @@ INSTALLED_APPS = [
     'django_prometheus',
     'django.contrib.staticfiles',
     'api',
-    'plots',
-    'crispy_forms',
     'drf_yasg',
     'corsheaders',
     'django_extensions'

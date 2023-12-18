@@ -1,7 +1,6 @@
 Django
 Werkzeug
 django-cors-headers
-django-crispy-forms
 django-extensions
 django-prometheus
 drf-yasg
@@ -13,6 +12,5 @@ pandas
 pika
 pillow
 pyOpenSSL
-pyvis
 requests
 scipy

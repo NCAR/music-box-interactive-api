@@ -35,7 +35,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', include('api.urls')),
-    path('', include('plots.urls')),
     path('', include('django_prometheus.urls')),
     path('manage/health', api.HealthView.as_view(), name='health'),
     path('manage/swagger', schema_view.with_ui('swagger',
