@@ -35,14 +35,8 @@ class LoadExample(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key or not db_tools.user_exists(
-                request.session.session_key):
-            request.session.save()
         example = request.GET.dict()['example']
-        _ = db_tools.get_user_or_start_session(request.session.session_key)
-
         conditions, mechanism = controller.load_example(example)
-
         return JsonResponse({'conditions': conditions, 'mechanism': mechanism})
 
 
@@ -56,8 +50,6 @@ class RunStatusView(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.debug(
             f"Run status | session key: {request.session.session_key}")
         response = db_tools.get_run_status(request.session.session_key)
@@ -76,8 +68,6 @@ class RunView(views.APIView):
         }
     )
     def post(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.debug(
             f"Run request | session key: {request.session.session_key}")
         controller.publish_run_request(
@@ -97,8 +87,6 @@ class LoadResultsView(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.debug(
             f"load results | session key: {request.session.session_key}")
         response = controller.get_results_file(
@@ -118,8 +106,6 @@ class CompressConfigurationView(views.APIView):
         }
     )
     def post(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.info(
             f"Recieved compress configuration request for session {request.session.session_key}")
         config = json.loads(request.body)['config']
@@ -147,8 +133,6 @@ class ExtractConfigurationView(views.APIView):
         }
     )
     def post(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.info(
             f"Recieved extract configuration request for session {request.session.session_key}")
         conditions, mechanism = controller.handle_extract_configuration(
@@ -167,8 +151,6 @@ class DownloadResultsView(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.info(
             f"Received download results request for session {request.session.session_key}")
         results = controller.get_results_file(request.session.session_key)
