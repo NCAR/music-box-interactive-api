@@ -2,13 +2,14 @@ from django.http import HttpResponse, JsonResponse, FileResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import views
+from rest_framework import status
 import json
 
 import shared.configuration_utils as config_utils
 import api.controller as controller
-import api.database_tools as db_tools
 import api.response_models as response_models
 import api.request_models as request_models
+from api.run_status import RunStatus
 
 import logging
 
@@ -35,14 +36,10 @@ class LoadExample(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key or not db_tools.user_exists(
-                request.session.session_key):
+        if not request.session.session_key:
             request.session.save()
         example = request.GET.dict()['example']
-        _ = db_tools.get_user_or_start_session(request.session.session_key)
-
         conditions, mechanism = controller.load_example(example)
-
         return JsonResponse({'conditions': conditions, 'mechanism': mechanism})
 
 
@@ -52,16 +49,20 @@ class RunStatusView(views.APIView):
             200: openapi.Response(
                 description='Success',
                 schema=response_models.PollingStatusSerializer
+            ),
+            400: openapi.Response(
+                description='Bad Request, invalid session key',
+                schema=response_models.PollingStatusSerializer
             )
         }
     )
     def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.debug(
             f"Run status | session key: {request.session.session_key}")
-        response = db_tools.get_run_status(request.session.session_key)
+        response = controller.get_run_status(request.session.session_key)
         logger.info(f"Run status | {response}")
+        if (response['status'] == RunStatus.NOT_FOUND):
+            return JsonResponse(response, encoder=response_models.RunStatusEncoder, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
@@ -77,13 +78,14 @@ class RunView(views.APIView):
     )
     def post(self, request):
         if not request.session.session_key:
+            logger.debug("Saving new session")
             request.session.save()
         logger.debug(
             f"Run request | session key: {request.session.session_key}")
         controller.publish_run_request(
             request.session.session_key,
             request.data['config'])
-        response = db_tools.get_run_status(request.session.session_key)
+        response = controller.get_run_status(request.session.session_key)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
@@ -97,8 +99,6 @@ class LoadResultsView(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.debug(
             f"load results | session key: {request.session.session_key}")
         response = controller.get_results_file(
@@ -119,6 +119,7 @@ class CompressConfigurationView(views.APIView):
     )
     def post(self, request):
         if not request.session.session_key:
+            logger.debug("Saving new session")
             request.session.save()
         logger.info(
             f"Recieved compress configuration request for session {request.session.session_key}")
@@ -148,6 +149,7 @@ class ExtractConfigurationView(views.APIView):
     )
     def post(self, request):
         if not request.session.session_key:
+            logger.debug("Saving new session")
             request.session.save()
         logger.info(
             f"Recieved extract configuration request for session {request.session.session_key}")
@@ -167,8 +169,6 @@ class DownloadResultsView(views.APIView):
         }
     )
     def get(self, request):
-        if not request.session.session_key:
-            request.session.save()
         logger.info(
             f"Received download results request for session {request.session.session_key}")
         results = controller.get_results_file(request.session.session_key)
