@@ -70,6 +70,7 @@ class RunView(views.APIView):
     )
     def post(self, request):
         if not request.session.session_key:
+            logger.debug("Saving new session")
             request.session.save()
         logger.debug(
             f"Run request | session key: {request.session.session_key}")
@@ -110,6 +111,7 @@ class CompressConfigurationView(views.APIView):
     )
     def post(self, request):
         if not request.session.session_key:
+            logger.debug("Saving new session")
             request.session.save()
         logger.info(
             f"Recieved compress configuration request for session {request.session.session_key}")
@@ -139,6 +141,7 @@ class ExtractConfigurationView(views.APIView):
     )
     def post(self, request):
         if not request.session.session_key:
+            logger.debug("Saving new session")
             request.session.save()
         logger.info(
             f"Recieved extract configuration request for session {request.session.session_key}")
