@@ -151,7 +151,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_DOMAIN = None  # or the domain of your frontend application
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Allows plots to be shown in an iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
