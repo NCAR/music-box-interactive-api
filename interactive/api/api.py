@@ -62,7 +62,9 @@ class RunStatusView(views.APIView):
         response = controller.get_run_status(request.session.session_key)
         logger.info(f"Run status | {response}")
         if (response['status'] == RunStatus.NOT_FOUND):
-            return JsonResponse(response, encoder=response_models.RunStatusEncoder, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(response,
+                                encoder=response_models.RunStatusEncoder,
+                                status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
