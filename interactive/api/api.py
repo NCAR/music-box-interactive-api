@@ -34,6 +34,8 @@ class LoadExample(views.APIView):
         }
     )
     def get(self, request):
+        if not request.session.session_key:
+            request.session.save()
         example = request.GET.dict()['example']
         conditions, mechanism = controller.load_example(example)
         return JsonResponse({'conditions': conditions, 'mechanism': mechanism})
@@ -67,8 +69,8 @@ class RunView(views.APIView):
         }
     )
     def post(self, request):
-        if not request.session.exists(request.session.session_key):
-            request.session.save() 
+        if not request.session.session_key:
+            request.session.save()
         logger.debug(
             f"Run request | session key: {request.session.session_key}")
         controller.publish_run_request(
@@ -107,6 +109,8 @@ class CompressConfigurationView(views.APIView):
         }
     )
     def post(self, request):
+        if not request.session.session_key:
+            request.session.save()
         logger.info(
             f"Recieved compress configuration request for session {request.session.session_key}")
         config = json.loads(request.body)['config']
@@ -134,6 +138,8 @@ class ExtractConfigurationView(views.APIView):
         }
     )
     def post(self, request):
+        if not request.session.session_key:
+            request.session.save()
         logger.info(
             f"Recieved extract configuration request for session {request.session.session_key}")
         conditions, mechanism = controller.handle_extract_configuration(

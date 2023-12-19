@@ -119,7 +119,7 @@ def get_model_run(uid):
     try:
         model = models.ModelRun.objects.get(uid=uid)
         return model
-    except models.ModelRun.DoesNotExist:
+    except Exception:
         # if not, create new model run
         model_run = create_model_run(uid)
         return model_run
@@ -146,7 +146,7 @@ def get_run_status(uid):
         status = RunStatus(model.status)
         if status == RunStatus.ERROR:
             error = json.loads(model.results['error'])
-    except Exception as e:
+    except Exception:
         status = RunStatus.NOT_FOUND
         logger.info(f"[{uid}] model run not found for user")
     return {'status': status, 'error': error}
