@@ -52,3 +52,8 @@ docker compose logs -f
 ## Web Files
 
 This repository is only the API server for MusicBox Interactive. If you wish to run the web files, head over to [music-box-interactive-client](https://github.com/NCAR/music-box-interactive-client)
+
+## RabbitMQ Admin
+
+After running `docker compose up -d` you can navigate to the RabbitMQ [http://localhost:15672](http://localhost:15672) admin interface to monitor the queues.
+The username is `guest` and the password is `guest`.
