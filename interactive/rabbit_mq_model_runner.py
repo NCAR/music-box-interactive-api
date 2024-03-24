@@ -98,7 +98,7 @@ def run_request_callback(ch, method, properties, body):
             f = pool.submit(
                subprocess.call,
                # run music box with this configuration
-                f"/music-box/build/music_box {config_file_path}", # config_file_path is chamber.spec in the case of partmc
+                f"/music-box/build/music_box {config_file_path}",
                 shell=True,
                 cwd=working_directory,
                 stdout=subprocess.DEVNULL
@@ -110,6 +110,24 @@ def run_request_callback(ch, method, properties, body):
                     working_directory))
             body = {"session_id": session_id}
             publish_message(route_key=RunStatus.RUNNING.value, message=body)
+            
+        else:
+            f = pool.submit(
+               subprocess.call,
+               # run partmc with this configuration
+                f"/build/partmc partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
+                shell=True,
+                cwd=working_directory,
+                stdout=subprocess.DEVNULL
+            )
+            f.add_done_callback(
+                functools.partial(
+                    music_box_exited_callback,
+                    session_id,
+                    working_directory))
+            body = {"session_id": session_id}
+            publish_message(route_key=RunStatus.RUNNING.value, message=body)
+            
     except Exception as e:
         body = {"error.json": json.dumps(
             {'message': str(e)}), "session_id": session_id}
