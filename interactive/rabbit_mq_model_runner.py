@@ -92,6 +92,7 @@ def run_request_callback(ch, method, properties, body):
         payload = config.get('config',{})
         mechanism_in_payload = payload.get('mechanism',{})
         contains_aerosol = 'aerosol' in mechanism_in_payload
+        """
         if not contains_aerosol:
             # run model in separate thread, remove stdout=subprocess.DEVNULL if you
             # want to see output
@@ -110,12 +111,15 @@ def run_request_callback(ch, method, properties, body):
                     working_directory))
             body = {"session_id": session_id}
             publish_message(route_key=RunStatus.RUNNING.value, message=body)
-            
+        
         else:
+        """
+        # Just for testing
+        if not contains_aerosol:
             f = pool.submit(
                subprocess.call,
                # run partmc with this configuration
-                f"/build/partmc partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
+                f"/build/partmc /partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
                 shell=True,
                 cwd=working_directory,
                 stdout=subprocess.DEVNULL
