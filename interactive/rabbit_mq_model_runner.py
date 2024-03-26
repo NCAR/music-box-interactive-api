@@ -86,24 +86,30 @@ def run_request_callback(ch, method, properties, body):
         working_directory = get_working_directory(session_id)
 
         logging.info(f"Adding runner for session {session_id} to pool")
-
-        # run model in separate thread, remove stdout=subprocess.DEVNULL if you
-        # want to see output
-        f = pool.submit(
-            subprocess.call,
-            # run music box with this configuration
-            f"/music-box/build/music_box {config_file_path}",
-            shell=True,
-            cwd=working_directory,
-            stdout=subprocess.DEVNULL
-        )
-        f.add_done_callback(
-            functools.partial(
-                music_box_exited_callback,
-                session_id,
-                working_directory))
-        body = {"session_id": session_id}
-        publish_message(route_key=RunStatus.RUNNING.value, message=body)
+        
+        # Searching through the payload json to see if aerosol is present. If it is, run musicbox
+        # and PartMC. If it isn't, run musicbox only.
+        payload = config.get('config',{})
+        mechanism_in_payload = payload.get('mechanism',{})
+        contains_aerosol = 'aerosol' in mechanism_in_payload
+        if not contains_aerosol:
+            # run model in separate thread, remove stdout=subprocess.DEVNULL if you
+            # want to see output
+            f = pool.submit(
+               subprocess.call,
+               # run music box with this configuration
+                f"/music-box/build/music_box {config_file_path}", # config_file_path is chamber.spec in the case of partmc
+                shell=True,
+                cwd=working_directory,
+                stdout=subprocess.DEVNULL
+            )
+            f.add_done_callback(
+                functools.partial(
+                    music_box_exited_callback,
+                    session_id,
+                    working_directory))
+            body = {"session_id": session_id}
+            publish_message(route_key=RunStatus.RUNNING.value, message=body)
     except Exception as e:
         body = {"error.json": json.dumps(
             {'message': str(e)}), "session_id": session_id}
