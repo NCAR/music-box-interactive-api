@@ -7,16 +7,6 @@ RUN dnf -y install \
         sundials-devel \
     && dnf clean all
 
-# copy the python requirements
-# in an attempt to cache the pip install between server code edits
-COPY ./requirements.txt ./requirements.txt
-
-# python modules needed in scripts
-RUN pip3 install -r ./requirements.txt
-
-# copy the interactive server code
-COPY . /music-box-interactive/
-
 # create a new directory partmc and copy the partmc code 
 RUN git clone https://github.com/compdyn/partmc.git
 
@@ -33,5 +23,17 @@ RUN mkdir /build \
              -D ENABLE_CAMP:BOOL=TRUE \
              /partmc \
     && make
+
+# copy the python requirements
+# in an attempt to cache the pip install between server code edits
+COPY ./requirements.txt ./requirements.txt
+
+# python modules needed in scripts
+RUN pip3 install -r ./requirements.txt
+
+
+# copy the interactive server code
+COPY . /music-box-interactive/
+
 # Start the model runner on entry
 CMD ["python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]

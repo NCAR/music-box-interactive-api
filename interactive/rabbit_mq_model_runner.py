@@ -116,12 +116,15 @@ def run_request_callback(ch, method, properties, body):
         """
         # Just for testing
         if not contains_aerosol:
+            # just for testing
+            os.mkdir("/partmc/scenarios/4_chamber/out");
             f = pool.submit(
                subprocess.call,
                # run partmc with this configuration
                 f"/build/partmc /partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
                 shell=True,
-                cwd=working_directory,
+                # cwd=working_directory. Here it moves to the same directory as the "out" directory
+                cwd = "/partmc/scenarios/4_chamber",
                 stdout=subprocess.DEVNULL
             )
             f.add_done_callback(
