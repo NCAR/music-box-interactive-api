@@ -109,14 +109,17 @@ def publish_run_request(session_id, config):
 def get_results_file(session_id):
     '''Returns a csv file with the model results'''
     model = models.ModelRun.objects.get(uid=session_id)
-    output_csv = StringIO(model.results['/output.csv'])
-    df = pd.read_csv(output_csv, encoding='latin1')
-    df.columns = df.columns.str.strip()
-    return df
-
+    if '/output.csv' in model.results:
+        output_csv = StringIO(model.results['/output.csv'])
+        df = pd.read_csv(output_csv, encoding='latin1')
+        df.columns = df.columns.str.strip()
+        return df
+    # Just for testing. Only a dummy output is passed
+    else:
+        return pd.DataFrame({"result":[49]})
+    
+    
 # get model run based on uid
-
-
 def get_model_run(uid):
     try:
         model = models.ModelRun.objects.get(uid=uid)

@@ -88,6 +88,7 @@ class RunView(views.APIView):
             request.session.session_key,
             request.data['config'])
         response = controller.get_run_status(request.session.session_key)
+        # Return status of running
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 

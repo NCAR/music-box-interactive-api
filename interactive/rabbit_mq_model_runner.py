@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 import sys
+from api.controller import get_model_run
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -37,7 +38,7 @@ def music_box_exited_callback(session_id, output_directory, future):
             "[" + session_id + "] Got exception: %s" %
             future.exception())
     else:
-        logging.info("[" + session_id + "] Model finished.")
+        logging.info("[" + session_id + "] MusicBox Model finished.")
         # 1) check for output files (in /build)
         # 2) send output files to model_finished_queue
         # 3) delete config files and binary files from file system
@@ -71,7 +72,46 @@ def music_box_exited_callback(session_id, output_directory, future):
         publish_message(route_key=RunStatus.DONE.value, message=body)
         logging.info(
             "[" + session_id + "] Sent output files to model_finished_queue")
+        
+def partmc_exited_callback(session_id, output_directory, future):
+    if future.exception() is not None:
+        logging.info(
+            "[" + session_id + "] Got exception: %s" %
+            future.exception())
+    else:
+        logging.info("[" + session_id + "] PartMC Model finished.")
+        # 1) check for output files (in /out)
+        # 2) send output files to DB directly
+        # 3) delete config files and binary files from file system
+        
+    
+        # Copy the data into a new directory called "shared" in the volume. Just for testing
+        src_dir = output_directory
+        dst_dir = "/partmc/partmc-volume/shared"
+        shutil.copytree(src_dir, dst_dir)
+        # remove all files to save space
+        shutil.rmtree(output_directory)
+        volume_directory = dst_dir
 
+        # check number of output files in output directory
+        logging.info(f"output directory: {volume_directory}")
+        output_files = getListOfFiles(volume_directory)
+        if len(output_files) == 0:
+            logging.info("[" + session_id + "] No output files found, exiting")
+            # delete only for the sake of testing
+            shutil.rmtree("/partmc/partmc-volume/shared/out")
+            return
+        # body to send to DB
+        body = {'session_id': session_id, "address": volume_directory}
+        # send body to model_finished_queue
+        model_run = get_model_run(session_id)
+        # delete only for the sake of testing
+        shutil.rmtree("/partmc/partmc-volume/shared/out")
+        
+        model_run.results['partmc_output'] = body
+        model_run.save()
+        logging.info(
+            "[" + session_id + "] Sent output files to Database")
 
 def run_request_callback(ch, method, properties, body):
     logging.info("Received run message")
@@ -82,9 +122,6 @@ def run_request_callback(ch, method, properties, body):
         config = data["config"]
 
         load_configuration(session_id, config)
-        config_file_path = get_config_file_path(session_id)
-        working_directory = get_working_directory(session_id)
-
         logging.info(f"Adding runner for session {session_id} to pool")
         
         # Searching through the payload json to see if aerosol is present. If it is, run musicbox
@@ -92,48 +129,13 @@ def run_request_callback(ch, method, properties, body):
         payload = config.get('config',{})
         mechanism_in_payload = payload.get('mechanism',{})
         contains_aerosol = 'aerosol' in mechanism_in_payload
-        """
-        if not contains_aerosol:
-            # run model in separate thread, remove stdout=subprocess.DEVNULL if you
-            # want to see output
-            f = pool.submit(
-               subprocess.call,
-               # run music box with this configuration
-                f"/music-box/build/music_box {config_file_path}",
-                shell=True,
-                cwd=working_directory,
-                stdout=subprocess.DEVNULL
-            )
-            f.add_done_callback(
-                functools.partial(
-                    music_box_exited_callback,
-                    session_id,
-                    working_directory))
-            body = {"session_id": session_id}
-            publish_message(route_key=RunStatus.RUNNING.value, message=body)
         
-        else:
-        """
-        # Just for testing
         if not contains_aerosol:
-            # just for testing
-            os.mkdir("/partmc/scenarios/4_chamber/out");
-            f = pool.submit(
-               subprocess.call,
-               # run partmc with this configuration
-                f"/build/partmc /partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
-                shell=True,
-                # cwd=working_directory. Here it moves to the same directory as the "out" directory
-                cwd = "/partmc/scenarios/4_chamber",
-                stdout=subprocess.DEVNULL
-            )
-            f.add_done_callback(
-                functools.partial(
-                    music_box_exited_callback,
-                    session_id,
-                    working_directory))
-            body = {"session_id": session_id}
-            publish_message(route_key=RunStatus.RUNNING.value, message=body)
+            run_music_box(session_id)
+           
+        # Just for testing
+        else:
+            run_partmc(session_id)
             
     except Exception as e:
         body = {"error.json": json.dumps(
@@ -141,6 +143,53 @@ def run_request_callback(ch, method, properties, body):
         publish_message(route_key=RunStatus.ERROR.value, message=body)
         logging.exception('Setting up run failed')
 
+def run_music_box(session_id):
+    config_file_path = get_config_file_path(session_id)
+    working_directory = get_working_directory(session_id)
+    # run model in separate thread, remove stdout=subprocess.DEVNULL if you
+    # want to see output
+    f = pool.submit(
+        subprocess.call,
+        # run music box with this configuration
+        f"/music-box/build/music_box {config_file_path}",
+        shell=True,
+        cwd=working_directory,            
+        stdout=subprocess.DEVNULL
+        )
+    f.add_done_callback(
+        functools.partial(
+        music_box_exited_callback,
+        session_id,
+        working_directory))
+    body = {"session_id": session_id}
+    publish_message(route_key=RunStatus.RUNNING.value, message=body)
+    
+def run_partmc(session_id):
+    # This is now still a test. config file path will not be used
+    config_file_path = get_config_file_path(session_id)
+    # working_directory = get_working_directory(session_id)
+    working_directory = "/partmc/scenarios/4_chamber"
+    # For testing's sake
+    if os.path.exists("/partmc/scenarios/4_chamber/out"):
+        shutil.rmtree("/partmc/scenarios/4_chamber/out")
+    os.mkdir("/partmc/scenarios/4_chamber/out")
+    f = pool.submit(
+        subprocess.call,
+        # run partmc with this configuration
+        f"/build/partmc /partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
+        shell=True,
+        # Here it moves to the same directory of the "out" directory
+        cwd = working_directory,
+        stdout=subprocess.DEVNULL
+        )
+    f.add_done_callback(
+        functools.partial(
+            partmc_exited_callback,
+            session_id,
+            # This is the output directory
+            "/partmc/scenarios/4_chamber/out"))
+    body = {"session_id": session_id}
+    publish_message(route_key=RunStatus.RUNNING.value, message=body)
 
 def main():
     consume(consumer_configs=[
@@ -186,3 +235,4 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os.exit(0)
+
