@@ -14,6 +14,9 @@ import shutil
 import subprocess
 import sys
 from api.controller import get_model_run
+import django  
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  
+django.setup()  
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
