@@ -6,15 +6,15 @@ from shared.configuration_utils import load_configuration, \
     get_working_directory
 from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
 import django  
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  
-django.setup() 
+import os
 import functools
 import json
 import logging
-import os
 import shutil
 import subprocess
 import sys
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  
+django.setup() 
 from api.controller import get_model_run
  
 
