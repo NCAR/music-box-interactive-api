@@ -31,7 +31,7 @@ RUN pip3 install -r ./requirements.txt
 COPY . /music-box-interactive/
 
 # Prepare the music-box-interactive web server
-WORKDIR music-box-interactive
+WORKDIR /music-box-interactive
 
 # migrate so database works
 RUN python3 interactive/manage.py makemigrations

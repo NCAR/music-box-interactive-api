@@ -1,3 +1,8 @@
+import django  
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  
+django.setup() 
+
 from concurrent.futures import ThreadPoolExecutor as Pool
 from multiprocessing import cpu_count
 from api.run_status import RunStatus
@@ -5,16 +10,13 @@ from shared.configuration_utils import load_configuration, \
     get_config_file_path, \
     get_working_directory
 from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
-import django  
-import os
+
 import functools
 import json
 import logging
 import shutil
 import subprocess
 import sys
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  
-django.setup() 
 from api.controller import get_model_run
  
 
@@ -91,7 +93,11 @@ def partmc_exited_callback(session_id, output_directory, future):
         # Copy the data into a new directory called "shared" in the volume. Just for testing
         src_dir = output_directory
         dst_dir = "/partmc/partmc-volume/shared"
-        shutil.copytree(src_dir, dst_dir)
+        # Clearing the directory for testing only
+        #if os.path.exists(dst_dir):
+        #    shutil.rmtree(dst_dir)
+        os.makedirs(dst_dir, exist_ok = True)
+        shutil.copytree(src_dir, dst_dir, dirs_exist_ok=True)
         # remove all files to save space
         shutil.rmtree(output_directory)
         volume_directory = dst_dir
@@ -109,7 +115,7 @@ def partmc_exited_callback(session_id, output_directory, future):
         # send body to model_finished_queue
         model_run = get_model_run(session_id)
         # delete only for the sake of testing
-        shutil.rmtree("/partmc/partmc-volume/shared/out")
+        # shutil.rmtree("/partmc/partmc-volume/shared/out")
         
         model_run.results['partmc_output'] = body
         model_run.save()
@@ -133,12 +139,15 @@ def run_request_callback(ch, method, properties, body):
         mechanism_in_payload = payload.get('mechanism',{})
         contains_aerosol = 'aerosol' in mechanism_in_payload
         
+        '''
         if not contains_aerosol:
             run_music_box(session_id)
            
         # Just for testing
         else:
             run_partmc(session_id)
+        '''
+        run_partmc(session_id)
             
     except Exception as e:
         body = {"error.json": json.dumps(

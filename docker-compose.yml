@@ -9,7 +9,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      - db-data:/music-box-interactive/interactive/db-volume
+      - db-data:/music-box-interactive/interactive
       - partmc-data:/music-box-interactive/interactive/partmc-volume
   model-runner:
     container_name: 'model-runner'
@@ -25,6 +25,7 @@ services:
       mode: replicated
       replicas: 1
     volumes:
+      - db-data:/music-box-interactive/interactive
       - partmc-data:/partmc/partmc-volume
   status-listener:
     container_name: 'status-listener'
