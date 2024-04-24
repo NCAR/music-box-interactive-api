@@ -56,7 +56,9 @@ def get_configuration_as_json(file_path):
                 if len(path) > 0:
                     rates_file = path[0]
                     # drop blank columns and then blank rows
-                    df = pd.read_csv(rates_file).dropna(axis=1, how='all').dropna(axis=0, how='all')
+                    df = pd.read_csv(rates_file).dropna(
+                        axis=1, how='all').dropna(
+                        axis=0, how='all')
                     conditions["initial conditions"] = df.to_dict()
                     del df
                 else:
@@ -72,7 +74,8 @@ def get_configuration_as_json(file_path):
                     if len(path) > 0:
                         evolving_conditions = path[0]
                         # drop blank columns and then blank rows
-                        df = pd.read_csv(evolving_conditions).dropna(axis=1, how='all').dropna(axis=0, how='all')
+                        df = pd.read_csv(evolving_conditions).dropna(
+                            axis=1, how='all').dropna(axis=0, how='all')
                         conditions["evolving conditions"] = df.to_dict()
                         del df
                     else:
