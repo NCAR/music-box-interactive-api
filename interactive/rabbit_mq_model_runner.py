@@ -118,6 +118,7 @@ def partmc_exited_callback(session_id, output_directory, future):
         # shutil.rmtree("/partmc/partmc-volume/shared/out")
         
         model_run.results['partmc_output'] = body
+        model_run.status = RunStatus.DONE.value
         model_run.save()
         logging.info(
             "[" + session_id + "] Sent output files to Database")
