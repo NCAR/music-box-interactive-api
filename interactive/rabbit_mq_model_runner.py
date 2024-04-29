@@ -110,14 +110,14 @@ def partmc_exited_callback(session_id, output_directory, future):
             # delete only for the sake of testing
             shutil.rmtree("/partmc/partmc-volume/shared/out")
             return
-        # body to send to DB
-        body = {'session_id': session_id, "address": volume_directory}
-        # send body to model_finished_queue
+       
+        # send the path of partmc output to model_finished_queue
         model_run = get_model_run(session_id)
         # delete only for the sake of testing
         # shutil.rmtree("/partmc/partmc-volume/shared/out")
         
-        model_run.results['partmc_output'] = body
+        # Return the volume path inside the api-server container.
+        model_run.results['partmc_output_path'] = "/music-box-interactive/interactive/partmc-volume"
         model_run.status = RunStatus.DONE.value
         model_run.save()
         logging.info(

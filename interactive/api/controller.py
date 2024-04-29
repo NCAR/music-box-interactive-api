@@ -11,8 +11,10 @@ from io import StringIO
 from shared.configuration_utils import compress_configuration, \
     extract_configuration, \
     load_configuration, \
+    compress_partmc, \
     filter_diagnostics, \
     get_session_path, \
+    get_partmc_zip_file_path, \
     get_zip_file_path
 from shared.rabbit_mq import publish_message
 
@@ -90,6 +92,11 @@ def handle_compress_configuration(session_id, config):
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')
 
+def handle_compress_partmc(session_id):
+    '''Returns a compress file containing the partmc output'''
+    compress_partmc(session_id)
+    return open(get_partmc_zip_file_path(session_id), 'rb')
+
 
 def handle_extract_configuration(session_id, zipfile):
     '''Returns a JSON version of a compressed MusicBox configuration'''
@@ -116,7 +123,9 @@ def get_results_file(session_id):
         return df
     # Just for testing. Only a dummy output is passed
     else:
-        return pd.DataFrame({"result":[49]})
+        if 'partmc_output_path' in model.results:
+            return pd.DataFrame({"Address":[model.results['partmc_output_path']]})
+        return pd.DataFrame({"Address":[66]})
     
     
 # get model run based on uid

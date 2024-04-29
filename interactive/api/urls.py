@@ -32,4 +32,11 @@ urlpatterns = [
     path(
         'api/download-results',
         api.DownloadResultsView.as_view(),
-        name='download-results')]
+        name='download-results'),
+
+    path(
+        'api/download-partmc',
+        api.DownloadPartmcView.as_view(),
+        name='download-partmc')]
+    
+
