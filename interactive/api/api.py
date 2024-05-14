@@ -84,8 +84,6 @@ class RunView(views.APIView):
             request.session.save()
         logger.debug(
             f"asdf Run request | session key: {request.session.session_key}")
-        logger.info(request.data['config'])
-        logger.info("DOES THIS WORK")
         controller.publish_run_request(
             request.session.session_key,
             request.data['config'])

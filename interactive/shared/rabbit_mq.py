@@ -95,10 +95,11 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
 
         # loop through each consumer and generate a queue with a random name
         for consumer in consumer_configs:
-            result = channel.queue_declare(queue='', exclusive=True)
-            queue_name = result.method.queue
             # bind the route keys to the queue
             for key in consumer.route_keys:
+                result = channel.queue_declare(queue=key)
+                queue_name = result.method.queue
+                logger.info(f"Binding {key} to {queue_name} on {rabbit_config.exchange}")
                 channel.queue_bind(
                     exchange=rabbit_config.exchange,
                     queue=queue_name,

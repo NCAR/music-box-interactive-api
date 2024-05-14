@@ -16,24 +16,14 @@ services:
       dockerfile: ./Dockerfile.model_runner
     env_file:
       - ./.env
-    depends_on:
-      - rabbitmq
-    restart: on-failure
-    deploy:
-      mode: replicated
-      replicas: 1
-  status-listener:
-    container_name: 'status-listener'
-    build: 
-      context: .
-      dockerfile: ./Dockerfile.status_listener
-    env_file:
-      - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
     depends_on:
       - rabbitmq
     restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 3
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:3.11-management
