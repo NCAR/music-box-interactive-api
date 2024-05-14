@@ -30,7 +30,7 @@ services:
     restart: on-failure
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 6
     network_mode: "host"
     logging:
       driver: "json-file"
