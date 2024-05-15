@@ -28,6 +28,8 @@ import sys
 logging.getLogger("pika").propagate = False
 
 # updates the status of the model run in the database
+
+
 def set_model_run_status(session_id, status, error=None, output=None):
     model_run = get_model_run(session_id)
     model_run.status = status
@@ -72,14 +74,18 @@ def music_box_exited_callback(session_id, output_directory):
         # read error file
         with open(error_path, "r") as f:
             set_model_run_status(
-                session_id, RunStatus.ERROR.value, error=f.read(), output=output_data
-            )
+                session_id,
+                RunStatus.ERROR.value,
+                error=f.read(),
+                output=output_data)
     elif os.path.exists(warning_path):
         # read warning file
         with open(warning_path, "r") as f:
             set_model_run_status(
-                session_id, RunStatus.ERROR.value, error=f.read(), output=output_data
-            )
+                session_id,
+                RunStatus.ERROR.value,
+                error=f.read(),
+                output=output_data)
     else:
         set_model_run_status(
             session_id,
