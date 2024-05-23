@@ -169,6 +169,8 @@ def run_music_box(session_id):
 def run_partmc(session_id):
     
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
+    body = {"session_id": session_id}
+    publish_message(route_key=RunStatus.RUNNING.value, message=body)
     f = pool.submit(
         run_pypartmc_model,
         session_id
@@ -178,8 +180,6 @@ def run_partmc(session_id):
             partmc_exited_callback,
             session_id,
             ))
-    body = {"session_id": session_id}
-    publish_message(route_key=RunStatus.RUNNING.value, message=body)
 
 def main():
     consume(consumer_configs=[
