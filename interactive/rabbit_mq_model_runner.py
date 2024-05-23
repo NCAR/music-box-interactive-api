@@ -107,6 +107,8 @@ def partmc_exited_callback(session_id, future):
         model_run.results['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
         model_run.status = RunStatus.DONE.value
         model_run.save()
+        body = {'session_id': session_id}
+        publish_message(route_key=RunStatus.DONE.value, message=body)
         logging.info(
             "[" + session_id + "] sent directory address to the database")
 
