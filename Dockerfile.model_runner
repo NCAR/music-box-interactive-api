@@ -29,11 +29,15 @@ RUN dnf -y install \
 # in an attempt to cache the pip install between server code edits
 COPY ./requirements.txt ./requirements.txt
 
+# create a new directory for partmc output
+RUN mkdir -p /partmc/partmc-volume
+
 # python modules needed in scripts
 RUN pip3 install -r ./requirements.txt
 
 
-# copy the interactive server code
+
+# copy the interactive server code into directory music-box-interactive
 COPY . /music-box-interactive/
 
 # Start the model runner on entry

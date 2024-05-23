@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import sys
 from api.controller import get_model_run
+from partmc_model.py_testing import run_pypartmc_model
  
 
 # main model runner interface class for rabbitmq and actual model runner
@@ -78,37 +79,23 @@ def music_box_exited_callback(session_id, output_directory, future):
         logging.info(
             "[" + session_id + "] Sent output files to model_finished_queue")
         
-def partmc_exited_callback(session_id, output_directory, future):
+def partmc_exited_callback(session_id, future):
     if future.exception() is not None:
         logging.info(
             "[" + session_id + "] Got exception: %s" %
             future.exception())
     else:
         logging.info("[" + session_id + "] PartMC Model finished.")
-        # 1) check for output files (in /out)
-        # 2) send output files to DB directly
-        # 3) delete config files and binary files from file system
         
-    
-        # Copy the data into a new directory called "shared" in the volume. Just for testing
-        src_dir = output_directory
-        dst_dir = "/partmc/partmc-volume/shared"
-        # Clearing the directory for testing only
-        #if os.path.exists(dst_dir):
-        #    shutil.rmtree(dst_dir)
-        os.makedirs(dst_dir, exist_ok = True)
-        shutil.copytree(src_dir, dst_dir, dirs_exist_ok=True)
-        # remove all files to save space
-        shutil.rmtree(output_directory)
-        volume_directory = dst_dir
-
+        output_directory = f"/partmc/partmc-volume/{session_id}"
+        
         # check number of output files in output directory
-        logging.info(f"output directory: {volume_directory}")
-        output_files = getListOfFiles(volume_directory)
+        logging.info(f"output directory: {output_directory}")
+        output_files = getListOfFiles(output_directory)
         if len(output_files) == 0:
             logging.info("[" + session_id + "] No output files found, exiting")
             # delete only for the sake of testing
-            shutil.rmtree("/partmc/partmc-volume/shared/out")
+            shutil.rmtree(output_directory)
             return
        
         # send the path of partmc output to model_finished_queue
@@ -117,11 +104,11 @@ def partmc_exited_callback(session_id, output_directory, future):
         # shutil.rmtree("/partmc/partmc-volume/shared/out")
         
         # Return the volume path inside the api-server container.
-        model_run.results['partmc_output_path'] = "/music-box-interactive/interactive/partmc-volume"
+        model_run.results['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
         model_run.status = RunStatus.DONE.value
         model_run.save()
         logging.info(
-            "[" + session_id + "] Sent output files to Database")
+            "[" + session_id + "] sent directory address to the database")
 
 def run_request_callback(ch, method, properties, body):
     logging.info("Received run message")
@@ -178,29 +165,17 @@ def run_music_box(session_id):
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
     
 def run_partmc(session_id):
-    # This is now still a test. config file path will not be used
-    config_file_path = get_config_file_path(session_id)
-    # working_directory = get_working_directory(session_id)
-    working_directory = "/partmc/scenarios/4_chamber"
-    # For testing's sake
-    if os.path.exists("/partmc/scenarios/4_chamber/out"):
-        shutil.rmtree("/partmc/scenarios/4_chamber/out")
-    os.mkdir("/partmc/scenarios/4_chamber/out")
+    
+    os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     f = pool.submit(
-        subprocess.call,
-        # run partmc with this configuration
-        f"/build/partmc /partmc/scenarios/4_chamber/chamber.spec", # config_file_path is chamber.spec for the testing purpose
-        shell=True,
-        # Here it moves to the same directory of the "out" directory
-        cwd = working_directory,
-        stdout=subprocess.DEVNULL
+        run_pypartmc_model,
+        session_id
         )
     f.add_done_callback(
         functools.partial(
             partmc_exited_callback,
             session_id,
-            # This is the output directory
-            "/partmc/scenarios/4_chamber/out"))
+            ))
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
 
