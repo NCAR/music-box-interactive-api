@@ -107,8 +107,8 @@ def partmc_exited_callback(session_id, future):
         model_run.results['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
         model_run.status = RunStatus.DONE.value
         model_run.save()
-        body = {'session_id': session_id}
-        publish_message(route_key=RunStatus.DONE.value, message=body)
+        # body = {'session_id': session_id}
+        # publish_message(route_key=RunStatus.DONE.value, message=body)
         logging.info(
             "[" + session_id + "] sent directory address to the database")
 
@@ -170,7 +170,9 @@ def run_partmc(session_id):
     
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
-    publish_message(route_key=RunStatus.RUNNING.value, message=body)
+    model = get_model_run(session_id)
+    model.status = RunStatus.RUNNING.value
+    # publish_message(route_key=RunStatus.RUNNING.value, message=body)
     f = pool.submit(
         run_pypartmc_model,
         session_id
