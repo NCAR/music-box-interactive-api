@@ -129,15 +129,15 @@ def run_request_callback(ch, method, properties, body):
         mechanism_in_payload = payload.get('mechanism',{})
         contains_aerosol = 'aerosol' in mechanism_in_payload
         
-        '''
+        
         if not contains_aerosol:
             run_music_box(session_id)
            
         # Just for testing
         else:
             run_partmc(session_id)
-        '''
-        run_partmc(session_id)
+        
+        #run_partmc(session_id)
             
     except Exception as e:
         body = {"error.json": json.dumps(
