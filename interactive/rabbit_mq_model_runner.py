@@ -170,9 +170,9 @@ def run_partmc(session_id):
     
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
-    model = get_model_run(session_id)
-    model.status = RunStatus.RUNNING.value
-    # publish_message(route_key=RunStatus.RUNNING.value, message=body)
+    # model = get_model_run(session_id)
+    # model.status = RunStatus.RUNNING.value
+    publish_message(route_key=RunStatus.RUNNING.value, message=body)
     f = pool.submit(
         run_pypartmc_model,
         session_id
