@@ -104,14 +104,14 @@ class LoadResultsView(views.APIView):
     def get(self, request):
         logger.debug(
             f"load results | session key: {request.session.session_key}")
-        """
+        
         response = controller.get_results_file(
             request.session.session_key).to_dict(
             orient='list')
-        """
+        
         partmc_response = pypartmc_controller.get_concentration(request.session.session_key)
-        response = {}
-        response['partmc'] = partmc_response
+        if len(partmc_response) != 0:
+            response['partmc'] = partmc_response
         return JsonResponse(response)
 
 

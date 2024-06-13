@@ -121,11 +121,8 @@ def get_results_file(session_id):
         df = pd.read_csv(output_csv, encoding='latin1')
         df.columns = df.columns.str.strip()
         return df
-    # Just for testing. Only a dummy output is passed
     else:
-        if 'partmc_output_path' in model.results:
-            return pd.DataFrame({"Address":[model.results['partmc_output_path']]})
-        return pd.DataFrame({"Address":[66]})
+        return {}
     
     
 # get model run based on uid
