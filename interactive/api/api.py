@@ -185,21 +185,3 @@ class DownloadResultsView(views.APIView):
         results.to_csv(path_or_buf=response, index=False)
         return response
 
-
-class DownloadPartmcView(views.APIView):
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(
-                description='Success',
-                schema=response_models.FileSerializer
-            )
-        }
-    )
-    def get(self, request):
-        logger.info(
-            f"Received partmc download results request for session {request.session.session_key}")
-        zipfile = controller.handle_compress_partmc(
-            request.session.session_key)
-        response = FileResponse(zipfile)
-        config_utils.remove_zip_folder_partmc(request.session.session_key)
-        return response

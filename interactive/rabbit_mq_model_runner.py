@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import sys
 from api.controller import get_model_run
-from partmc_model.py_testing import run_pypartmc_model
+from interactive.partmc_model.default_partmc import run_pypartmc_model
  
 
 # main model runner interface class for rabbitmq and actual model runner
