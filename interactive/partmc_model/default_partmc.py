@@ -4,6 +4,9 @@ import matplotlib
 import PyPartMC as ppmc
 from PyPartMC import si
 
+# This file is based on https://github.com/open-atmos/PyPartMC/blob/main/examples/process_simulation_output.ipynb
+# It is the default pypartmc configuration
+
 def run_pypartmc_model(session_id):
     gas_data = ppmc.GasData(("H2SO4","HNO3","HCl","NH3","NO","NO2", "NO3",
                         "N2O5", "HONO", "HNO4", "O3", "O1D", "O3P", "OH",

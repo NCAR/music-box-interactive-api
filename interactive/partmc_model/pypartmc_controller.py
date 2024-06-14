@@ -50,19 +50,3 @@ def get_concentration(session_id):
     else:
         return {}
 
-'''
-def get_mass_concentration(session_id):
-    model = get_model_run(session_id)
-    model = get_model_run(session_id)
-    output_dir = model.results['partmc_output_path']
-    mass_conc = np.zeros(N_TIMES)
-    for i_time in range(N_TIMES):
-        path = os.path.join(output_dir, f'urban_plume_0001_{i_time+1:08}.nc')
-        filename = ppmc.input_state(path, aero_data, aero_state, gas_data, gas_state, env_state)
-        mass_conc[i_time] = aero_state.total_mass_conc
-        time[i_time] = env_state.elapsed_time + env_state.start_time
-    mass_list = mass_conc.tolist()
-    time_list = time.tolist()
-    dict = {'x':time_list,'y':mass_list}
-    return dict
-'''
