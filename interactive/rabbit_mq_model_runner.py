@@ -1,25 +1,23 @@
-import django  
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  
-django.setup() 
-
-from concurrent.futures import ThreadPoolExecutor as Pool
-from multiprocessing import cpu_count
-from api.run_status import RunStatus
+from interactive.partmc_model.default_partmc import run_pypartmc_model
+from api.controller import get_model_run
+import sys
+import subprocess
+import shutil
+import logging
+import json
+import functools
+from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_config_file_path, \
     get_working_directory
-from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
+from api.run_status import RunStatus
+from multiprocessing import cpu_count
+from concurrent.futures import ThreadPoolExecutor as Pool
+import django
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
+django.setup()
 
-import functools
-import json
-import logging
-import shutil
-import subprocess
-import sys
-from api.controller import get_model_run
-from interactive.partmc_model.default_partmc import run_pypartmc_model
- 
 
 # main model runner interface class for rabbitmq and actual model runner
 # 1) listen to run_queue
@@ -78,7 +76,8 @@ def music_box_exited_callback(session_id, output_directory, future):
         publish_message(route_key=RunStatus.DONE.value, message=body)
         logging.info(
             "[" + session_id + "] Sent output files to model_finished_queue")
-        
+
+
 def partmc_exited_callback(session_id, future):
     if future.exception() is not None:
         logging.info(
@@ -86,9 +85,9 @@ def partmc_exited_callback(session_id, future):
             future.exception())
     else:
         logging.info("[" + session_id + "] PartMC Model finished.")
-        
+
         output_directory = f"/partmc/partmc-volume/{session_id}"
-        
+
         # check number of output files in output directory
         logging.info(f"output directory: {output_directory}")
         output_files = getListOfFiles(output_directory)
@@ -97,16 +96,18 @@ def partmc_exited_callback(session_id, future):
             # delete only for the sake of testing
             shutil.rmtree(output_directory)
             return
-       
+
         # send the path of partmc output to model_finished_queue
         model_run = get_model_run(session_id)
-        
+
         # Return the volume path inside the api-server container.
-        model_run.results['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
+        model_run.results[
+            'partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
         model_run.status = RunStatus.DONE.value
         model_run.save()
         logging.info(
             "[" + session_id + "] sent directory address to the database")
+
 
 def run_request_callback(ch, method, properties, body):
     logging.info("Received run message")
@@ -118,23 +119,29 @@ def run_request_callback(ch, method, properties, body):
 
         load_configuration(session_id, config)
         logging.info(f"Adding runner for session {session_id} to pool")
-        
+
         # Searching through the payload json to see if aerosol is present. If it is, run musicbox
         # and PartMC. If it isn't, run musicbox only.
         aerosols_payload = config.get('aerosols', {})
-        contains_aerosol = len(aerosols_payload.get('aerosolSpecies',[])) != 0 or len(aerosols_payload.get('aerosolPhase',[])) != 0
-        
+        contains_aerosol = len(
+            aerosols_payload.get(
+                'aerosolSpecies',
+                [])) != 0 or len(
+            aerosols_payload.get(
+                'aerosolPhase',
+                [])) != 0
+
         if contains_aerosol:
             run_partmc(session_id)
         else:
             run_music_box(session_id)
-        
-            
+
     except Exception as e:
         body = {"error.json": json.dumps(
             {'message': str(e)}), "session_id": session_id}
         publish_message(route_key=RunStatus.ERROR.value, message=body)
         logging.exception('Setting up run failed')
+
 
 def run_music_box(session_id):
     config_file_path = get_config_file_path(session_id)
@@ -146,31 +153,33 @@ def run_music_box(session_id):
         # run music box with this configuration
         f"/music-box/build/music_box {config_file_path}",
         shell=True,
-        cwd=working_directory,            
+        cwd=working_directory,
         stdout=subprocess.DEVNULL
-        )
+    )
     f.add_done_callback(
         functools.partial(
-        music_box_exited_callback,
-        session_id,
-        working_directory))
+            music_box_exited_callback,
+            session_id,
+            working_directory))
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
-    
+
+
 def run_partmc(session_id):
-    
+
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
     f = pool.submit(
         run_pypartmc_model,
         session_id
-        )
+    )
     f.add_done_callback(
         functools.partial(
             partmc_exited_callback,
             session_id,
-            ))
+        ))
+
 
 def main():
     consume(consumer_configs=[
@@ -216,4 +225,3 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os.exit(0)
-

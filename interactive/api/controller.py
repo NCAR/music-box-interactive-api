@@ -92,6 +92,7 @@ def handle_compress_configuration(session_id, config):
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')
 
+
 def handle_compress_partmc(session_id):
     '''Returns a compress file containing the partmc output'''
     compress_partmc(session_id)
@@ -123,8 +124,8 @@ def get_results_file(session_id):
         return df
     else:
         return pd.DataFrame()
-    
-    
+
+
 # get model run based on uid
 def get_model_run(uid):
     try:
