@@ -125,9 +125,8 @@ def run_request_callback(ch, method, properties, body):
         
         # Searching through the payload json to see if aerosol is present. If it is, run musicbox
         # and PartMC. If it isn't, run musicbox only.
-        payload = config.get('config',{})
-        aerosols_payload = payload.get('aerosols', {})
-        contains_aerosol = len(aerosols_payload.get('aerosolSpecies',[])) != 0 and len(aerosols_payload.get('aerosolPhase',[])) != 0
+        aerosols_payload = config.get('aerosols', {})
+        contains_aerosol = len(aerosols_payload.get('aerosolSpecies',[])) != 0 or len(aerosols_payload.get('aerosolPhase',[])) != 0
         
         if not contains_aerosol:
             run_music_box(session_id)

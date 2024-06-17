@@ -122,7 +122,7 @@ def get_results_file(session_id):
         df.columns = df.columns.str.strip()
         return df
     else:
-        return {}
+        return pd.DataFrame()
     
     
 # get model run based on uid
