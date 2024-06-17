@@ -100,15 +100,11 @@ def partmc_exited_callback(session_id, future):
        
         # send the path of partmc output to model_finished_queue
         model_run = get_model_run(session_id)
-        # delete only for the sake of testing
-        # shutil.rmtree("/partmc/partmc-volume/shared/out")
         
         # Return the volume path inside the api-server container.
         model_run.results['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
         model_run.status = RunStatus.DONE.value
         model_run.save()
-        # body = {'session_id': session_id}
-        # publish_message(route_key=RunStatus.DONE.value, message=body)
         logging.info(
             "[" + session_id + "] sent directory address to the database")
 
@@ -128,14 +124,11 @@ def run_request_callback(ch, method, properties, body):
         aerosols_payload = config.get('aerosols', {})
         contains_aerosol = len(aerosols_payload.get('aerosolSpecies',[])) != 0 or len(aerosols_payload.get('aerosolPhase',[])) != 0
         
-        if not contains_aerosol:
-            run_music_box(session_id)
-           
-        # Just for testing
-        else:
+        if contains_aerosol:
             run_partmc(session_id)
+        else:
+            run_music_box(session_id)
         
-        #run_partmc(session_id)
             
     except Exception as e:
         body = {"error.json": json.dumps(
@@ -168,8 +161,6 @@ def run_partmc(session_id):
     
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
-    # model = get_model_run(session_id)
-    # model.status = RunStatus.RUNNING.value
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
     f = pool.submit(
         run_pypartmc_model,
