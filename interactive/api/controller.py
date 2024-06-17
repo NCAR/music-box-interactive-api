@@ -11,8 +11,10 @@ from io import StringIO
 from shared.configuration_utils import compress_configuration, \
     extract_configuration, \
     load_configuration, \
+    compress_partmc, \
     filter_diagnostics, \
     get_session_path, \
+    get_partmc_zip_file_path, \
     get_zip_file_path
 from shared.rabbit_mq import publish_message
 
@@ -55,10 +57,7 @@ def get_configuration_as_json(file_path):
                 path = [f for f in files if rates_file in f]
                 if len(path) > 0:
                     rates_file = path[0]
-                    # drop blank columns and then blank rows
-                    df = pd.read_csv(rates_file).dropna(
-                        axis=1, how='all').dropna(
-                        axis=0, how='all')
+                    df = pd.read_csv(rates_file)
                     conditions["initial conditions"] = df.to_dict()
                     del df
                 else:
@@ -73,9 +72,7 @@ def get_configuration_as_json(file_path):
                     path = [f for f in files if evolving_conditions in f]
                     if len(path) > 0:
                         evolving_conditions = path[0]
-                        # drop blank columns and then blank rows
-                        df = pd.read_csv(evolving_conditions).dropna(
-                            axis=1, how='all').dropna(axis=0, how='all')
+                        df = pd.read_csv(evolving_conditions)
                         conditions["evolving conditions"] = df.to_dict()
                         del df
                     else:
@@ -94,6 +91,11 @@ def handle_compress_configuration(session_id, config):
         in_scientific_notation=False)
     compress_configuration(session_id)
     return open(get_zip_file_path(session_id), 'rb')
+
+def handle_compress_partmc(session_id):
+    '''Returns a compress file containing the partmc output'''
+    compress_partmc(session_id)
+    return open(get_partmc_zip_file_path(session_id), 'rb')
 
 
 def handle_extract_configuration(session_id, zipfile):
@@ -114,14 +116,16 @@ def publish_run_request(session_id, config):
 def get_results_file(session_id):
     '''Returns a csv file with the model results'''
     model = models.ModelRun.objects.get(uid=session_id)
-    output_csv = StringIO(model.results['/output.csv'])
-    df = pd.read_csv(output_csv, encoding='latin1')
-    df.columns = df.columns.str.strip()
-    return df
-
+    if '/output.csv' in model.results:
+        output_csv = StringIO(model.results['/output.csv'])
+        df = pd.read_csv(output_csv, encoding='latin1')
+        df.columns = df.columns.str.strip()
+        return df
+    else:
+        return pd.DataFrame()
+    
+    
 # get model run based on uid
-
-
 def get_model_run(uid):
     try:
         model = models.ModelRun.objects.get(uid=uid)
