@@ -5,7 +5,7 @@
 
 ## Build and run
 
-All configuration is handled by docker files and docker compose.
+All configuration is handled by docker files and docker compose. First navigate to the project directory.
 
 To build
 ```
