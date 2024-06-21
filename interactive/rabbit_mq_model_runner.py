@@ -1,24 +1,22 @@
+from concurrent.futures import ThreadPoolExecutor as Pool
+from multiprocessing import cpu_count
+from api.run_status import RunStatus
+from shared.configuration_utils import load_configuration, \
+    get_config_file_path, \
+    get_working_directory
+from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
+import functools
+import json
+import logging
+import shutil
+import subprocess
+import sys
+from api.controller import get_model_run
+from partmc_model.default_partmc import run_pypartmc_model
 import django
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
 django.setup()
-
-from partmc_model.default_partmc import run_pypartmc_model
-from api.controller import get_model_run
-import sys
-import subprocess
-import shutil
-import logging
-import json
-import functools
-from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
-from shared.configuration_utils import load_configuration, \
-    get_config_file_path, \
-    get_working_directory
-from api.run_status import RunStatus
-from multiprocessing import cpu_count
-from concurrent.futures import ThreadPoolExecutor as Pool
-
 
 
 # main model runner interface class for rabbitmq and actual model runner
