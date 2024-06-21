@@ -15,3 +15,5 @@ pyOpenSSL
 requests
 scipy
 PyPartMC
+pytest
+pytest-django
