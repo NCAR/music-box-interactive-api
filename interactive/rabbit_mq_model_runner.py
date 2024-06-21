@@ -1,3 +1,8 @@
+import django
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
+django.setup()
+
 from partmc_model.default_partmc import run_pypartmc_model
 from api.controller import get_model_run
 import sys
@@ -13,10 +18,7 @@ from shared.configuration_utils import load_configuration, \
 from api.run_status import RunStatus
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor as Pool
-import django
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
-django.setup()
+
 
 
 # main model runner interface class for rabbitmq and actual model runner
