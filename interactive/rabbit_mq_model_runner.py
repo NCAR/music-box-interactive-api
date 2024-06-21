@@ -1,4 +1,4 @@
-from interactive.partmc_model.default_partmc import run_pypartmc_model
+from partmc_model.default_partmc import run_pypartmc_model
 from api.controller import get_model_run
 import sys
 import subprocess
