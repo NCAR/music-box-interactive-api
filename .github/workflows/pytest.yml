@@ -1,0 +1,34 @@
+name: Django CI with Docker Compose
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:19.03.12
+        options: --privileged
+
+    steps:
+    
+      - uses: actions/checkout@v2
+
+      - name: Run docker-compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose.yml"
+
+      - name: Run pytest
+        run: |
+          docker-compose exec -T model-runner sh -c "cd music-box-interactive-api && pytest"
+
+      - name: Shut down Docker Compose
+        if: always()
+        run: |
+          docker-compose down
