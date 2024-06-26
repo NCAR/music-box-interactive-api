@@ -20,6 +20,7 @@ COPY ./requirements.txt ./requirements.txt
 RUN mkdir -p /partmc/partmc-volume
 
 # python modules needed in scripts
+RUN pip3 install "build<1.1" wheel
 RUN pip3 install -r ./requirements.txt
 
 # copy the interactive server code into directory music-box-interactive

@@ -2,15 +2,21 @@ FROM fedora:33
 
 RUN dnf -y update \
     && dnf -y install \
-        cmake \
-        gcc \
         gcc-c++ \
+        gcc \
         gfortran \
-        hdf5-devel \
+        cmake \
+        make \
         m4 \
+        wget \
         python3 \
-        python-devel \
         python3-pip \
+        dvipng \
+        git \
+        python3-pandas \
+        nodejs \
+        ncview \
+        libpq-devel \
     && dnf clean all
 
 # copy the python requirements
@@ -18,6 +24,7 @@ RUN dnf -y update \
 COPY ./requirements.txt ./requirements.txt
 
 # python modules needed in scripts
+RUN pip3 install "build<1.1" wheel
 RUN pip3 install -r ./requirements.txt
 
 # copy the interactive server code
