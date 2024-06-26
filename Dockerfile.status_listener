@@ -2,7 +2,13 @@ FROM fedora:33
 
 RUN dnf -y update \
     && dnf -y install \
+        cmake \
+        gcc \
+        gcc-c++ \
+        gfortran \
+        m4 \
         python3 \
+        python-devel \
         python3-pip \
     && dnf clean all
 
