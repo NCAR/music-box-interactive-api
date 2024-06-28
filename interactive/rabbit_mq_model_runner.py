@@ -1,7 +1,8 @@
-import django
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
-django.setup()
+# the NOQA comment prevents autopep8 from reformatting the import statements
+import django #NOQA
+import os #NOQA
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings') #NOQA
+django.setup() #NOQA
 
 from partmc_model.default_partmc import run_pypartmc_model
 from api.controller import get_model_run
