@@ -1,4 +1,7 @@
-# music-box-interactive
+# MusicBox Interactive API Server
+
+[![Tests](https://github.com/NCAR/music-box-interactive-api/actions/workflows/pytest.yml/badge.svg)](https://github.com/NCAR/music-box-interactive-api/actions/workflows/pyteset.yml)
+
 ## User interface for the MusicBox box/column model
 
 **Configure, run, and plot results for the MusicBox model, and edit chemical mechanisms.**
