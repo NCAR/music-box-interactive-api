@@ -1,7 +1,8 @@
-import django
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')
-django.setup()
+# these imports must come first # noqa: E402
+import django # NOQA: E402
+import os # NOQA: E402
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings') # NOQA: E402
+django.setup() # NOQA: E402
 
 from partmc_model.default_partmc import run_pypartmc_model
 from api.controller import get_model_run
