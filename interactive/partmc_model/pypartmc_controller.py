@@ -39,7 +39,8 @@ def get_concentration(session_id):
         mass_conc = np.zeros(N_TIMES)
         for i_time in range(N_TIMES):
             path = os.path.join(output_dir, f'result_0001_{i_time+1:08}.nc')
-            aero_data, aero_state, gas_data, gas_state, env_state = ppmc.input_state(path)
+            aero_data, aero_state, gas_data, gas_state, env_state = ppmc.input_state(
+                path)
             num_conc[i_time] = aero_state.total_num_conc
             mass_conc[i_time] = aero_state.total_mass_conc
             time[i_time] = env_state.elapsed_time + env_state.start_time
