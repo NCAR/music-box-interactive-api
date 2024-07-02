@@ -1,8 +1,8 @@
 # these imports must come first # noqa: E402
-import django # NOQA: E402
-import os # NOQA: E402
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings') # NOQA: E402
-django.setup() # NOQA: E402
+import django  # NOQA: E402
+import os  # NOQA: E402
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  # NOQA: E402
+django.setup()  # NOQA: E402
 
 from partmc_model.default_partmc import run_pypartmc_model
 from api.controller import get_model_run
@@ -19,7 +19,6 @@ from shared.configuration_utils import load_configuration, \
 from api.run_status import RunStatus
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor as Pool
-
 
 
 # main model runner interface class for rabbitmq and actual model runner
