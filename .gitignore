@@ -1,7 +1,6 @@
 **/__pycache__/
 **/*.pyc
 **/*.DS_Store
-interactive/api/migrations/*
 interactive/dashboard/static/zip/config_copy/*
 interactive/dashboard/static/zip/output/*
 interactive/dashboard/static/zip/unzipped/*
