@@ -10,7 +10,9 @@ services:
       - ./.env
     volumes:
       - db-data:/music-box-interactive/interactive
+      - partmc-data:/music-box-interactive/interactive/partmc-volume
   model-runner:
+    container_name: 'model-runner'
     build: 
       context: .
       dockerfile: ./Dockerfile.model_runner
@@ -22,6 +24,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    volumes:
+      - db-data:/music-box-interactive/interactive
+      - partmc-data:/partmc/partmc-volume
   status-listener:
     container_name: 'status-listener'
     build: 
@@ -50,3 +55,4 @@ services:
       retries: 1
 volumes:
   db-data:
+  partmc-data:

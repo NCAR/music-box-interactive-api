@@ -11,8 +11,10 @@ from io import StringIO
 from shared.configuration_utils import compress_configuration, \
     extract_configuration, \
     load_configuration, \
+    compress_partmc, \
     filter_diagnostics, \
     get_session_path, \
+    get_partmc_zip_file_path, \
     get_zip_file_path
 from shared.rabbit_mq import publish_message
 
@@ -91,6 +93,12 @@ def handle_compress_configuration(session_id, config):
     return open(get_zip_file_path(session_id), 'rb')
 
 
+def handle_compress_partmc(session_id):
+    '''Returns a compress file containing the partmc output'''
+    compress_partmc(session_id)
+    return open(get_partmc_zip_file_path(session_id), 'rb')
+
+
 def handle_extract_configuration(session_id, zipfile):
     '''Returns a JSON version of a compressed MusicBox configuration'''
     extract_configuration(session_id, zipfile)
@@ -109,14 +117,16 @@ def publish_run_request(session_id, config):
 def get_results_file(session_id):
     '''Returns a csv file with the model results'''
     model = models.ModelRun.objects.get(uid=session_id)
-    output_csv = StringIO(model.results['/output.csv'])
-    df = pd.read_csv(output_csv, encoding='latin1')
-    df.columns = df.columns.str.strip()
-    return df
+    if '/output.csv' in model.results:
+        output_csv = StringIO(model.results['/output.csv'])
+        df = pd.read_csv(output_csv, encoding='latin1')
+        df.columns = df.columns.str.strip()
+        return df
+    else:
+        return pd.DataFrame()
+
 
 # get model run based on uid
-
-
 def get_model_run(uid):
     try:
         model = models.ModelRun.objects.get(uid=uid)

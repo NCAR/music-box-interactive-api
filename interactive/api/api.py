@@ -10,7 +10,7 @@ import api.controller as controller
 import api.response_models as response_models
 import api.request_models as request_models
 from api.run_status import RunStatus
-
+from partmc_model import pypartmc_controller
 import logging
 
 logger = logging.getLogger(__name__)
@@ -88,6 +88,7 @@ class RunView(views.APIView):
             request.session.session_key,
             request.data['config'])
         response = controller.get_run_status(request.session.session_key)
+        # Return status of running
         return JsonResponse(response, encoder=response_models.RunStatusEncoder)
 
 
@@ -103,9 +104,15 @@ class LoadResultsView(views.APIView):
     def get(self, request):
         logger.debug(
             f"load results | session key: {request.session.session_key}")
+
         response = controller.get_results_file(
             request.session.session_key).to_dict(
             orient='list')
+
+        partmc_response = pypartmc_controller.get_concentration(
+            request.session.session_key)
+        if len(partmc_response) != 0:
+            response['partmc'] = partmc_response
         return JsonResponse(response)
 
 
