@@ -180,8 +180,17 @@ class DownloadResultsView(views.APIView):
     def get(self, request):
         logger.info(
             f"Received download results request for session {request.session.session_key}")
-        results = controller.get_results_file(request.session.session_key)
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=output.csv'
-        results.to_csv(path_or_buf=response, index=False)
-        return response
+        download_partmc = 'partmc_output_path' in controller.get_model_run(request.session.session_key).results
+        logger.info(f"Download partmc is {download_partmc}")
+        if download_partmc:
+            zipfile = controller.handle_compress_partmc(request.session.session_key)
+            response = FileResponse(zipfile)
+            config_utils.remove_zip_folder_partmc(request.session.session_key)
+            return response
+        else:
+            results = controller.get_results_file(request.session.session_key)
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=output.csv'
+            results.to_csv(path_or_buf=response, index=False)
+            return response
+
