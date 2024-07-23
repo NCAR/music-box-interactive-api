@@ -27,10 +27,11 @@ jobs:
       
       - name: Run migrations
         run: |
-          docker exec -it api-server bash
-          cd interactive
-          python manage.py makemigrations
+          docker exec api-server bash -c "
+          cd interactive &&
+          python manage.py makemigrations &&
           python manage.py migrate
+        "
 
       - name: Run pytest
         run: |
