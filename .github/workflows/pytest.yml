@@ -24,6 +24,14 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "./docker-compose.yml"
+      
+      - name: Run migrations
+        run: |
+          docker exec api-server bash -c "
+          cd interactive &&
+          python manage.py makemigrations &&
+          python manage.py migrate"
+
 
       - name: Run pytest
         run: |
