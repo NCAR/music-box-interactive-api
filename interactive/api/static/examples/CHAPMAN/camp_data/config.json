@@ -1,7 +1,7 @@
 {
   "camp-files" : [
-    "camp_data/tolerance.json",
-    "camp_data/species.json",
-    "camp_data/reactions.json"
+    "species.json",
+	"reactions.json",
+    "tolerance.json"
   ]
 }
