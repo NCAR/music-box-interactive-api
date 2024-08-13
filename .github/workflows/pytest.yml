@@ -35,9 +35,9 @@ jobs:
 
       - name: Run pytest
         run: |
-          docker-compose exec -T api-server sh -c "pytest"
+          docker compose exec -T api-server sh -c "pytest"
 
       - name: Shut down Docker Compose
         if: always()
         run: |
-          docker-compose down
+          docker compose down
