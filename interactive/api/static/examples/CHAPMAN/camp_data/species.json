@@ -3,7 +3,8 @@
     {
       "name": "M",
       "type": "CHEM_SPEC",
-      "tracer type": "CONSTANT"
+      "tracer type": "THIRD_BODY",
+	  "__description": "Third-body molecule. This is any molecule present in the system."
     },
     {
       "name": "Ar",
