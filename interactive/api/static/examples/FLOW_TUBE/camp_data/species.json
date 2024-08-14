@@ -4,7 +4,7 @@
       "name": "M",
       "type": "CHEM_SPEC",
       "tracer type": "CONSTANT",
-      "description": "Third-body molecule. This is any molecule present in the system."
+      "__description": "Third-body molecule. This is any molecule present in the system."
     },
     {
       "type": "CHEM_SPEC",
@@ -13,17 +13,17 @@
     {
       "type": "CHEM_SPEC",
       "name": "O3",
-      "description": "ozone"
+      "__description": "ozone"
     },
     {
       "type": "CHEM_SPEC",
       "name": "SOA1",
-      "description": "moderate volatility SOA precursor from a-pinene oxidation"
+      "__description": "moderate volatility SOA precursor from a-pinene oxidation"
     },
     {
       "type": "CHEM_SPEC",
       "name": "SOA2",
-      "description": "low volatility SOA precursor from a-pinene oxidation"
+      "__description": "low volatility SOA precursor from a-pinene oxidation"
     }
   ]
 }
