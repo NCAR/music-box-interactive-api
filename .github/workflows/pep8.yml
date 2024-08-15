@@ -13,7 +13,7 @@ jobs:
       - name: Install autopep8
         run: pip install autopep8
       - name: Run autopep8
-        run: autopep8 --recursive --in-place --aggressive .
+        run: autopep8 --recursive --in-place --aggressive --max-line-length 120 .
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
