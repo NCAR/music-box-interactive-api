@@ -151,8 +151,7 @@ def load_configuration(
     if not os.path.exists(working_directory):
         raise Exception("Did not create working directory")
 
-    if "evolving conditions" in config["conditions"] and isinstance(
-            config["conditions"]["evolving conditions"], list):
+    if "evolving conditions" in config["conditions"] and isinstance(config["conditions"]["evolving conditions"], list):
         evolving = config["conditions"]["evolving conditions"]
         if len(evolving) > 1:
             headers, vals = evolving[0], np.array(evolving[1:])
@@ -172,8 +171,7 @@ def load_configuration(
         else:
             del config["conditions"]["evolving conditions"]
 
-    if "initial conditions" in config["conditions"] and len(
-            config["conditions"]["initial conditions"]) > 0:
+    if "initial conditions" in config["conditions"] and len(config["conditions"]["initial conditions"]) > 0:
         initial = config["conditions"]["initial conditions"]
         df = pd.DataFrame.from_dict(
             initial,
