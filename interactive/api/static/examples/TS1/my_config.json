@@ -6,6 +6,12 @@
     "simulation length [day]": 0.5
   },
   "chemical species": {
+    "CO2": {
+      "initial value [mol m-3]": 0.00146
+    },
+    "NH3": {
+      "initial value [mol m-3]": 0.03456
+    }
   },
   "environmental conditions": {
     "temperature": {
@@ -15,7 +21,8 @@
       "initial value [Pa]": 6152.049805
     }
   },
-  "evolving conditions": {},
+  "evolving conditions": {
+  },
   "initial conditions": {
     "initial_conditions.csv": {}
   },
