@@ -17,3 +17,4 @@ scipy
 PyPartMC
 pytest
 pytest-django
+acom_music_box
