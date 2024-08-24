@@ -52,6 +52,10 @@ If you would like to view the logs after starting docker in a detach state, you 
 docker compose logs -f
 ```
 
+```
+docker compose stop model-runner && docker compose build --no-cache model-runner && docker compose up --force-recreate --renew-anon-volumes -d model-runner
+```
+
 
 ### One at a time
 
