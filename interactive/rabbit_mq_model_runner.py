@@ -1,4 +1,3 @@
-from partmc_model.default_partmc import run_pypartmc_model
 import sys
 import shutil
 import logging
@@ -167,6 +166,7 @@ def run_music_box(session_id):
 
 
 def run_partmc(session_id):
+    from partmc_model.default_partmc import run_pypartmc_model
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)

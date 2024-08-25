@@ -6,6 +6,7 @@ from rest_framework import status
 import json
 
 import shared.configuration_utils as config_utils
+import partmc_model.partmc_utils as partmc_utils
 import api.controller as controller
 import api.response_models as response_models
 import api.request_models as request_models
@@ -187,7 +188,7 @@ class DownloadResultsView(views.APIView):
             zipfile = controller.handle_compress_partmc(
                 request.session.session_key)
             response = FileResponse(zipfile)
-            config_utils.remove_zip_folder_partmc(request.session.session_key)
+            partmc_utils.remove_zip_folder_partmc(request.session.session_key)
             return response
         else:
             results = controller.get_results_file(request.session.session_key)
