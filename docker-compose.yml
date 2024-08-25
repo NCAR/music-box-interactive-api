@@ -3,7 +3,7 @@ services:
     container_name: 'api-server'
     build: 
       context: .
-      dockerfile: ./Dockerfile.api
+      dockerfile: ./docker/Dockerfile.api
     ports:
       - 8000:8000
     env_file:
@@ -15,7 +15,7 @@ services:
     container_name: 'model-runner'
     build: 
       context: .
-      dockerfile: ./Dockerfile.model_runner
+      dockerfile: ./docker/Dockerfile.model_runner
     env_file:
       - ./.env
     depends_on:
@@ -31,7 +31,7 @@ services:
     container_name: 'status-listener'
     build: 
       context: .
-      dockerfile: ./Dockerfile.status_listener
+      dockerfile: ./docker/Dockerfile.status_listener
     env_file:
       - ./.env
     volumes:

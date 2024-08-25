@@ -23,3 +23,4 @@ venv/pyvenv.cfg
 .idea/workspace.xml
 .vscode
 interactive/db.sqlite3
+poetry.lock
