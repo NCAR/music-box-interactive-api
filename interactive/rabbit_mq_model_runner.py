@@ -98,6 +98,8 @@ def partmc_exited_callback(session_id, future):
             body['error.json'] = json.dumps(
                 {'message': 'No output files found for PartMC'})
 
+    logging.info(f"Sending message to {route_key}")
+    logging.info(f"Message: {body}")
     publish_message(route_key=route_key, message=body)
 
 
@@ -170,11 +172,11 @@ def run_partmc(session_id):
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
-    f = pool.submit(
+    future = pool.submit(
         run_pypartmc_model,
         session_id
     )
-    f.add_done_callback(
+    future.add_done_callback(
         functools.partial(
             partmc_exited_callback,
             session_id,
