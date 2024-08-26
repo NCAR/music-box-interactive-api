@@ -7096,8 +7096,7 @@
       }
     },
     {
-      "type": "USER_DEFINED",
-      "__comments": "k_co_oh_jpl19; non-standard algorithm",
+      "type": "ARRHENIUS",
       "reactants": {
         "OH": { },
         "CO": { }
@@ -7106,19 +7105,49 @@
         "CO2": { },
         "HO2": { }
       },
-      "MUSICA name": "usr_CO_OH"
+      "A": 1.5e-13,
+      "B": 0,
+      "C": 0,
+      "E": 0
     },
     {
-      "type": "USER_DEFINED",
+      "type": "ARRHENIUS",
       "reactants": {
         "OH": { },
-        "DMS": { }
+        "CO": { },
+        "M": { }
       },
       "products": {
-        "SO2": { "yield": 0.5 },
-        "HO2": { "yield": 0.5 }
+        "CO2": { },
+        "HO2": { }
       },
-      "MUSICA name": "usr_DMS_OH"
-    }
+      "A": 9.0e-20,
+      "B": 1,
+      "C": 0,
+      "D": 1,
+      "E": 0
+    },
+    {
+      "type": "TROE",
+      "reactants": {
+           "OH": {},
+           "DMS": {}
+       },
+       "products": {
+           "SO2": {
+               "yield": 0.5
+           },
+           "HO2": {
+               "yield": 0.5
+           }
+       },
+       "k0_A": 3.57e-43,
+       "k0_B": 0.0,
+       "k0_C": 7810.0,
+       "kinf_A": 6.4909e-13,
+       "kinf_B": 0.0,
+       "kinf_C": 350.0,
+       "Fc": 1.0
+   }
   ]
 }
