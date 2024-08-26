@@ -1,16 +1,9 @@
-# these imports must come first # noqa: E402
-import django  # NOQA: E402
-import os  # NOQA: E402
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'manage.settings')  # NOQA: E402
-django.setup()  # NOQA: E402
-
-from partmc_model.default_partmc import run_pypartmc_model
-from api.controller import get_model_run
 import sys
 import shutil
 import logging
 import json
 import functools
+import os
 from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
@@ -82,34 +75,32 @@ def music_box_exited_callback(session_id, output_directory, future):
 
 
 def partmc_exited_callback(session_id, future):
+    body = {'session_id': session_id}
+    route_key = RunStatus.DONE.value
     if future.exception() is not None:
-        logging.info(
-            "[" + session_id + "] Got exception: %s" %
-            future.exception())
+        body['error.json'] = json.dumps(
+            {'message': str(future.exception())})
+        route_key = RunStatus.ERROR.value
+        logging.info("[" + session_id + "] Got exception: %s" % future.exception())
     else:
         logging.info("[" + session_id + "] PartMC Model finished.")
 
         output_directory = f"/partmc/partmc-volume/{session_id}"
+        body['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
 
         # check number of output files in output directory
         logging.info(f"output directory: {output_directory}")
         output_files = getListOfFiles(output_directory)
         if len(output_files) == 0:
             logging.info("[" + session_id + "] No output files found, exiting")
-            # delete only for the sake of testing
             shutil.rmtree(output_directory)
-            return
+            route_key = RunStatus.ERROR.value
+            body['error.json'] = json.dumps(
+                {'message': 'No output files found for PartMC'})
 
-        # send the path of partmc output to model_finished_queue
-        model_run = get_model_run(session_id)
-
-        # Return the volume path inside the api-server container.
-        model_run.results[
-            'partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
-        model_run.status = RunStatus.DONE.value
-        model_run.save()
-        logging.info(
-            "[" + session_id + "] sent directory address to the database")
+    logging.info(f"Sending message to {route_key}")
+    logging.info(f"Message: {body}")
+    publish_message(route_key=route_key, message=body)
 
 
 def run_request_callback(ch, method, properties, body):
@@ -177,14 +168,15 @@ def run_music_box(session_id):
 
 
 def run_partmc(session_id):
+    from partmc_model.default_partmc import run_pypartmc_model
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
-    f = pool.submit(
+    future = pool.submit(
         run_pypartmc_model,
         session_id
     )
-    f.add_done_callback(
+    future.add_done_callback(
         functools.partial(
             partmc_exited_callback,
             session_id,
@@ -200,21 +192,7 @@ def main():
 
 
 def getListOfFiles(dirName):
-    # create a list of file and sub directories
-    # names in the given directory
-    listOfFile = os.listdir(dirName)
-    allFiles = list()
-    # Iterate over all the entries
-    for entry in listOfFile:
-        # Create full path
-        fullPath = os.path.join(dirName, entry)
-        # If entry is a directory then get the list of files in this directory
-        if os.path.isdir(fullPath):
-            allFiles = allFiles + getListOfFiles(fullPath)
-        else:
-            allFiles.append(fullPath)
-
-    return allFiles
+     return [os.path.join(root, file) for root, _, files in os.walk(dirName) for file in files]
 
 
 if __name__ == '__main__':

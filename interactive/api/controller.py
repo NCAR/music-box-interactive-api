@@ -11,11 +11,10 @@ from io import StringIO
 from shared.configuration_utils import compress_configuration, \
     extract_configuration, \
     load_configuration, \
-    compress_partmc, \
     filter_diagnostics, \
     get_session_path, \
-    get_partmc_zip_file_path, \
     get_zip_file_path
+from partmc_model.partmc_utils import compress_partmc, get_partmc_zip_file_path
 from shared.rabbit_mq import publish_message
 
 logger = logging.getLogger(__name__)

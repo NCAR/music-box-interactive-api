@@ -11,7 +11,6 @@ from api.run_status import RunStatus
 from shared.rabbit_mq import rabbit_is_available, consume, ConsumerConfig
 from api.controller import get_model_run
 
-
 # disable propagation
 logging.getLogger("pika").propagate = False
 
@@ -38,10 +37,13 @@ def done_status_callback(ch, method, properties, body):
         output_csv = json_body["output.csv"]
         model_run.results['/output.csv'] = output_csv
         logging.info(f"Output found for session {session_id}")
+    elif 'partmc_output_path' in json_body:
+        model_run.results['partmc_output_path'] = json_body['partmc_output_path']
     else:
         status = RunStatus.ERROR.value
         error_json = json.dumps({'message': 'No output found'})
         logging.info(f"No output found for session {session_id}")
+    
 
     # update model_run with MODEL_RUN_COMPLETE and error_json
     model_run.results['error'] = error_json

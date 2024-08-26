@@ -8,6 +8,21 @@
 
 ## Build and run
 
+### Local installation
+
+Install dependencies
+```
+poetry install
+```
+
+If you want to include pypartmc
+
+```
+poetry install --extras "pypartmc"
+```
+
+### Docker
+
 All configuration is handled by docker files and docker compose. First navigate to the project directory.
 
 To build
@@ -37,7 +52,7 @@ If you need to remove absolutely everything
 docker compose down -v --rmi all \
     && docker system prune \
     && docker compose build --no-cache \
-    && docker compose up --force-recreate
+    && docker compose up --force-recreate -d
 ```
 
 If you would like to run docker in a deteched state, add the `-d` flag like this

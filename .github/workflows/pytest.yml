@@ -29,13 +29,13 @@ jobs:
         run: |
           docker exec api-server bash -c "
           cd interactive &&
-          python manage.py makemigrations &&
-          python manage.py migrate"
+          poetry run python manage.py makemigrations &&
+          poetry run python manage.py migrate"
 
 
       - name: Run pytest
         run: |
-          docker compose exec -T api-server sh -c "pytest"
+          docker compose exec -T api-server sh -c "poetry run pytest"
 
       - name: Shut down Docker Compose
         if: always()
