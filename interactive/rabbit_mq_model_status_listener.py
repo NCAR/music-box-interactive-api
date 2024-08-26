@@ -43,7 +43,6 @@ def done_status_callback(ch, method, properties, body):
         status = RunStatus.ERROR.value
         error_json = json.dumps({'message': 'No output found'})
         logging.info(f"No output found for session {session_id}")
-    
 
     # update model_run with MODEL_RUN_COMPLETE and error_json
     model_run.results['error'] = error_json

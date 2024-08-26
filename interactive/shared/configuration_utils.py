@@ -7,6 +7,7 @@ import shutil
 import fjson
 from zipfile import ZipFile
 
+
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
     path = os.path.join(
@@ -230,7 +231,6 @@ def compress_configuration(session_id):
         f'Compressing configuration: {config_folder} to: {zip_file_path}')
     make_archive(config_folder, zip_file_path)
     remove_session_folder(session_id)
-
 
 
 def make_archive(source, destination):
