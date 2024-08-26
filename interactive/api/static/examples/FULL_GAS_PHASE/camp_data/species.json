@@ -3,337 +3,337 @@
     {
       "name": "AACD",
       "type": "CHEM_SPEC",
-      "description": "acetic and higher carboxylic acids"
+      "__description": "acetic and higher carboxylic acids"
     },
     {
       "name": "ALD2",
       "type": "CHEM_SPEC",
-      "description": "acetaldehyde"
+      "__description": "acetaldehyde"
     },
     {
       "name": "ALDX",
       "type": "CHEM_SPEC",
-      "description": "propionaldehyde and higher aldehydes"
+      "__description": "propionaldehyde and higher aldehydes"
     },
     {
       "name": "BENZENE",
       "type": "CHEM_SPEC",
-      "description": "benzene"
+      "__description": "benzene"
     },
     {
       "name": "BENZRO2",
       "type": "CHEM_SPEC",
-      "description": "peroxy radical from benzene oxidation"
+      "__description": "peroxy radical from benzene oxidation"
     },
     {
       "name": "C2O3",
       "type": "CHEM_SPEC",
-      "description": "acetyl peroxy radical"
+      "__description": "acetyl peroxy radical"
     },
     {
       "name": "CH4",
       "type": "CHEM_SPEC",
-      "description": "methane"
+      "__description": "methane"
     },
     {
       "name": "CL",
       "type": "CHEM_SPEC",
-      "description": "chlorine radical"
+      "__description": "chlorine radical"
     },
     {
       "name": "CL2",
       "type": "CHEM_SPEC",
-      "description": "molecular chlorine"
+      "__description": "molecular chlorine"
     },
     {
       "name": "CLO",
       "type": "CHEM_SPEC",
-      "description": "chlorine monoxide"
+      "__description": "chlorine monoxide"
     },
     {
       "name": "CO",
       "type": "CHEM_SPEC",
-      "description": "carbon monoxide"
+      "__description": "carbon monoxide"
     },
     {
       "name": "CRES",
       "type": "CHEM_SPEC",
-      "description": "cresol and higher molecular weight phenols"
+      "__description": "cresol and higher molecular weight phenols"
     },
     {
       "name": "CRO",
       "type": "CHEM_SPEC",
-      "description": "methylphenoxy radical"
+      "__description": "methylphenoxy radical"
     },
     {
       "name": "CXO3",
       "type": "CHEM_SPEC",
-      "description": "C3 and higher acylperoxy radicals"
+      "__description": "C3 and higher acylperoxy radicals"
     },
     {
       "name": "ETH",
       "type": "CHEM_SPEC",
-      "description": "ethene"
+      "__description": "ethene"
     },
     {
       "name": "ETHA",
       "type": "CHEM_SPEC",
-      "description": "ethane"
+      "__description": "ethane"
     },
     {
       "name": "ETOH",
       "type": "CHEM_SPEC",
-      "description": "ethanol"
+      "__description": "ethanol"
     },
     {
       "name": "FACD",
       "type": "CHEM_SPEC",
-      "description": "formic acid"
+      "__description": "formic acid"
     },
     {
       "name": "FMCL",
       "type": "CHEM_SPEC",
-      "description": "formyl chloride (HC(O)Cl)"
+      "__description": "formyl chloride (HC(O)Cl)"
     },
     {
       "name": "FORM",
       "type": "CHEM_SPEC",
-      "description": "formaldehyde"
+      "__description": "formaldehyde"
     },
     {
       "name": "H2",
       "type": "CHEM_SPEC",
-      "description": "molecular hydrogen"
+      "__description": "molecular hydrogen"
     },
     {
       "type": "CHEM_SPEC",
       "name": "H2O",
-      "description": "water"
+      "__description": "water"
     },
     {
       "name": "H2O2",
       "type": "CHEM_SPEC",
-      "description": "hydrogen peroxide"
+      "__description": "hydrogen peroxide"
     },
     {
       "name": "HCL",
       "type": "CHEM_SPEC",
-      "description": "hydrochlric acid"
+      "__description": "hydrochlric acid"
     },
     {
       "type": "CHEM_SPEC",
       "name": "HCO3",
-      "description": "formyl peroxy radical"
+      "__description": "formyl peroxy radical"
     },
     {
       "name": "HNO3",
       "type": "CHEM_SPEC",
-      "description": "nitric acid"
+      "__description": "nitric acid"
     },
     {
       "name": "HO2",
       "type": "CHEM_SPEC",
-      "description": "hydroperoxy radical"
+      "__description": "hydroperoxy radical"
     },
     {
       "name": "HOCL",
       "type": "CHEM_SPEC",
-      "description": "hypochlorous acid"
+      "__description": "hypochlorous acid"
     },
     {
       "name": "HONO",
       "type": "CHEM_SPEC",
-      "description": "nitrous acid"
+      "__description": "nitrous acid"
     },
     {
       "name": "IOLE",
       "type": "CHEM_SPEC",
-      "description": "internal olefin carbon bond (R-C=C)"
+      "__description": "internal olefin carbon bond (R-C=C)"
     },
     {
       "name": "ISOP",
       "type": "CHEM_SPEC",
-      "description": "isoprene"
+      "__description": "isoprene"
     },
     {
       "name": "ISPD",
       "type": "CHEM_SPEC",
-      "description": "isoprene products (lumped methacrolein, methyl vinyl ketone, etc.)"
+      "__description": "isoprene products (lumped methacrolein, methyl vinyl ketone, etc.)"
     },
     {
       "name": "M",
       "type": "CHEM_SPEC",
-      "description": "third body"
+      "__description": "third body"
     },
     {
       "name": "MEO2",
       "type": "CHEM_SPEC",
-      "description": "methyl peroxy radical"
+      "__description": "methyl peroxy radical"
     },
     {
       "name": "MEOH",
       "type": "CHEM_SPEC",
-      "description": "methanol"
+      "__description": "methanol"
     },
     {
       "name": "MEPX",
       "type": "CHEM_SPEC",
-      "description": "methylhydroperoxide"
+      "__description": "methylhydroperoxide"
     },
     {
       "name": "MGLY",
       "type": "CHEM_SPEC",
-      "description": "methylglyoxal and other aromatic products"
+      "__description": "methylglyoxal and other aromatic products"
     },
     {
       "name": "N2O5",
       "type": "CHEM_SPEC",
-      "description": "dinitrogen pentoxide"
+      "__description": "dinitrogen pentoxide"
     },
     {
       "name": "NO",
       "type": "CHEM_SPEC",
-      "description": "nitric oxide"
+      "__description": "nitric oxide"
     },
     {
       "name": "NO2",
       "type": "CHEM_SPEC",
-      "description": "nitrogen dioxide"
+      "__description": "nitrogen dioxide"
     },
     {
       "name": "NO3",
       "type": "CHEM_SPEC",
-      "description": "nitrate radical"
+      "__description": "nitrate radical"
     },
     {
       "type": "CHEM_SPEC",
       "name": "NTR",
-      "description": "organic nitrates (RNO3)"
+      "__description": "organic nitrates (RNO3)"
     },
     {
       "type": "CHEM_SPEC",
       "name": "O",
-      "description": "oxygen atom in the O3P electronic state"
+      "__description": "oxygen atom in the O3P electronic state"
     },
     {
       "type": "CHEM_SPEC",
       "name": "O1D",
-      "description": "oxygen atom in the O1D electronic state"
+      "__description": "oxygen atom in the O1D electronic state"
     },
     {
       "name": "O3",
       "type": "CHEM_SPEC",
-      "description": "ozone"
+      "__description": "ozone"
     },
     {
       "name": "OH",
       "type": "CHEM_SPEC",
-      "description": "hydroxyl radical"
+      "__description": "hydroxyl radical"
     }, 
     {
       "name": "O2",
       "type": "CHEM_SPEC",
-      "description": "molecular oxygen"
+      "__description": "molecular oxygen"
     },
     {
       "name": "OLE",
       "type": "CHEM_SPEC",
-      "description": "terminal olefin carbon bond (R-C=C)"
+      "__description": "terminal olefin carbon bond (R-C=C)"
     },
     {
       "name": "OPEN",
       "type": "CHEM_SPEC",
-      "description": "aromatic ring opening products"
+      "__description": "aromatic ring opening products"
     },
     {
       "name": "PACD",
       "type": "CHEM_SPEC",
-      "description": "peroxyacetic and higher peroxycarboxylic acids"
+      "__description": "peroxyacetic and higher peroxycarboxylic acids"
     },
     {
       "name": "PAN",
       "type": "CHEM_SPEC",
-      "description": "peroxyacetyl nitrate"
+      "__description": "peroxyacetyl nitrate"
     },
     {
       "name": "PANX",
       "type": "CHEM_SPEC",
-      "description": "C3 and higher peroxyacyl nitrates"
+      "__description": "C3 and higher peroxyacyl nitrates"
     },
     {
       "name": "PAR",
       "type": "CHEM_SPEC",
-      "description": "paraffin carbon bond (C-C)"
+      "__description": "paraffin carbon bond (C-C)"
     },
     {
       "name": "PNA",
       "type": "CHEM_SPEC",
-      "description": "peroxynitric acid (HNO4)"
+      "__description": "peroxynitric acid (HNO4)"
     },
     {
       "name": "ROOH",
       "type": "CHEM_SPEC",
-      "description": "higher organic peroxides"
+      "__description": "higher organic peroxides"
     },
     {
       "name": "ROR",
       "type": "CHEM_SPEC",
-      "description": "secondary alkoxy radical"
+      "__description": "secondary alkoxy radical"
     },
     {
       "name": "SESQ",
       "type": "CHEM_SPEC",
-      "description": "sesquiterpene"
+      "__description": "sesquiterpene"
     },
     {
       "name": "SO2",
       "type": "CHEM_SPEC",
-      "description": "sulfur dioxide"
+      "__description": "sulfur dioxide"
     },
     {
       "name": "SULF",
       "type": "CHEM_SPEC",
-      "description": "sulfuric acid (gaseous)"
+      "__description": "sulfuric acid (gaseous)"
     },
     {
       "type": "CHEM_SPEC",
       "name": "TERP",
-      "description": "terpenes"
+      "__description": "terpenes"
     },
     {
       "name": "TO2",
       "type": "CHEM_SPEC",
-      "description": "toluene-hydroxyl radical aduct"
+      "__description": "toluene-hydroxyl radical aduct"
     },
     {
       "name": "TOL",
       "type": "CHEM_SPEC",
-      "description": "toluene"
+      "__description": "toluene"
     },
     {
       "type": "CHEM_SPEC",
       "name": "TOLRO2",
-      "description": "first generation product from TOL oxidation"
+      "__description": "first generation product from TOL oxidation"
     },
     {
       "name": "XO2",
       "type": "CHEM_SPEC",
-      "description": "NO to NO2 conversion from alkylperoxy (RO2) radical"
+      "__description": "NO to NO2 conversion from alkylperoxy (RO2) radical"
     },
     {
       "name": "XO2N",
       "type": "CHEM_SPEC",
-      "description": "NO to organic nitrate conversion from alkylperoxy (RO2) radical"
+      "__description": "NO to organic nitrate conversion from alkylperoxy (RO2) radical"
     },
     {
       "name": "XYL",
       "type": "CHEM_SPEC",
-      "description": "xylene and other polyalkyl aromatics"
+      "__description": "xylene and other polyalkyl aromatics"
     },
     {
       "type": "CHEM_SPEC",
       "name": "XYLRO2",
-      "description": "first generation product from XYL oxidation"
+      "__description": "first generation product from XYL oxidation"
     }
   ]
 }

@@ -52,6 +52,27 @@ If you would like to view the logs after starting docker in a detach state, you 
 docker compose logs -f
 ```
 
+```
+docker compose stop model-runner && docker compose build --no-cache model-runner && docker compose up --force-recreate --renew-anon-volumes -d model-runner
+```
+
+
+### One at a time
+
+You can also bring down only one of the docker images and rebuild from scratch if you wish
+
+```
+docker compose stop model-runner && docker compose build --no-cache model-runner && docker compose up --force-recreate -d model-runner
+```
+
+```
+docker compose stop status-listener && docker compose build --no-cache status-listener && docker compose up --force-recreate -d status-listener
+```
+
+```
+docker compose stop api-server && docker compose build --no-cache api-server && docker compose up --force-recreate -d api-server
+```
+
 ## Web Files
 
 This repository is only the API server for MusicBox Interactive. If you wish to run the web files, head over to [music-box-interactive-client](https://github.com/NCAR/music-box-interactive-client)

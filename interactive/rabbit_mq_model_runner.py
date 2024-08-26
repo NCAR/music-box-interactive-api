@@ -7,18 +7,19 @@ django.setup()  # NOQA: E402
 from partmc_model.default_partmc import run_pypartmc_model
 from api.controller import get_model_run
 import sys
-import subprocess
 import shutil
 import logging
 import json
 import functools
 from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
-    get_config_file_path, \
-    get_working_directory
+    get_working_directory, \
+    get_session_path
 from api.run_status import RunStatus
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor as Pool
+
+from acom_music_box import MusicBox
 
 
 # main model runner interface class for rabbitmq and actual model runner
@@ -119,7 +120,7 @@ def run_request_callback(ch, method, properties, body):
         session_id = data["session_id"]
         config = data["config"]
 
-        load_configuration(session_id, config)
+        load_configuration(session_id, config, keep_relative_paths=True)
         logging.info(f"Adding runner for session {session_id} to pool")
 
         # Searching through the payload json to see if aerosol is present. If it is, run musicbox
@@ -146,29 +147,36 @@ def run_request_callback(ch, method, properties, body):
 
 
 def run_music_box(session_id):
-    config_file_path = get_config_file_path(session_id)
+    path = get_session_path(session_id)
+    config_file_path = os.path.join(path, 'my_config.json')
+    logging.info(f"config file path: {config_file_path}")
+
+    music_box = MusicBox()
+    music_box.readConditionsFromJson(config_file_path)
+
+    campConfig = os.path.join(
+        os.path.dirname(config_file_path),
+        music_box.config_file)
+
     working_directory = get_working_directory(session_id)
-    # run model in separate thread, remove stdout=subprocess.DEVNULL if you
-    # want to see output
-    f = pool.submit(
-        subprocess.call,
-        # run music box with this configuration
-        f"/music-box/build/music_box {config_file_path}",
-        shell=True,
-        cwd=working_directory,
-        stdout=subprocess.DEVNULL
-    )
-    f.add_done_callback(
+
+    music_box.create_solver(campConfig)
+
+    future = pool.submit(music_box.solve, os.path.join(working_directory, "output.csv"))
+    
+    future.add_done_callback(
         functools.partial(
             music_box_exited_callback,
             session_id,
-            working_directory))
+            working_directory
+        )
+    )
+    
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
 
 
 def run_partmc(session_id):
-
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
