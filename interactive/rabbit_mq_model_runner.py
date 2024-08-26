@@ -192,7 +192,7 @@ def main():
 
 
 def getListOfFiles(dirName):
-     return [os.path.join(root, file) for root, _, files in os.walk(dirName) for file in files]
+    return [os.path.join(root, file) for root, _, files in os.walk(dirName) for file in files]
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from shared.configuration_utils import make_archive
 import os
 import shutil
 
+
 def compress_partmc(session_id):
     '''Creates a compressed file holding the partmc output from a given session id'''
     model = models.ModelRun.objects.get(uid=session_id)
@@ -12,6 +13,7 @@ def compress_partmc(session_id):
     logging.info(
         f'Compressing configuration: {partmc_folder} to: {partmc_zip_file_path}')
     make_archive(partmc_folder, partmc_zip_file_path)
+
 
 def get_partmc_zip_file_path(session_id):
     '''Returns the path for a zip file for a given session id'''
@@ -25,7 +27,7 @@ def get_partmc_zip_folder_path(session_id):
     os.makedirs(path, exist_ok=True)
     return path
 
+
 def remove_zip_folder_partmc(session_id):
     '''Removes the folder holding a compressed partmc for a session'''
     shutil.rmtree(get_partmc_zip_folder_path(session_id))
-
