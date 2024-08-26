@@ -163,7 +163,7 @@ def run_music_box(session_id):
     music_box.create_solver(campConfig)
 
     future = pool.submit(music_box.solve, os.path.join(working_directory, "output.csv"))
-    
+
     future.add_done_callback(
         functools.partial(
             music_box_exited_callback,
@@ -171,7 +171,7 @@ def run_music_box(session_id):
             working_directory
         )
     )
-    
+
     body = {"session_id": session_id}
     publish_message(route_key=RunStatus.RUNNING.value, message=body)
 
