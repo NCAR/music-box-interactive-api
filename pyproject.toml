@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "music_box_interactive_api"
-version = "3.2.0"
+version = "3.3.0"
 description = "The server component of MusicBox Interactive"
 authors = [
   "ACOM MUSICA Developers <musica-support@ucar.edu>"
