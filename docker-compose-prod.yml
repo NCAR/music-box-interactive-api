@@ -9,9 +9,10 @@ services:
     env_file:
       - /home/shared/.env
     entrypoint: ["poetry", "run", "python", "interactive/manage.py"]
-    command: ["runserver_plus", "--cert-file", "acom.ucar.edu.crt", "--key-file", "acom.ucar.edu.key", "0.0.0.0:8000"]
+    command: ["runserver_plus", "--cert-file", "/certificates/acom.ucar.edu.crt", "--key-file", "/certificates/acom.ucar.edu.key", "0.0.0.0:8000"]
     volumes:
       - db-data:/music-box-interactive/interactive
+      - /etc/pki/:/certificates
     network_mode: "host"
     restart: on-failure
     logging:
