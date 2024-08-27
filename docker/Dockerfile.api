@@ -35,6 +35,3 @@ RUN poetry run python3 interactive/manage.py migrate
 RUN poetry run python3 interactive/manage.py collectstatic --noinput
 
 EXPOSE 8000
-
-ENTRYPOINT ["poetry", "run", "python3", "interactive/manage.py"]
-CMD ["runserver_plus", "0.0.0.0:8000"]

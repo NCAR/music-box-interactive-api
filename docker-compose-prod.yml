@@ -8,6 +8,7 @@ services:
       - 8000:8000
     env_file:
       - /home/shared/.env
+    entrypoint: ["poetry", "run", "python", "interactive/manage.py"]
     command: ["runserver_plus", "--cert-file", "acom.ucar.edu.crt", "--key-file", "acom.ucar.edu.key", "0.0.0.0:8000"]
     volumes:
       - db-data:/music-box-interactive/interactive
