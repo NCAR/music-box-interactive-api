@@ -12,7 +12,6 @@ services:
     command: ["runserver_plus", "--cert-file", "acom.ucar.edu.crt", "--key-file", "acom.ucar.edu.key", "0.0.0.0:8000"]
     volumes:
       - db-data:/music-box-interactive/interactive
-      - /etc/pki/:/music-box-interactive
     network_mode: "host"
     restart: on-failure
     logging:
