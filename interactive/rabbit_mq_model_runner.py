@@ -39,7 +39,11 @@ def music_box_exited_callback(session_id, output_directory, future):
     body = {'session_id': session_id}
 
     if future.exception() is not None:
-        exception_message = ''.join(traceback.format_exception(None, future.exception(), future.exception().__traceback__))
+        exception_message = ''.join(
+            traceback.format_exception(
+                None,
+                future.exception(),
+                future.exception().__traceback__))
         logging.error(f"[{session_id}] MusicBox finished with exception: {exception_message}")
         route_key = RunStatus.ERROR.value
     else:
