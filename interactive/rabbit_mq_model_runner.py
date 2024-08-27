@@ -3,6 +3,7 @@ import shutil
 import logging
 import json
 import functools
+import traceback
 import os
 from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
@@ -33,45 +34,39 @@ logging.getLogger("pika").propagate = False
 
 
 def music_box_exited_callback(session_id, output_directory, future):
+    exception_message = None
+    route_key = RunStatus.DONE.value
+    body = {'session_id': session_id}
+
     if future.exception() is not None:
-        logging.info(
-            "[" + session_id + "] Got exception: %s" %
-            future.exception())
+        exception_message = ''.join(traceback.format_exception(None, future.exception(), future.exception().__traceback__))
+        logging.error(f"[{session_id}] MusicBox finished with exception: {exception_message}")
+        route_key = RunStatus.ERROR.value
     else:
-        logging.info("[" + session_id + "] MusicBox Model finished.")
-        # 1) check for output files (in /build)
-        # 2) send output files to model_finished_queue
-        # 3) delete config files and binary files from file system
+        logging.info(f"[{session_id}] MusicBox finished normally")
 
         # check number of output files in /build
-        logging.info(f"output directory: {output_directory}")
         output_files = getListOfFiles(output_directory)
         if len(output_files) == 0:
-            logging.info("[" + session_id + "] No output files found, exiting")
-            return
-        # body to send to model_finished_queue
-        body = {'session_id': session_id}
-        complete_path = os.path.join(output_directory, 'MODEL_RUN_COMPLETE')
+            logging.info(f"[{session_id}] No output files found")
+            exception_message = "No output files found"
+            route_key = RunStatus.ERROR.value
+
         csv_path = os.path.join(output_directory, 'output.csv')
-        error_path = os.path.join(output_directory, 'error.json')
-        if os.path.exists(complete_path):
-            # read complete file
-            with open(complete_path, 'r') as f:
-                body["MODEL_RUN_COMPLETE"] = f.read()
-        if os.path.exists(error_path):
-            # read error file
-            with open(error_path, 'r') as f:
-                body["error.json"] = f.read()
+
         if os.path.exists(csv_path):
-            # read csv file
             with open(csv_path, 'r') as f:
                 body["output.csv"] = f.read()
+
         # remove all files to save space
         shutil.rmtree(output_directory)
-        # send body to model_finished_queue
-        publish_message(route_key=RunStatus.DONE.value, message=body)
-        logging.info(
-            "[" + session_id + "] Sent output files to model_finished_queue")
+
+    if exception_message is not None:
+        # add exception message to body
+        body["error.json"] = json.dumps({'message': exception_message})
+
+    logging.info(f"[{session_id}] Sending message with route key: {route_key}")
+    publish_message(route_key=route_key, message=body)
 
 
 def partmc_exited_callback(session_id, future):
@@ -81,25 +76,21 @@ def partmc_exited_callback(session_id, future):
         body['error.json'] = json.dumps(
             {'message': str(future.exception())})
         route_key = RunStatus.ERROR.value
-        logging.info("[" + session_id + "] Got exception: %s" % future.exception())
+        logging.error(f"[{session_id}] Got exception: %s" % future.exception())
     else:
-        logging.info("[" + session_id + "] PartMC Model finished.")
+        logging.info(f"[{session_id}] PartMC Model finished.")
 
         output_directory = f"/partmc/partmc-volume/{session_id}"
         body['partmc_output_path'] = f"/music-box-interactive/interactive/partmc-volume/{session_id}"
 
         # check number of output files in output directory
-        logging.info(f"output directory: {output_directory}")
         output_files = getListOfFiles(output_directory)
         if len(output_files) == 0:
-            logging.info("[" + session_id + "] No output files found, exiting")
+            logging.info(f"[{session_id}] No output files found")
             shutil.rmtree(output_directory)
             route_key = RunStatus.ERROR.value
-            body['error.json'] = json.dumps(
-                {'message': 'No output files found for PartMC'})
+            body['error.json'] = json.dumps({'message': 'No output files found for PartMC'})
 
-    logging.info(f"Sending message to {route_key}")
-    logging.info(f"Message: {body}")
     publish_message(route_key=route_key, message=body)
 
 
@@ -140,7 +131,6 @@ def run_request_callback(ch, method, properties, body):
 def run_music_box(session_id):
     path = get_session_path(session_id)
     config_file_path = os.path.join(path, 'my_config.json')
-    logging.info(f"config file path: {config_file_path}")
 
     music_box = MusicBox()
     music_box.readConditionsFromJson(config_file_path)

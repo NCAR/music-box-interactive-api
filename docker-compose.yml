@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile.api
       args:
-        - INSTALL_PyPartMC=true
+        - INSTALL_PyPartMC=false
     ports:
       - 8000:8000
     env_file:
@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile.model_runner
       args:
-        - INSTALL_PyPartMC=true
+        - INSTALL_PyPartMC=false
     env_file:
       - ./.env
     depends_on:
