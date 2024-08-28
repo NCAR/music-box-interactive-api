@@ -136,6 +136,9 @@ def run_music_box(session_id):
     path = get_session_path(session_id)
     config_file_path = os.path.join(path, 'my_config.json')
 
+    body = {"session_id": session_id}
+    publish_message(route_key=RunStatus.RUNNING.value, message=body)
+
     music_box = MusicBox()
     music_box.readConditionsFromJson(config_file_path)
 
@@ -156,9 +159,6 @@ def run_music_box(session_id):
             working_directory
         )
     )
-
-    body = {"session_id": session_id}
-    publish_message(route_key=RunStatus.RUNNING.value, message=body)
 
 
 def run_partmc(session_id):
