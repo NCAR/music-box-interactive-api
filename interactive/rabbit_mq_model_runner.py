@@ -153,9 +153,6 @@ def run_music_box(session_id):
         )
     )
 
-    body = {"session_id": session_id}
-    publish_message(route_key=RunStatus.RUNNING.value, message=body)
-
 
 def run_partmc(session_id):
     from partmc_model.default_partmc import run_pypartmc_model
