@@ -163,7 +163,7 @@
     {
       "name": "M",
       "type": "CHEM_SPEC",
-      "__description": "third body"
+      "tracer type": "THIRD_BODY"
     },
     {
       "name": "MEO2",
