@@ -1274,7 +1274,7 @@
     {
       "name": "M",
       "type": "CHEM_SPEC",
-      "__description": "third-body species"
+      "tracer type": "THIRD_BODY"
     }
 
   ]
