@@ -13,6 +13,7 @@ services:
     volumes:
       - db-data:/music-box-interactive/interactive
       - /etc/pki/:/certificates
+      - partmc-data:/music-box-interactive/interactive/partmc-volume
     network_mode: "host"
     restart: on-failure
     logging:
@@ -30,6 +31,9 @@ services:
     deploy:
       mode: replicated
       replicas: 6
+    volumes:
+      - partmc-data:/partmc/partmc-volume
+      - db-data:/music-box-interactive/interactive
     network_mode: "host"
     logging:
       driver: "json-file"
@@ -38,3 +42,4 @@ services:
         max-file: "5"      # Maximum number of log files to retain
 volumes:
   db-data:
+  partmc-data:
