@@ -132,5 +132,5 @@ def rabbit_is_available():
         with pika.BlockingConnection(connParam) as connection:
             return connection.is_open
     except pika.exceptions.AMQPConnectionError as e:
-        logger.exception(f"Failed to connect to RabbitMQ", e)
+        logger.exception(f"Failed to connect to RabbitMQ: {e}")
         return False

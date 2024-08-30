@@ -161,7 +161,6 @@ def run_music_box(session_id):
     music_box.create_solver(campConfig)
 
     future = pool.submit(music_box.solve, os.path.join(working_directory, "output.csv"))
-
     future.add_done_callback(
         functools.partial(
             music_box_exited_callback,
@@ -170,11 +169,17 @@ def run_music_box(session_id):
         )
     )
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
     set_model_run_status(session_id, RunStatus.RUNNING.value)
 
 >>>>>>> Stashed changes
+=======
+    body = {"session_id": session_id}
+    publish_message(route_key=RunStatus.RUNNING.value, message=body)
+
+>>>>>>> e3351e2f0431be6befc2a6346fc24eec5af7ab20
 
 def run_partmc(session_id):
     from partmc_model.default_partmc import run_pypartmc_model
@@ -203,17 +208,26 @@ def getListOfFiles(dirName):
 
 
 if __name__ == '__main__':
-    # config to easily see threads and process IDs
     logging.basicConfig(
         level=logging.DEBUG,
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
+
+    def connect_to_rabbit():
+        retries = 0
+        while retries < 10:
+            if rabbit_is_available():
+                main()
+                return
+            else:
+                logging.warning('[WARN] RabbitMQ server is not running. Retrying in 5 seconds...')
+                time.sleep(5)
+                retries += 1
+        logging.error('[ERR!] Failed to connect to RabbitMQ server after 10 retries.')
+        sys.exit(1)
+
     try:
-        if rabbit_is_available():
-            main()
-        else:
-            logging.error('[ERR!] RabbitMQ server is not running.')
-            sys.exit(1)
+        connect_to_rabbit()
     except KeyboardInterrupt:
         logging.debug('Interrupted')
         try:

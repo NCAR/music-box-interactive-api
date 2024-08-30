@@ -7,6 +7,7 @@ django.setup()  # noqa: E402
 import sys
 import logging
 import json
+import time
 from api.run_status import RunStatus
 from shared.rabbit_mq import rabbit_is_available, consume, ConsumerConfig
 from api.controller import get_model_run
@@ -75,17 +76,26 @@ def main():
 
 
 if __name__ == '__main__':
-    # config to easily see threads and process IDs
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
                 "%(levelname)-5s %(msg)s"))
+
+    def connect_to_rabbit():
+        retries = 0
+        while retries < 10:
+            if rabbit_is_available():
+                main()
+                return
+            else:
+                logging.warning('[WARN] RabbitMQ server is not running. Retrying in 5 seconds...')
+                time.sleep(5)
+                retries += 1
+        logging.error('[ERR!] Failed to connect to RabbitMQ server after 10 retries.')
+        sys.exit(1)
+
     try:
-        if rabbit_is_available():
-            main()
-        else:
-            logging.error('[ERR!] RabbitMQ server is not running. Exiting...')
-            sys.exit(1)
+        connect_to_rabbit()
     except KeyboardInterrupt:
         logging.debug('Interrupted')
         try:
