@@ -21,8 +21,7 @@ def done_status_callback(ch, method, properties, body):
     # grab ModelRun for session_id
     model_run = get_model_run(session_id)
     logging.info("Model finished for session {}".format(session_id))
-    # grab MODEL_RUN_COMPLETE and error.json from data
-    # save results to database
+
     status = RunStatus.DONE.value
     if "MODEL_RUN_COMPLETE" in json_body:
         status = RunStatus.DONE.value

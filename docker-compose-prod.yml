@@ -36,21 +36,5 @@ services:
       options:
         max-size: "10m"    # Maximum size of each log file, e.g., 10 megabytes
         max-file: "5"      # Maximum number of log files to retain
-  status-listener:
-    container_name: 'status-listener'
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile.status_listener
-    env_file:
-      - /home/shared/.env
-    volumes:
-      - db-data:/music-box-interactive/interactive
-    restart: on-failure
-    network_mode: "host"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"    # Maximum size of each log file, e.g., 10 megabytes
-        max-file: "5"      # Maximum number of log files to retain
 volumes:
   db-data:
