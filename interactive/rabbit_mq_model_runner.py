@@ -13,7 +13,7 @@ import traceback
 import os
 import time
 from api.controller import get_model_run
-from shared.rabbit_mq import consume, rabbit_is_available, publish_message, ConsumerConfig
+from shared.rabbit_mq import consume, rabbit_is_available, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
     get_session_path
@@ -141,7 +141,7 @@ def run_request_callback(ch, method, properties, body):
     except Exception as e:
         body = {"error.json": json.dumps(
             {'message': str(e)}), "session_id": session_id}
-        publish_message(route_key=RunStatus.ERROR.value, message=body)
+        set_model_run_status(session_id, RunStatus.ERROR.value, error=body)
         logging.exception('Setting up run failed')
 
 
@@ -169,17 +169,7 @@ def run_music_box(session_id):
         )
     )
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
     set_model_run_status(session_id, RunStatus.RUNNING.value)
-
->>>>>>> Stashed changes
-=======
-    body = {"session_id": session_id}
-    publish_message(route_key=RunStatus.RUNNING.value, message=body)
-
->>>>>>> e3351e2f0431be6befc2a6346fc24eec5af7ab20
 
 def run_partmc(session_id):
     from partmc_model.default_partmc import run_pypartmc_model
