@@ -32,7 +32,6 @@ services:
     volumes:
       - partmc-data:/partmc/partmc-volume
       - db-data:/music-box-interactive/interactive
-
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:3.11-management
