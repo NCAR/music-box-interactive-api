@@ -28,7 +28,7 @@ services:
     restart: on-failure
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 6
     volumes:
       - partmc-data:/partmc/partmc-volume
       - db-data:/music-box-interactive/interactive
