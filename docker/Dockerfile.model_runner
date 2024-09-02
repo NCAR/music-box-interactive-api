@@ -25,7 +25,7 @@ COPY . /music-box-interactive/
 WORKDIR /music-box-interactive
 
 # Configure Poetry to create virtual environments in the project directory
-RUN poetry config virtualenvs.in-project true
+# RUN poetry config virtualenvs.in-project true
 
 ENV CXXFLAGS="-Wno-error=redundant-move"
 RUN if [ "$INSTALL_PyPartMC" = "true" ]; then poetry install --all-extras; else poetry install -E music_box; fi

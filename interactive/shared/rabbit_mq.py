@@ -3,6 +3,16 @@ import json
 import os
 import pika
 
+formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(module)s.%(funcName)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
+
+log_level = logging.INFO
+console_handler = logging.StreamHandler()
+console_handler.setLevel(log_level)
+console_handler.setFormatter(formatter)
+logging.basicConfig(level=log_level, handlers=[console_handler])
+
 logger = logging.getLogger(__name__)
 
 # fallback to defaults
@@ -10,7 +20,6 @@ RABBIT_HOST = os.getenv("RABBIT_MQ_HOST", "localhost")
 RABBIT_PORT = int(os.getenv("RABBIT_MQ_PORT", "5672"))
 RABBIT_USER = os.getenv("RABBIT_MQ_USER", "guest")
 RABBIT_PASSWORD = os.getenv("RABBIT_MQ_PASSWORD", "guest")
-
 
 class RabbitConfig:
     def __init__(self, exchange='musicbox_interactive',
@@ -34,7 +43,6 @@ class RabbitConfig:
         self.port = port
         self.user = user
         self.password = password
-
 
 class ConsumerConfig:
     def __init__(self, route_keys=None, callback=None):
