@@ -120,7 +120,6 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             channel.stop_consuming()
 
 
-
 def rabbit_is_available():
     """
     Determine if rabbit mq is accepting connections
