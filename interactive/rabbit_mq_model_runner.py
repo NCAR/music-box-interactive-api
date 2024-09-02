@@ -29,6 +29,7 @@ pool = Pool(max_workers=cpu_count())
 # disable propagation
 logging.getLogger("pika").propagate = False
 
+
 def set_model_run_status(session_id, status, error=None, output=None, partmc_output_path=None):
     model_run = get_model_run(session_id)
     model_run.status = status
@@ -72,7 +73,7 @@ def music_box_exited_callback(session_id, output_directory, future):
 
     if exception_message is not None:
         error = json.dumps({'message': exception_message})
-    
+
     set_model_run_status(session_id, status, error=error, output=output)
 
 
@@ -171,6 +172,7 @@ def run_music_box(session_id):
 
     set_model_run_status(session_id, RunStatus.RUNNING.value)
 
+
 def run_partmc(session_id):
     from partmc_model.default_partmc import run_pypartmc_model
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
@@ -184,6 +186,7 @@ def run_partmc(session_id):
             session_id,
         ))
     set_model_run_status(session_id, RunStatus.RUNNING.value)
+
 
 def main():
     consume(consumer_configs=[
