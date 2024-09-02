@@ -161,6 +161,7 @@ def run_music_box(session_id):
 
     music_box.create_solver(campConfig)
 
+    logging.info(f"Submitting job to thread pool for session {session_id}")
     future = pool.submit(music_box.solve, os.path.join(working_directory, "output.csv"))
     future.add_done_callback(
         functools.partial(
@@ -169,6 +170,7 @@ def run_music_box(session_id):
             working_directory
         )
     )
+    logging.info("Job submitted to thread pool")
 
     set_model_run_status(session_id, RunStatus.RUNNING.value)
 
