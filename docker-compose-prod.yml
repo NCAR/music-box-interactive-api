@@ -14,6 +14,11 @@ services:
       - db-data:/music-box-interactive/interactive
       - /etc/pki/:/certificates
       # - partmc-data:/music-box-interactive/interactive/partmc-volume
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/manage/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     network_mode: "host"
     restart: on-failure
     logging:
@@ -31,6 +36,10 @@ services:
     deploy:
       mode: replicated
       replicas: 6
+    command: ["poetry", "run", "python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
+    depends_on:
+      api-server:
+        condition: service_healthy
     volumes:
       # - partmc-data:/partmc/partmc-volume
       - db-data:/music-box-interactive/interactive

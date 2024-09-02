@@ -21,7 +21,7 @@ RUN dnf -y update \
 
 RUN pip3 install poetry
 
-COPY . /music-box-interactive/
+COPY ./pyproject.toml /music-box-interactive/pyproject.toml 
 WORKDIR /music-box-interactive
 
 # Configure Poetry to create virtual environments in the project directory
@@ -31,5 +31,3 @@ ENV CXXFLAGS="-Wno-error=redundant-move"
 RUN if [ "$INSTALL_PyPartMC" = "true" ]; then poetry install --all-extras; else poetry install -E music_box; fi
 
 RUN mkdir -p /partmc/partmc-volume
-
-CMD ["poetry", "run", "python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
