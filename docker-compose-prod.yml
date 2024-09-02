@@ -15,7 +15,7 @@ services:
       - /etc/pki/:/certificates
       # - partmc-data:/music-box-interactive/interactive/partmc-volume
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/manage/health"]
+      test: ["CMD", "curl", "-f", "--insecure", "https://localhost:8000/manage/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -43,7 +43,6 @@ services:
     volumes:
       # - partmc-data:/partmc/partmc-volume
       - db-data:/music-box-interactive/interactive
-    network_mode: "host"
     logging:
       driver: "json-file"
       options:
