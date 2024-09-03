@@ -52,8 +52,8 @@ services:
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 5s
-      timeout: 15s
+      interval: 10s
+      timeout: 30s
       retries: 10
 volumes:
   db-data:
