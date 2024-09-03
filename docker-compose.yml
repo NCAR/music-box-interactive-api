@@ -54,7 +54,7 @@ services:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
       timeout: 30s
-      retries: 10
+      retries: 30
 volumes:
   db-data:
   partmc-data:
