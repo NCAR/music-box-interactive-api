@@ -12,7 +12,7 @@ import functools
 import traceback
 import os
 import time
-from api.controller import get_model_run
+from api.controller import get_model_run, safely_save_data
 from shared.rabbit_mq import consume, rabbit_is_available, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
@@ -26,6 +26,8 @@ from acom_music_box import MusicBox
 
 pool = Pool(max_workers=cpu_count())
 
+consumer = None
+
 # disable propagation
 logging.getLogger("pika").propagate = False
 
@@ -37,7 +39,7 @@ def set_model_run_status(session_id, status, error=None, output=None, partmc_out
     model_run.results['/output.csv'] = output
     if partmc_output_path:
         model_run.results['partmc_output_path'] = partmc_output_path
-    model_run.save()
+    safely_save_data(model_run)
     logging.info(f"Model run saved to database for session {session_id}")
 
 
@@ -75,6 +77,9 @@ def music_box_exited_callback(session_id, output_directory, future):
         error = json.dumps({'message': exception_message})
 
     set_model_run_status(session_id, status, error=error, output=output)
+
+    logging.debug(f"MusicBox finished for session {session_id}; Resuming consumer")
+    consumer.start_consuming()
 
 
 def partmc_exited_callback(session_id, future):
@@ -170,6 +175,8 @@ def run_music_box(session_id):
             working_directory
         )
     )
+    logging.debug(f"MusicBox started for session {session_id}; Pausing consumer")
+    consumer.stop_consuming()
 
 
 def run_partmc(session_id):
@@ -188,11 +195,13 @@ def run_partmc(session_id):
 
 
 def main():
-    consume(consumer_configs=[
+    global consumer
+    consumer = consume(consumer_configs=[
         ConsumerConfig(
             route_keys=['run_request'], callback=run_request_callback
         )
     ])
+    logging.info("RabbitMQ consumer started")
 
 
 def getListOfFiles(dirName):
@@ -207,7 +216,7 @@ if __name__ == '__main__':
 
     def connect_to_rabbit():
         retries = 0
-        while retries < 10:
+        while True:
             if rabbit_is_available():
                 main()
                 return
@@ -215,8 +224,6 @@ if __name__ == '__main__':
                 logging.warning('[WARN] RabbitMQ server is not running. Retrying in 5 seconds...')
                 time.sleep(5)
                 retries += 1
-        logging.error('[ERR!] Failed to connect to RabbitMQ server after 10 retries.')
-        sys.exit(1)
 
     try:
         connect_to_rabbit()

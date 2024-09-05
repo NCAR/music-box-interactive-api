@@ -118,6 +118,7 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             channel.start_consuming()
         except KeyboardInterrupt:
             channel.stop_consuming()
+        return channel
 
 
 def rabbit_is_available():
