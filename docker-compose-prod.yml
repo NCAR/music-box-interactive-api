@@ -29,8 +29,6 @@ services:
     deploy:
       mode: replicated
       replicas: 6
-    volumes:
-      # - partmc-data:/partmc/partmc-volume
     network_mode: "host"
     logging:
       driver: "json-file"
@@ -39,6 +37,7 @@ services:
         max-file: "5"      # Maximum number of log files to retain
   postgres:
     container_name: 'postgres'
+    network_mode: "host"
     build: 
       context: .
       dockerfile: ./docker/Dockerfile.postgres
