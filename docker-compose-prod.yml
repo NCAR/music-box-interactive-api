@@ -8,10 +8,8 @@ services:
       - 8000:8000
     env_file:
       - /home/shared/.env
-    entrypoint: ["poetry", "run", "python", "interactive/manage.py"]
-    command: ["runserver_plus", "--cert-file", "/certificates/acom.ucar.edu.crt", "--key-file", "/certificates/acom.ucar.edu.key", "0.0.0.0:8000"]
+    entrypoint: ["sh", "-c", "poetry run python3 interactive/manage.py makemigrations && poetry run python3 interactive/manage.py migrate && poetry run python3 interactive/manage.py collectstatic --noinput && poetry run python3 interactive/manage.py runserver_plus --cert-file /certificates/acom.ucar.edu.crt --key-file /certificates/acom.ucar.edu.key 0.0.0.0:8000"]
     volumes:
-      - db-data:/music-box-interactive/interactive
       - /etc/pki/:/certificates
       # - partmc-data:/music-box-interactive/interactive/partmc-volume
     network_mode: "host"
@@ -33,13 +31,21 @@ services:
       replicas: 6
     volumes:
       # - partmc-data:/partmc/partmc-volume
-      - db-data:/music-box-interactive/interactive
     network_mode: "host"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"    # Maximum size of each log file, e.g., 10 megabytes
         max-file: "5"      # Maximum number of log files to retain
+  postgres:
+    container_name: 'postgres'
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile.postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 volumes:
-  db-data:
   # partmc-data:
+  postgres-data:

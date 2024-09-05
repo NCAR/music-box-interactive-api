@@ -10,11 +10,11 @@ services:
       - 8000:8000
     env_file:
       - ./.env
-    entrypoint: ["poetry", "run", "python", "interactive/manage.py"]
-    command: ["runserver_plus", "0.0.0.0:8000"]
+    entrypoint: ["sh", "-c", "poetry run python3 interactive/manage.py makemigrations && poetry run python3 interactive/manage.py migrate && poetry run python3 interactive/manage.py collectstatic --noinput && poetry run python3 interactive/manage.py runserver_plus 0.0.0.0:8000"]
     volumes:
-      - db-data:/music-box-interactive/interactive
       - partmc-data:/music-box-interactive/interactive/partmc-volume
+    depends_on:
+      - postgres  # Ensure api-server waits for postgres to be ready
   model-runner:
     build: 
       context: .
@@ -25,13 +25,14 @@ services:
       - ./.env
     depends_on:
       - rabbitmq
+      - postgres  # Ensure model-runner waits for postgres to be ready
     restart: on-failure
     deploy:
       mode: replicated
       replicas: 6
+    command: ["poetry", "run", "python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
     volumes:
       - partmc-data:/partmc/partmc-volume
-      - db-data:/music-box-interactive/interactive
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:3.11-management
@@ -43,9 +44,18 @@ services:
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 5s
-      timeout: 15s
-      retries: 1
+      interval: 10s
+      timeout: 30s
+      retries: 10
+  postgres:
+    container_name: 'postgres'
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile.postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 volumes:
-  db-data:
   partmc-data:
+  postgres-data:

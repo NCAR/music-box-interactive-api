@@ -30,8 +30,4 @@ RUN poetry config virtualenvs.in-project true
 ENV CXXFLAGS="-Wno-error=redundant-move"
 RUN if [ "$INSTALL_PyPartMC" = "true" ]; then poetry install  --with dev --all-extras; else poetry install --with dev; fi
 
-RUN poetry run python3 interactive/manage.py makemigrations
-RUN poetry run python3 interactive/manage.py migrate
-RUN poetry run python3 interactive/manage.py collectstatic --noinput
-
 EXPOSE 8000
