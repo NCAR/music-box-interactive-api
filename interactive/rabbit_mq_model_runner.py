@@ -13,7 +13,7 @@ import traceback
 import os
 import time
 from api.controller import get_model_run, safely_save_data
-from shared.rabbit_mq import consume, rabbit_is_available, pause_consumer, resume_consumer, ConsumerConfig
+from shared.rabbit_mq import consume, rabbit_is_available, acknowledge_and_pause_consumer, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
     get_session_path
@@ -113,7 +113,7 @@ def run_request_callback(ch, method, properties, body):
     data = json.loads(body)
     session_id = data["session_id"]
     logging.debug(f"Received run request for session {session_id}; Pausing consumer")
-    pause_consumer(ch)
+    acknowledge_and_pause_consumer(ch, method)
     try:
         config = data["config"]
         load_configuration(session_id, config, keep_relative_paths=True)
@@ -142,8 +142,7 @@ def run_request_callback(ch, method, properties, body):
         logging.exception('Setting up run failed')
 
     logging.debug(f"Resuming consumer for session {session_id} and acknowledging message")
-    resume_consumer(ch)
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+    start_consumer()
 
 
 def run_music_box(session_id):
@@ -187,7 +186,7 @@ def run_partmc(session_id):
     set_model_run_status(session_id, RunStatus.RUNNING.value)
 
 
-def main():
+def start_consumer():
     """
     Starts the RabbitMQ consumer
     """
@@ -216,7 +215,7 @@ if __name__ == '__main__':
         retries = 0
         while True:
             if rabbit_is_available():
-                main()
+                start_consumer()
                 return
             else:
                 logging.warning('[WARN] RabbitMQ server is not running. Retrying in 5 seconds...')
