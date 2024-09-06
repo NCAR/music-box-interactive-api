@@ -13,7 +13,7 @@ import traceback
 import os
 import time
 from api.controller import get_model_run, safely_save_data
-from shared.rabbit_mq import consume, rabbit_is_available, pause_consumer, resume_consumer, ConsumerConfig
+from shared.rabbit_mq import consume, rabbit_is_available, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
     get_session_path
@@ -113,7 +113,6 @@ def run_request_callback(ch, method, properties, body):
     data = json.loads(body)
     session_id = data["session_id"]
     logging.debug(f"Received run request for session {session_id}; Pausing consumer")
-    pause_consumer()
     try:
         config = data["config"]
         load_configuration(session_id, config, keep_relative_paths=True)
@@ -141,8 +140,8 @@ def run_request_callback(ch, method, properties, body):
         set_model_run_status(session_id, RunStatus.ERROR.value, error=body)
         logging.exception('Setting up run failed')
 
-    logging.debug(f"Finished run request for session {session_id}; Resuming consumer")
-    resume_consumer()
+    finally:
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 def run_music_box(session_id):

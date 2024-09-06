@@ -108,7 +108,7 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             # setup a callback for this queue
             channel.basic_consume(queue=queue_name,
                                   on_message_callback=consumer.callback,
-                                  auto_ack=True)
+                                  auto_ack=False)
 
         route_keys = [
             key for consumer in consumer_configs for key in consumer.route_keys]
@@ -118,32 +118,6 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             channel.start_consuming()
         except KeyboardInterrupt:
             channel.stop_consuming()
-
-
-def pause_consumer():
-    """
-    Pause all consumers
-    """
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-    connParam = pika.ConnectionParameters(
-        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-
-    with pika.BlockingConnection(connParam) as connection:
-        channel = connection.channel()
-        channel.stop_consuming()
-
-
-def resume_consumer():
-    """
-    Resume all consumers
-    """
-    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
-    connParam = pika.ConnectionParameters(
-        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
-
-    with pika.BlockingConnection(connParam) as connection:
-        channel = connection.channel()
-        channel.start_consuming()
 
 
 def rabbit_is_available():
