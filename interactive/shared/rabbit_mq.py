@@ -123,6 +123,32 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             channel.stop_consuming()
 
 
+def pause_consumer():
+    """
+    Pauses the consumer
+    """
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(
+        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    
+    with pika.BlockingConnection(connParam) as connection:
+        channel = connection.channel()
+        channel.stop_consuming()
+
+
+def resume_consumer():
+    """
+    Resumes the consumer
+    """
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(
+        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+    
+    with pika.BlockingConnection(connParam) as connection:
+        channel = connection.channel()
+        channel.start_consuming()
+
+
 def rabbit_is_available():
     """
     Determine if rabbit mq is accepting connections
