@@ -118,8 +118,33 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
             channel.start_consuming()
         except KeyboardInterrupt:
             channel.stop_consuming()
-        return channel
 
+
+def pause_consumer():
+    """
+    Pause all consumers
+    """
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(
+        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+
+    with pika.BlockingConnection(connParam) as connection:
+        channel = connection.channel()
+        channel.basic_qos(prefetch_count=0)
+
+
+def resume_consumer():
+    """
+    Resume all consumers
+    """
+    credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+    connParam = pika.ConnectionParameters(
+        RABBIT_HOST, RABBIT_PORT, credentials=credentials)
+
+    with pika.BlockingConnection(connParam) as connection:
+        channel = connection.channel()
+        channel.basic_qos(prefetch_count=1)
+        
 
 def rabbit_is_available():
     """

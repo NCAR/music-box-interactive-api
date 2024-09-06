@@ -13,7 +13,7 @@ import traceback
 import os
 import time
 from api.controller import get_model_run, safely_save_data
-from shared.rabbit_mq import consume, rabbit_is_available, ConsumerConfig
+from shared.rabbit_mq import consume, rabbit_is_available, pause_consumer, resume_consumer, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
     get_session_path
@@ -25,8 +25,6 @@ import pandas as pd
 from acom_music_box import MusicBox
 
 pool = Pool(max_workers=cpu_count())
-
-consumer = None
 
 # disable propagation
 logging.getLogger("pika").propagate = False
@@ -79,7 +77,7 @@ def music_box_exited_callback(session_id, output_directory, future):
     set_model_run_status(session_id, status, error=error, output=output)
 
     logging.debug(f"MusicBox finished for session {session_id}; Resuming consumer")
-    consumer.start_consuming()
+    resume_consumer()
 
 
 def partmc_exited_callback(session_id, future):
@@ -115,6 +113,8 @@ def partmc_exited_callback(session_id, future):
         error = json.dumps({'message': exception_message})
 
     set_model_run_status(session_id, status, error=error, partmc_output_path=partmc_output_path)
+    logging.debug(f"MusicBox finished for session {session_id}; Resuming consumer")
+    resume_consumer()
 
 
 def run_request_callback(ch, method, properties, body):
@@ -143,6 +143,9 @@ def run_request_callback(ch, method, properties, body):
             run_partmc(session_id)
         else:
             run_music_box(session_id)
+
+        logging.debug(f"MusicBox started for session {session_id}; Pausing consumer")
+        pause_consumer()
 
     except Exception as e:
         body = {"error.json": json.dumps(
@@ -175,8 +178,6 @@ def run_music_box(session_id):
             working_directory
         )
     )
-    logging.debug(f"MusicBox started for session {session_id}; Pausing consumer")
-    consumer.stop_consuming()
 
 
 def run_partmc(session_id):
@@ -195,8 +196,7 @@ def run_partmc(session_id):
 
 
 def main():
-    global consumer
-    consumer = consume(consumer_configs=[
+    consume(consumer_configs=[
         ConsumerConfig(
             route_keys=['run_request'], callback=run_request_callback
         )
