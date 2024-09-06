@@ -130,7 +130,7 @@ def pause_consumer():
 
     with pika.BlockingConnection(connParam) as connection:
         channel = connection.channel()
-        channel.basic_qos(prefetch_count=0)
+        channel.stop_consuming()
 
 
 def resume_consumer():
@@ -143,8 +143,8 @@ def resume_consumer():
 
     with pika.BlockingConnection(connParam) as connection:
         channel = connection.channel()
-        channel.basic_qos(prefetch_count=1)
-        
+        channel.start_consuming()
+
 
 def rabbit_is_available():
     """
