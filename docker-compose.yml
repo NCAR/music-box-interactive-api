@@ -14,7 +14,7 @@ services:
     volumes:
       - partmc-data:/music-box-interactive/interactive/partmc-volume
     depends_on:
-      - postgres  # Ensure api-server waits for postgres to be ready
+      - postgres
   model-runner:
     build: 
       context: .
@@ -25,7 +25,7 @@ services:
       - ./.env
     depends_on:
       - rabbitmq
-      - postgres  # Ensure model-runner waits for postgres to be ready
+      - postgres
     restart: on-failure
     deploy:
       mode: replicated
