@@ -24,3 +24,4 @@ venv/pyvenv.cfg
 .vscode
 interactive/db.sqlite3
 poetry.lock
+interactive/api/migrations/*
