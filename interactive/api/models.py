@@ -4,10 +4,7 @@ from django.db import models
 
 class ModelRun(models.Model):
     # uid of user [CharField]
-    uid = models.CharField(max_length=50, primary_key=True)
-
-    # checksum of config files [CharField]
-    config_checksum = models.CharField(max_length=50)
+    uid = models.CharField(max_length=60, primary_key=True)
 
     # status of the model run [CharField]
     status = models.CharField(
@@ -16,6 +13,3 @@ class ModelRun(models.Model):
 
     # results name and binary data [JSONField]
     results = models.JSONField(default=dict)  # {name: binary data}
-
-    # should cache?
-    should_cache = models.BooleanField(default=True)
