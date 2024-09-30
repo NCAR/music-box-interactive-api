@@ -83,11 +83,11 @@ WSGI_APPLICATION = 'manage.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME', 'musicbox'),
-        'USER': os.getenv('DATABASE_USER', 'musicbox_user'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'musicbox_password'),
-        'HOST': os.getenv('DATABASE_HOST', 'postgres'),
-        'PORT': os.getenv('DATABASE_PORT', '5432'),
+        'NAME': 'musicbox',
+        'USER': 'musicbox_user',
+        'PASSWORD': 'musicbox_password',
+        'HOST': 'postgres',
+        'PORT': '5432',
     }
 }
 
@@ -187,6 +187,10 @@ LOGGING = {
         },
     },
     'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
