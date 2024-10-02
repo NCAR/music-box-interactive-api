@@ -20,6 +20,7 @@ from shared.configuration_utils import load_configuration, \
 from api.run_status import RunStatus
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor as Pool
+import subprocess
 import pandas as pd
 
 from acom_music_box import MusicBox
@@ -41,18 +42,18 @@ def set_model_run_status(session_id, status, error=None, output=None, partmc_out
     logging.info(f"Model run saved to database for session {session_id}")
 
 
-def music_box_exited_callback(session_id, output_directory, future):
+def music_box_exited_callback(session_id, output_directory, exception=None):
     exception_message = None
     status = RunStatus.DONE.value
     output = None
     error = None
 
-    if future.exception() is not None:
+    if exception is not None:
         exception_message = ''.join(
             traceback.format_exception(
                 None,
-                future.exception(),
-                future.exception().__traceback__))
+                exception,
+                exception.__traceback__))
         logging.error(f"[{session_id}] MusicBox finished with exception: {exception_message}")
         status = RunStatus.ERROR.value
     else:
@@ -146,30 +147,43 @@ def run_request_callback(ch, method, properties, body):
         logging.exception('Setting up run failed')
 
 
+# def run_music_box(session_id):
+#     path = get_session_path(session_id)
+#     config_file_path = os.path.join(path, 'my_config.json')
+
+#     music_box = MusicBox()
+#     music_box.loadJson(config_file_path)
+
+#     working_directory = get_working_directory(session_id)
+
+#     set_model_run_status(session_id, RunStatus.RUNNING.value)
+#     future = pool.submit(music_box.solve, os.path.join(working_directory, "output.csv"))
+#     future.add_done_callback(
+#         functools.partial(
+#             music_box_exited_callback,
+#             session_id,
+#             working_directory
+#         )
+#     )
+
 def run_music_box(session_id):
     path = get_session_path(session_id)
     config_file_path = os.path.join(path, 'my_config.json')
-
-    music_box = MusicBox()
-    music_box.readConditionsFromJson(config_file_path)
-
-    campConfig = os.path.join(
-        os.path.dirname(config_file_path),
-        music_box.config_file)
-
     working_directory = get_working_directory(session_id)
-
-    music_box.create_solver(campConfig)
+    output_file = os.path.join(working_directory, "output.csv")
 
     set_model_run_status(session_id, RunStatus.RUNNING.value)
-    future = pool.submit(music_box.solve, os.path.join(working_directory, "output.csv"))
-    future.add_done_callback(
-        functools.partial(
-            music_box_exited_callback,
-            session_id,
-            working_directory
-        )
-    )
+
+    # Start the MusicBox in a subprocess and wait for it to finish
+    process = subprocess.Popen(['music_box', '-c', config_file_path, '-o', output_file],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Wait for the subprocess to complete
+    stdout, stderr = process.communicate()
+
+    # Call the callback to handle the result
+    exception = process.returncode != 0 and Exception(stderr.decode()) or None
+    music_box_exited_callback(session_id, working_directory, exception)
 
 
 def run_partmc(session_id):
