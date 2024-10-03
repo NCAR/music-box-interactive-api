@@ -144,7 +144,6 @@ def run_request_callback(ch, method, properties, body):
     logging.debug(f"Resuming consumer for session {session_id} and acknowledging message")
     start_consumer()
 
-
 def run_music_box(session_id):
     """
     Runs the music box model
@@ -152,21 +151,16 @@ def run_music_box(session_id):
     set_model_run_status(session_id, RunStatus.RUNNING.value)
     path = get_session_path(session_id)
     config_file_path = os.path.join(path, 'my_config.json')
+    working_directory = get_working_directory(session_id)
+    output_file = os.path.join(working_directory, "output.csv")
+
+    set_model_run_status(session_id, RunStatus.RUNNING.value)
 
     music_box = MusicBox()
-    music_box.readConditionsFromJson(config_file_path)
+    music_box.loadJson(config_file_path)
+    music_box.solve(output_path=output_file)
 
-    camp_config = os.path.join(
-        os.path.dirname(config_file_path),
-        music_box.config_file)
-
-    working_directory = get_working_directory(session_id)
-
-    music_box.create_solver(camp_config)
-
-    music_box.solve(os.path.join(working_directory, "output.csv"))
     music_box_exited_handler(session_id, working_directory)
-
 
 def run_partmc(session_id):
     """
