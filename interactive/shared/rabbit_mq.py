@@ -5,6 +5,9 @@ import pika
 
 logger = logging.getLogger(__name__)
 
+# Global RabbitMQ connection
+connection = None
+
 # fallback to defaults
 RABBIT_HOST = os.getenv("RABBIT_MQ_HOST", "localhost")
 RABBIT_PORT = int(os.getenv("RABBIT_MQ_PORT", "5672"))
@@ -79,6 +82,7 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
     """
     Setup a consumer for a queue. The queue and callback must be supplied
     """
+    global connection
 
     # create connection parameters
     credentials = pika.PlainCredentials(
@@ -87,37 +91,52 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
         rabbit_config.host, rabbit_config.port, credentials=credentials)
 
     # setup a connection
-    with pika.BlockingConnection(connParam) as connection:
-        # start a channel and declare an exchange
-        channel = connection.channel()
-        channel.exchange_declare(
-            rabbit_config.exchange, exchange_type='direct')
+    connection = pika.BlockingConnection(connParam)
 
-        # loop through each consumer and generate a queue with a random name
-        for consumer in consumer_configs:
-            # bind the route keys to the queue
-            for key in consumer.route_keys:
-                result = channel.queue_declare(queue=key)
-                queue_name = result.method.queue
-                logger.info(f"Binding {key} to {queue_name} on {rabbit_config.exchange}")
-                channel.queue_bind(
-                    exchange=rabbit_config.exchange,
-                    queue=queue_name,
-                    routing_key=key)
+    # start a channel and declare an exchange
+    channel = connection.channel()
+    channel.exchange_declare(
+        rabbit_config.exchange, exchange_type='direct')
+        
+    # set prefetch count to 1 to ensure that only one message is processed at a time
+    channel.basic_qos(prefetch_count=1)
 
-            # setup a callback for this queue
-            channel.basic_consume(queue=queue_name,
-                                  on_message_callback=consumer.callback,
-                                  auto_ack=True)
+    # loop through each consumer and generate a queue with a random name
+    for consumer in consumer_configs:
+        # bind the route keys to the queue
+        for key in consumer.route_keys:
+            result = channel.queue_declare(queue=key)
+            queue_name = result.method.queue
+            logger.info(f"Binding {key} to {queue_name} on {rabbit_config.exchange}")
+            channel.queue_bind(
+                exchange=rabbit_config.exchange,
+                queue=queue_name,
+                routing_key=key)
 
-        route_keys = [
-            key for consumer in consumer_configs for key in consumer.route_keys]
-        logger.info(f"Consuming for keys: {', '.join(route_keys)}")
-        try:
-            # start consuming on all queues
-            channel.start_consuming()
-        except KeyboardInterrupt:
-            channel.stop_consuming()
+        # setup a callback for this queue
+        channel.basic_consume(queue=queue_name,
+                              on_message_callback=consumer.callback,
+                              auto_ack=False)
+
+    route_keys = [
+        key for consumer in consumer_configs for key in consumer.route_keys]
+    logger.info(f"Consuming for keys: {', '.join(route_keys)}")
+    try:
+        # start consuming on all queues
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        channel.stop_consuming()
+
+
+def acknowledge_and_pause_consumer(ch, method):
+    """
+    Acknowledges the current message and pauses the consumer
+    """
+    global connection
+    ch.basic_qos(prefetch_count=0)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+    connection.close()
+    connection = None
 
 
 def rabbit_is_available():

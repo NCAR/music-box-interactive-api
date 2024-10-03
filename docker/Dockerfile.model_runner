@@ -1,43 +1,35 @@
-FROM ubuntu:latest
+FROM fedora:latest
 
 ARG INSTALL_PyPartMC=false
 
-# Update package list and install required packages
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get -y install \
+RUN dnf -y update \
+    && dnf -y install \
         gcc \
-        g++ \
+        gcc-c++ \
         git \
         python3 \
-        python3-dev \
+        python3-devel \
         python3-pip \
     && if [ "$INSTALL_PyPartMC" = "true" ]; \
-        then apt-get -y install \
+        then dnf -y install \
                 cmake \
-                gfortran \
+                gcc-gfortran \
                 m4 \
             ; \
-        fi \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+            fi \
+    && dnf clean all
 
-# Install poetry
-RUN pip3 install poetry --break-system-packages
+RUN pip3 install poetry
 
-# Copy the project files into the container
 COPY . /music-box-interactive/
 WORKDIR /music-box-interactive
 
 # Configure Poetry to create virtual environments in the project directory
 RUN poetry config virtualenvs.in-project true
 
-# Set environment variables and install dependencies based on INSTALL_PyPartMC
 ENV CXXFLAGS="-Wno-error=redundant-move"
-RUN if [ "$INSTALL_PyPartMC" = "true" ]; then poetry install --all-extras; else poetry install -E music_box; fi
+RUN if [ "$INSTALL_PyPartMC" = "true" ]; then poetry install --all-extras; else poetry install; fi
 
-# Create necessary directories
 RUN mkdir -p /partmc/partmc-volume
 
-# Run the RabbitMQ model runner script when the container starts
 CMD ["poetry", "run", "python3", "/music-box-interactive/interactive/rabbit_mq_model_runner.py"]
