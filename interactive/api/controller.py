@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.http import Http404
+from django.db import transaction, DatabaseError
 
 import json
 import logging
 import os
+import time
 import pandas as pd
 from api import models
 from api.run_status import RunStatus
@@ -20,6 +22,10 @@ from acom_music_box import Examples
 from api.request_models import Example
 
 logger = logging.getLogger(__name__)
+
+# retry limits for db operations
+RETRY_LIMIT = 10
+RETRY_DELAY = 1 # seconds
 
 
 def load_example(example):
@@ -119,11 +125,24 @@ def handle_extract_configuration(session_id, zipfile):
     extract_configuration(session_id, zipfile)
     return get_configuration_as_json(get_session_path(session_id))
 
+# safely save data to the database
+def safely_save_data(data):
+    for i in range(RETRY_LIMIT):
+        try:
+            with transaction.atomic():
+                data.save()
+                break
+        except DatabaseError:
+            logger.error(f"Database error: retrying in {RETRY_DELAY} seconds")
+            time.sleep(RETRY_DELAY)
+    else:
+        logger.error(f"Failed to save model after {RETRY_LIMIT} retries")
+
 
 def publish_run_request(session_id, config):
     model_run = create_model_run(session_id)
     model_run.status = RunStatus.WAITING.value
-    model_run.save()
+    safely_save_data(model_run)
     body = {"session_id": session_id, "config": config}
     publish_message(route_key='run_request', message=body)
     logger.info("published message to run_queue")
@@ -160,7 +179,7 @@ def get_results(uid):
 # create new model run
 def create_model_run(uid):
     model_run = models.ModelRun(uid=uid)
-    model_run.save()
+    safely_save_data(model_run)
     return model_run
 
 
