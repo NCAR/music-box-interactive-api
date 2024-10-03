@@ -97,7 +97,7 @@ def consume(consumer_configs, rabbit_config=RabbitConfig()):
     channel = connection.channel()
     channel.exchange_declare(
         rabbit_config.exchange, exchange_type='direct')
-        
+
     # set prefetch count to 1 to ensure that only one message is processed at a time
     channel.basic_qos(prefetch_count=1)
 

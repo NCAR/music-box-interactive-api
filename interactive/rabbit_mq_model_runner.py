@@ -144,6 +144,7 @@ def run_request_callback(ch, method, properties, body):
     logging.debug(f"Resuming consumer for session {session_id} and acknowledging message")
     start_consumer()
 
+
 def run_music_box(session_id):
     """
     Runs the music box model
@@ -161,6 +162,7 @@ def run_music_box(session_id):
     music_box.solve(output_path=output_file)
 
     music_box_exited_handler(session_id, working_directory)
+
 
 def run_partmc(session_id):
     """

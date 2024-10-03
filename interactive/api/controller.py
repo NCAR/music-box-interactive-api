@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 # retry limits for db operations
 RETRY_LIMIT = 10
-RETRY_DELAY = 1 # seconds
+RETRY_DELAY = 1  # seconds
 
 
 def load_example(example):
@@ -126,6 +126,8 @@ def handle_extract_configuration(session_id, zipfile):
     return get_configuration_as_json(get_session_path(session_id))
 
 # safely save data to the database
+
+
 def safely_save_data(data):
     for i in range(RETRY_LIMIT):
         try:
