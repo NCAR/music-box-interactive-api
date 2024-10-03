@@ -16,15 +16,34 @@ from shared.configuration_utils import compress_configuration, \
     get_zip_file_path
 from partmc_model.partmc_utils import compress_partmc, get_partmc_zip_file_path
 from shared.rabbit_mq import publish_message
+from acom_music_box import Examples
+from api.request_models import Example
 
 logger = logging.getLogger(__name__)
 
 
 def load_example(example):
     '''Returns a JSON version of one of the example configurations'''
-    example_path = os.path.join(
-        settings.BASE_DIR, 'api/static/examples', example)
-    return get_configuration_as_json(example_path)
+
+    # Short names on the right are the names in music box
+    to_short_name = {
+        Example.FULL_GAS_PHASE.name: 'CB5',
+        Example.FLOW_TUBE.name: 'FlowTube',
+        Example.TS1.name: 'TS1',
+        Example.CHAPMAN.name: 'Chapman',
+    }
+
+    configuration = None
+
+    for ex in Examples:
+        if ex.short_name == to_short_name[example]:
+            configuration = ex
+            break
+
+    if not configuration:
+        logging.error(f"Example {example} not found")
+        raise Http404(f"Example {example} not found")
+    return get_configuration_as_json(os.path.dirname(configuration.path))
 
 
 def get_configuration_as_json(file_path):
@@ -62,21 +81,18 @@ def get_configuration_as_json(file_path):
                 else:
                     logger.warning(
                         "Could not find initial rates condition file")
-            if "evolving conditions" in conditions and \
-               len(list(conditions["evolving conditions"].keys())) > 0:
-                evolving_conditions = list(
-                    conditions["evolving conditions"].keys())
-                if len(evolving_conditions) > 0:
-                    evolving_conditions = evolving_conditions[0]
+            if "evolving conditions" in conditions:
+                evolving_conditions = conditions["evolving conditions"]
+                if evolving_conditions:
+                    evolving_conditions = list(evolving_conditions.keys())[0]
                     path = [f for f in files if evolving_conditions in f]
-                    if len(path) > 0:
+                    if path:
                         evolving_conditions = path[0]
                         df = pd.read_csv(evolving_conditions)
                         conditions["evolving conditions"] = df.to_dict()
                         del df
                     else:
-                        logger.warning(
-                            "Could not find initial rates condition file")
+                        logger.warning("Could not find evolving conditions file")
 
     return conditions, filter_diagnostics(mechanism)
 
