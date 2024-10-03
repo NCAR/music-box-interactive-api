@@ -16,7 +16,6 @@ services:
       - db-data:/music-box-interactive/interactive
       - partmc-data:/music-box-interactive/interactive/partmc-volume
   model-runner:
-    container_name: 'model-runner'
     build: 
       context: .
       dockerfile: ./docker/Dockerfile.model_runner
@@ -29,21 +28,12 @@ services:
     restart: on-failure
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 6
+    security_opt:
+      - seccomp:unconfined
     volumes:
       - partmc-data:/partmc/partmc-volume
-  status-listener:
-    container_name: 'status-listener'
-    build: 
-      context: .
-      dockerfile: ./docker/Dockerfile.status_listener
-    env_file:
-      - ./.env
-    volumes:
       - db-data:/music-box-interactive/interactive
-    depends_on:
-      - rabbitmq
-    restart: on-failure
   rabbitmq:
     container_name: 'rabbitmq'
     image: rabbitmq:3.11-management
