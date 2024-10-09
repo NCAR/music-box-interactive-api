@@ -29,6 +29,8 @@ services:
     deploy:
       mode: replicated
       replicas: 6
+    security_opt:
+      - seccomp:unconfined
     volumes:
       - partmc-data:/partmc/partmc-volume
       - db-data:/music-box-interactive/interactive

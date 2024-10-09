@@ -12,20 +12,16 @@ import functools
 import traceback
 import os
 import time
-from api.controller import get_model_run
-from shared.rabbit_mq import consume, rabbit_is_available, ConsumerConfig
+from api.controller import get_model_run, safely_save_data
+from shared.rabbit_mq import consume, rabbit_is_available, acknowledge_and_pause_consumer, ConsumerConfig
 from shared.configuration_utils import load_configuration, \
     get_working_directory, \
     get_session_path
 from api.run_status import RunStatus
-from multiprocessing import cpu_count
-from concurrent.futures import ThreadPoolExecutor as Pool
 import pandas as pd
 import threading
 
 from acom_music_box import MusicBox
-
-pool = Pool(max_workers=cpu_count())
 
 # disable propagation
 logging.getLogger("pika").propagate = False
@@ -62,6 +58,9 @@ debouncer = Debouncer(delay=1.0)
 
 
 def set_model_run_status(session_id, status, error=None, output=None, partmc_output_path=None, current_time=None):
+    """
+    Sets the status of the model run in the database
+    """
     model_run = get_model_run(session_id)
     model_run.status = status
     model_run.results['error'] = error
@@ -70,38 +69,31 @@ def set_model_run_status(session_id, status, error=None, output=None, partmc_out
         model_run.results['partmc_output_path'] = partmc_output_path
     if current_time is not None:
         model_run.current_time = current_time
-    model_run.save()
-    logger.info(f"Model run saved to database for session {session_id}")
+    safely_save_data(model_run)
+    logging.info(f"Model run saved to database for session {session_id}")
 
-def music_box_exited_callback(session_id, output_directory, future):
+
+def music_box_exited_handler(session_id, output_directory):
+    """
+    Handles MusicBox model run completion
+    """
     exception_message = None
     status = RunStatus.DONE.value
     output = None
     error = None
 
-    if future.exception() is not None:
-        exception_message = ''.join(
-            traceback.format_exception(
-                None,
-                future.exception(),
-                future.exception().__traceback__))
-        logger.error(f"[{session_id}] MusicBox finished with exception: {exception_message}")
+    # check number of output files in /build
+    output_files = getListOfFiles(output_directory)
+    if len(output_files) == 0:
+        logging.info(f"[{session_id}] No output files found")
+        exception_message = "No output files found"
         status = RunStatus.ERROR.value
-    else:
-        logger.info(f"[{session_id}] MusicBox finished normally")
 
-        # check number of output files in /build
-        output_files = getListOfFiles(output_directory)
-        if len(output_files) == 0:
-            logger.info(f"[{session_id}] No output files found")
-            exception_message = "No output files found"
-            status = RunStatus.ERROR.value
+    csv_path = os.path.join(output_directory, 'output.csv')
+    output = pd.read_csv(csv_path).to_csv(index=False)
 
-        csv_path = os.path.join(output_directory, 'output.csv')
-        output = pd.read_csv(csv_path).to_csv(index=False)
-
-        # remove all files to save space
-        shutil.rmtree(output_directory)
+    # remove all files to save space
+    shutil.rmtree(output_directory)
 
     if exception_message is not None:
         error = json.dumps({'message': exception_message})
@@ -112,6 +104,9 @@ def music_box_updated_callback(session_id, df, current_time, current_conditions,
     set_model_run_status(session_id, RunStatus.RUNNING.value, current_time=current_time)
 
 def partmc_exited_callback(session_id, future):
+    """
+    Callback for handling PartMC model run completion
+    """
     exception_message = None
     status = RunStatus.DONE.value
     error = None
@@ -146,13 +141,15 @@ def partmc_exited_callback(session_id, future):
     set_model_run_status(session_id, status, error=error, partmc_output_path=partmc_output_path)
 
 def run_request_callback(ch, method, properties, body):
-    logger.info("Received run message")
-    session_id = None
+    """
+    Callback for handling run requests
+    """
+    data = json.loads(body)
+    session_id = data["session_id"]
+    logging.debug(f"Received run request for session {session_id}; Pausing consumer")
+    acknowledge_and_pause_consumer(ch, method)
     try:
-        data = json.loads(body)
-        session_id = data["session_id"]
         config = data["config"]
-
         load_configuration(session_id, config, keep_relative_paths=True)
         logger.info(f"Adding runner for session {session_id} to pool")
 
@@ -176,39 +173,40 @@ def run_request_callback(ch, method, properties, body):
         body = {"error.json": json.dumps(
             {'message': str(e)}), "session_id": session_id}
         set_model_run_status(session_id, RunStatus.ERROR.value, error=body)
-        logger.exception('Setting up run failed')
+        logging.exception('Setting up run failed')
+
+    logging.debug(f"Resuming consumer for session {session_id} and acknowledging message")
+    start_consumer()
+
 
 def run_music_box(session_id):
+    """
+    Runs the music box model
+    """
+    set_model_run_status(session_id, RunStatus.RUNNING.value)
     path = get_session_path(session_id)
     config_file_path = os.path.join(path, 'my_config.json')
-
-    music_box = MusicBox()
-    music_box.readConditionsFromJson(config_file_path)
-
-    campConfig = os.path.join(
-        os.path.dirname(config_file_path),
-        music_box.config_file)
-
     working_directory = get_working_directory(session_id)
-
-    music_box.create_solver(campConfig)
+    output_file = os.path.join(working_directory, "output.csv")
 
     def wrapped_music_box_updated_callback(df, current_time, current_conditions, total_simulation_time):
         music_box_updated_callback(session_id, df, current_time, current_conditions, total_simulation_time)
 
-    future = pool.submit(music_box.solve, output_path=os.path.join(working_directory, "output.csv"), callback=wrapped_music_box_updated_callback)
-    future.add_done_callback(
-        functools.partial(
-            music_box_exited_callback,
-            session_id,
-            working_directory
-        )
-    )
+
+    music_box = MusicBox()
+    music_box.loadJson(config_file_path)
 
     set_model_run_status(session_id, RunStatus.RUNNING.value)
 
+    music_box.solve(output_path=output_file, callback=wrapped_music_box_updated_callback)
+
+    music_box_exited_handler(session_id, working_directory)
+
 
 def run_partmc(session_id):
+    """
+    Runs the PartMC model
+    """
     from partmc_model.default_partmc import run_pypartmc_model
     os.makedirs(f"/partmc/partmc-volume/{session_id}", exist_ok=True)
     future = pool.submit(
@@ -225,22 +223,47 @@ def run_partmc(session_id):
 def getListOfFiles(dirName):
     return [os.path.join(root, file) for root, _, files in os.walk(dirName) for file in files]
 
-def main():
-    retries = 0
-    while retries < 10 and not rabbit_is_available():
-        logger.info(f"RabbitMQ not available, retrying in 5 seconds. Retry count: {retries}")
-        retries += 1
-        time.sleep(5)
-
-    if retries == 10:
-        logger.error("RabbitMQ not available, exiting")
-        sys.exit(1)
-
+def start_consumer():
+    """
+    Starts the RabbitMQ consumer
+    """
     consume(consumer_configs=[
         ConsumerConfig(
             route_keys=['run_request'], callback=run_request_callback
         )
     ])
+    logging.info("RabbitMQ consumer started")
+
+
+def getListOfFiles(dirName):
+    """
+    Get list of all files in a directory
+    """
+    return [os.path.join(root, file) for root, _, files in os.walk(dirName) for file in files]
+
 
 if __name__ == '__main__':
-    main()
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=("%(relativeCreated)04d %(process)05d %(threadName)-10s "
+                "%(levelname)-5s %(msg)s"))
+
+    def connect_to_rabbit():
+        retries = 0
+        while True:
+            if rabbit_is_available():
+                start_consumer()
+                return
+            else:
+                logging.warning('[WARN] RabbitMQ server is not running. Retrying in 5 seconds...')
+                time.sleep(5)
+                retries += 1
+
+    try:
+        connect_to_rabbit()
+    except KeyboardInterrupt:
+        logging.debug('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os.exit(0)

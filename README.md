@@ -8,11 +8,24 @@
 
 ## Build and run
 
-### Local installation
+### Local development
 
-Install dependencies
+Install poetry. It may be preferrable to install into a conda or virtual environment, but poetry installs package dependencies
+into its own virutal environment so this isn't necessary.
+```
+pip install poetry
+```
+
+Now install the package dependencies.
 ```
 poetry install
+```
+
+If you need to use a specific git branch of a package, open up [`pyrpoject.toml`](/pyproject.toml)
+and add a line like this
+
+```
+acom_music_box = { git = "https://github.com/NCAR/music-box.git", branch = "my_branch" }
 ```
 
 If you want to include pypartmc
@@ -20,6 +33,26 @@ If you want to include pypartmc
 ```
 poetry install --extras "pypartmc"
 ```
+
+
+To run the api server, you'll need to set environment variables
+
+```
+set -a && source .env && set +a  
+```
+
+and then you can run the server locally after making and running the migrations
+
+
+```
+poetry run python interactive/manage.py makemigrations
+poetry run python interactive/manage.py migrate
+poetry run python interactive/manage.py runserver_plus 0.0.0.0:8000
+```
+
+#### Model runners
+
+These instructions still need to be written. If you need the model runners, it's best to use the docker option
 
 ### Docker
 
