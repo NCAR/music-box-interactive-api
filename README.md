@@ -74,7 +74,7 @@ Docker-compose will cache file builds and volumes. If you make a change and you 
 it reflected, run the below command and it should rebuild the server code.
 
 ```
-docker compose down -v \
+docker compose down -v --rmi all \
     && docker compose build \
     && docker compose up --force-recreate
 ```
