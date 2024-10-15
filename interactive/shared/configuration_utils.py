@@ -257,9 +257,5 @@ def extract_configuration(session_id, zipfile):
     with ZipFile(path, 'r') as zip:
         zip.extractall(extracted_folder)
 
-        files = zip.namelist()
-        for file in files:
-            logging.info(f"Extracted file: {file}")
-
     remove_zip_folder(session_id)
-    return
+    return True
