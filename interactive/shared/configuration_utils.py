@@ -7,13 +7,13 @@ import shutil
 import fjson
 from zipfile import ZipFile
 
+logger = logging.getLogger(__name__)
 
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
     path = os.path.join(
         os.environ['MUSIC_BOX_CONFIG_DIR'],
-        session_id,
-        "configuration")
+        session_id)
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -246,12 +246,20 @@ def make_archive(source, destination):
 
 
 def extract_configuration(session_id, zipfile):
-    '''Extracts a compressed configuration and returns it as JSON'''
+    '''Extracts a compressed configuration and returns the folder of the extracted zip file'''
     content = zipfile.read()
     path = get_zip_file_path(session_id)
     with open(path, 'wb') as f:
         f.write(content)
+
+    extracted_folder = get_unzip_folder_path(session_id)
+
     with ZipFile(path, 'r') as zip:
-        zip.extractall(get_unzip_folder_path(session_id))
+        zip.extractall(extracted_folder)
+
+        files = zip.namelist()
+        for file in files:
+            logging.info(f"Extracted file: {file}")
+
     remove_zip_folder(session_id)
-    return True
+    return
