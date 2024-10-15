@@ -246,7 +246,7 @@ def make_archive(source, destination):
 
 
 def extract_configuration(session_id, zipfile):
-    '''Extracts a compressed configuration and returns the folder of the extracted zip file'''
+    '''Extracts a compressed configuration'''
     content = zipfile.read()
     path = get_zip_file_path(session_id)
     with open(path, 'wb') as f:
