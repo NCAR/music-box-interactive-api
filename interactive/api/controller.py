@@ -59,20 +59,20 @@ def get_configuration_as_json(file_path):
     mechanism = {}
 
     files = [os.path.join(dp, f)
-             for dp, _, fn in os.walk(file_path) for f in fn]
+             for dp, _, fn in os.walk(file_path) for f in fn if '__MACOSX' not in dp]
     if not files:
         logging.error("No files in example foler")
         raise Http404("No files in example folder")
 
     for file in files:
         if 'species.json' in file:
-            with open(file) as contents:
+            with open(file, 'r') as contents:
                 mechanism['species'] = json.load(contents)
         if 'reactions.json' in file:
-            with open(file) as contents:
+            with open(file, 'r') as contents:
                 mechanism['reactions'] = json.load(contents)
         if 'my_config.json' in file:
-            with open(file) as contents:
+            with open(file, 'r') as contents:
                 conditions = json.load(contents)
             if "initial conditions" in conditions and \
                len(list(conditions["initial conditions"].keys())) > 0:
