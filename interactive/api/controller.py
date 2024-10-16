@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.http import Http404
+from django.db import transaction, DatabaseError
 
 import json
 import logging
 import os
+import time
 import pandas as pd
 from api import models
 from api.run_status import RunStatus
@@ -16,15 +18,38 @@ from shared.configuration_utils import compress_configuration, \
     get_zip_file_path
 from partmc_model.partmc_utils import compress_partmc, get_partmc_zip_file_path
 from shared.rabbit_mq import publish_message
+from acom_music_box import Examples
+from api.request_models import Example
 
 logger = logging.getLogger(__name__)
+
+# retry limits for db operations
+RETRY_LIMIT = 10
+RETRY_DELAY = 1  # seconds
 
 
 def load_example(example):
     '''Returns a JSON version of one of the example configurations'''
-    example_path = os.path.join(
-        settings.BASE_DIR, 'api/static/examples', example)
-    return get_configuration_as_json(example_path)
+
+    # Short names on the right are the names in music box
+    to_short_name = {
+        Example.FULL_GAS_PHASE.name: 'CB5',
+        Example.FLOW_TUBE.name: 'FlowTube',
+        Example.TS1.name: 'TS1',
+        Example.CHAPMAN.name: 'Chapman',
+    }
+
+    configuration = None
+
+    for ex in Examples:
+        if ex.short_name == to_short_name[example]:
+            configuration = ex
+            break
+
+    if not configuration:
+        logging.error(f"Example {example} not found")
+        raise Http404(f"Example {example} not found")
+    return get_configuration_as_json(os.path.dirname(configuration.path))
 
 
 def get_configuration_as_json(file_path):
@@ -34,20 +59,20 @@ def get_configuration_as_json(file_path):
     mechanism = {}
 
     files = [os.path.join(dp, f)
-             for dp, _, fn in os.walk(file_path) for f in fn]
+             for dp, _, fn in os.walk(file_path) for f in fn if '__MACOSX' not in dp]
     if not files:
         logging.error("No files in example foler")
         raise Http404("No files in example folder")
 
     for file in files:
         if 'species.json' in file:
-            with open(file) as contents:
+            with open(file, 'r') as contents:
                 mechanism['species'] = json.load(contents)
         if 'reactions.json' in file:
-            with open(file) as contents:
+            with open(file, 'r') as contents:
                 mechanism['reactions'] = json.load(contents)
         if 'my_config.json' in file:
-            with open(file) as contents:
+            with open(file, 'r') as contents:
                 conditions = json.load(contents)
             if "initial conditions" in conditions and \
                len(list(conditions["initial conditions"].keys())) > 0:
@@ -62,21 +87,18 @@ def get_configuration_as_json(file_path):
                 else:
                     logger.warning(
                         "Could not find initial rates condition file")
-            if "evolving conditions" in conditions and \
-               len(list(conditions["evolving conditions"].keys())) > 0:
-                evolving_conditions = list(
-                    conditions["evolving conditions"].keys())
-                if len(evolving_conditions) > 0:
-                    evolving_conditions = evolving_conditions[0]
+            if "evolving conditions" in conditions:
+                evolving_conditions = conditions["evolving conditions"]
+                if evolving_conditions:
+                    evolving_conditions = list(evolving_conditions.keys())[0]
                     path = [f for f in files if evolving_conditions in f]
-                    if len(path) > 0:
+                    if path:
                         evolving_conditions = path[0]
                         df = pd.read_csv(evolving_conditions)
                         conditions["evolving conditions"] = df.to_dict()
                         del df
                     else:
-                        logger.warning(
-                            "Could not find initial rates condition file")
+                        logger.warning("Could not find evolving conditions file")
 
     return conditions, filter_diagnostics(mechanism)
 
@@ -103,11 +125,26 @@ def handle_extract_configuration(session_id, zipfile):
     extract_configuration(session_id, zipfile)
     return get_configuration_as_json(get_session_path(session_id))
 
+# safely save data to the database
+
+
+def safely_save_data(data):
+    for i in range(RETRY_LIMIT):
+        try:
+            with transaction.atomic():
+                data.save()
+                break
+        except DatabaseError:
+            logger.error(f"Database error: retrying in {RETRY_DELAY} seconds")
+            time.sleep(RETRY_DELAY)
+    else:
+        logger.error(f"Failed to save model after {RETRY_LIMIT} retries")
+
 
 def publish_run_request(session_id, config):
     model_run = create_model_run(session_id)
     model_run.status = RunStatus.WAITING.value
-    model_run.save()
+    safely_save_data(model_run)
     body = {"session_id": session_id, "config": config}
     publish_message(route_key='run_request', message=body)
     logger.info("published message to run_queue")
@@ -144,7 +181,7 @@ def get_results(uid):
 # create new model run
 def create_model_run(uid):
     model_run = models.ModelRun(uid=uid)
-    model_run.save()
+    safely_save_data(model_run)
     return model_run
 
 
