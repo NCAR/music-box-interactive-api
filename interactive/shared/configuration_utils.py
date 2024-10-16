@@ -9,6 +9,7 @@ from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 
+
 def get_session_path(session_id):
     '''Returns the absolute path to the configuration folder for a given session id'''
     path = os.path.join(
