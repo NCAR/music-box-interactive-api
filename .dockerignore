@@ -6,3 +6,4 @@
 !pyproject.toml
 !conftest.py
 !pytest.ini
+!init.sql
