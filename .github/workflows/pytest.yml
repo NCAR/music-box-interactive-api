@@ -25,14 +25,6 @@ jobs:
         with:
           compose-file: "./docker-compose.yml"
       
-      - name: Run migrations
-        run: |
-          docker exec api-server bash -c "
-          cd interactive &&
-          poetry run python manage.py makemigrations &&
-          poetry run python manage.py migrate"
-
-
       - name: Run pytest
         run: |
           docker compose exec -T api-server sh -c "poetry run pytest"
