@@ -188,13 +188,16 @@ def create_model_run(uid):
 # get status of a run
 def get_run_status(uid):
     error = {}
+    status = RunStatus.NOT_FOUND
+    current_time = 0.0
     try:
         model = get_model_run(uid)
         logger.debug(f"model: {model} | {model.status}")
         status = RunStatus(model.status)
         if status == RunStatus.ERROR:
             error = json.loads(model.results['error'])
+        current_time = model.current_time
     except Exception:
         status = RunStatus.NOT_FOUND
         logger.info(f"[{uid}] model run not found for user")
-    return {'status': status, 'error': error}
+    return {'status': status, 'error': error, 'current_time': current_time}
