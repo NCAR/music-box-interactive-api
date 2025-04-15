@@ -5,6 +5,7 @@ from django.db import transaction, DatabaseError
 import json
 import logging
 import os
+import re
 import time
 import pandas as pd
 from api import models
@@ -76,21 +77,30 @@ def get_configuration_as_json(file_path):
                 conditions = json.load(contents)
             if "initial conditions" in conditions and \
                len(list(conditions["initial conditions"].keys())) > 0:
-                rates_file = list(conditions["initial conditions"].keys())[0]
-                logger.debug(f"Found rates file: {rates_file}")
+                rates_file = conditions["initial conditions"]["filepaths"][0]
+                logger.info(f"Found rates file: {rates_file}")
                 path = [f for f in files if rates_file in f]
                 if len(path) > 0:
                     rates_file = path[0]
                     df = pd.read_csv(rates_file)
-                    conditions["initial conditions"] = df.to_dict()
-                    del df
+                    chemical_species = {}
+                    for col in df.columns:
+                        match = re.match(r"CONC\.(.*?) \[mol m-3\]", col)
+                        if match:
+                            species_name = match.group(1)
+                            value = df[col].iloc[0]
+                            chemical_species[species_name] = {
+                                "initial value [mol m-3]": value
+                            }
+                    conditions["chemical species"] = chemical_species                
+                    del conditions["initial conditions"]
                 else:
                     logger.warning(
                         "Could not find initial rates condition file")
             if "evolving conditions" in conditions:
                 evolving_conditions = conditions["evolving conditions"]
                 if evolving_conditions:
-                    evolving_conditions = list(evolving_conditions.keys())[0]
+                    evolving_conditions = conditions["evolving conditions"]["filepaths"][0]
                     path = [f for f in files if evolving_conditions in f]
                     if path:
                         evolving_conditions = path[0]
