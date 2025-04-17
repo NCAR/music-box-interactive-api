@@ -240,7 +240,7 @@ def make_archive(source, destination):
     base = os.path.basename(destination)
     name = base.split('.')[0]
     format = base.split('.')[1]
-    
+
     temp_dir = tempfile.mkdtemp()
     config_path = os.path.join(temp_dir, "config")
     shutil.copytree(source, config_path)
@@ -248,6 +248,7 @@ def make_archive(source, destination):
     shutil.make_archive(name, format, temp_dir, "config")
     shutil.move(f"{name}.{format}", destination)
     shutil.rmtree(temp_dir)
+
 
 def extract_configuration(session_id, zipfile):
     '''Extracts a compressed configuration'''

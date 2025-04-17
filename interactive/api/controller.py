@@ -92,7 +92,7 @@ def get_configuration_as_json(file_path):
                             chemical_species[species_name] = {
                                 "initial value [mol m-3]": value
                             }
-                    conditions["chemical species"] = chemical_species                
+                    conditions["chemical species"] = chemical_species
                     del conditions["initial conditions"]
                 else:
                     logger.warning(
