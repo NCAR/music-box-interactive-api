@@ -4,6 +4,7 @@ import numpy as np
 import os
 import pandas as pd
 import shutil
+import tempfile
 import fjson
 from zipfile import ZipFile
 
@@ -239,12 +240,14 @@ def make_archive(source, destination):
     base = os.path.basename(destination)
     name = base.split('.')[0]
     format = base.split('.')[1]
-    archive_from = os.path.dirname(source)
-    archive_to = os.path.basename(source.strip(os.sep))
-    logging.info(f"make archive {name} {format} {archive_from} {archive_to}")
-    shutil.make_archive(name, format, archive_from, archive_to)
-    shutil.move(f'{name}.{format}', os.path.dirname(destination))
+    
+    temp_dir = tempfile.mkdtemp()
+    config_path = os.path.join(temp_dir, "config")
+    shutil.copytree(source, config_path)
 
+    shutil.make_archive(name, format, temp_dir, "config")
+    shutil.move(f"{name}.{format}", destination)
+    shutil.rmtree(temp_dir)
 
 def extract_configuration(session_id, zipfile):
     '''Extracts a compressed configuration'''

@@ -159,7 +159,8 @@ def run_music_box(session_id):
 
     music_box = MusicBox()
     music_box.loadJson(config_file_path)
-    music_box.solve(output_path=output_file)
+    df = music_box.solve()
+    df.to_csv(output_file, index=False)
 
     music_box_exited_handler(session_id, working_directory)
 
