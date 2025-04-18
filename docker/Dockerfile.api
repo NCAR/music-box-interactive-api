@@ -33,8 +33,4 @@ ENV CC=gcc-14
 ENV CXXFLAGS="-Wno-error=redundant-move"
 RUN if [ "$INSTALL_PyPartMC" = "true" ]; then poetry install --all-extras; else poetry install; fi
 
-RUN poetry run python3 interactive/manage.py makemigrations
-RUN poetry run python3 interactive/manage.py migrate
-RUN poetry run python3 interactive/manage.py collectstatic --noinput
-
 EXPOSE 8000
