@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { setDuration, setTimeStep, setOutputFrequency } from '../../redux/slices/conditionsSlice'
 import { useClickOutside } from '../../hooks/useClickOutside'
 import { TIME_RANGE_UNITS } from '../Plots/timeRangeUnits'
+import { RangeBoundInput } from '../Plots/RangeBoundInput'
 
 // Matches the species name input on the Mechanism page's Species tab: a gray-ringed,
 // gray-text field with no native number spinner arrows.
@@ -78,27 +79,6 @@ export function BasicConfigTab() {
   const timeStepDivisor = getDivisor(timeStepUnitId)
   const outputFrequencyDivisor = getDivisor(outputFrequencyUnitId)
 
-  const handleDurationChange = (e) => {
-    const value = parseFloat(e.target.value)
-    if (!isNaN(value)) {
-      dispatch(setDuration(value * durationDivisor))
-    }
-  }
-
-  const handleTimeStepChange = (e) => {
-    const value = parseFloat(e.target.value)
-    if (!isNaN(value)) {
-      dispatch(setTimeStep(value * timeStepDivisor))
-    }
-  }
-
-  const handleOutputFrequencyChange = (e) => {
-    const value = parseFloat(e.target.value)
-    if (!isNaN(value)) {
-      dispatch(setOutputFrequency(value * outputFrequencyDivisor))
-    }
-  }
-
   return (
     <div className="w-fit mx-auto space-y-4">
       <Card>
@@ -113,12 +93,11 @@ export function BasicConfigTab() {
             </label>
             <div className="flex flex-col gap-2">
               <UnitDropdown unitId={durationUnitId} onChange={setDurationUnitId} />
-              <input
-                type="number"
-                value={basic.duration / durationDivisor}
-                onChange={handleDurationChange}
-                step="any"
-                min="0"
+              <RangeBoundInput
+                value={basic.duration}
+                divisor={durationDivisor}
+                min={0}
+                onCommit={(next) => dispatch(setDuration(next))}
                 className={NUMBER_INPUT}
               />
             </div>
@@ -133,12 +112,11 @@ export function BasicConfigTab() {
             </label>
             <div className="flex flex-col gap-2">
               <UnitDropdown unitId={timeStepUnitId} onChange={setTimeStepUnitId} />
-              <input
-                type="number"
-                value={basic.timeStep / timeStepDivisor}
-                onChange={handleTimeStepChange}
-                step="any"
-                min="1"
+              <RangeBoundInput
+                value={basic.timeStep}
+                divisor={timeStepDivisor}
+                min={1}
+                onCommit={(next) => dispatch(setTimeStep(next))}
                 className={NUMBER_INPUT}
               />
             </div>
@@ -153,12 +131,11 @@ export function BasicConfigTab() {
             </label>
             <div className="flex flex-col gap-2">
               <UnitDropdown unitId={outputFrequencyUnitId} onChange={setOutputFrequencyUnitId} />
-              <input
-                type="number"
-                value={basic.outputFrequency / outputFrequencyDivisor}
-                onChange={handleOutputFrequencyChange}
-                step="any"
-                min="1"
+              <RangeBoundInput
+                value={basic.outputFrequency}
+                divisor={outputFrequencyDivisor}
+                min={1}
+                onCommit={(next) => dispatch(setOutputFrequency(next))}
                 className={NUMBER_INPUT}
               />
             </div>
