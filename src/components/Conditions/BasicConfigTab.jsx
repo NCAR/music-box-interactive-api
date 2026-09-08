@@ -9,7 +9,7 @@ import { TIME_RANGE_UNITS } from '../Plots/timeRangeUnits'
 // Matches the species name input on the Mechanism page's Species tab: a gray-ringed,
 // gray-text field with no native number spinner arrows.
 const NUMBER_INPUT =
-  'w-64 h-8 px-2 border border-gray-400 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm text-center font-mono focus:outline-none focus:border-green-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+  'w-72 h-9 px-2 border border-gray-400 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm text-center font-mono focus:outline-none focus:border-green-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
 
 // Unit dropdown sitting to the left of a field's input, sharing the same TIME_RANGE_UNITS
 // (hours/seconds) used by the Flux tab's time range picker.
@@ -21,11 +21,11 @@ function UnitDropdown({ unitId, onChange }) {
   const unit = TIME_RANGE_UNITS.find((u) => u.id === unitId) ?? TIME_RANGE_UNITS[0]
 
   return (
-    <div className="relative flex-shrink-0 w-64" ref={menuRef}>
+    <div className="relative flex-shrink-0 w-72" ref={menuRef}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 w-full h-8 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50"
+        className="flex items-center gap-1 w-full h-9 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50"
       >
         <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 invisible" />
         <span className="flex-1 text-center">{unit.label}</span>
