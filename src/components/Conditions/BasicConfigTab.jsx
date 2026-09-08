@@ -107,11 +107,11 @@ export function BasicConfigTab() {
           <CardDescription>Configure how long the simulation runs and its temporal resolution</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <div className="w-72 mx-auto">
+            <label className="block text-base font-semibold text-gray-900 mb-2">
               Simulation Time
             </label>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col gap-2">
               <UnitDropdown unitId={durationUnitId} onChange={setDurationUnitId} />
               <input
                 type="number"
@@ -127,11 +127,11 @@ export function BasicConfigTab() {
             </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <div className="w-72 mx-auto">
+            <label className="block text-base font-semibold text-gray-900 mb-2">
               Time Step
             </label>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col gap-2">
               <UnitDropdown unitId={timeStepUnitId} onChange={setTimeStepUnitId} />
               <input
                 type="number"
@@ -147,11 +147,11 @@ export function BasicConfigTab() {
             </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <div className="w-72 mx-auto">
+            <label className="block text-base font-semibold text-gray-900 mb-2">
               Output Time Step
             </label>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col gap-2">
               <UnitDropdown unitId={outputFrequencyUnitId} onChange={setOutputFrequencyUnitId} />
               <input
                 type="number"
