@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Info } from 'lucide-react'
+import { PencilLine } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { setDuration, setTimeStep, setOutputFrequency } from '../../redux/slices/conditionsSlice'
 import { RangeBoundInput } from '../Plots/RangeBoundInput'
 import { UnitDropdown } from '../Plots/UnitDropdown'
 import { TIME_RANGE_UNITS, formatBound } from '../Plots/timeRangeUnits'
 
-// Matches the species name input on the Mechanism page's Species tab: a gray-ringed,
-// gray-text field with no native number spinner arrows.
 const NUMBER_INPUT =
   'w-72 h-9 px-2 border border-gray-400 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm text-center font-mono focus:outline-none focus:border-green-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
 
@@ -20,9 +18,8 @@ function getUnit(unitId) {
   return TIME_RANGE_UNITS.find((u) => u.id === unitId) ?? TIME_RANGE_UNITS[0]
 }
 
-// Total steps / output points can't be computed from a zero, negative, or non-finite
-// denominator -- a malformed uploaded config can produce one, since only this tab's own
-// inputs (not the config loaders) clamp duration/timeStep/outputFrequency to sane ranges.
+// Total steps/output points require a positive, finite denominator. Malformed configs can
+// violate this because config loaders don't clamp duration/timeStep/outputFrequency.
 function computeCount(numerator, denominator, offset = 0) {
   if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
     return 'N/A'
@@ -110,9 +107,9 @@ export function BasicConfigTab() {
         </CardContent>
       </Card>
 
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 text-[13px] text-gray-700">
+      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-2 text-[13px] text-gray-700">
         <p className="font-semibold mb-1 flex items-center gap-2">
-          <Info className="w-4 h-4" />
+          <PencilLine className="w-4 h-4" />
           Summary:
         </p>
         <ul className="space-y-0.5 ml-4">

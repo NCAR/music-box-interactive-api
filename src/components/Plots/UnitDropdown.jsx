@@ -3,7 +3,7 @@ import { ChevronDown, Check } from 'lucide-react'
 import { useClickOutside } from '../../hooks/useClickOutside'
 import { TIME_RANGE_UNITS } from './timeRangeUnits'
 
-// Shared hours/seconds unit picker used by any field whose value can be viewed in either unit
+// Shared hours/seconds unit picker for fields that support either unit
 // (the Flux tab's time range, the Conditions tab's duration/time step/output time step).
 export function UnitDropdown({
   unitId,
