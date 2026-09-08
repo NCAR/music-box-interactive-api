@@ -100,8 +100,8 @@ export function BasicConfigTab() {
   }
 
   return (
-    <div className="space-y-4">
-      <Card className="w-fit mx-auto">
+    <div className="w-fit mx-auto space-y-4">
+      <Card>
         <CardHeader>
           <CardTitle>Simulation Time</CardTitle>
           <CardDescription>Configure how long the simulation runs and its temporal resolution</CardDescription>
@@ -109,7 +109,7 @@ export function BasicConfigTab() {
         <CardContent className="space-y-4">
           <div className="w-72 mx-auto">
             <label className="block text-base font-semibold text-gray-900 mb-2">
-              Simulation Time
+              Simulation time
             </label>
             <div className="flex flex-col gap-2">
               <UnitDropdown unitId={durationUnitId} onChange={setDurationUnitId} />
@@ -123,13 +123,13 @@ export function BasicConfigTab() {
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Total simulation time: {basic.duration} seconds
+              Set how long you want the simulation to run
             </p>
           </div>
 
           <div className="w-72 mx-auto">
             <label className="block text-base font-semibold text-gray-900 mb-2">
-              Time Step
+              Time step
             </label>
             <div className="flex flex-col gap-2">
               <UnitDropdown unitId={timeStepUnitId} onChange={setTimeStepUnitId} />
@@ -143,13 +143,13 @@ export function BasicConfigTab() {
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Smaller timesteps = more accurate but slower
+              Set the time interval between steps
             </p>
           </div>
 
           <div className="w-72 mx-auto">
             <label className="block text-base font-semibold text-gray-900 mb-2">
-              Output Time Step
+              Output time step
             </label>
             <div className="flex flex-col gap-2">
               <UnitDropdown unitId={outputFrequencyUnitId} onChange={setOutputFrequencyUnitId} />
@@ -163,7 +163,7 @@ export function BasicConfigTab() {
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Save output every {basic.outputFrequency} timesteps
+              Save output every {basic.outputFrequency} seconds
             </p>
           </div>
         </CardContent>
@@ -172,12 +172,12 @@ export function BasicConfigTab() {
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 text-xs text-gray-700">
         <p className="font-semibold mb-1 flex items-center gap-2">
           <Info className="w-4 h-4" />
-          Configuration Summary:
+          Summary:
         </p>
         <ul className="space-y-0.5 ml-4">
           <li>• Total steps: {Math.floor(basic.duration / basic.timeStep)}</li>
           <li>
-            • Output points: ~{Math.floor(basic.duration / basic.timeStep / basic.outputFrequency)}
+            • Output points: {Math.floor(basic.duration / basic.outputFrequency) + 1}
           </li>
           <li>• Simulation end time: {(basic.duration / 3600).toFixed(2)} hours</li>
         </ul>
