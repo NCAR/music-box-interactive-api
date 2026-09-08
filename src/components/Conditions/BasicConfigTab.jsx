@@ -36,8 +36,8 @@ export function BasicConfigTab() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Simulation Duration</CardTitle>
-          <CardDescription>Configure how long the simulation runs</CardDescription>
+          <CardTitle>Simulation Time</CardTitle>
+          <CardDescription>Configure how long the simulation runs and its temporal resolution</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -56,15 +56,7 @@ export function BasicConfigTab() {
               Total simulation time: {basic.duration} seconds
             </p>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Time Step Configuration</CardTitle>
-          <CardDescription>Control the temporal resolution of the simulation</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-blue-900 mb-2">
               Time Step (seconds)
