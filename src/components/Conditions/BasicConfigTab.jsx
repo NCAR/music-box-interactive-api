@@ -1,7 +1,66 @@
+import { useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { ChevronDown, Check, Info } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { setDuration, setTimeStep, setOutputFrequency } from '../../redux/slices/conditionsSlice'
-import { Info } from 'lucide-react'
+import { useClickOutside } from '../../hooks/useClickOutside'
+import { TIME_RANGE_UNITS } from '../Plots/timeRangeUnits'
+
+// Matches the species name input on the Mechanism page's Species tab: a gray-ringed,
+// gray-text field with no native number spinner arrows.
+const NUMBER_INPUT =
+  'w-64 h-8 px-2 border border-gray-400 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm text-center font-mono focus:outline-none focus:border-green-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+
+// Unit dropdown sitting to the left of a field's input, sharing the same TIME_RANGE_UNITS
+// (hours/seconds) used by the Flux tab's time range picker.
+function UnitDropdown({ unitId, onChange }) {
+  const [open, setOpen] = useState(false)
+  const menuRef = useRef(null)
+  useClickOutside(menuRef, () => setOpen(false), open)
+
+  const unit = TIME_RANGE_UNITS.find((u) => u.id === unitId) ?? TIME_RANGE_UNITS[0]
+
+  return (
+    <div className="relative flex-shrink-0 w-64" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 w-full h-8 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50"
+      >
+        <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 invisible" />
+        <span className="flex-1 text-center">{unit.label}</span>
+        <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" />
+      </button>
+
+      {open && (
+        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg py-1">
+          {TIME_RANGE_UNITS.map((u) => (
+            <button
+              key={u.id}
+              type="button"
+              onClick={() => {
+                onChange(u.id)
+                setOpen(false)
+              }}
+              className="w-full flex items-center gap-2 text-left text-sm px-3 py-1.5 text-gray-800 hover:bg-gray-100"
+            >
+              <Check
+                className={`w-3.5 h-3.5 flex-shrink-0 ${
+                  unitId === u.id ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+              {u.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function getDivisor(unitId) {
+  return (TIME_RANGE_UNITS.find((u) => u.id === unitId) ?? TIME_RANGE_UNITS[0]).divisor
+}
 
 /**
  * BasicConfigTab Component
@@ -11,81 +70,98 @@ export function BasicConfigTab() {
   const dispatch = useDispatch()
   const basic = useSelector((state) => state.conditions.basic)
 
+  const [durationUnitId, setDurationUnitId] = useState('hours')
+  const [timeStepUnitId, setTimeStepUnitId] = useState('seconds')
+  const [outputFrequencyUnitId, setOutputFrequencyUnitId] = useState('seconds')
+
+  const durationDivisor = getDivisor(durationUnitId)
+  const timeStepDivisor = getDivisor(timeStepUnitId)
+  const outputFrequencyDivisor = getDivisor(outputFrequencyUnitId)
+
   const handleDurationChange = (e) => {
-    const hours = parseFloat(e.target.value)
-    if (!isNaN(hours)) {
-      dispatch(setDuration(hours * 3600)) // Convert hours to seconds
+    const value = parseFloat(e.target.value)
+    if (!isNaN(value)) {
+      dispatch(setDuration(value * durationDivisor))
     }
   }
 
   const handleTimeStepChange = (e) => {
     const value = parseFloat(e.target.value)
     if (!isNaN(value)) {
-      dispatch(setTimeStep(value))
+      dispatch(setTimeStep(value * timeStepDivisor))
     }
   }
 
   const handleOutputFrequencyChange = (e) => {
-    const value = parseInt(e.target.value)
+    const value = parseFloat(e.target.value)
     if (!isNaN(value)) {
-      dispatch(setOutputFrequency(value))
+      dispatch(setOutputFrequency(value * outputFrequencyDivisor))
     }
   }
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="w-fit mx-auto">
         <CardHeader>
           <CardTitle>Simulation Time</CardTitle>
           <CardDescription>Configure how long the simulation runs and its temporal resolution</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-blue-900 mb-2">
-              Duration (hours)
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Simulation Time
             </label>
-            <input
-              type="number"
-              value={basic.duration / 3600}
-              onChange={handleDurationChange}
-              step="0.1"
-              min="0"
-              className="w-full px-3 py-2 border-2 border-white/30 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            />
+            <div className="flex flex-col items-center gap-2">
+              <UnitDropdown unitId={durationUnitId} onChange={setDurationUnitId} />
+              <input
+                type="number"
+                value={basic.duration / durationDivisor}
+                onChange={handleDurationChange}
+                step="any"
+                min="0"
+                className={NUMBER_INPUT}
+              />
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               Total simulation time: {basic.duration} seconds
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-blue-900 mb-2">
-              Time Step (seconds)
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Time Step
             </label>
-            <input
-              type="number"
-              value={basic.timeStep}
-              onChange={handleTimeStepChange}
-              step="10"
-              min="1"
-              className="w-full px-3 py-2 border-2 border-white/30 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            />
+            <div className="flex flex-col items-center gap-2">
+              <UnitDropdown unitId={timeStepUnitId} onChange={setTimeStepUnitId} />
+              <input
+                type="number"
+                value={basic.timeStep / timeStepDivisor}
+                onChange={handleTimeStepChange}
+                step="any"
+                min="1"
+                className={NUMBER_INPUT}
+              />
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               Smaller timesteps = more accurate but slower
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-blue-900 mb-2">
-              Output Frequency
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Output Time Step
             </label>
-            <input
-              type="number"
-              value={basic.outputFrequency}
-              onChange={handleOutputFrequencyChange}
-              step="1"
-              min="1"
-              className="w-full px-3 py-2 border-2 border-white/30 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-            />
+            <div className="flex flex-col items-center gap-2">
+              <UnitDropdown unitId={outputFrequencyUnitId} onChange={setOutputFrequencyUnitId} />
+              <input
+                type="number"
+                value={basic.outputFrequency / outputFrequencyDivisor}
+                onChange={handleOutputFrequencyChange}
+                step="any"
+                min="1"
+                className={NUMBER_INPUT}
+              />
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               Save output every {basic.outputFrequency} timesteps
             </p>
