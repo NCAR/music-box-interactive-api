@@ -146,17 +146,14 @@ export function BasicConfigTab() {
         </CardContent>
       </Card>
 
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 text-xs text-gray-700">
+      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 text-[13px] text-gray-700">
         <p className="font-semibold mb-1 flex items-center gap-2">
           <Info className="w-4 h-4" />
           Summary:
         </p>
         <ul className="space-y-0.5 ml-4">
           <li>• Total steps: {Math.floor(basic.duration / basic.timeStep)}</li>
-          <li>
-            • Output points: {Math.floor(basic.duration / basic.outputFrequency) + 1}
-          </li>
-          <li>• Simulation end time: {(basic.duration / 3600).toFixed(2)} hours</li>
+          <li>• Output points: {Math.floor(basic.duration / basic.outputFrequency) + 1}</li>
         </ul>
       </div>
     </div>
