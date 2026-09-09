@@ -16,7 +16,7 @@ export function ConditionsPage() {
   const [activeTab, setActiveTab] = useState('basic') // 'basic' | 'initial' | 'evolving' | 'review'
 
   const tabs = [
-    { id: 'basic', label: 'General', component: BasicConfigTab },
+    { id: 'basic', label: 'Time', component: BasicConfigTab },
     { id: 'initial', label: 'Initial', component: InitialConditionsTab },
     { id: 'evolving', label: 'Evolving', component: EvolvingConditionsTab },
     { id: 'review', label: 'Review', component: ReviewTab },

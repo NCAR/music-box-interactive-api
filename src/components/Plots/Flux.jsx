@@ -13,6 +13,7 @@ import { REACTION_COMPONENT_KEYS } from '../../services/simulation/local/mechani
 import { ITEM_PANEL } from '../Mechanism/fieldStyles'
 import { RangeBoundInput } from './RangeBoundInput'
 import { TIME_RANGE_UNITS } from './timeRangeUnits'
+import { UnitDropdown } from './UnitDropdown'
 import { Card, CardContent } from '../ui/card'
 
 // Species rows shown before the list collapses into a "+N others" popover.
@@ -173,7 +174,6 @@ export function Flux() {
   const [speciesOverflowOpen, setSpeciesOverflowOpen] = useState(false)
   const [timeRange, setTimeRange] = useState({ start: 0, end: duration })
   const [timeRangeUnitId, setTimeRangeUnitId] = useState('seconds')
-  const [timeRangeUnitMenuOpen, setTimeRangeUnitMenuOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState('desc')
   const [sortMenuOpen, setSortMenuOpen] = useState(false)
 
@@ -185,14 +185,8 @@ export function Flux() {
 
   const speciesOverflowRef = useRef(null)
   const sortMenuRef = useRef(null)
-  const timeRangeUnitMenuRef = useRef(null)
   useClickOutside(speciesOverflowRef, () => setSpeciesOverflowOpen(false), speciesOverflowOpen)
   useClickOutside(sortMenuRef, () => setSortMenuOpen(false), sortMenuOpen)
-  useClickOutside(
-    timeRangeUnitMenuRef,
-    () => setTimeRangeUnitMenuOpen(false),
-    timeRangeUnitMenuOpen
-  )
 
   const timeRangeUnit =
     TIME_RANGE_UNITS.find((unit) => unit.id === timeRangeUnitId) ?? TIME_RANGE_UNITS[0]
@@ -487,44 +481,13 @@ export function Flux() {
 
               {timeRangeOpen && (
                 <div className="flex flex-col gap-2">
-                  <div className="relative" ref={timeRangeUnitMenuRef}>
-                    <button
-                      type="button"
-                      onClick={() => setTimeRangeUnitMenuOpen((open) => !open)}
-                      className="flex items-center gap-1 w-full h-8 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50"
-                    >
-                      <span className="flex-1 text-center">{timeRangeUnit.label}</span>
-                      <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" />
-                    </button>
-
-                    {timeRangeUnitMenuOpen && (
-                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg py-1">
-                        {TIME_RANGE_UNITS.map((unit) => (
-                          <button
-                            key={unit.id}
-                            type="button"
-                            onClick={() => {
-                              setTimeRangeUnitId(unit.id)
-                              setTimeRangeUnitMenuOpen(false)
-                            }}
-                            className="w-full flex items-center gap-2 text-left text-sm px-3 py-1.5 text-gray-800 hover:bg-gray-100"
-                          >
-                            <Check
-                              className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                timeRangeUnitId === unit.id ? 'opacity-100' : 'opacity-0'
-                              }`}
-                            />
-                            {unit.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <UnitDropdown unitId={timeRangeUnitId} onChange={setTimeRangeUnitId} />
 
                   <div className="flex items-center border border-gray-300 rounded-lg bg-white">
                     <RangeBoundInput
                       value={timeRange.start}
                       divisor={timeRangeUnit.divisor}
+                      decimals={4}
                       min={0}
                       max={timeRange.end}
                       onCommit={(start) => setTimeRange({ start, end: timeRange.end })}
@@ -536,6 +499,7 @@ export function Flux() {
                     <RangeBoundInput
                       value={timeRange.end}
                       divisor={timeRangeUnit.divisor}
+                      decimals={4}
                       min={timeRange.start}
                       max={duration}
                       onCommit={(end) => setTimeRange({ start: timeRange.start, end })}

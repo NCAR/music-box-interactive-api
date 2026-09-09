@@ -3,8 +3,17 @@ import { formatBound } from './timeRangeUnits'
 
 // Displays values in the selected time unit while storing them in seconds.
 // Clamps commits to [min, max] to prevent the range start from exceeding the end.
-export function RangeBoundInput({ value, divisor = 1, onCommit, className, sigDigits, min, max }) {
-  const displayValue = formatBound(value, divisor, sigDigits)
+export function RangeBoundInput({
+  value,
+  divisor = 1,
+  onCommit,
+  className,
+  sigDigits,
+  decimals,
+  min,
+  max,
+}) {
+  const displayValue = formatBound(value, divisor, sigDigits, decimals)
   const [draft, setDraft] = useState(displayValue)
 
   useEffect(() => {
@@ -28,7 +37,7 @@ export function RangeBoundInput({ value, divisor = 1, onCommit, className, sigDi
 
     // Re-sync the draft after clamping: state may already contain the clamped value, so the
     // unchanged value prop won't trigger the effect to replace the out-of-range input.
-    setDraft(formatBound(next, divisor, sigDigits))
+    setDraft(formatBound(next, divisor, sigDigits, decimals))
     onCommit(next)
   }
 
