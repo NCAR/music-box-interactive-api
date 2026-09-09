@@ -51,7 +51,7 @@ const FIELDS = [
     action: setOutputFrequency,
     defaultUnit: 'seconds',
     help: (value, divisor, unit) =>
-      `Save output every ${formatBound(value, divisor)} ${unit.label.toLowerCase()}`,
+      `Save output every ${formatBound(value, divisor, null, 2)} ${unit.label.toLowerCase()}`,
   },
 ]
 
@@ -95,6 +95,7 @@ export function BasicConfigTab() {
                   <RangeBoundInput
                     value={value}
                     divisor={unit.divisor}
+                    decimals={2}
                     min={field.min}
                     onCommit={(next) => dispatch(field.action(next))}
                     className={NUMBER_INPUT}
