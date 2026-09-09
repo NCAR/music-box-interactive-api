@@ -22,8 +22,6 @@ export function ConditionsPage() {
     { id: 'review', label: 'Review', component: ReviewTab },
   ]
 
-  const ActiveComponent = tabs.find((t) => t.id === activeTab)?.component
-
   return (
     <div className="space-y-4">
       {/* Tab Navigation */}
@@ -48,8 +46,12 @@ export function ConditionsPage() {
         </CardContent>
       </Card>
 
-      {/* Active Tab Content */}
-      {ActiveComponent && <ActiveComponent />}
+      {/* Tab Content — all tabs stay mounted so switching away and back doesn't reset local state */}
+      {tabs.map(({ id, component: TabComponent }) => (
+        <div key={id} className={activeTab === id ? '' : 'hidden'}>
+          <TabComponent />
+        </div>
+      ))}
     </div>
   )
 }
