@@ -56,10 +56,10 @@ const FIELDS = [
 ]
 
 /**
- * BasicConfigTab Component
+ * TimeTab Component
  * Manages basic simulation configuration (duration, timestep, output frequency)
  */
-export function BasicConfigTab() {
+export function TimeTab() {
   const dispatch = useDispatch()
   const basic = useSelector((state) => state.conditions.basic)
 
@@ -122,4 +122,4 @@ export function BasicConfigTab() {
   )
 }
 
-export default BasicConfigTab
+export default TimeTab

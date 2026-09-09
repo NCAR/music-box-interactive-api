@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent } from '../ui/card'
 import { Button } from '../ui/button'
 import {
-  BasicConfigTab,
+  TimeTab,
   InitialConditionsTab,
   EvolvingConditionsTab,
   ReviewTab,
@@ -13,10 +13,10 @@ import {
  * Main page for configuring simulation conditions with 4 tabs
  */
 export function ConditionsPage() {
-  const [activeTab, setActiveTab] = useState('basic') // 'basic' | 'initial' | 'evolving' | 'review'
+  const [activeTab, setActiveTab] = useState('time') // 'time' | 'initial' | 'evolving' | 'review'
 
   const tabs = [
-    { id: 'basic', label: 'Time', component: BasicConfigTab },
+    { id: 'time', label: 'Time', component: TimeTab },
     { id: 'initial', label: 'Initial', component: InitialConditionsTab },
     { id: 'evolving', label: 'Evolving', component: EvolvingConditionsTab },
     { id: 'review', label: 'Review', component: ReviewTab },
