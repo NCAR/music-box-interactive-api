@@ -487,6 +487,7 @@ export function Flux() {
                     <RangeBoundInput
                       value={timeRange.start}
                       divisor={timeRangeUnit.divisor}
+                      decimals={4}
                       min={0}
                       max={timeRange.end}
                       onCommit={(start) => setTimeRange({ start, end: timeRange.end })}
@@ -498,6 +499,7 @@ export function Flux() {
                     <RangeBoundInput
                       value={timeRange.end}
                       divisor={timeRangeUnit.divisor}
+                      decimals={4}
                       min={timeRange.start}
                       max={duration}
                       onCommit={(end) => setTimeRange({ start: timeRange.start, end })}
