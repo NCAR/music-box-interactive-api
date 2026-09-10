@@ -35,6 +35,12 @@ const DROPDOWN_WRAPPER = 'relative w-72 flex-shrink-0'
 const DROPDOWN_BUTTON =
   'flex items-center gap-1 w-full h-9 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50'
 
+// Matches each field's placeholder; used when the user leaves that field blank.
+const DEFAULT_TIME = 0
+const DEFAULT_TEMPERATURE = 298.15
+const DEFAULT_PRESSURE = 101325
+const DEFAULT_DENSITY = 1.225
+
 function getUnit(units, unitId) {
   return units.find((u) => u.id === unitId) ?? units[0]
 }
@@ -80,21 +86,15 @@ export function EnvironmentTab() {
   const [newDensity, setNewDensity] = useState('')
 
   const handleAdd = () => {
-    if (!newTime || !newTemperature || !newPressure || (densityEnabled && !newDensity)) {
-      toast({
-        title: 'Missing Fields',
-        description: densityEnabled
-          ? 'Please fill in time, temperature, pressure, and air density values'
-          : 'Please fill in time, temperature, and pressure values',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    const rawTime = parseFloat(newTime)
-    const rawTemperature = parseFloat(newTemperature)
-    const rawPressure = parseFloat(newPressure)
-    const rawDensity = densityEnabled ? parseFloat(newDensity) : null
+    const rawTime = newTime.trim() === '' ? DEFAULT_TIME : parseFloat(newTime)
+    const rawTemperature =
+      newTemperature.trim() === '' ? DEFAULT_TEMPERATURE : parseFloat(newTemperature)
+    const rawPressure = newPressure.trim() === '' ? DEFAULT_PRESSURE : parseFloat(newPressure)
+    const rawDensity = densityEnabled
+      ? newDensity.trim() === ''
+        ? DEFAULT_DENSITY
+        : parseFloat(newDensity)
+      : null
 
     if (
       isNaN(rawTime) ||
@@ -122,7 +122,7 @@ export function EnvironmentTab() {
     if (evolving.times.includes(time)) {
       toast({
         title: 'Duplicate Time Point',
-        description: `A condition already exists at t=${rawTime}${timeUnit.label}`,
+        description: `A condition already exists at t=${rawTime} ${timeUnit.label}`,
         variant: 'destructive',
       })
       return
