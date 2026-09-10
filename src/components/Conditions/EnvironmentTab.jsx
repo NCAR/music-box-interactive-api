@@ -190,10 +190,10 @@ export function EnvironmentTab() {
       <Card className="w-fit">
         <CardHeader>
           <CardTitle>Environment condition</CardTitle>
-          <CardDescription>Define temperature and pressure at a point in time</CardDescription>
+          <CardDescription>Set temperature and pressure, with optional air density</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
+          <div className="w-72 mx-auto">
             <label className={FIELD_LABEL}>Time</label>
             <div className="flex flex-col gap-2">
               <UnitDropdown
@@ -215,7 +215,7 @@ export function EnvironmentTab() {
             </div>
           </div>
 
-          <div>
+          <div className="w-72 mx-auto">
             <label className={FIELD_LABEL}>Temperature</label>
             <div className="flex flex-col gap-2">
               <UnitDropdown
@@ -237,7 +237,7 @@ export function EnvironmentTab() {
             </div>
           </div>
 
-          <div>
+          <div className="w-72 mx-auto">
             <label className={FIELD_LABEL}>Pressure</label>
             <div className="flex flex-col gap-2">
               <UnitDropdown
@@ -259,7 +259,7 @@ export function EnvironmentTab() {
             </div>
           </div>
 
-          <div>
+          <div className="w-72 mx-auto">
             <Toggle
               checked={densityEnabled}
               label="Air density"
@@ -287,9 +287,12 @@ export function EnvironmentTab() {
               </div>
             )}
           </div>
-
+          <div className="h-0.5"/>
           <div className="mt-8 flex justify-center">
-            <Button onClick={handleAdd} variant="assistSecondary" size="lg" className="text-base">
+            <Button
+              onClick={handleAdd}
+              variant="assistSecondary"
+              className="h-9 px-8 text-base">
               Add condition
             </Button>
           </div>
