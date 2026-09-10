@@ -13,7 +13,7 @@ import {
 } from '../../redux/slices/conditionsSlice'
 import { UnitDropdown } from '../Plots/UnitDropdown'
 import { TIME_RANGE_UNITS } from '../Plots/timeRangeUnits'
-import { TEMPERATURE_UNITS, toKelvin, fromKelvin } from '../Plots/temperatureUnits'
+import { TEMPERATURE_UNITS, toKelvin } from '../Plots/temperatureUnits'
 import { PRESSURE_UNITS } from '../Plots/pressureUnits'
 import { DENSITY_UNITS } from '../Plots/densityUnits'
 import { LIST_CARD, LIST_CARD_CONTENT, FIELD_LABEL } from '../Mechanism/fieldStyles'
@@ -45,6 +45,11 @@ function getUnit(units, unitId) {
   return units.find((u) => u.id === unitId) ?? units[0]
 }
 
+// Trims float noise (e.g. 1.5 * 3600 -> "5400" instead of "5400.000000001").
+function formatConversion(value, decimals = 4) {
+  return String(parseFloat(value.toFixed(decimals)))
+}
+
 function insertAdditionalSeriesValue(series, insertIndex, value = null) {
   return Object.fromEntries(
     Object.entries(series || {}).map(([name, values]) => {
@@ -55,11 +60,11 @@ function insertAdditionalSeriesValue(series, insertIndex, value = null) {
   )
 }
 
-function removeAdditionalSeriesValue(series, removeIndex) {
+function removeAdditionalSeriesValues(series, removeIndices) {
   return Object.fromEntries(
     Object.entries(series || {}).map(([name, values]) => [
       name,
-      (Array.isArray(values) ? values : []).filter((_, index) => index !== removeIndex),
+      (Array.isArray(values) ? values : []).filter((_, index) => !removeIndices.has(index)),
     ])
   )
 }
@@ -84,6 +89,7 @@ export function EnvironmentTab() {
   const [newPressure, setNewPressure] = useState('')
   const [densityEnabled, setDensityEnabled] = useState(false)
   const [newDensity, setNewDensity] = useState('')
+  const [selectedIndices, setSelectedIndices] = useState(new Set())
 
   const handleAdd = () => {
     const rawTime = newTime.trim() === '' ? DEFAULT_TIME : parseFloat(newTime)
@@ -166,12 +172,34 @@ export function EnvironmentTab() {
     setNewDensity('')
   }
 
-  const handleRemove = (index) => {
-    const removedTime = evolving.times[index]
-    const newTimes = evolving.times.filter((_, i) => i !== index)
-    const newTemps = evolving.temperature.filter((_, i) => i !== index)
-    const newPresses = evolving.pressure.filter((_, i) => i !== index)
-    const newAdditionalSeries = removeAdditionalSeriesValue(evolving.additionalSeries, index)
+  const toggleSelected = (index) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+      }
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    setSelectedIndices((prev) =>
+      prev.size === evolving.times.length
+        ? new Set()
+        : new Set(evolving.times.map((_, index) => index))
+    )
+  }
+
+  const handleRemoveSelected = () => {
+    if (selectedIndices.size === 0) return
+
+    const removedCount = selectedIndices.size
+    const newTimes = evolving.times.filter((_, i) => !selectedIndices.has(i))
+    const newTemps = evolving.temperature.filter((_, i) => !selectedIndices.has(i))
+    const newPresses = evolving.pressure.filter((_, i) => !selectedIndices.has(i))
+    const newAdditionalSeries = removeAdditionalSeriesValues(evolving.additionalSeries, selectedIndices)
 
     dispatch(setEvolvingTimes(newTimes))
     dispatch(setEvolvingTemperature(newTemps))
@@ -179,11 +207,32 @@ export function EnvironmentTab() {
     dispatch(setEvolvingAdditionalSeries(newAdditionalSeries))
 
     toast({
-      title: 'Condition Removed',
-      description: `Removed condition at t=${removedTime}s`,
+      title: removedCount === 1 ? 'Condition Removed' : 'Conditions Removed',
+      description: `Removed ${removedCount} condition${removedCount === 1 ? '' : 's'}`,
       variant: 'delete',
     })
+
+    setSelectedIndices(new Set())
   }
+
+  // Live "will be stored as" hints, shown only when a non-base unit is selected.
+  const parsedNewTime = parseFloat(newTime)
+  const timeConversion =
+    unitIds.time !== 'seconds' && newTime.trim() !== '' && !isNaN(parsedNewTime)
+      ? `= ${formatConversion(parsedNewTime * getUnit(TIME_RANGE_UNITS, unitIds.time).divisor)} seconds`
+      : null
+
+  const parsedNewTemperature = parseFloat(newTemperature)
+  const temperatureConversion =
+    unitIds.temperature !== 'K' && newTemperature.trim() !== '' && !isNaN(parsedNewTemperature)
+      ? `= ${formatConversion(toKelvin(parsedNewTemperature, unitIds.temperature))} K`
+      : null
+
+  const parsedNewPressure = parseFloat(newPressure)
+  const pressureConversion =
+    unitIds.pressure !== 'Pa' && newPressure.trim() !== '' && !isNaN(parsedNewPressure)
+      ? `= ${formatConversion(parsedNewPressure * getUnit(PRESSURE_UNITS, unitIds.pressure).divisor)} Pa`
+      : null
 
   return (
     <div className={EDITOR_GRID}>
@@ -212,6 +261,7 @@ export function EnvironmentTab() {
                 placeholder="0"
                 className={NUMBER_INPUT}
               />
+              {timeConversion && <p className="text-xs text-gray-500 text-center">{timeConversion}</p>}
             </div>
           </div>
 
@@ -234,6 +284,9 @@ export function EnvironmentTab() {
                 placeholder="298.15"
                 className={NUMBER_INPUT}
               />
+              {temperatureConversion && (
+                <p className="text-xs text-gray-500 text-center">{temperatureConversion}</p>
+              )}
             </div>
           </div>
 
@@ -256,6 +309,9 @@ export function EnvironmentTab() {
                 placeholder="101325"
                 className={NUMBER_INPUT}
               />
+              {pressureConversion && (
+                <p className="text-xs text-gray-500 text-center">{pressureConversion}</p>
+              )}
             </div>
           </div>
 
@@ -301,8 +357,24 @@ export function EnvironmentTab() {
 
       <Card className={LIST_CARD}>
         <CardHeader>
-          <CardTitle>{evolving.times.length} condition{evolving.times.length === 1 ? '' : 's'}</CardTitle>
-          <CardDescription>Conditions added, sorted by time</CardDescription>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <CardTitle>
+                {evolving.times.length} condition{evolving.times.length === 1 ? '' : 's'}
+              </CardTitle>
+              <CardDescription>Conditions added, sorted by time</CardDescription>
+            </div>
+            {selectedIndices.size > 0 && (
+              <Button
+                variant="glass"
+                size="sm"
+                onClick={handleRemoveSelected}
+                className="rounded-lg text-red-600 hover:bg-red-900/20 backdrop-blur-lg flex-shrink-0"
+              >
+                Remove selected ({selectedIndices.size})
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className={LIST_CARD_CONTENT}>
           {evolving.times.length === 0 ? (
@@ -310,47 +382,62 @@ export function EnvironmentTab() {
               No conditions added. Add your first condition on the left.
             </p>
           ) : (
-            <div className="space-y-2 overflow-y-auto">
-              {evolving.times.map((time, index) => {
-                const densitySeries = evolving.additionalSeries?.[DENSITY_SERIES_KEY]
-                const density = densitySeries?.[index]
-                const hasDensityColumn = Array.isArray(densitySeries) && densitySeries.some((v) => v != null)
+            (() => {
+              const densitySeries = evolving.additionalSeries?.[DENSITY_SERIES_KEY]
+              const hasDensityColumn = Array.isArray(densitySeries) && densitySeries.some((v) => v != null)
+              const allSelected = selectedIndices.size === evolving.times.length
 
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 border border-white/20 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                  >
-                    <div
-                      className={`flex-1 grid ${hasDensityColumn ? 'grid-cols-4' : 'grid-cols-3'} gap-2 text-sm font-mono`}
-                    >
-                      <div>{time}s</div>
-                      <div>
-                        {evolving.temperature[index]}K
-                        <span className="text-xs text-gray-500 ml-1">
-                          ({fromKelvin(evolving.temperature[index], 'C').toFixed(1)}°C)
-                        </span>
-                      </div>
-                      <div>
-                        {evolving.pressure[index]}Pa
-                        <span className="text-xs text-gray-500 ml-1">
-                          ({(evolving.pressure[index] / 101325).toFixed(2)} atm)
-                        </span>
-                      </div>
-                      {hasDensityColumn && <div>{density != null ? `${density} kg/m³` : '—'}</div>}
-                    </div>
-                    <Button
-                      variant="glass"
-                      size="sm"
-                      onClick={() => handleRemove(index)}
-                      className="rounded-lg text-red-600 hover:bg-red-900/20 backdrop-blur-lg"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                )
-              })}
-            </div>
+              return (
+                <div className="border border-white/20 rounded-lg overflow-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-white/10 backdrop-blur-lg border-b border-white/20">
+                      <tr>
+                        <th className="w-10 px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={allSelected}
+                            onChange={toggleSelectAll}
+                            aria-label="Select all conditions"
+                          />
+                        </th>
+                        <th className="text-left px-4 py-2 font-semibold">Time (s)</th>
+                        <th className="text-left px-4 py-2 font-semibold">Temperature (K)</th>
+                        <th className="text-left px-4 py-2 font-semibold">Pressure (Pa)</th>
+                        {hasDensityColumn && (
+                          <th className="text-left px-4 py-2 font-semibold">Air density (kg/m³)</th>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {evolving.times.map((time, index) => {
+                        const density = densitySeries?.[index]
+
+                        return (
+                          <tr key={index} className="border-b border-white/10 hover:bg-white/10">
+                            <td className="px-4 py-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedIndices.has(index)}
+                                onChange={() => toggleSelected(index)}
+                                aria-label={`Select condition at t=${time}s`}
+                              />
+                            </td>
+                            <td className="px-4 py-2 font-mono">{time}</td>
+                            <td className="px-4 py-2 font-mono">{evolving.temperature[index]}</td>
+                            <td className="px-4 py-2 font-mono">{evolving.pressure[index]}</td>
+                            {hasDensityColumn && (
+                              <td className="px-4 py-2 font-mono">
+                                {density != null ? density : '—'}
+                              </td>
+                            )}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            })()
           )}
         </CardContent>
       </Card>
