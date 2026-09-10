@@ -3,6 +3,7 @@ import { Card, CardContent } from '../ui/card'
 import { Button } from '../ui/button'
 import {
   TimeTab,
+  EnvironmentTab,
   InitialConditionsTab,
   EvolvingConditionsTab,
   ReviewTab,
@@ -10,13 +11,14 @@ import {
 
 /**
  * ConditionsPage Component
- * Main page for configuring simulation conditions with 4 tabs
+ * Main page for configuring simulation conditions with 5 tabs
  */
 export function ConditionsPage() {
-  const [activeTab, setActiveTab] = useState('time') // 'time' | 'initial' | 'evolving' | 'review'
+  const [activeTab, setActiveTab] = useState('time') // 'time' | 'environment' | 'initial' | 'evolving' | 'review'
 
   const tabs = [
     { id: 'time', label: 'Time', component: TimeTab },
+    { id: 'environment', label: 'Environment', component: EnvironmentTab },
     { id: 'initial', label: 'Initial', component: InitialConditionsTab },
     { id: 'evolving', label: 'Evolving', component: EvolvingConditionsTab },
     { id: 'review', label: 'Review', component: ReviewTab },
