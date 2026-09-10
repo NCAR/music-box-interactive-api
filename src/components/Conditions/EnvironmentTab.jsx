@@ -128,7 +128,7 @@ export function EnvironmentTab() {
     if (evolving.times.includes(time)) {
       toast({
         title: 'Duplicate Time Point',
-        description: `A condition already exists at t=${rawTime} ${timeUnit.label}`,
+        description: `A condition already exists at t=${rawTime} ${timeUnit.label.toLowerCase()}`,
         variant: 'destructive',
       })
       return
@@ -162,7 +162,7 @@ export function EnvironmentTab() {
 
     toast({
       title: 'Condition Added',
-      description: `Added condition at t=${rawTime}${timeUnit.label}`,
+      description: `Added condition at time ${rawTime} ${timeUnit.label.toLowerCase()}`,
       variant: 'success',
     })
 
@@ -219,19 +219,19 @@ export function EnvironmentTab() {
   const parsedNewTime = parseFloat(newTime)
   const timeConversion =
     unitIds.time !== 'seconds' && newTime.trim() !== '' && !isNaN(parsedNewTime)
-      ? `= ${formatConversion(parsedNewTime * getUnit(TIME_RANGE_UNITS, unitIds.time).divisor)} seconds`
+      ? `${formatConversion(parsedNewTime * getUnit(TIME_RANGE_UNITS, unitIds.time).divisor)} seconds`
       : null
 
   const parsedNewTemperature = parseFloat(newTemperature)
   const temperatureConversion =
     unitIds.temperature !== 'K' && newTemperature.trim() !== '' && !isNaN(parsedNewTemperature)
-      ? `= ${formatConversion(toKelvin(parsedNewTemperature, unitIds.temperature))} K`
+      ? `${formatConversion(toKelvin(parsedNewTemperature, unitIds.temperature))} K`
       : null
 
   const parsedNewPressure = parseFloat(newPressure)
   const pressureConversion =
     unitIds.pressure !== 'Pa' && newPressure.trim() !== '' && !isNaN(parsedNewPressure)
-      ? `= ${formatConversion(parsedNewPressure * getUnit(PRESSURE_UNITS, unitIds.pressure).divisor)} Pa`
+      ? `${formatConversion(parsedNewPressure * getUnit(PRESSURE_UNITS, unitIds.pressure).divisor)} Pa`
       : null
 
   return (
@@ -388,9 +388,9 @@ export function EnvironmentTab() {
               const allSelected = selectedIndices.size === evolving.times.length
 
               return (
-                <div className="border border-white/20 rounded-lg overflow-auto">
+                <div className="border border-gray-200 rounded-lg overflow-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-white/10 backdrop-blur-lg border-b border-white/20">
+                    <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="w-10 px-4 py-2">
                           <input
@@ -413,7 +413,7 @@ export function EnvironmentTab() {
                         const density = densitySeries?.[index]
 
                         return (
-                          <tr key={index} className="border-b border-white/10 hover:bg-white/10">
+                          <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
                             <td className="px-4 py-2">
                               <input
                                 type="checkbox"
