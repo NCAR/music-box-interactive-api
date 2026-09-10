@@ -108,7 +108,7 @@ export function TimeTab() {
         </CardContent>
       </Card>
 
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-2 text-[13px] text-gray-700">
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-[13px] text-gray-700">
         <p className="font-semibold mb-1 flex items-center gap-2">
           <PencilLine className="w-4 h-4" />
           Summary:
