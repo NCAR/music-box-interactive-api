@@ -362,14 +362,13 @@ export function EnvironmentTab() {
               <CardTitle>
                 {evolving.times.length} condition{evolving.times.length === 1 ? '' : 's'}
               </CardTitle>
-              <CardDescription>Conditions added, sorted by time</CardDescription>
             </div>
             {selectedIndices.size > 0 && (
               <Button
                 variant="glass"
                 size="sm"
                 onClick={handleRemoveSelected}
-                className="rounded-lg text-red-600 hover:bg-red-900/20 backdrop-blur-lg flex-shrink-0"
+                className="rounded-lg bg-white text-red-600 hover:bg-red-50 flex-shrink-0"
               >
                 Remove selected ({selectedIndices.size})
               </Button>
@@ -390,7 +389,7 @@ export function EnvironmentTab() {
               return (
                 <div className="border border-gray-200 rounded-lg overflow-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-assist-secondary text-assist-secondary-foreground">
                       <tr>
                         <th className="w-10 px-4 py-2">
                           <input
@@ -398,6 +397,7 @@ export function EnvironmentTab() {
                             checked={allSelected}
                             onChange={toggleSelectAll}
                             aria-label="Select all conditions"
+                            className="accent-green-700"
                           />
                         </th>
                         <th className="text-left px-4 py-2 font-semibold">Time (s)</th>
@@ -420,14 +420,19 @@ export function EnvironmentTab() {
                                 checked={selectedIndices.has(index)}
                                 onChange={() => toggleSelected(index)}
                                 aria-label={`Select condition at t=${time}s`}
+                                className="accent-green-700"
                               />
                             </td>
-                            <td className="px-4 py-2 font-mono">{time}</td>
-                            <td className="px-4 py-2 font-mono">{evolving.temperature[index]}</td>
-                            <td className="px-4 py-2 font-mono">{evolving.pressure[index]}</td>
+                            <td className="px-4 py-2 font-mono">{formatConversion(time)}</td>
+                            <td className="px-4 py-2 font-mono">
+                              {formatConversion(evolving.temperature[index])}
+                            </td>
+                            <td className="px-4 py-2 font-mono">
+                              {formatConversion(evolving.pressure[index])}
+                            </td>
                             {hasDensityColumn && (
                               <td className="px-4 py-2 font-mono">
-                                {density != null ? density : '—'}
+                                {density != null ? formatConversion(density) : '—'}
                               </td>
                             )}
                           </tr>
