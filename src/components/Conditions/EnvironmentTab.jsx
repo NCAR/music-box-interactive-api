@@ -194,7 +194,7 @@ export function EnvironmentTab() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="w-72 mx-auto">
-            <label className={FIELD_LABEL}>Time</label>
+            <label className={FIELD_LABEL}>Time point</label>
             <div className="flex flex-col gap-2">
               <UnitDropdown
                 unitId={unitIds.time}
