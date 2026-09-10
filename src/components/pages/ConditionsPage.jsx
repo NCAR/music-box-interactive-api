@@ -49,11 +49,14 @@ export function ConditionsPage() {
       </Card>
 
       {/* Tab Content — all tabs stay mounted so switching away and back doesn't reset local state */}
-      {tabs.map(({ id, component: TabComponent }) => (
-        <div key={id} className={activeTab === id ? '' : 'hidden'}>
-          <TabComponent />
-        </div>
-      ))}
+      {tabs.map((tab) => {
+        const TabComponent = tab.component
+        return (
+          <div key={tab.id} className={activeTab === tab.id ? '' : 'hidden'}>
+            <TabComponent />
+          </div>
+        )
+      })}
     </div>
   )
 }
