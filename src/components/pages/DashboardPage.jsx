@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import ExampleLoader from '../ExampleLoader'
-import SimulationStatus from '../SimulationStatus'
 import CurrentExampleIndicator from '../CurrentExampleIndicator'
 import {
   resetMechanism,
@@ -39,7 +38,6 @@ export function DashboardPage() {
   const fileInputRef = useRef(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [showExamples, setShowExamples] = useState(false)
-  const [showSimulationStatus, setShowSimulationStatus] = useState(false)
 
   const handleCopyInstallCommand = async (command) => {
     try {
@@ -66,9 +64,8 @@ export function DashboardPage() {
     dispatch(resetConditions())
     dispatch(setExampleLoaded(false))
     dispatch(setSelectedMechanism('custom'))
-    // hide examples/status on fresh start
+    // hide examples on fresh start
     setShowExamples(false)
-    setShowSimulationStatus(false)
     toast({
       title: 'Started Fresh!',
       description: 'Add species in the Mechanism section.',
@@ -171,9 +168,8 @@ export function DashboardPage() {
         // Preserve source conditions object for solver input.
         dispatch(setConditions(config.conditions))
 
-        // hide examples/status when loading config
+        // hide examples when loading config
         setShowExamples(false)
-        setShowSimulationStatus(false)
 
         toast({
           variant: 'success',
@@ -270,7 +266,7 @@ export function DashboardPage() {
                 </div>
                 <h3 className="font-bold text-sm">Configure Conditions</h3>
                 <p className="text-xs text-gray-700">
-                  Set temperature, pressure, and initial concentrations on the{' '}
+                  Configure environmental, concentration, and reaction rate conditions on the{' '}
                   <strong>Conditions</strong> page.
                 </p>
               </div>
@@ -292,9 +288,7 @@ export function DashboardPage() {
                   4
                 </div>
                 <h3 className="font-bold text-sm">View Results</h3>
-                <p className="text-xs text-gray-700">
-                  Visualize and export concentration profiles on the <strong>Results</strong> page.
-                </p>
+                <p className="text-xs text-gray-700">Visualize concentraitoions, envrionmental profiles, and integrated reaction rates.</p>
               </div>
             </div>
           </div>
@@ -361,7 +355,6 @@ export function DashboardPage() {
                 onClick={() => {
                   const newShowState = !showExamples
                   setShowExamples(newShowState)
-                  setShowSimulationStatus(newShowState)
                   if (newShowState) {
                     // Scroll to examples section after a short delay to allow rendering
                     setTimeout(() => {
@@ -413,9 +406,6 @@ export function DashboardPage() {
 
       {/* Current Example Indicator */}
       {/* <CurrentExampleIndicator /> */}
-
-      {/* Simulation Status - Hidden by default, shown when Browse Examples is clicked */}
-      {showSimulationStatus && <SimulationStatus />}
 
       {/* Example Loader - Hidden by default, shown when Browse Examples is clicked */}
       {showExamples && (
