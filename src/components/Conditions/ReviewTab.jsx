@@ -250,16 +250,16 @@ export function ReviewTab() {
           <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
             <Button
               onClick={handleDownloadJSON}
-              variant="glass"
-              className="flex-1 rounded-2xl bg-gradient-to-r from-action to-action-hover hover:opacity-90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-xs xs:text-sm sm:text-base px-3 xs:px-4 py-2 xs:py-2.5"
+              variant="primary"
+              className="flex-1 text-xs xs:text-sm sm:text-base px-3 xs:px-4 py-2 xs:py-2.5"
             >
               <Download className="w-3 h-3 xs:w-4 xs:h-4 mr-1.5 xs:mr-2" />
               <span className="truncate">Download Configuration</span>
             </Button>
             <Button
               onClick={handleCopyToClipboard}
-              variant="glass"
-              className="flex-1 rounded-2xl border-2 text-xs xs:text-sm sm:text-base px-3 xs:px-4 py-2 xs:py-2.5"
+              variant="secondary"
+              className="flex-1 text-xs xs:text-sm sm:text-base px-3 xs:px-4 py-2 xs:py-2.5"
             >
               <Copy className="w-3 h-3 xs:w-4 xs:h-4 mr-1.5 xs:mr-2" />
               <span className="truncate">Copy to Clipboard</span>
