@@ -1,5 +1,3 @@
-// Temperature conversions are affine (not a pure ratio like time/pressure), so they get
-// their own toKelvin/fromKelvin helpers instead of the divisor model in timeRangeUnits.js.
 export const TEMPERATURE_UNITS = [
   { id: 'K', label: 'K' },
   { id: 'C', label: '°C' },

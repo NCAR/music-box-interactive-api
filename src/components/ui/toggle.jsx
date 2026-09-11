@@ -1,5 +1,4 @@
-// Track/thumb dimensions and the thumb's "on" offset, keeping a consistent 2px inset
-// on both sides of the track at every size.
+// Track/thumb dimensions and the thumb's "on" offset.
 const SIZES = {
   default: { track: 'h-6 w-11', thumb: 'h-5 w-5', on: 'translate-x-[1.375rem]' },
   sm: { track: 'h-5 w-9', thumb: 'h-4 w-4', on: 'translate-x-[1.125rem]' },

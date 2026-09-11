@@ -3,9 +3,10 @@ import { ChevronDown, Check } from 'lucide-react'
 import { useClickOutside } from '../../hooks/useClickOutside'
 import { TIME_RANGE_UNITS } from './timeRangeUnits'
 
-// Shared unit picker for fields that support choosing among a small set of units
-// (the Flux tab's time range, the Conditions tab's duration/time step/output time step,
-// and non-time units like temperature/pressure via the `units` prop).
+// Shared unit picker for fields
+// Flux tab's time range
+// Conditions tab's duration/time step/output time step
+// Environment tabs' temperature/pressure/air density
 export function UnitDropdown({
   unitId,
   onChange,

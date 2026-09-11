@@ -18,16 +18,15 @@ import { PRESSURE_UNITS } from '../Plots/pressureUnits'
 import { DENSITY_UNITS } from '../Plots/densityUnits'
 import { LIST_CARD, LIST_CARD_CONTENT, FIELD_LABEL } from '../Mechanism/fieldStyles'
 
-// Air density is optional, so its values live in the evolving slice's generic
-// additionalSeries map (the same place hidden series like PHOTO.* are kept) instead of
+// Air density is optional, so its values are stored in the evolving slice's generic
+// additionalSeries map, alongside hidden series like PHOTO.*, instead of
 // getting a dedicated array field.
 const DENSITY_SERIES_KEY = 'AIR.density.kg_m3'
 
-// Unlike the Species editor's equal-width columns, the left column here shrinks to its
-// content (matching TimeTab) and the right column grows to take up the freed space.
+// Unlike the Species editor's equal-width columns, the left column fits its content (like TimeTab),
+// while the right column expands to fill the remaining space.
 const EDITOR_GRID = 'grid grid-cols-1 gap-4 lg:grid-cols-[auto_1fr] lg:items-start'
 
-// Matches TimeTab's field sizing so both tabs' dropdown/input boxes line up.
 const NUMBER_INPUT =
   'w-72 h-9 px-2 border border-gray-400 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm text-center font-mono focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
 
@@ -35,7 +34,7 @@ const DROPDOWN_WRAPPER = 'relative w-72 flex-shrink-0'
 const DROPDOWN_BUTTON =
   'flex items-center gap-1 w-full h-9 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50'
 
-// Matches each field's placeholder; used when the user leaves that field blank.
+// Matches each field's placeholder when the field is left blank.
 const DEFAULT_TIME = 0
 const DEFAULT_TEMPERATURE = 298.15
 const DEFAULT_PRESSURE = 101325
@@ -45,7 +44,6 @@ function getUnit(units, unitId) {
   return units.find((u) => u.id === unitId) ?? units[0]
 }
 
-// Trims float noise (e.g. 1.5 * 3600 -> "5400" instead of "5400.000000001").
 function formatConversion(value, decimals = 4) {
   return String(parseFloat(value.toFixed(decimals)))
 }
@@ -92,12 +90,16 @@ export function EnvironmentTab() {
   const [selectedIndices, setSelectedIndices] = useState(new Set())
 
   const handleAdd = () => {
-    const rawTime = newTime.trim() === '' ? DEFAULT_TIME : parseFloat(newTime)
-    const rawTemperature =
-      newTemperature.trim() === '' ? DEFAULT_TEMPERATURE : parseFloat(newTemperature)
-    const rawPressure = newPressure.trim() === '' ? DEFAULT_PRESSURE : parseFloat(newPressure)
+    const timeIsBlank = newTime.trim() === ''
+    const temperatureIsBlank = newTemperature.trim() === ''
+    const pressureIsBlank = newPressure.trim() === ''
+    const densityIsBlank = newDensity.trim() === ''
+
+    const rawTime = timeIsBlank ? DEFAULT_TIME : parseFloat(newTime)
+    const rawTemperature = temperatureIsBlank ? DEFAULT_TEMPERATURE : parseFloat(newTemperature)
+    const rawPressure = pressureIsBlank ? DEFAULT_PRESSURE : parseFloat(newPressure)
     const rawDensity = densityEnabled
-      ? newDensity.trim() === ''
+      ? densityIsBlank
         ? DEFAULT_DENSITY
         : parseFloat(newDensity)
       : null
@@ -120,10 +122,14 @@ export function EnvironmentTab() {
     const pressureUnit = getUnit(PRESSURE_UNITS, unitIds.pressure)
     const densityUnit = getUnit(DENSITY_UNITS, unitIds.density)
 
-    const time = rawTime * timeUnit.divisor
-    const temperature = toKelvin(rawTemperature, unitIds.temperature)
-    const pressure = rawPressure * pressureUnit.divisor
-    const density = densityEnabled ? rawDensity * densityUnit.divisor : null
+    // Blank fields fall back to a default already expressed in base units (seconds/K/Pa/kg·m⁻³),
+    // so it must bypass unit conversion rather than being treated as a value in the selected unit.
+    const time = timeIsBlank ? rawTime : rawTime * timeUnit.divisor
+    const temperature = temperatureIsBlank
+      ? rawTemperature
+      : toKelvin(rawTemperature, unitIds.temperature)
+    const pressure = pressureIsBlank ? rawPressure : rawPressure * pressureUnit.divisor
+    const density = densityEnabled ? (densityIsBlank ? rawDensity : rawDensity * densityUnit.divisor) : null
 
     if (evolving.times.includes(time)) {
       toast({
@@ -215,7 +221,7 @@ export function EnvironmentTab() {
     setSelectedIndices(new Set())
   }
 
-  // Live "will be stored as" hints, shown only when a non-base unit is selected.
+  // Live “stored as” hints, shown only for non-base units.
   const parsedNewTime = parseFloat(newTime)
   const timeConversion =
     unitIds.time !== 'seconds' && newTime.trim() !== '' && !isNaN(parsedNewTime)
