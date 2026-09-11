@@ -416,9 +416,8 @@ export function EvolvingConditionsTab() {
               </CardDescription>
             </div>
             <Button
-              variant={evolving.enabled ? 'action' : 'glass'}
+              variant={evolving.enabled ? 'primary' : 'secondary'}
               onClick={handleToggleEvolving}
-              className="rounded-2xl"
             >
               {evolving.enabled ? 'Enabled ✓' : 'Disabled'}
             </Button>
@@ -427,7 +426,7 @@ export function EvolvingConditionsTab() {
 
         <CardContent className="space-y-4">
           {!evolving.enabled ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted">
               <p className="text-sm">Enable evolving conditions to define time-series data</p>
               <p className="text-xs mt-2">
                 When disabled, initial conditions will be used throughout the simulation
@@ -436,20 +435,20 @@ export function EvolvingConditionsTab() {
           ) : (
             <>
               {/* Interpolation Method Selector */}
-              <div className="p-4 bg-white/5 backdrop-blur-lg rounded-xl border border-white/20">
-                <label className="block text-xs font-semibold text-blue-900 mb-2">
+              <div className="p-4 bg-surface-alt backdrop-blur-lg rounded-xl border border-border">
+                <label className="block text-xs font-semibold text-ink mb-2">
                   Interpolation Method
                 </label>
                 <select
                   value={evolving.interpolationMethod || 'linear'}
                   onChange={(e) => dispatch(setInterpolationMethod(e.target.value))}
-                  className="w-full px-3 py-2 border-2 border-white/30 bg-white/10 text-gray-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full px-3 py-2 border-2 border-border bg-white text-ink rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-action"
                 >
                   <option value="linear">Linear - Smooth transition between points</option>
                   <option value="step">Step - Hold value until next point</option>
                   <option value="cubic">Cubic - Smooth curves (future feature)</option>
                 </select>
-                <p className="text-xs text-gray-600 mt-2">
+                <p className="text-xs text-muted mt-2">
                   {evolving.interpolationMethod === 'linear' &&
                     'Values are interpolated linearly between time points'}
                   {evolving.interpolationMethod === 'step' &&
@@ -469,20 +468,20 @@ export function EvolvingConditionsTab() {
                   className="hidden"
                 />
                 <Button
-                  variant="glass"
+                  variant="secondary"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-lg flex-1"
+                  className="flex-1"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   Import CSV
                 </Button>
                 <Button
-                  variant="glass"
+                  variant="secondary"
                   size="sm"
                   onClick={handleCSVExport}
                   disabled={evolving.times.length === 0}
-                  className="rounded-lg flex-1"
+                  className="flex-1"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
@@ -490,14 +489,14 @@ export function EvolvingConditionsTab() {
               </div>
 
               {/* Add Time Point Form */}
-              <div className="p-4 bg-white/0 backdrop-blur-lg rounded-xl border-2 border-white/20">
-                <h4 className="font-bold text-sm mb-3 text-blue-900 flex items-center gap-2">
+              <div className="p-4 backdrop-blur-lg rounded-xl border-2 border-border">
+                <h4 className="font-bold text-sm mb-3 text-ink flex items-center gap-2">
                   <Plus className="w-4 h-4" />
                   Add Time Point Manually
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">
+                    <label className="block text-xs font-semibold text-ink mb-1">
                       Time (seconds)
                     </label>
                     <input
@@ -505,11 +504,11 @@ export function EvolvingConditionsTab() {
                       value={newTime}
                       onChange={(e) => setNewTime(e.target.value)}
                       placeholder="0"
-                      className="w-full px-2 py-2 border-2 border-white/30 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="w-full px-2 py-2 border-2 border-border bg-white text-ink placeholder:text-muted rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">
+                    <label className="block text-xs font-semibold text-ink mb-1">
                       Temperature (K)
                     </label>
                     <input
@@ -517,11 +516,11 @@ export function EvolvingConditionsTab() {
                       value={newTemp}
                       onChange={(e) => setNewTemp(e.target.value)}
                       placeholder="298.15"
-                      className="w-full px-2 py-2 border-2 border-white/30 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="w-full px-2 py-2 border-2 border-border bg-white text-ink placeholder:text-muted rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">
+                    <label className="block text-xs font-semibold text-ink mb-1">
                       Pressure (Pa)
                     </label>
                     <input
@@ -529,15 +528,15 @@ export function EvolvingConditionsTab() {
                       value={newPress}
                       onChange={(e) => setNewPress(e.target.value)}
                       placeholder="101325"
-                      className="w-full px-2 py-2 border-2 border-white/30 bg-white/10 text-gray-900 placeholder:text-gray-500 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="w-full px-2 py-2 border-2 border-border bg-white text-ink placeholder:text-muted rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action"
                     />
                   </div>
                 </div>
                 <Button
                   onClick={handleAddTimePoint}
-                  variant="assist"
+                  variant="primary"
                   size="default"
-                  className="w-full mt-3 rounded-2xl"
+                  className="w-full mt-3"
                 >
                   Add Time Point
                 </Button>
@@ -556,10 +555,10 @@ export function EvolvingConditionsTab() {
                           conditions
                         </p>
                         <Button
-                          variant="glass"
+                          variant="secondary"
                           size="sm"
                           onClick={handleAutoSuggestStart}
-                          className="mt-2 rounded-lg text-xs"
+                          className="mt-2 text-xs"
                         >
                           Add Start Point (t=0s)
                         </Button>
@@ -576,10 +575,10 @@ export function EvolvingConditionsTab() {
                           Conditions will be extrapolated.
                         </p>
                         <Button
-                          variant="glass"
+                          variant="secondary"
                           size="sm"
                           onClick={handleAutoSuggestEnd}
-                          className="mt-2 rounded-lg text-xs"
+                          className="mt-2 text-xs"
                         >
                           Add End Point (t={basicConditions.duration}s)
                         </Button>
@@ -608,13 +607,13 @@ export function EvolvingConditionsTab() {
               <div>
                 <h4 className="font-semibold text-sm mb-2">Configured Time Points</h4>
                 {evolving.times.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8 text-sm">
+                  <p className="text-center text-muted py-8 text-sm">
                     No time points configured. Add your first time point above.
                   </p>
                 ) : (
-                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                  <div className="border border-border rounded-lg overflow-hidden">
                     <table className="w-full text-sm">
-                      <thead className="bg-white/10 backdrop-blur-lg border-b border-white/20">
+                      <thead className="bg-surface-alt backdrop-blur-lg border-b border-border">
                         <tr>
                           <th className="text-left px-4 py-2 font-semibold">Time (s)</th>
                           <th className="text-left px-4 py-2 font-semibold">Temperature (K)</th>
@@ -624,26 +623,25 @@ export function EvolvingConditionsTab() {
                       </thead>
                       <tbody>
                         {evolving.times.map((time, index) => (
-                          <tr key={index} className="border-b border-white/10 hover:bg-white/10">
+                          <tr key={index} className="border-b border-border hover:bg-surface-hover">
                             <td className="px-4 py-2 font-mono">{time}</td>
                             <td className="px-4 py-2 font-mono">
                               {evolving.temperature[index]}
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-muted ml-2">
                                 ({(evolving.temperature[index] - 273.15).toFixed(1)}°C)
                               </span>
                             </td>
                             <td className="px-4 py-2 font-mono">
                               {evolving.pressure[index]}
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-muted ml-2">
                                 ({(evolving.pressure[index] / 101325).toFixed(2)} atm)
                               </span>
                             </td>
                             <td className="px-4 py-2 text-right">
                               <Button
-                                variant="glass"
+                                variant="destructive"
                                 size="sm"
                                 onClick={() => handleRemoveTimePoint(index)}
-                                className="rounded-lg text-red-600 hover:bg-red-900/20 backdrop-blur-lg"
                               >
                                 Remove
                               </Button>
@@ -660,7 +658,7 @@ export function EvolvingConditionsTab() {
         </CardContent>
       </Card>
 
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 text-xs text-gray-700">
+      <div className="bg-surface-alt backdrop-blur-lg border border-border rounded-lg p-3 text-xs text-ink">
         <p className="font-semibold mb-1 flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
           Important Notes:
