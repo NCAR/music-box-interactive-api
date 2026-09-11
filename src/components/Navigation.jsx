@@ -1,22 +1,34 @@
+/* global __APP_VERSION__ */
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Home, BookOpen, Atom, Settings, BarChart3, ArrowLeft } from 'lucide-react'
+import { Home, Atom, Settings, BarChart3, Info, Mail } from 'lucide-react'
 import RunSimulationButton from './RunSimulationButton'
 
 /**
  * Navigation Component
  * Responsive sidebar navigation with mobile hamburger menu
  */
-export function Navigation({ onBackToHome = null }) {
+export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navLinks = [
     { to: '/', label: 'Dashboard', Icon: Home },
-    { to: '/guide', label: 'Guide', Icon: BookOpen },
     { to: '/mechanism', label: 'Mechanism', Icon: Atom },
     { to: '/conditions', label: 'Conditions', Icon: Settings },
     { to: '/plots', label: 'Results', Icon: BarChart3 },
   ]
+
+  const infoLinks = [
+    { to: '/about', label: 'About', Icon: Info },
+    { to: '/contact', label: 'Contact', Icon: Mail },
+  ]
+
+  const navLinkClassName = ({ isActive }) =>
+    `flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 font-medium text-sm sm:text-base border-l-4 transition-all duration-300 ${
+      isActive
+        ? 'border-location text-location-foreground font-semibold'
+        : 'border-transparent text-ink hover:bg-surface-hover'
+    }`
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
@@ -71,19 +83,15 @@ export function Navigation({ onBackToHome = null }) {
       >
         {/* Logo Section */}
         <div className="p-4 sm:p-5 md:p-6 border-b border-border">
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-right">MUSIC BOX</h1>
-          <p className="text-xs sm:text-sm md:text-base text-muted mt-1 sm:mt-2 text-right">
-            Atmospheric
-            <br />
-            Chemistry
-            <br />
-            Simulation
-          </p>
+          <h1 className="text-base sm:text-lg md:text-xl font-bold text-heading text-right [font-variant:small-caps]">
+            Music Box Interactive
+          </h1>
+          <p className="text-xs text-muted text-right mt-0.5">v{__APP_VERSION__}</p>
         </div>
 
         {/* Navigation Links */}
         <div className="flex-1 py-4 sm:py-5 md:py-6 px-3 sm:px-4 space-y-2 overflow-y-auto">
-          {navLinks.slice(0, 4).map((link) => {
+          {navLinks.slice(0, 3).map((link) => {
             const IconComponent = link.Icon
             return (
               <NavLink
@@ -91,13 +99,7 @@ export function Navigation({ onBackToHome = null }) {
                 to={link.to}
                 end={link.to === '/'}
                 onClick={closeMobileMenu}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 ${
-                    isActive
-                      ? 'bg-location text-location-foreground font-semibold'
-                      : 'text-ink hover:bg-surface-hover'
-                  }`
-                }
+                className={navLinkClassName}
               >
                 <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                 <span className="truncate">{link.label}</span>
@@ -110,14 +112,14 @@ export function Navigation({ onBackToHome = null }) {
 
           {/* Run Simulation Button */}
           <div className="px-1 sm:px-2">
-            <RunSimulationButton className="w-full text-sm sm:text-base" />
+            <RunSimulationButton className="w-full px-2 text-sm sm:text-base whitespace-nowrap" />
           </div>
 
           {/* Separator Line */}
           <div className="border-t border-border my-3 sm:my-4"></div>
 
           {/* Results Link */}
-          {navLinks.slice(4).map((link) => {
+          {navLinks.slice(3).map((link) => {
             const IconComponent = link.Icon
             return (
               <NavLink
@@ -125,13 +127,7 @@ export function Navigation({ onBackToHome = null }) {
                 to={link.to}
                 end={link.to === '/'}
                 onClick={closeMobileMenu}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 ${
-                    isActive
-                      ? 'bg-location text-location-foreground font-semibold'
-                      : 'text-ink hover:bg-surface-hover'
-                  }`
-                }
+                className={navLinkClassName}
               >
                 <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                 <span className="truncate">{link.label}</span>
@@ -140,21 +136,40 @@ export function Navigation({ onBackToHome = null }) {
           })}
         </div>
 
-        {/* Exit Button */}
-        {onBackToHome && (
-          <div className="p-3 sm:p-4 border-t border-border">
-            <button
-              onClick={() => {
-                closeMobileMenu()
-                onBackToHome()
-              }}
-              className="w-full px-4 py-2.5 sm:py-3 rounded-full font-medium text-sm sm:text-base bg-transparent text-danger hover:bg-caution transition-colors duration-200 flex items-center justify-center space-x-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Exit App</span>
-            </button>
+        {/* About / Contact */}
+        <div className="px-3 sm:px-4 py-2 space-y-2 border-t border-border">
+          {infoLinks.map((link) => {
+            const IconComponent = link.Icon
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                onClick={closeMobileMenu}
+                className={navLinkClassName}
+              >
+                <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                <span className="truncate">{link.label}</span>
+              </NavLink>
+            )
+          })}
+        </div>
+
+        {/* ACOM Logo */}
+        <div className="border-t border-border">
+          <div className="p-3 sm:p-4">
+            <img
+              src="/logos/ACOM-color-vertical.png"
+              alt="ACOM Laboratory"
+              className="h-16 sm:h-20 w-auto mx-auto"
+            />
           </div>
-        )}
+          <img
+            src="/waves/NCAR-waves-narrow-fill.png"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-14 sm:h-16 object-cover object-top pointer-events-none"
+          />
+        </div>
       </nav>
     </>
   )
