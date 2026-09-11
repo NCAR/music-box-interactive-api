@@ -9,7 +9,7 @@ export function UnitDropdown({
   unitId,
   onChange,
   wrapperClassName = 'relative',
-  buttonClassName = 'flex items-center gap-1 w-full h-8 px-2 border border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-50',
+  buttonClassName = 'flex items-center gap-1 w-full h-8 px-2 border border-border rounded-lg text-sm text-ink hover:bg-surface-hover',
   centerLabel = false,
 }) {
   const [open, setOpen] = useState(false)
@@ -28,7 +28,7 @@ export function UnitDropdown({
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg py-1">
+        <div className="absolute z-10 mt-1 w-full bg-white border border-border rounded-lg shadow-lg py-1">
           {TIME_RANGE_UNITS.map((u) => (
             <button
               key={u.id}
@@ -37,7 +37,7 @@ export function UnitDropdown({
                 onChange(u.id)
                 setOpen(false)
               }}
-              className="w-full flex items-center gap-2 text-left text-sm px-3 py-1.5 text-gray-800 hover:bg-gray-100"
+              className="w-full flex items-center gap-2 text-left text-sm px-3 py-1.5 text-ink hover:bg-surface-hover"
             >
               <Check
                 className={`w-3.5 h-3.5 flex-shrink-0 ${
